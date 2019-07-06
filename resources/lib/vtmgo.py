@@ -59,20 +59,26 @@ class Category:
 
 
 class Content:
-    ''' An item in the content '''
     CONTENT_TYPE_MOVIE = 'MOVIE'
     CONTENT_TYPE_PROGRAM = 'PROGRAM'
 
-    def __init__(self):
-        pass
+    def __init__(self, id=None, title=None, description=None, cover=None, type=None):
+        """
+        Defines a Category from the Catalogue.
+        :type id: string
+        :type title: string
+        :type description: string
+        :type cover: string
+        :type type: string
+        """
+        self.id = id
+        self.title = title
+        self.description = description
+        self.cover = cover
+        self.type = type
 
     def __repr__(self):
         return "%r" % self.__dict__
-
-    id = None
-    title = None
-    description = None
-    type = None
 
 
 class Movie:
@@ -196,12 +202,12 @@ class VtmGo:
 
         items = []
         for item in info['pagedTeasers']['content']:
-            content = Content()
-            content.id = item['target']['id']
-            content.title = item['title']
-            content.cover = item['imageUrl']
-            content.type = item['target']['type']
-            items.append(content)
+            items.append(Content(
+                id=item['target']['id'],
+                title=item['title'],
+                cover=item['imageUrl'],
+                type=item['target']['type'],
+            ))
 
         return items
 

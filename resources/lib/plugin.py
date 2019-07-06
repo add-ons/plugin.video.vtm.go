@@ -21,11 +21,6 @@ plugin = routing.Plugin()
 
 @plugin.route('/')
 def index():
-    # # Show addon settings when settings are missing.
-    # if not kodiutils.get_setting('username') or not kodiutils.get_setting('password'):
-    #     kodiutils.show_settings()
-    #     return
-
     item = ListItem('Live TV', offscreen=True)
     item.setArt({'icon': 'DefaultAddonPVRClient.png'})
     item.setInfo('video', {
@@ -67,15 +62,21 @@ def show_live():
         })
 
         description = ''
-        if channel.epg[0]:
-            description = 'Now: ' + channel.epg[0].start.strftime('%H:%M') + ' - ' + channel.epg[0].end.strftime('%H:%M') + '\n'
-            description += channel.epg[0].title + '\n'
-            description += '\n'
+        try:
+            if channel.epg[0]:
+                description = 'Now: ' + channel.epg[0].start.strftime('%H:%M') + ' - ' + channel.epg[0].end.strftime('%H:%M') + '\n'
+                description += channel.epg[0].title + '\n'
+                description += '\n'
+        except IndexError:
+            pass
 
-        if channel.epg[1]:
-            description += 'Next: ' + channel.epg[1].start.strftime('%H:%M') + ' - ' + channel.epg[1].end.strftime('%H:%M') + '\n'
-            description += channel.epg[1].title + '\n'
-            description += '\n'
+        try:
+            if channel.epg[1]:
+                description += 'Next: ' + channel.epg[1].start.strftime('%H:%M') + ' - ' + channel.epg[1].end.strftime('%H:%M') + '\n'
+                description += channel.epg[1].title + '\n'
+                description += '\n'
+        except IndexError:
+            pass
 
         listitem.setInfo('video', {
             'plot': description,

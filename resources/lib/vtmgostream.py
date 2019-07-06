@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 import json
 import logging
+import random
 import re
 from urllib import urlencode, quote
 
@@ -28,6 +29,62 @@ class VtmGoStream:
 
     def __init__(self):
         self._session = requests.session()
+
+    def get_stream(self, type, id):
+        # We begin with asking vtm about the stream info.
+        stream_info = self._get_stream_info(type, id)
+
+        # Extract the anvato stream from our stream_info.
+        anvato_info = self._extract_anvato_stream_from_stream_info(stream_info)
+
+        # Ask the anvacks to know where we have to send our requests. (I hardcoded this for now)
+        # anv_acks = self._anvato_get_anvacks(anvato_info['accessKey'])
+
+        # Get the server time. (We don't seem to need this)
+        # server_time = self._anvato_get_server_time(anvato_info['accessKey'])
+
+        # Send a request for the stream info.
+        anvato_stream_info = self._anvato_get_stream_info(anvato_info['video'], anvato_info['accessKey'], anvato_info['token'])
+
+        # Get published urls.
+        url = anvato_stream_info['published_urls'][0]['embed_url']
+        license_url = anvato_stream_info['published_urls'][0]['license_url']
+
+        # Try to resolve the manifest so we get a playable url.
+        url = self._resolve_manifest(url)
+
+        if type == 'episodes':
+            # TV episode
+            return ResolvedStream(
+                program=stream_info['video']['metadata']['program']['title'],
+                title=stream_info['video']['metadata']['title'],
+                duration=stream_info['video']['duration'],
+                url=url,
+                license_url=license_url,
+                cookies=self._session.cookies.get_dict()
+            )
+        elif type == 'movies':
+            # Movie
+            return ResolvedStream(
+                program=None,
+                title=stream_info['video']['metadata']['title'],
+                duration=stream_info['video']['duration'],
+                url=url,
+                license_url=license_url,
+                cookies=self._session.cookies.get_dict()
+            )
+        elif type == 'channels':
+            # Live TV
+            return ResolvedStream(
+                program=None,
+                title=stream_info['video']['metadata']['title'],
+                duration=None,
+                url=url,
+                license_url=license_url,
+                cookies=self._session.cookies.get_dict()
+            )
+
+        raise Exception('Unhandled videoType')
 
     def _get_stream_info(self, type, id):
         url = 'https://videoplayer-service.api.persgroep.cloud/config/' + type + '/' + id
@@ -81,7 +138,7 @@ class VtmGoStream:
         response = self._session.get(url,
                                      params={
                                          'anvack': access_key,
-                                         'anvtrid': 'a75d3ff3CqOczyShptWVlYMQrP3P7c8G',  # This seems to be some sort of tracking id. TODO: randomize
+                                         'anvtrid': self._generate_tracking_id(),
                                      },
                                      headers={
                                          'X-Anvato-User-Agent': self._ANVATO_USER_AGENT,
@@ -124,7 +181,7 @@ class VtmGoStream:
                                       },
                                       params={
                                           'anvack': access_key,
-                                          'anvtrid': 'a75d3ff3CqOczyShptWVlYMQrP3P7c8C',  # This seems to be some sort of tracking id. TODO: randomize
+                                          'anvtrid': self._generate_tracking_id(),
                                           'rtyp': 'fp',
                                       },
                                       headers={
@@ -140,6 +197,10 @@ class VtmGoStream:
         info = json.loads(matches.group(1))
         return info
 
+    def _generate_tracking_id(self, length=32):
+        letters = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'
+        return ''.join(random.choice(letters) for i in range(length))
+
     def _download_manifest(self, url):
         logger.info('Downloading manifest from %s' % url)
         response = self._session.get(url,
@@ -152,69 +213,14 @@ class VtmGoStream:
 
         return response.text
 
-    def get_stream(self, type, id):
-        # We begin with asking vtm about the stream info.
-        stream_info = self._get_stream_info(type, id)
-
-        # Extract the anvato stream from our stream_info.
-        anvato_info = self._extract_anvato_stream_from_stream_info(stream_info)
-
-        # Ask the anvacks to know where we have to send our requests. (I hardcoded this for now)
-        # anv_acks = self._anvato_get_anvacks(anvato_info['accessKey'])
-
-        # Get the server time. (We don't seem to need this)
-        # server_time = self._anvato_get_server_time(anvato_info['accessKey'])
-
-        # Send a request for the stream info.
-        anvato_stream_info = self._anvato_get_stream_info(anvato_info['video'], anvato_info['accessKey'], anvato_info['token'])
-
-        # Get published urls.
-        url = anvato_stream_info['published_urls'][0]['embed_url']
-        license_url = anvato_stream_info['published_urls'][0]['license_url']
-
-        # Try to resolve the manifest so we get a playable url.
-        url = self._resolve_manifest(url)
-
-        logger.warning(stream_info)
-
-        if type == 'episodes':
-            # TV episode
-            return ResolvedStream(
-                program=stream_info['video']['metadata']['program']['title'],
-                title=stream_info['video']['metadata']['title'],
-                duration=stream_info['video']['duration'],
-                url=url,
-                license_url=license_url,
-                cookies=self._session.cookies.get_dict()
-            )
-        elif type == 'movies':
-            # Movie
-            return ResolvedStream(
-                program=None,
-                title=stream_info['video']['metadata']['title'],
-                duration=stream_info['video']['duration'],
-                url=url,
-                license_url=license_url,
-                cookies=self._session.cookies.get_dict()
-            )
-        elif type == 'channels':
-            # Live TV
-            return ResolvedStream(
-                program=None,
-                title=stream_info['video']['metadata']['title'],
-                duration=None,
-                url=url,
-                license_url=license_url,
-                cookies=self._session.cookies.get_dict()
-            )
-
-        raise Exception('Unhandled videoType')
-
     def _resolve_manifest(self, url):
         # Download url and return Location so we follow redirection.
         download = self._download_manifest(url)
 
+        logger.error(download)
+
         # Follow when a <Location>url</Location> tag is found.
+        # https://github.com/peak3d/inputstream.adaptive/issues/286
         matches = re.search(r"<Location>([^<]+)</Location>", download)
         if matches:
             logger.info('Followed redirection from %s to %s' % (url, matches.group(1)))
