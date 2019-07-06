@@ -266,6 +266,7 @@ def _stream(type, id):
                          }))
     listitem.setMimeType('application/dash+xml')
     listitem.setContentLookup(False)
+    listitem.setSubtitles(resolved_stream.subtitles)
 
     xbmcplugin.setResolvedUrl(plugin.handle, True, listitem)
 

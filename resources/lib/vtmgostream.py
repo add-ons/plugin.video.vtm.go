@@ -13,12 +13,23 @@ logger = logging.getLogger(ADDON.getAddonInfo('id'))
 
 
 class ResolvedStream:
-    def __init__(self, program=None, title=None, duration=None, url=None, license_url=None, cookies=None):
+    def __init__(self, program=None, title=None, duration=None, url=None, license_url=None, subtitles=None, cookies=None):
+        """
+        Object to hold details of a stream that we can play.
+        :type program: string
+        :type title: string
+        :type duration: string
+        :type url: string
+        :type license_url: string
+        :type subtitles: List
+        :type cookies: dict
+        """
         self.program = program
         self.title = title
         self.duration = duration
         self.url = url
         self.license_url = license_url
+        self.subtitles = subtitles
         self.cookies = cookies
 
 
@@ -53,6 +64,9 @@ class VtmGoStream:
         # Try to resolve the manifest so we get a playable url.
         url = self._resolve_manifest(url)
 
+        # Extract subtitle info from our stream_info.
+        subtitle_info = self._extract_subtitles_from_stream_info(stream_info)
+
         if type == 'episodes':
             # TV episode
             return ResolvedStream(
@@ -60,6 +74,7 @@ class VtmGoStream:
                 title=stream_info['video']['metadata']['title'],
                 duration=stream_info['video']['duration'],
                 url=url,
+                subtitles=subtitle_info,
                 license_url=license_url,
                 cookies=self._session.cookies.get_dict()
             )
@@ -70,6 +85,7 @@ class VtmGoStream:
                 title=stream_info['video']['metadata']['title'],
                 duration=stream_info['video']['duration'],
                 url=url,
+                subtitles=subtitle_info,
                 license_url=license_url,
                 cookies=self._session.cookies.get_dict()
             )
@@ -80,6 +96,7 @@ class VtmGoStream:
                 title=stream_info['video']['metadata']['title'],
                 duration=None,
                 url=url,
+                subtitles=subtitle_info,
                 license_url=license_url,
                 cookies=self._session.cookies.get_dict()
             )
@@ -113,6 +130,16 @@ class VtmGoStream:
                 return stream['anvato']
 
         raise Exception('No stream found that we can handle.')
+
+    def _extract_subtitles_from_stream_info(self, stream_info):
+        subtitles = []
+        try:
+            for subtitle in stream_info['video']['subtitles']:
+                subtitles.append(subtitle['url'])
+        except KeyError:
+            pass
+
+        return subtitles
 
     def _anvato_get_anvacks(self, access_key):
         url = 'https://access-prod.apis.anvato.net/anvacks/' + access_key
