@@ -3,6 +3,7 @@ from __future__ import division
 import logging
 
 import routing
+import xbmc
 import xbmcaddon
 import xbmcgui
 import xbmcplugin
@@ -28,20 +29,19 @@ def index():
     })
     xbmcplugin.addDirectoryItem(plugin.handle, plugin.url_for(show_live), item, True)
 
-    item = ListItem('Catalogus', offscreen=True)
+    item = ListItem('Catalogue', offscreen=True)
     item.setArt({'icon': 'DefaultMovies.png'})
     item.setInfo('video', {
         'plot': 'Watch TV Shows and Movies',
     })
     xbmcplugin.addDirectoryItem(plugin.handle, plugin.url_for(show_catalog), item, True)
 
-    # TODO: implement the search api.
-    # item = ListItem('Search', offscreen=True)
-    # item.setArt({'icon': 'DefaultMovies.png'})
-    # item.setInfo('video', {
-    #     'plot': 'Watch Movies',
-    # })
-    # xbmcplugin.addDirectoryItem(plugin.handle, plugin.url_for(show_search), item, True)
+    item = ListItem('Search', offscreen=True)
+    item.setArt({'icon': 'DefaultAddonsSearch.png'})
+    item.setInfo('video', {
+        'plot': 'Search the Catalogue',
+    })
+    xbmcplugin.addDirectoryItem(plugin.handle, plugin.url_for(show_search), item, True)
 
     xbmcplugin.endOfDirectory(plugin.handle)
 
@@ -113,7 +113,7 @@ def show_catalog(category=None):
             items = _vtmGo.get_items(category)
         except Exception as ex:
             kodiutils.notification(ADDON.getAddonInfo('name'), ex.message)
-            return
+            raise
 
         for item in items:
             listitem = ListItem(item.title, offscreen=True)
@@ -193,6 +193,39 @@ def show_program(id, season=None):
             xbmcplugin.addDirectoryItem(plugin.handle, plugin.url_for(play_episode, id=episode.id), listitem)
         xbmcplugin.setContent(plugin.handle, 'tvshows')
 
+    xbmcplugin.endOfDirectory(plugin.handle)
+
+
+@plugin.route('/search')
+def show_search():
+    # Ask for query
+    keyboard = xbmc.Keyboard('', 'Search')
+    keyboard.doModal()
+    if not keyboard.isConfirmed():
+        return
+    query = keyboard.getText()
+
+    try:
+        # Do search
+        _vtmGo = VtmGo()
+        items = _vtmGo.do_search(query)
+    except Exception as ex:
+        kodiutils.notification(ADDON.getAddonInfo('name'), ex.message)
+        raise
+
+    # Display results
+    for item in items:
+        listitem = ListItem(item.title, offscreen=True)
+
+        if item.type == Content.CONTENT_TYPE_MOVIE:
+            # TODO: Doesn't seem to start the stream when I open it in an popup.
+            # xbmcplugin.addDirectoryItem(plugin.handle, plugin.url_for(show_movie, id=item.id), listitem)
+            xbmcplugin.addDirectoryItem(plugin.handle, plugin.url_for(play_movie, id=item.id), listitem)
+        elif item.type == Content.CONTENT_TYPE_PROGRAM:
+            xbmcplugin.addDirectoryItem(plugin.handle, plugin.url_for(show_program, id=item.id), listitem, True)
+
+    xbmcplugin.setContent(plugin.handle, 'tvshows')
+    xbmcplugin.addSortMethod(plugin.handle, xbmcplugin.SORT_METHOD_TITLE)
     xbmcplugin.endOfDirectory(plugin.handle)
 
 

@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 import json
 import logging
+from urllib import quote
 
 import dateutil.parser
 import requests
@@ -262,6 +263,20 @@ class VtmGo:
     #     info = json.loads(response)
     #
     #     return info
+
+    def do_search(self, search):
+        response = self._get_url('/vtmgo/autocomplete/?maxItems=10&keywords=%s' % quote(search))
+        results = json.loads(response)
+
+        items = []
+        for item in results['suggestions']:
+            items.append(Content(
+                id=item['id'],
+                title=item['name'],
+                type=item['type'],
+            ))
+
+        return items
 
     def _get_url(self, url, auth=None):
         headers = {

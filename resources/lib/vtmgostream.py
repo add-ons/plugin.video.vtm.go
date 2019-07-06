@@ -217,8 +217,6 @@ class VtmGoStream:
         # Download url and return Location so we follow redirection.
         download = self._download_manifest(url)
 
-        logger.error(download)
-
         # Follow when a <Location>url</Location> tag is found.
         # https://github.com/peak3d/inputstream.adaptive/issues/286
         matches = re.search(r"<Location>([^<]+)</Location>", download)
