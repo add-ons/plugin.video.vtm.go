@@ -84,7 +84,7 @@ def show_live():
         })
         listitem.setProperty('IsPlayable', 'true')
 
-        xbmcplugin.addDirectoryItem(plugin.handle, plugin.url_for(play_live, id=channel.id), listitem)
+        xbmcplugin.addDirectoryItem(plugin.handle, plugin.url_for(play_live, id=channel.id) + '?.pvr', listitem)
 
     xbmcplugin.addSortMethod(plugin.handle, xbmcplugin.SORT_METHOD_TITLE)
     xbmcplugin.endOfDirectory(plugin.handle)
