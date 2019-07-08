@@ -121,6 +121,7 @@ def show_catalog(category=None):
                 'poster': item.cover,
             })
             listitem.setInfo('video', {
+                'title': item.title,
                 'plot': item.description,
             })
             listitem.setProperty('IsPlayable', 'true')
