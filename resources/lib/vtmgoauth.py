@@ -1,13 +1,15 @@
 # -*- coding: utf-8 -*-
+
+from __future__ import absolute_import, division, unicode_literals
 import json
 import logging
 import re
-
 import requests
-import xbmcaddon
 from requests.exceptions import InvalidSchema
 
-ADDON = xbmcaddon.Addon()
+from xbmcaddon import Addon
+
+ADDON = Addon()
 logger = logging.getLogger(ADDON.getAddonInfo('id'))
 
 

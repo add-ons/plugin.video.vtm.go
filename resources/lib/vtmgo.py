@@ -1,13 +1,15 @@
 # -*- coding: utf-8 -*-
+
+from __future__ import absolute_import, division, unicode_literals
 import json
 import logging
 from urllib import quote
 
 import dateutil.parser
 import requests
-import xbmcaddon
+from xbmcaddon import Addon
 
-ADDON = xbmcaddon.Addon()
+ADDON = Addon()
 logger = logging.getLogger(ADDON.getAddonInfo('id'))
 
 
@@ -292,7 +294,7 @@ class VtmGo:
 
         response = requests.session().get('https://api.vtmgo.be' + url, headers=headers, verify=False)
 
-        if response.status_code is not 200:
+        if response.status_code != 200:
             raise Exception('Error %s.' % response.status_code)
 
         return response.text

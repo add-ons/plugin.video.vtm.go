@@ -1,10 +1,11 @@
-from __future__ import division
+# -*- coding: utf-8 -*-
 
+from __future__ import absolute_import, division, unicode_literals
 import logging
 
 import routing
 import xbmc
-import xbmcaddon
+from xbmcaddon import Addon
 import xbmcgui
 import xbmcplugin
 from xbmcgui import ListItem
@@ -14,7 +15,7 @@ from resources.lib import kodiutils
 from resources.lib import vtmgostream
 from resources.lib.vtmgo import VtmGo, Content
 
-ADDON = xbmcaddon.Addon()
+ADDON = Addon()
 logger = logging.getLogger(ADDON.getAddonInfo('id'))
 kodilogging.config()
 plugin = routing.Plugin()

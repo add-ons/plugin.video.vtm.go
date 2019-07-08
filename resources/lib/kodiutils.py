@@ -1,13 +1,15 @@
-import json as json
+# -*- coding: utf-8 -*-
+
+from __future__ import absolute_import, division, unicode_literals
+import json
 import logging
 
 import xbmc
-import xbmcaddon
+from xbmcaddon import Addon
 import xbmcgui
 
 # read settings
-ADDON = xbmcaddon.Addon()
-
+ADDON = Addon()
 logger = logging.getLogger(__name__)
 
 

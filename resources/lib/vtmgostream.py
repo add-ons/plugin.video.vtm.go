@@ -1,4 +1,6 @@
 # -*- coding: utf-8 -*-
+
+from __future__ import absolute_import, division, unicode_literals
 import json
 import logging
 import random
@@ -6,9 +8,9 @@ import re
 from urllib import urlencode, quote
 
 import requests
-import xbmcaddon
+from xbmcaddon import Addon
 
-ADDON = xbmcaddon.Addon()
+ADDON = Addon()
 logger = logging.getLogger(ADDON.getAddonInfo('id'))
 
 
@@ -117,7 +119,7 @@ class VtmGoStream:
                                          'User-Agent': 'Dalvik/2.1.0 (Linux; U; Android 6.0.1; Nexus 5 Build/M4B30Z)',
                                      })
 
-        if response.status_code is not 200:
+        if response.status_code != 200:
             raise Exception('Error %s in _get_stream_info.' % response.status_code)
 
         info = json.loads(response.text)
@@ -153,7 +155,7 @@ class VtmGoStream:
                                          'User-Agent': self._ANVATO_USER_AGENT,
                                      })
 
-        if response.status_code is not 200:
+        if response.status_code != 200:
             raise Exception('Error %s in _anvato_get_anvacks.' % response.status_code)
 
         info = json.loads(response.text)
@@ -171,7 +173,7 @@ class VtmGoStream:
                                          'X-Anvato-User-Agent': self._ANVATO_USER_AGENT,
                                          'User-Agent': self._ANVATO_USER_AGENT,
                                      })
-        if response.status_code is not 200:
+        if response.status_code != 200:
             raise Exception('Error %s.' % response.status_code)
 
         info = json.loads(response.text)
@@ -215,7 +217,7 @@ class VtmGoStream:
                                           'X-Anvato-User-Agent': self._ANVATO_USER_AGENT,
                                           'User-Agent': self._ANVATO_USER_AGENT,
                                       })
-        if response.status_code is not 200:
+        if response.status_code != 200:
             raise Exception('Error %s.' % response.status_code)
 
         matches = re.search(r"^anvatoVideoJSONLoaded\((.*)\)$", response.text)
@@ -235,7 +237,7 @@ class VtmGoStream:
                                          'X-Anvato-User-Agent': self._ANVATO_USER_AGENT,
                                          'User-Agent': self._ANVATO_USER_AGENT,
                                      })
-        if response.status_code is not 200:
+        if response.status_code != 200:
             raise Exception('Error %s.' % response.status_code)
 
         return response.text
@@ -257,7 +259,7 @@ class VtmGoStream:
             if decoded['master_m3u8']:
                 logger.info('Followed redirection from %s to %s' % (url, decoded['master_m3u8']))
                 return decoded['master_m3u8']
-        except:
+        except Exception:
             pass
 
         # Fallback to the url like we have it
