@@ -84,7 +84,7 @@ def show_live():
         })
         listitem.setProperty('IsPlayable', 'true')
 
-        xbmcplugin.addDirectoryItem(plugin.handle, plugin.url_for(play_live, chanid=channel.id) + '?.pvr', listitem)
+        xbmcplugin.addDirectoryItem(plugin.handle, plugin.url_for(play_live, channel=channel.id) + '?.pvr', listitem)
 
     xbmcplugin.addSortMethod(plugin.handle, xbmcplugin.SORT_METHOD_TITLE)
     xbmcplugin.endOfDirectory(plugin.handle)
@@ -102,9 +102,9 @@ def show_catalog(category=None):
             kodiutils.notification(ADDON.getAddonInfo('name'), ex.message)
             raise
 
-        for c in categories:
-            listitem = ListItem(c.title, offscreen=True)
-            xbmcplugin.addDirectoryItem(plugin.handle, plugin.url_for(show_catalog, category=c.id), listitem, True)
+        for cat in categories:
+            listitem = ListItem(cat.title, offscreen=True)
+            xbmcplugin.addDirectoryItem(plugin.handle, plugin.url_for(show_catalog, category=cat.id), listitem, True)
 
     else:
         # Show the items of a category
@@ -126,36 +126,36 @@ def show_catalog(category=None):
 
             if item.type == Content.CONTENT_TYPE_MOVIE:
                 # TODO: Doesn't seem to start the stream when I open it in an popup.
-                # xbmcplugin.addDirectoryItem(plugin.handle, plugin.url_for(show_movie, id=item.id), listitem)
-                xbmcplugin.addDirectoryItem(plugin.handle, plugin.url_for(play_movie, movid=item.id), listitem)
+                # xbmcplugin.addDirectoryItem(plugin.handle, plugin.url_for(show_movie, movie=item.id), listitem)
+                xbmcplugin.addDirectoryItem(plugin.handle, plugin.url_for(play_movie, movie=item.id), listitem)
             elif item.type == Content.CONTENT_TYPE_PROGRAM:
-                xbmcplugin.addDirectoryItem(plugin.handle, plugin.url_for(show_program, progid=item.id), listitem, True)
+                xbmcplugin.addDirectoryItem(plugin.handle, plugin.url_for(show_program, program=item.id), listitem, True)
 
     xbmcplugin.setContent(plugin.handle, 'tvshows')
     xbmcplugin.addSortMethod(plugin.handle, xbmcplugin.SORT_METHOD_TITLE)
     xbmcplugin.endOfDirectory(plugin.handle)
 
 
-@plugin.route('/movie/<movid>')
-def show_movie(movid):
+@plugin.route('/movie/<movie>')
+def show_movie(movie):
     try:
         _vtmGo = VtmGo()
-        movie = _vtmGo.get_movie(movid)
+        movie_obj = _vtmGo.get_movie(movie)
     except Exception as ex:
         kodiutils.notification(ADDON.getAddonInfo('name'), ex.message)
         raise
 
     listitem = ListItem(movie.name, offscreen=True)
-    listitem.setPath(plugin.url_for(play_movie, movid=movid))
+    listitem.setPath(plugin.url_for(play_movie, movie_id=movie))
     listitem.setArt({
         'poster': movie.cover,
         'fanart': movie.cover,
     })
     listitem.setInfo('video', {
-        'title': movie.name,
-        'plot': movie.description,
-        'duration': movie.duration,
-        'year': movie.year,
+        'title': movie_obj.name,
+        'plot': movie_obj.description,
+        'duration': movie_obj.duration,
+        'year': movie_obj.year,
     })
     listitem.setProperty('IsPlayable', 'true')
     listitem.setContentLookup(False)
@@ -163,12 +163,12 @@ def show_movie(movid):
     Dialog().info(listitem)
 
 
-@plugin.route('/program/<progid>')
-@plugin.route('/program/<progid>/<season>')
-def show_program(progid, season=None):
+@plugin.route('/program/<program>')
+@plugin.route('/program/<program>/<season>')
+def show_program(program, season=None):
     try:
         _vtmGo = VtmGo()
-        program = _vtmGo.get_program(progid)
+        program = _vtmGo.get_program(program)
     except Exception as ex:
         kodiutils.notification(ADDON.getAddonInfo('name'), ex.message)
         raise
@@ -176,7 +176,7 @@ def show_program(progid, season=None):
     if season is None:
         for s in program.seasons.values():
             listitem = ListItem('Season %d' % s.number, offscreen=True)
-            xbmcplugin.addDirectoryItem(plugin.handle, plugin.url_for(show_program, progid=progid, season=s.number), listitem, True)
+            xbmcplugin.addDirectoryItem(plugin.handle, plugin.url_for(show_program, program_id=program, season=s.number), listitem, True)
     else:
         for episode in program.seasons[int(season)].episodes.values():
             listitem = ListItem(episode.name, offscreen=True)
@@ -190,7 +190,7 @@ def show_program(progid, season=None):
                 'fanart': episode.cover,
             })
             listitem.setProperty('IsPlayable', 'true')
-            xbmcplugin.addDirectoryItem(plugin.handle, plugin.url_for(play_episode, epid=episode.id), listitem)
+            xbmcplugin.addDirectoryItem(plugin.handle, plugin.url_for(play_episode, episode_id=episode.id), listitem)
         xbmcplugin.setContent(plugin.handle, 'tvshows')
 
     xbmcplugin.endOfDirectory(plugin.handle)
@@ -219,29 +219,29 @@ def show_search():
 
         if item.type == Content.CONTENT_TYPE_MOVIE:
             # TODO: Doesn't seem to start the stream when I open it in an popup.
-            # xbmcplugin.addDirectoryItem(plugin.handle, plugin.url_for(show_movie, id=item.id), listitem)
-            xbmcplugin.addDirectoryItem(plugin.handle, plugin.url_for(play_movie, movid=item.id), listitem)
+            # xbmcplugin.addDirectoryItem(plugin.handle, plugin.url_for(show_movie, movie_id=item.id), listitem)
+            xbmcplugin.addDirectoryItem(plugin.handle, plugin.url_for(play_movie, movie_id=item.id), listitem)
         elif item.type == Content.CONTENT_TYPE_PROGRAM:
-            xbmcplugin.addDirectoryItem(plugin.handle, plugin.url_for(show_program, progid=item.id), listitem, True)
+            xbmcplugin.addDirectoryItem(plugin.handle, plugin.url_for(show_program, program_id=item.id), listitem, True)
 
     xbmcplugin.setContent(plugin.handle, 'tvshows')
     xbmcplugin.addSortMethod(plugin.handle, xbmcplugin.SORT_METHOD_TITLE)
     xbmcplugin.endOfDirectory(plugin.handle)
 
 
-@plugin.route('/play/live/<tvid>')
-def play_live(tvid):
-    _stream('channels', tvid)
+@plugin.route('/play/live/<channel>')
+def play_live(channel):
+    _stream('channels', channel)
 
 
-@plugin.route('/play/movie/<movid>')
-def play_movie(movid):
-    _stream('movies', movid)
+@plugin.route('/play/movie/<movie>')
+def play_movie(movie):
+    _stream('movies', movie)
 
 
-@plugin.route('/play/episode/<epid>')
-def play_episode(epid):
-    _stream('episodes', epid)
+@plugin.route('/play/episode/<epsode>')
+def play_episode(episode):
+    _stream('episodes', episode)
 
 
 def _stream(strtype, strid):

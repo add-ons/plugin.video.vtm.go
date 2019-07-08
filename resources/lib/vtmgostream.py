@@ -43,9 +43,9 @@ class VtmGoStream:
     def __init__(self):
         self._session = requests.session()
 
-    def get_stream(self, strtype, strid):
+    def get_stream(self, stream_type, stream_id):
         # We begin with asking vtm about the stream info.
-        stream_info = self._get_stream_info(strtype, strid)
+        stream_info = self._get_stream_info(stream_type, stream_id)
 
         # Extract the anvato stream from our stream_info.
         anvato_info = self._extract_anvato_stream_from_stream_info(stream_info)
@@ -69,7 +69,7 @@ class VtmGoStream:
         # Extract subtitle info from our stream_info.
         subtitle_info = self._extract_subtitles_from_stream_info(stream_info)
 
-        if strtype == 'episodes':
+        if stream_type == 'episodes':
             # TV episode
             return ResolvedStream(
                 program=stream_info['video']['metadata']['program']['title'],
@@ -80,7 +80,7 @@ class VtmGoStream:
                 license_url=license_url,
                 cookies=self._session.cookies.get_dict()
             )
-        elif strtype == 'movies':
+        elif stream_type == 'movies':
             # Movie
             return ResolvedStream(
                 program=None,
@@ -91,7 +91,7 @@ class VtmGoStream:
                 license_url=license_url,
                 cookies=self._session.cookies.get_dict()
             )
-        elif strtype == 'channels':
+        elif stream_type == 'channels':
             # Live TV
             return ResolvedStream(
                 program=None,
@@ -103,10 +103,10 @@ class VtmGoStream:
                 cookies=self._session.cookies.get_dict()
             )
 
-        raise Exception('Unhandled videoType %s' % strtype)
+        raise Exception('Unhandled videoType %s' % stream_type)
 
-    def _get_stream_info(self, strtype, strid):
-        url = 'https://videoplayer-service.api.persgroep.cloud/config/%s/%s' % (strtype, strid)
+    def _get_stream_info(self, strtype, stream_id):
+        url = 'https://videoplayer-service.api.persgroep.cloud/config/%s/%s' % (strtype, stream_id)
         logger.info('Getting stream info from %s', url)
         response = self._session.get(url,
                                      params={
