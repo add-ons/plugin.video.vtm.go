@@ -68,11 +68,11 @@ class Content:
     def __init__(self, video_id=None, title=None, description=None, cover=None, video_type=None):
         """
         Defines a Category from the Catalogue.
-        :type id: string
-        :type title: string
-        :type description: string
-        :type cover: string
-        :type type: string
+        :type id: basestring
+        :type title: basestring
+        :type description: basestring
+        :type cover: basestring
+        :type type: basestring
         """
         self.id = video_id
         self.title = title

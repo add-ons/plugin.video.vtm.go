@@ -146,17 +146,20 @@ def show_movie(movie):
         kodiutils.notification(ADDON.getAddonInfo('name'), ex.message)
         raise
 
-    listitem = ListItem(movie.name, offscreen=True)
+    listitem = ListItem(movie_obj.name, offscreen=True)
     listitem.setPath(plugin.url_for(play_movie, movie=movie))
     listitem.setArt({
-        'poster': movie.cover,
-        'fanart': movie.cover,
+        'poster': movie_obj.cover,
+        'fanart': movie_obj.cover,
     })
     listitem.setInfo('video', {
         'title': movie_obj.name,
         'plot': movie_obj.description,
         'duration': movie_obj.duration,
         'year': movie_obj.year,
+    })
+    listitem.addStreamInfo('video', {
+        'duration': movie_obj.duration,
     })
     listitem.setProperty('IsPlayable', 'true')
     listitem.setContentLookup(False)
@@ -177,7 +180,11 @@ def show_program(program, season=None):
     if season is None:
         for s in program_obj.seasons.values():
             listitem = ListItem('Season %d' % s.number, offscreen=True)
+            listitem.setInfo('video', {
+                'title': 'Season %d' % s.number,
+            })
             xbmcplugin.addDirectoryItem(plugin.handle, plugin.url_for(show_program, program=program, season=s.number), listitem, True)
+        xbmcplugin.setContent(plugin.handle, 'videos')
     else:
         for episode in program_obj.seasons[int(season)].episodes.values():
             listitem = ListItem(episode.name, offscreen=True)
@@ -190,10 +197,14 @@ def show_program(program, season=None):
                 'plot': episode.description,
                 'duration': episode.duration,
             })
+            listitem.addStreamInfo('video', {
+                'duration': episode.duration,
+            })
             listitem.setProperty('IsPlayable', 'true')
             xbmcplugin.addDirectoryItem(plugin.handle, plugin.url_for(play_episode, episode=episode.id), listitem)
-        xbmcplugin.setContent(plugin.handle, 'tvshows')
+        xbmcplugin.setContent(plugin.handle, 'episodes')
 
+    xbmcplugin.addSortMethod(plugin.handle, xbmcplugin.SORT_METHOD_TITLE)
     xbmcplugin.endOfDirectory(plugin.handle)
 
 
@@ -220,7 +231,7 @@ def show_search():
 
         if item.type == Content.CONTENT_TYPE_MOVIE:
             # TODO: Doesn't seem to start the stream when I open it in an popup.
-            # xbmcplugin.addDirectoryItem(plugin.handle, plugin.url_for(show_movie, movie_id=item.id), listitem)
+            # xbmcplugin.addDirectoryItem(plugin.handle, plugin.url_for(show_movie, movie=item.id), listitem)
             xbmcplugin.addDirectoryItem(plugin.handle, plugin.url_for(play_movie, movie=item.id), listitem)
         elif item.type == Content.CONTENT_TYPE_PROGRAM:
             xbmcplugin.addDirectoryItem(plugin.handle, plugin.url_for(show_program, program=item.id), listitem, True)
@@ -252,11 +263,23 @@ def _stream(strtype, strid):
 
     # Create listitem
     listitem = ListItem(path=resolved_stream.url, offscreen=True)
+
+    # Add video info
     listitem.setInfo('video', {
         'title': resolved_stream.title,
         'tvshowtitle': resolved_stream.program,
         'duration': resolved_stream.duration,
     })
+    listitem.addStreamInfo('video', {
+        'duration': resolved_stream.duration,
+    })
+
+    # Add subtitle info
+    listitem.setSubtitles(resolved_stream.subtitles)
+    listitem.addStreamInfo('subtitle', {
+        'language': 'nl',
+    })
+
     listitem.setProperty('IsPlayable', 'true')
     listitem.setProperty('inputstreamaddon', 'inputstream.adaptive')
     listitem.setProperty('inputstream.adaptive.license_type', 'com.widevine.alpha')
@@ -265,9 +288,12 @@ def _stream(strtype, strid):
                          _vtmgostream.create_license_key(resolved_stream.license_url, key_headers={
                              'User-Agent': 'ANVSDK Android/5.0.39 (Linux; Android 6.0.1; Nexus 5)',
                          }))
+
+    if strtype == 'channels':
+        listitem.setProperty('inputstream.adaptive.manifest_update_parameter', 'full')
+
     listitem.setMimeType('application/dash+xml')
     listitem.setContentLookup(False)
-    listitem.setSubtitles(resolved_stream.subtitles)
 
     xbmcplugin.setResolvedUrl(plugin.handle, True, listitem)
 
