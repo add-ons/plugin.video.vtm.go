@@ -21,14 +21,18 @@ class TestVtmGo(unittest.TestCase):
     def __init__(self, *args, **kwargs):
         super(TestVtmGo, self).__init__(*args, **kwargs)
 
+        self._token = None
+        self._vtmgo = vtmgo.VtmGo()
+
         try:
             with open('test/credentials.json') as f:
                 self._SETTINGS = json.load(f)
+            self._vtmgoauth = vtmgoauth.VtmGoAuth(self._SETTINGS['username'], self._SETTINGS['password'])
         except Exception as e:
             print("Error using 'test/credentials.json' : %s" % e, file=sys.stderr)
+            self._vtmgoauth = None
+            self._SETTINGS = None
 
-        self._vtmgo = vtmgo.VtmGo()
-        self._vtmgoauth = vtmgoauth.VtmGoAuth(self._SETTINGS['username'], self._SETTINGS['password'])
         self._vtmgostream = vtmgostream.VtmGoStream()
 
         # Enable debug logging for urllib
@@ -46,9 +50,10 @@ class TestVtmGo(unittest.TestCase):
         requests_log.propagate = True
 
     def test_login(self):
-        jwt = self._vtmgoauth.login()
-        self.assertTrue(jwt)
-        self._token = jwt
+        if self._vtmgoauth is not None:
+            jwt = self._vtmgoauth.login()
+            self.assertTrue(jwt)
+            self._token = jwt
 
     def test_get_config(self):
         config = self._vtmgo.get_config()
