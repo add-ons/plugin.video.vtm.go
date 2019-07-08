@@ -43,9 +43,9 @@ class VtmGoStream:
     def __init__(self):
         self._session = requests.session()
 
-    def get_stream(self, type, id):
+    def get_stream(self, strtype, strid):
         # We begin with asking vtm about the stream info.
-        stream_info = self._get_stream_info(type, id)
+        stream_info = self._get_stream_info(strtype, strid)
 
         # Extract the anvato stream from our stream_info.
         anvato_info = self._extract_anvato_stream_from_stream_info(stream_info)
@@ -69,7 +69,7 @@ class VtmGoStream:
         # Extract subtitle info from our stream_info.
         subtitle_info = self._extract_subtitles_from_stream_info(stream_info)
 
-        if type == 'episodes':
+        if strtype == 'episodes':
             # TV episode
             return ResolvedStream(
                 program=stream_info['video']['metadata']['program']['title'],
@@ -80,7 +80,7 @@ class VtmGoStream:
                 license_url=license_url,
                 cookies=self._session.cookies.get_dict()
             )
-        elif type == 'movies':
+        elif strtype == 'movies':
             # Movie
             return ResolvedStream(
                 program=None,
@@ -91,7 +91,7 @@ class VtmGoStream:
                 license_url=license_url,
                 cookies=self._session.cookies.get_dict()
             )
-        elif type == 'channels':
+        elif strtype == 'channels':
             # Live TV
             return ResolvedStream(
                 program=None,
@@ -103,11 +103,11 @@ class VtmGoStream:
                 cookies=self._session.cookies.get_dict()
             )
 
-        raise Exception('Unhandled videoType')
+        raise Exception('Unhandled videoType %s' % strtype)
 
-    def _get_stream_info(self, type, id):
-        url = 'https://videoplayer-service.api.persgroep.cloud/config/' + type + '/' + id
-        logger.info('Getting stream info from %s' % url)
+    def _get_stream_info(self, strtype, strid):
+        url = 'https://videoplayer-service.api.persgroep.cloud/config/%s/%s' % (strtype, strid)
+        logger.info('Getting stream info from %s', url)
         response = self._session.get(url,
                                      params={
                                          'startPosition': '0.0',
@@ -145,7 +145,7 @@ class VtmGoStream:
 
     def _anvato_get_anvacks(self, access_key):
         url = 'https://access-prod.apis.anvato.net/anvacks/' + access_key
-        logger.info('Getting anvacks from %s' % url)
+        logger.info('Getting anvacks from %s', url)
         response = self._session.get(url,
                                      params={
                                          'apikey': self._ANVATO_API_KEY,
@@ -163,7 +163,7 @@ class VtmGoStream:
 
     def _anvato_get_server_time(self, access_key):
         url = 'https://tkx.apis.anvato.net/rest/v2/server_time'
-        logger.info('Getting servertime from %s with access_key %s' % (url, access_key))
+        logger.info('Getting servertime from %s with access_key %s', url, access_key)
         response = self._session.get(url,
                                      params={
                                          'anvack': access_key,
@@ -181,7 +181,7 @@ class VtmGoStream:
 
     def _anvato_get_stream_info(self, video_id, access_key, token):
         url = 'https://tkx.apis.anvato.net/rest/v2/mcp/video/' + video_id
-        logger.info('Getting stream info from %s with access_key %s and token %s' % (url, access_key, token))
+        logger.info('Getting stream info from %s with access_key %s and token %s', url, access_key, token)
 
         # TODO: We probably have to generate this json based on the stream info from the VTM API.
         response = self._session.post(url,
@@ -231,7 +231,7 @@ class VtmGoStream:
         return ''.join(random.choice(letters) for i in range(length))
 
     def _download_manifest(self, url):
-        logger.info('Downloading manifest from %s' % url)
+        logger.info('Downloading manifest from %s', url)
         response = self._session.get(url,
                                      headers={
                                          'X-Anvato-User-Agent': self._ANVATO_USER_AGENT,
@@ -250,14 +250,14 @@ class VtmGoStream:
         # https://github.com/peak3d/inputstream.adaptive/issues/286
         matches = re.search(r"<Location>([^<]+)</Location>", download)
         if matches:
-            logger.info('Followed redirection from %s to %s' % (url, matches.group(1)))
+            logger.info('Followed redirection from %s to %s', url, matches.group(1))
             return matches.group(1)
 
         # Follow when a json with a master_m3u8 field is found.
         try:
             decoded = json.loads(download)
             if decoded['master_m3u8']:
-                logger.info('Followed redirection from %s to %s' % (url, decoded['master_m3u8']))
+                logger.info('Followed redirection from %s to %s', url, decoded['master_m3u8'])
                 return decoded['master_m3u8']
         except Exception:
             pass
