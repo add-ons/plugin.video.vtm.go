@@ -1,4 +1,5 @@
+kodistubs
 pylint
 python-dateutil
-tox-travis
 requests
+tox-travis

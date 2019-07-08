@@ -1,17 +1,15 @@
 # -*- coding: utf-8 -*-
 from __future__ import absolute_import, division, print_function, unicode_literals
-
 import sys
-
 import json
 import logging
 import unittest
 
-import xbmcaddon
+from xbmcaddon import Addon
 
 from resources.lib import kodilogging, vtmgo, vtmgoauth, vtmgostream
 
-ADDON = xbmcaddon.Addon()
+ADDON = Addon()
 kodilogging.config()
 logger = logging.getLogger(ADDON.getAddonInfo('id'))
 
