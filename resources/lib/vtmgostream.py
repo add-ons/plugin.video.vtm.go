@@ -189,11 +189,11 @@ class VtmGoStream:
                                           "ads": {
                                               "freewheel": {
                                                   "custom": {
+                                                      "ml_userid": "",  # TODO: fill in
+                                                      "ml_dmp_userid": "",  # TODO: fill in
+                                                      "ml_gdprconsent": "",
                                                       "ml_apple_advertising_id": "",
-                                                      "ml_dmp_userid": "a77eb6ed-566f-4f11-9717-8c2e77e65c72",
-                                                      "ml_gdprconsent": "functional|analytics|content_recommendation|targeted_advertising|social_media",
-                                                      "ml_google_advertising_id": "a77eb6ed-566f-4f11-9717-8c2e77e65c72",
-                                                      "ml_userid": "f5f563399770e15830f6b01346d82434"
+                                                      "ml_google_advertising_id": ""
                                                   },
                                                   "network_id": stream_info['video']['ads']['freewheel']['networkId'],
                                                   "profile_id": stream_info['video']['ads']['freewheel']['profileId'],

@@ -288,6 +288,10 @@ def _stream(strtype, strid):
                          _vtmgostream.create_license_key(resolved_stream.license_url, key_headers={
                              'User-Agent': 'ANVSDK Android/5.0.39 (Linux; Android 6.0.1; Nexus 5)',
                          }))
+
+    if strtype == 'channels':
+        listitem.setProperty('inputstream.adaptive.manifest_update_parameter', 'full')
+
     listitem.setMimeType('application/dash+xml')
     listitem.setContentLookup(False)
 
