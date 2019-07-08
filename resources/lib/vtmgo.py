@@ -1,18 +1,20 @@
 # -*- coding: utf-8 -*-
+
+from __future__ import absolute_import, division, unicode_literals
 import json
 import logging
 from urllib import quote
 
 import dateutil.parser
 import requests
-import xbmcaddon
+from xbmcaddon import Addon
 
-ADDON = xbmcaddon.Addon()
+ADDON = Addon()
 logger = logging.getLogger(ADDON.getAddonInfo('id'))
 
 
 class LiveChannel:
-    def __init__(self, id=None, name=None, logo=None, epg=None):
+    def __init__(self, channel_id=None, name=None, logo=None, epg=None):
         """
         Defines a TV channel that can be streamed live.
         :type id: basestring
@@ -20,7 +22,7 @@ class LiveChannel:
         :type logo: basestring
         :type epg: List[LiveChannelEpg]
         """
-        self.id = id
+        self.id = channel_id
         self.name = name
         self.logo = logo
         self.epg = epg
@@ -46,13 +48,13 @@ class LiveChannelEpg:
 
 
 class Category:
-    def __init__(self, id=None, title=None):
+    def __init__(self, category_id=None, title=None):
         """
         Defines a Category from the Catalogue.
         :type id: string
         :type title: string
         """
-        self.id = id
+        self.id = category_id
         self.title = title
 
     def __repr__(self):
@@ -63,7 +65,7 @@ class Content:
     CONTENT_TYPE_MOVIE = 'MOVIE'
     CONTENT_TYPE_PROGRAM = 'PROGRAM'
 
-    def __init__(self, id=None, title=None, description=None, cover=None, type=None):
+    def __init__(self, video_id=None, title=None, description=None, cover=None, video_type=None):
         """
         Defines a Category from the Catalogue.
         :type id: string
@@ -72,19 +74,19 @@ class Content:
         :type cover: string
         :type type: string
         """
-        self.id = id
+        self.id = video_id
         self.title = title
         self.description = description
         self.cover = cover
-        self.type = type
+        self.type = video_type
 
     def __repr__(self):
         return "%r" % self.__dict__
 
 
 class Movie:
-    def __init__(self, id=None, name=None, description=None, year=None, cover=None, duration=None, remaining=None):
-        self.id = id
+    def __init__(self, movie_id=None, name=None, description=None, year=None, cover=None, duration=None, remaining=None):
+        self.id = movie_id
         self.name = name
         self.description = description
         self.year = year
@@ -97,7 +99,7 @@ class Movie:
 
 
 class Program:
-    def __init__(self, id=None, name=None, description=None, cover=None, seasons=None):
+    def __init__(self, program_id=None, name=None, description=None, cover=None, seasons=None):
         """
         Defines a Program.
         :type id: basestring
@@ -106,7 +108,7 @@ class Program:
         :type cover: basestring
         :type seasons: List[Season]
         """
-        self.id = id
+        self.id = program_id
         self.name = name
         self.description = description
         self.cover = cover
@@ -131,8 +133,8 @@ class Season:
 
 
 class Episode:
-    def __init__(self, id=None, number=None, season=None, name=None, description=None, cover=None, duration=None, remaining=None):
-        self.id = id
+    def __init__(self, episode_id=None, number=None, season=None, name=None, description=None, cover=None, duration=None, remaining=None):
+        self.id = episode_id
         self.number = int(number)
         self.season = int(season)
         self.name = name
@@ -173,7 +175,7 @@ class VtmGo:
                     end=dateutil.parser.parse(item_epg['endsAt']),
                 ))
             channels.append(LiveChannel(
-                id=item['channelId'],
+                channel_id=item['channelId'],
                 logo=item['channelLogoUrl'],
                 name=item['name'],
                 epg=epg,
@@ -188,7 +190,7 @@ class VtmGo:
         categories = []
         for item in info['catalogFilters']:
             categories.append(Category(
-                id=item['id'],
+                category_id=item['id'],
                 title=item['title'],
             ))
 
@@ -204,20 +206,20 @@ class VtmGo:
         items = []
         for item in info['pagedTeasers']['content']:
             items.append(Content(
-                id=item['target']['id'],
+                video_id=item['target']['id'],
                 title=item['title'],
                 cover=item['imageUrl'],
-                type=item['target']['type'],
+                video_type=item['target']['type'],
             ))
 
         return items
 
-    def get_movie(self, id):
-        response = self._get_url('/vtmgo/movies/' + id)
+    def get_movie(self, movie_id):
+        response = self._get_url('/vtmgo/movies/' + movie_id)
         info = json.loads(response)
 
         return Movie(
-            id=info['movie']['id'],
+            movie_id=info['movie']['id'],
             name=info['movie']['name'],
             description=info['movie']['description'],
             duration=info['movie']['durationSeconds'],
@@ -226,8 +228,8 @@ class VtmGo:
             remaining=info['movie']['remainingDaysAvailable'],
         )
 
-    def get_program(self, id):
-        response = self._get_url('/vtmgo/programs/' + id)
+    def get_program(self, program_id):
+        response = self._get_url('/vtmgo/programs/' + program_id)
         info = json.loads(response)
 
         seasons = {}
@@ -235,7 +237,7 @@ class VtmGo:
             episodes = {}
             for item_episode in item_season['episodes']:
                 episodes[item_episode['index']] = Episode(
-                    id=item_episode['id'],
+                    episode_id=item_episode['id'],
                     number=item_episode['index'],
                     season=item_season['index'],
                     name=item_episode['name'],
@@ -251,15 +253,15 @@ class VtmGo:
             )
 
         return Program(
-            id=info['program']['id'],
+            program_id=info['program']['id'],
             name=info['program']['name'],
             description=info['program']['description'],
             cover=info['program']['bigPhotoUrl'],
             seasons=seasons,
         )
 
-    # def get_episodes(self, id):
-    #     response = self._get_url('/vtmgo/episodes/' + id)
+    # def get_episodes(self, episode_id):
+    #     response = self._get_url('/vtmgo/episodes/' + episode_id)
     #     info = json.loads(response)
     #
     #     return info
@@ -271,9 +273,9 @@ class VtmGo:
         items = []
         for item in results['suggestions']:
             items.append(Content(
-                id=item['id'],
+                video_id=item['id'],
                 title=item['name'],
-                type=item['type'],
+                video_type=item['type'],
             ))
 
         return items
@@ -292,7 +294,7 @@ class VtmGo:
 
         response = requests.session().get('https://api.vtmgo.be' + url, headers=headers, verify=False)
 
-        if response.status_code is not 200:
+        if response.status_code != 200:
             raise Exception('Error %s.' % response.status_code)
 
         return response.text

@@ -1,10 +1,10 @@
-import xbmcaddon
+# -*- coding: utf-8 -*-
+
+from __future__ import absolute_import, division, unicode_literals
 import sys
+from xbmcaddon import Addon
+from resources.lib import kodilogging, plugin
 
-from resources.lib import kodilogging
-from resources.lib import plugin
-
-ADDON = xbmcaddon.Addon()
+ADDON = Addon()
 kodilogging.config()
-
 plugin.run(sys.argv)
