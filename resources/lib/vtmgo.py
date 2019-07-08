@@ -280,6 +280,11 @@ class VtmGo:
 
         return items
 
+    def download_subtitle(self, url):
+        logger.info('Downloading subtitle from %s', url)
+        response = self._get_url(url)
+        return response
+
     def _get_url(self, url, auth=None):
         headers = {
             # ':authority': 'api.vtmgo.be',

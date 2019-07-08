@@ -1,13 +1,14 @@
 # -*- coding: utf-8 -*-
 
 from __future__ import absolute_import, division, unicode_literals
+
 import logging
 
-import xbmc
-from xbmcaddon import Addon
-import xbmcplugin
-from xbmcgui import Dialog, ListItem
 import routing
+import xbmc
+import xbmcplugin
+from xbmcaddon import Addon
+from xbmcgui import Dialog, ListItem
 
 from resources.lib import kodilogging
 from resources.lib import kodiutils
@@ -185,6 +186,7 @@ def show_program(program, season=None):
                 'title': 'Season %d' % s.number,
             })
             xbmcplugin.addDirectoryItem(plugin.handle, plugin.url_for(show_program, program=program, season=s.number), listitem, True)
+        xbmcplugin.addSortMethod(plugin.handle, xbmcplugin.SORT_METHOD_TITLE)
         xbmcplugin.setContent(plugin.handle, 'videos')
     else:
         for episode in program_obj.seasons[int(season)].episodes.values():
@@ -205,7 +207,6 @@ def show_program(program, season=None):
             xbmcplugin.addDirectoryItem(plugin.handle, plugin.url_for(play_episode, episode=episode.id), listitem)
         xbmcplugin.setContent(plugin.handle, 'episodes')
 
-    xbmcplugin.addSortMethod(plugin.handle, xbmcplugin.SORT_METHOD_TITLE)
     xbmcplugin.endOfDirectory(plugin.handle)
 
 
@@ -257,6 +258,16 @@ def play_episode(episode):
     _stream('episodes', episode)
 
 
+@plugin.route('/subtitle/<url>')
+@plugin.route('/subtitle/<url>/<filename>')
+def download_subtitle(url, filename=None):
+    # We can ignore filename
+    from urllib import unquote
+    _vtmGo = VtmGo()
+    subtitle = _vtmGo.download_subtitle(unquote(url))
+    print(subtitle)
+
+
 def _stream(strtype, strid):
     # Get url
     _vtmgostream = vtmgostream.VtmGoStream()
@@ -276,10 +287,13 @@ def _stream(strtype, strid):
     })
 
     # Add subtitle info
-    listitem.setSubtitles(resolved_stream.subtitles)
-    listitem.addStreamInfo('subtitle', {
-        'language': 'nl',
-    })
+    if resolved_stream.subtitles:
+        from urllib import quote
+        url = plugin.url_for(download_subtitle, url=quote(resolved_stream.subtitles[0]), filename='nl')
+        listitem.setSubtitles([url])
+        listitem.addStreamInfo('subtitle', {
+            'language': 'nl',
+        })
 
     listitem.setProperty('IsPlayable', 'true')
     listitem.setProperty('inputstreamaddon', 'inputstream.adaptive')
