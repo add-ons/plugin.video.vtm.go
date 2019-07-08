@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from __future__ import absolute_import, division, unicode_literals
+
 import json
 import logging
 import random
@@ -57,7 +58,7 @@ class VtmGoStream:
         # server_time = self._anvato_get_server_time(anvato_info['accessKey'])
 
         # Send a request for the stream info.
-        anvato_stream_info = self._anvato_get_stream_info(anvato_info['video'], anvato_info['accessKey'], anvato_info['token'])
+        anvato_stream_info = self._anvato_get_stream_info(anvato_info=anvato_info, stream_info=stream_info)
 
         # Get published urls.
         url = anvato_stream_info['published_urls'][0]['embed_url']
@@ -144,7 +145,7 @@ class VtmGoStream:
         return subtitles
 
     def _anvato_get_anvacks(self, access_key):
-        url = 'https://access-prod.apis.anvato.net/anvacks/' + access_key
+        url = 'https://access-prod.apis.anvato.net/anvacks/%s' % access_key
         logger.info('Getting anvacks from %s', url)
         response = self._session.get(url,
                                      params={
@@ -179,20 +180,33 @@ class VtmGoStream:
         info = json.loads(response.text)
         return info
 
-    def _anvato_get_stream_info(self, video_id, access_key, token):
-        url = 'https://tkx.apis.anvato.net/rest/v2/mcp/video/' + video_id
-        logger.info('Getting stream info from %s with access_key %s and token %s', url, access_key, token)
+    def _anvato_get_stream_info(self, anvato_info, stream_info):
+        url = 'https://tkx.apis.anvato.net/rest/v2/mcp/video/%s' % anvato_info['video']
+        logger.info('Getting stream info from %s with access_key %s and token %s', url, anvato_info['accessKey'], anvato_info['token'])
 
-        # TODO: We probably have to generate this json based on the stream info from the VTM API.
         response = self._session.post(url,
                                       json={
                                           "ads": {
+                                              "freewheel": {
+                                                  "custom": {
+                                                      "ml_apple_advertising_id": "",
+                                                      "ml_dmp_userid": "a77eb6ed-566f-4f11-9717-8c2e77e65c72",
+                                                      "ml_gdprconsent": "functional|analytics|content_recommendation|targeted_advertising|social_media",
+                                                      "ml_google_advertising_id": "a77eb6ed-566f-4f11-9717-8c2e77e65c72",
+                                                      "ml_userid": "f5f563399770e15830f6b01346d82434"
+                                                  },
+                                                  "network_id": stream_info['video']['ads']['freewheel']['networkId'],
+                                                  "profile_id": stream_info['video']['ads']['freewheel']['profileId'],
+                                                  "server_url": stream_info['video']['ads']['freewheel']['serverUrl'],
+                                                  "site_section_id": "mdl_vtmgo_phone_android_default",
+                                                  "video_asset_id": stream_info['video']['ads']['freewheel'].get('assetId', ''),
+                                              }
                                           },
                                           "api": {
-                                              "anvstk2": token
+                                              "anvstk2": anvato_info['token']
                                           },
                                           "content": {
-                                              "mcp_video_id": video_id
+                                              "mcp_video_id": anvato_info['video']
                                           },
                                           "sdkver": "5.0.39",
                                           "user": {
@@ -209,7 +223,7 @@ class VtmGoStream:
                                           "version": "3.0"
                                       },
                                       params={
-                                          'anvack': access_key,
+                                          'anvack': anvato_info['accessKey'],
                                           'anvtrid': self._generate_tracking_id(),
                                           'rtyp': 'fp',
                                       },
