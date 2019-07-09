@@ -198,9 +198,9 @@ class VtmGo:
 
     def get_items(self, category=None):
         if category:
-            response = self._get_url('/vtmgo/catalog?filter=' + category)
+            response = self._get_url('/vtmgo/catalog?pageSize=%d&filter=%s' % (1000, quote(category)))
         else:
-            response = self._get_url('/vtmgo/catalog')
+            response = self._get_url('/vtmgo/catalog?pageSize=%d' % 1000)
         info = json.loads(response)
 
         items = []
