@@ -1,5 +1,5 @@
 [![GitHub release](https://img.shields.io/github/release/michaelarnauts/plugin.video.vtm.go.svg)](https://github.com/michaelarnauts/plugin.video.vtm.go/releases)
-[![Build Status](https://travis-ci.org/michaelarnauts/plugin.video.vtm.go.svg?branch=master)](https://travis-ci.org/michaelarnauts/plugin.video.vtm.go)
+[![Build Status](https://travis-ci.com/michaelarnauts/plugin.video.vtm.go.svg?branch=master)](https://travis-ci.com/michaelarnauts/plugin.video.vtm.go)
 [![License: GPLv3](https://img.shields.io/badge/License-GPLv3-yellow.svg)](https://opensource.org/licenses/GPL-3.0)
 
 # VTM GO Kodi add-on
