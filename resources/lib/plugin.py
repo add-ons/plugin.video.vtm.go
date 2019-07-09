@@ -22,36 +22,45 @@ plugin = routing.Plugin()
 
 @plugin.route('/')
 def index():
-    item = ListItem('Live TV', offscreen=True)
-    item.setArt({'icon': 'DefaultAddonPVRClient.png'})
-    item.setInfo('video', {
-        'plot': 'Watch Live TV',
+    listitem = ListItem("A-Z", offscreen=True)
+    listitem.setArt({'icon': 'DefaultMovieTitle.png'})
+    listitem.setInfo('video', {
+        'plot': 'Alphabetically sorted list of programs',
     })
-    xbmcplugin.addDirectoryItem(plugin.handle, plugin.url_for(show_live), item, True)
+    xbmcplugin.addDirectoryItem(plugin.handle, plugin.url_for(show_catalog, category='all'), listitem, True)
 
-    item = ListItem('Catalogue', offscreen=True)
-    item.setArt({'icon': 'DefaultMovies.png'})
-    item.setInfo('video', {
-        'plot': 'Watch TV Shows and Movies',
+    listitem = ListItem('Catalogue', offscreen=True)
+    listitem.setArt({'icon': 'DefaultGenre.png'})
+    listitem.setInfo('video', {
+        'plot': 'TV Shows and Movies listed by category',
     })
-    xbmcplugin.addDirectoryItem(plugin.handle, plugin.url_for(show_catalog), item, True)
+    xbmcplugin.addDirectoryItem(plugin.handle, plugin.url_for(show_catalog), listitem, True)
+
+    listitem = ListItem('Live TV', offscreen=True)
+    listitem.setArt({'icon': 'DefaultAddonPVRClient.png'})
+    listitem.setInfo('video', {
+        'plot': 'Watch channels live via Internet',
+    })
+    xbmcplugin.addDirectoryItem(plugin.handle, plugin.url_for(show_live), listitem, True)
 
     # Only provide YouTube option when plugin.video.youtube is available
     if xbmc.getCondVisibility('System.HasAddon(plugin.video.youtube)') != 0:
-        item = ListItem('YouTube', offscreen=True)
-        item.setArt({'icon': 'DefaultAddonPVRClient.png'})
-        item.setInfo('video', {
+        listitem = ListItem('YouTube', offscreen=True)
+        listitem.setArt({'icon': 'DefaultTags.png'})
+        listitem.setInfo('video', {
             'plot': 'Watch YouTube content',
         })
-        xbmcplugin.addDirectoryItem(plugin.handle, plugin.url_for(show_youtube), item, True)
+        xbmcplugin.addDirectoryItem(plugin.handle, plugin.url_for(show_youtube), listitem, True)
 
-    item = ListItem('Search', offscreen=True)
-    item.setArt({'icon': 'DefaultAddonsSearch.png'})
-    item.setInfo('video', {
-        'plot': 'Search the Catalogue',
+    listitem = ListItem('Search', offscreen=True)
+    listitem.setArt({'icon': 'DefaultAddonsSearch.png'})
+    listitem.setInfo('video', {
+        'plot': 'Search the VTM GO catalogue',
     })
-    xbmcplugin.addDirectoryItem(plugin.handle, plugin.url_for(show_search), item, True)
+    xbmcplugin.addDirectoryItem(plugin.handle, plugin.url_for(show_search), listitem, True)
 
+    xbmcplugin.addSortMethod(plugin.handle, xbmcplugin.SORT_METHOD_UNSORTED)
+    xbmcplugin.addSortMethod(plugin.handle, xbmcplugin.SORT_METHOD_LABEL)
     xbmcplugin.endOfDirectory(plugin.handle)
 
 
@@ -90,12 +99,15 @@ def show_live():
         listitem.setInfo('video', {
             'plot': description,
             'playcount': 0,
+            'studio': channel.name,
+            'mediatype': channel.mediatype,
         })
         listitem.setProperty('IsPlayable', 'true')
 
         xbmcplugin.addDirectoryItem(plugin.handle, plugin.url_for(play_live, channel=channel.id) + '?.pvr', listitem)
 
-    xbmcplugin.addSortMethod(plugin.handle, xbmcplugin.SORT_METHOD_TITLE)
+    xbmcplugin.addSortMethod(plugin.handle, xbmcplugin.SORT_METHOD_UNSORTED)
+    xbmcplugin.addSortMethod(plugin.handle, xbmcplugin.SORT_METHOD_LABEL)
     xbmcplugin.endOfDirectory(plugin.handle)
 
 
@@ -113,7 +125,13 @@ def show_catalog(category=None):
 
         for cat in categories:
             listitem = ListItem(cat.title, offscreen=True)
+            listitem.setInfo('video', {
+                'plot': '[B]%s[/B]' % cat.title,
+            })
             xbmcplugin.addDirectoryItem(plugin.handle, plugin.url_for(show_catalog, category=cat.id), listitem, True)
+
+        xbmcplugin.addSortMethod(plugin.handle, xbmcplugin.SORT_METHOD_LABEL)
+        xbmcplugin.addSortMethod(plugin.handle, xbmcplugin.SORT_METHOD_UNSORTED)
 
     else:
         # Show the items of a category
@@ -127,11 +145,13 @@ def show_catalog(category=None):
         for item in items:
             listitem = ListItem(item.title, offscreen=True)
             listitem.setArt({
-                'poster': item.cover,
+                'thumb': item.cover,
+                'fanart': item.cover,
             })
             listitem.setInfo('video', {
                 'title': item.title,
                 'plot': item.description,
+                'mediatype': item.mediatype,
             })
             listitem.setProperty('IsPlayable', 'true')
 
@@ -142,8 +162,14 @@ def show_catalog(category=None):
             elif item.type == Content.CONTENT_TYPE_PROGRAM:
                 xbmcplugin.addDirectoryItem(plugin.handle, plugin.url_for(show_program, program=item.id), listitem, True)
 
-    xbmcplugin.setContent(plugin.handle, 'tvshows')
-    xbmcplugin.addSortMethod(plugin.handle, xbmcplugin.SORT_METHOD_TITLE)
+        if category == 'films':
+            xbmcplugin.setContent(plugin.handle, 'movies')
+        else:
+            xbmcplugin.setContent(plugin.handle, 'tvshows')
+
+        xbmcplugin.addSortMethod(plugin.handle, xbmcplugin.SORT_METHOD_UNSORTED)
+        xbmcplugin.addSortMethod(plugin.handle, xbmcplugin.SORT_METHOD_LABEL)
+
     xbmcplugin.endOfDirectory(plugin.handle)
 
 
@@ -159,7 +185,7 @@ def show_movie(movie):
     listitem = ListItem(movie_obj.name, offscreen=True)
     listitem.setPath(plugin.url_for(play_movie, movie=movie))
     listitem.setArt({
-        'poster': movie_obj.cover,
+        'thumb': movie_obj.cover,
         'fanart': movie_obj.cover,
     })
     listitem.setInfo('video', {
@@ -167,6 +193,7 @@ def show_movie(movie):
         'plot': movie_obj.description,
         'duration': movie_obj.duration,
         'year': movie_obj.year,
+        'mediatype': movie_obj.mediatype,
     })
     listitem.addStreamInfo('video', {
         'duration': movie_obj.duration,
@@ -187,25 +214,43 @@ def show_program(program, season=None):
         kodiutils.notification(ADDON.getAddonInfo('name'), ex.message)
         raise
 
-    if season is None:
+    seasons = program_obj.seasons.values()
+    if season is None and len(seasons) > 1:
         for s in program_obj.seasons.values():
             listitem = ListItem('Season %d' % s.number, offscreen=True)
+            listitem.setArt({
+                'thumb': s.cover,
+                'fanart': program_obj.cover,
+            })
             listitem.setInfo('video', {
+                'tvshowtitle': program_obj.name,
                 'title': 'Season %d' % s.number,
+                'subtitle': program_obj.description,
+                'plot': '[B]%s[/B]\n%s' % (program_obj.name, program_obj.description),
+                'set': program_obj.name,
             })
             xbmcplugin.addDirectoryItem(plugin.handle, plugin.url_for(show_program, program=program, season=s.number), listitem, True)
-        xbmcplugin.setContent(plugin.handle, 'videos')
+        xbmcplugin.setContent(plugin.handle, 'tvshows')
     else:
+        if season is None:
+            season = seasons[-1].number
         for episode in program_obj.seasons[int(season)].episodes.values():
             listitem = ListItem(episode.name, offscreen=True)
             listitem.setArt({
-                'poster': episode.cover,
-                'fanart': episode.cover,
+                'thumb': episode.cover,
+                'banner': program_obj.cover,
+                'fanart': program_obj.cover,
             })
             listitem.setInfo('video', {
+                'tvshowtitle': program_obj.name,
                 'title': episode.name,
+                'subtitle': program_obj.description,
                 'plot': episode.description,
                 'duration': episode.duration,
+                'season': episode.season,
+                'episode': episode.number,
+                'mediatype': episode.mediatype,
+                'set': program_obj.name,
             })
             listitem.addStreamInfo('video', {
                 'duration': episode.duration,
@@ -214,7 +259,10 @@ def show_program(program, season=None):
             xbmcplugin.addDirectoryItem(plugin.handle, plugin.url_for(play_episode, episode=episode.id), listitem)
         xbmcplugin.setContent(plugin.handle, 'episodes')
 
-    xbmcplugin.addSortMethod(plugin.handle, xbmcplugin.SORT_METHOD_TITLE)
+    xbmcplugin.addSortMethod(plugin.handle, xbmcplugin.SORT_METHOD_EPISODE)
+    xbmcplugin.addSortMethod(plugin.handle, xbmcplugin.SORT_METHOD_UNSORTED)
+    xbmcplugin.addSortMethod(plugin.handle, xbmcplugin.SORT_METHOD_LABEL)
+    xbmcplugin.addSortMethod(plugin.handle, xbmcplugin.SORT_METHOD_DURATION)
     xbmcplugin.endOfDirectory(plugin.handle)
 
 
@@ -222,14 +270,15 @@ def show_program(program, season=None):
 def show_youtube():
     from resources.lib import YOUTUBE
     for entry in YOUTUBE:
-        item = ListItem(entry.get('label'), offscreen=True)
-        item.setInfo('video', {
+        listitem = ListItem(entry.get('label'), offscreen=True)
+        listitem.setInfo('video', {
             'plot': 'Watch [B]%(label)s[/B] on YouTube' % entry,
             'studio': entry.get('studio'),
+            'mediatype': 'video',
         })
-        xbmcplugin.addDirectoryItem(plugin.handle, entry.get('path'), item, True)
+        xbmcplugin.addDirectoryItem(plugin.handle, entry.get('path'), listitem, True)
     xbmcplugin.addSortMethod(plugin.handle, xbmcplugin.SORT_METHOD_UNSORTED)
-    xbmcplugin.addSortMethod(plugin.handle, xbmcplugin.SORT_METHOD_TITLE)
+    xbmcplugin.addSortMethod(plugin.handle, xbmcplugin.SORT_METHOD_LABEL)
     xbmcplugin.endOfDirectory(plugin.handle)
 
 
@@ -253,6 +302,9 @@ def show_search():
     # Display results
     for item in items:
         listitem = ListItem(item.title, offscreen=True)
+        listitem.setInfo('video', {
+            'mediatype': 'tvshow',
+        })
 
         if item.type == Content.CONTENT_TYPE_MOVIE:
             # TODO: Doesn't seem to start the stream when I open it in an popup.
@@ -262,7 +314,8 @@ def show_search():
             xbmcplugin.addDirectoryItem(plugin.handle, plugin.url_for(show_program, program=item.id), listitem, True)
 
     xbmcplugin.setContent(plugin.handle, 'tvshows')
-    xbmcplugin.addSortMethod(plugin.handle, xbmcplugin.SORT_METHOD_TITLE)
+    xbmcplugin.addSortMethod(plugin.handle, xbmcplugin.SORT_METHOD_UNSORTED)
+    xbmcplugin.addSortMethod(plugin.handle, xbmcplugin.SORT_METHOD_LABEL)
     xbmcplugin.endOfDirectory(plugin.handle)
 
 
