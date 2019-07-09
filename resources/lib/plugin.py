@@ -36,6 +36,15 @@ def index():
     })
     xbmcplugin.addDirectoryItem(plugin.handle, plugin.url_for(show_catalog), item, True)
 
+    # Only provide YouTube option when plugin.video.youtube is available
+    if xbmc.getCondVisibility('System.HasAddon(plugin.video.youtube)') != 0:
+        item = ListItem('YouTube', offscreen=True)
+        item.setArt({'icon': 'DefaultAddonPVRClient.png'})
+        item.setInfo('video', {
+            'plot': 'Watch YouTube content',
+        })
+        xbmcplugin.addDirectoryItem(plugin.handle, plugin.url_for(show_youtube), item, True)
+
     item = ListItem('Search', offscreen=True)
     item.setArt({'icon': 'DefaultAddonsSearch.png'})
     item.setInfo('video', {
@@ -205,6 +214,21 @@ def show_program(program, season=None):
             xbmcplugin.addDirectoryItem(plugin.handle, plugin.url_for(play_episode, episode=episode.id), listitem)
         xbmcplugin.setContent(plugin.handle, 'episodes')
 
+    xbmcplugin.addSortMethod(plugin.handle, xbmcplugin.SORT_METHOD_TITLE)
+    xbmcplugin.endOfDirectory(plugin.handle)
+
+
+@plugin.route('/youtube')
+def show_youtube():
+    from resources.lib import YOUTUBE
+    for entry in YOUTUBE:
+        item = ListItem(entry.get('label'), offscreen=True)
+        item.setInfo('video', {
+            'plot': 'Watch [B]%(label)s[/B] on YouTube' % entry,
+            'studio': entry.get('studio'),
+        })
+        xbmcplugin.addDirectoryItem(plugin.handle, entry.get('path'), item, True)
+    xbmcplugin.addSortMethod(plugin.handle, xbmcplugin.SORT_METHOD_UNSORTED)
     xbmcplugin.addSortMethod(plugin.handle, xbmcplugin.SORT_METHOD_TITLE)
     xbmcplugin.endOfDirectory(plugin.handle)
 
