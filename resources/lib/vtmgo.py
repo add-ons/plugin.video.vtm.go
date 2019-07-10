@@ -5,7 +5,6 @@ import json
 import logging
 from urllib import quote
 
-import random
 import dateutil.parser
 import requests
 from xbmcaddon import Addon
@@ -53,7 +52,7 @@ class Category:
     def __init__(self, category_id=None, title=None):
         """
         Defines a Category from the Catalogue.
-        :type id: string
+        :type category_id: string
         :type title: string
         """
         self.id = category_id
@@ -70,11 +69,11 @@ class Content:
     def __init__(self, video_id=None, title=None, description=None, cover=None, video_type=None):
         """
         Defines a Category from the Catalogue.
-        :type id: basestring
+        :type video_id: basestring
         :type title: basestring
         :type description: basestring
         :type cover: basestring
-        :type type: basestring
+        :type video_type: basestring
         """
         self.id = video_id
         self.title = title
@@ -107,7 +106,7 @@ class Program:
     def __init__(self, program_id=None, name=None, description=None, cover=None, seasons=None):
         """
         Defines a Program.
-        :type id: basestring
+        :type program_id: basestring
         :type name: basestring
         :type description: basestring
         :type cover: basestring
@@ -130,6 +129,7 @@ class Season:
 
         :type number: basestring
         :type episodes: List[Episode]
+        :type cover: basestring
         """
         self.number = int(number)
         self.episodes = episodes
@@ -257,11 +257,10 @@ class VtmGo:
                     remaining=item_episode['remainingDaysAvailable'],
                 )
 
-            random_episode = random.choice(item_season['episodes'])
             seasons[item_season['index']] = Season(
                 number=item_season['index'],
                 episodes=episodes,
-                cover=random_episode['bigPhotoUrl'],
+                cover=item_season['episodes'][0]['bigPhotoUrl'],
             )
 
         return Program(
