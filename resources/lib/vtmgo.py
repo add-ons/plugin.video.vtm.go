@@ -26,6 +26,7 @@ class LiveChannel:
         self.name = name
         self.logo = logo
         self.epg = epg
+        self.mediatype = 'video'
 
     def __repr__(self):
         return "%r" % self.__dict__
@@ -51,7 +52,7 @@ class Category:
     def __init__(self, category_id=None, title=None):
         """
         Defines a Category from the Catalogue.
-        :type id: string
+        :type category_id: string
         :type title: string
         """
         self.id = category_id
@@ -68,17 +69,19 @@ class Content:
     def __init__(self, video_id=None, title=None, description=None, cover=None, video_type=None):
         """
         Defines a Category from the Catalogue.
-        :type id: basestring
+        :type video_id: basestring
         :type title: basestring
         :type description: basestring
         :type cover: basestring
-        :type type: basestring
+        :type video_type: basestring
         """
         self.id = video_id
         self.title = title
         self.description = description
         self.cover = cover
         self.type = video_type
+        # If it is a TV show we return None to get a folder icon
+        self.mediatype = 'movie' if video_type == self.CONTENT_TYPE_MOVIE else None
 
     def __repr__(self):
         return "%r" % self.__dict__
@@ -93,6 +96,7 @@ class Movie:
         self.cover = cover
         self.duration = duration
         self.remaining = remaining
+        self.mediatype = 'movie'
 
     def __repr__(self):
         return "%r" % self.__dict__
@@ -102,7 +106,7 @@ class Program:
     def __init__(self, program_id=None, name=None, description=None, cover=None, seasons=None):
         """
         Defines a Program.
-        :type id: basestring
+        :type program_id: basestring
         :type name: basestring
         :type description: basestring
         :type cover: basestring
@@ -113,20 +117,23 @@ class Program:
         self.description = description
         self.cover = cover
         self.seasons = seasons
+        self.mediatype = 'tvshow'
 
     def __repr__(self):
         return "%r" % self.__dict__
 
 
 class Season:
-    def __init__(self, number=None, episodes=None):
+    def __init__(self, number=None, episodes=None, cover=None):
         """
 
         :type number: basestring
         :type episodes: List[Episode]
+        :type cover: basestring
         """
         self.number = int(number)
         self.episodes = episodes
+        self.cover = cover
 
     def __repr__(self):
         return "%r" % self.__dict__
@@ -142,6 +149,7 @@ class Episode:
         self.cover = cover
         self.duration = int(duration) if duration else None
         self.remaining = int(remaining) if remaining else None
+        self.mediatype = 'episode'
 
     def __repr__(self):
         return "%r" % self.__dict__
@@ -197,10 +205,10 @@ class VtmGo:
         return categories
 
     def get_items(self, category=None):
-        if category:
+        if category and category != 'all':
             response = self._get_url('/vtmgo/catalog?pageSize=%d&filter=%s' % (1000, quote(category)))
         else:
-            response = self._get_url('/vtmgo/catalog?pageSize=%d' % 1000)
+            response = self._get_url('/vtmgo/catalog?pageSize=1000')
         info = json.loads(response)
 
         items = []
@@ -212,6 +220,8 @@ class VtmGo:
                 video_type=item['target']['type'],
             ))
 
+        # Ensure unsorted view shows movies and programs alphabetically
+        items = sorted(items, key=lambda k: k.title)
         return items
 
     def get_movie(self, movie_id):
@@ -249,7 +259,8 @@ class VtmGo:
 
             seasons[item_season['index']] = Season(
                 number=item_season['index'],
-                episodes=episodes
+                episodes=episodes,
+                cover=item_season['episodes'][0]['bigPhotoUrl'],
             )
 
         return Program(
@@ -267,7 +278,7 @@ class VtmGo:
     #     return info
 
     def do_search(self, search):
-        response = self._get_url('/vtmgo/autocomplete/?maxItems=10&keywords=%s' % quote(search))
+        response = self._get_url('/vtmgo/autocomplete/?maxItems=50&keywords=%s' % quote(search))
         results = json.loads(response)
 
         items = []
