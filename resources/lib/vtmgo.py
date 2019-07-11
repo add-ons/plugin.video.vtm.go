@@ -220,8 +220,6 @@ class VtmGo:
                 video_type=item['target']['type'],
             ))
 
-        # Ensure unsorted view shows movies and programs alphabetically
-        items = sorted(items, key=lambda k: k.title)
         return items
 
     def get_movie(self, movie_id):
