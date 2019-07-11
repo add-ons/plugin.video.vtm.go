@@ -363,7 +363,7 @@ def show_search():
     xbmcplugin.setContent(plugin.handle, 'tvshows')
 
     # Sort like we get our results back.
-    xbmcplugin.addSortMethod(plugin.handle, xbmcplugin.SORT_METHOD_LABEL)
+    xbmcplugin.addSortMethod(plugin.handle, xbmcplugin.SORT_METHOD_UNSORTED)
     xbmcplugin.endOfDirectory(plugin.handle)
 
 
