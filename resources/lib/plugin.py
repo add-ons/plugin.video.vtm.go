@@ -215,7 +215,26 @@ def show_program(program, season=None):
         raise
 
     seasons = program_obj.seasons.values()
+
+    # If more than one season and no season provided, give a season-overview
     if season is None and len(seasons) > 1:
+
+        # Add an '* All seasons' entry when configured in Kodi
+        if kodiutils.get_global_setting('videolibrary.showallitems') is True:
+            listitem = ListItem('* All seasons', offscreen=True)
+            listitem.setArt({
+                'thumb': program_obj.cover,
+                'fanart': program_obj.cover,
+            })
+            listitem.setInfo('video', {
+                'tvshowtitle': program_obj.name,
+                'title': 'All seasons',
+                'subtitle': program_obj.description,
+                'plot': '[B]%s[/B]\n%s' % (program_obj.name, program_obj.description),
+                'set': program_obj.name,
+            })
+            xbmcplugin.addDirectoryItem(plugin.handle, plugin.url_for(show_program, program=program, season='all'), listitem, True)
+
         for s in program_obj.seasons.values():
             listitem = ListItem('Season %d' % s.number, offscreen=True)
             listitem.setArt({
@@ -228,18 +247,27 @@ def show_program(program, season=None):
                 'subtitle': program_obj.description,
                 'plot': '[B]%s[/B]\n%s' % (program_obj.name, program_obj.description),
                 'set': program_obj.name,
+                'season': season,
             })
             xbmcplugin.addDirectoryItem(plugin.handle, plugin.url_for(show_program, program=program, season=s.number), listitem, True)
         xbmcplugin.setContent(plugin.handle, 'tvshows')
-    else:
-        if season is None:
-            season = seasons[-1].number
-        for episode in program_obj.seasons[int(season)].episodes.values():
+        xbmcplugin.addSortMethod(plugin.handle, xbmcplugin.SORT_METHOD_EPISODE)
+        xbmcplugin.addSortMethod(plugin.handle, xbmcplugin.SORT_METHOD_LABEL)
+        xbmcplugin.addSortMethod(plugin.handle, xbmcplugin.SORT_METHOD_UNSORTED)  # If you use unsorted, seasons go like: 8, 1, 9, 7
+        xbmcplugin.endOfDirectory(plugin.handle)
+        return
+
+    elif season != 'all' and season is not None:
+        # Use the season that was selected
+        seasons = [program_obj.seasons[int(season)]]
+
+    for s in seasons:
+        for episode in s.episodes.values():
             listitem = ListItem(episode.name, offscreen=True)
             listitem.setArt({
-                'thumb': episode.cover,
                 'banner': program_obj.cover,
                 'fanart': program_obj.cover,
+                'thumb': episode.cover,
             })
             listitem.setInfo('video', {
                 'tvshowtitle': program_obj.name,
@@ -257,10 +285,14 @@ def show_program(program, season=None):
             })
             listitem.setProperty('IsPlayable', 'true')
             xbmcplugin.addDirectoryItem(plugin.handle, plugin.url_for(play_episode, episode=episode.id), listitem)
-        xbmcplugin.setContent(plugin.handle, 'episodes')
 
-    xbmcplugin.addSortMethod(plugin.handle, xbmcplugin.SORT_METHOD_UNSORTED)
-    xbmcplugin.addSortMethod(plugin.handle, xbmcplugin.SORT_METHOD_EPISODE)
+    xbmcplugin.setContent(plugin.handle, 'episodes')
+    if season == 'all':  # If we sort episodes of all seasons, sorting by episode sorts also by season
+        xbmcplugin.addSortMethod(plugin.handle, xbmcplugin.SORT_METHOD_EPISODE)
+        xbmcplugin.addSortMethod(plugin.handle, xbmcplugin.SORT_METHOD_UNSORTED)
+    else:
+        xbmcplugin.addSortMethod(plugin.handle, xbmcplugin.SORT_METHOD_UNSORTED)
+        xbmcplugin.addSortMethod(plugin.handle, xbmcplugin.SORT_METHOD_EPISODE)
     xbmcplugin.addSortMethod(plugin.handle, xbmcplugin.SORT_METHOD_LABEL)
     xbmcplugin.addSortMethod(plugin.handle, xbmcplugin.SORT_METHOD_DURATION)
     xbmcplugin.endOfDirectory(plugin.handle)

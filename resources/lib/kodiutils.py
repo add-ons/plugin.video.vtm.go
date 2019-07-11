@@ -67,3 +67,9 @@ def kodi_json_request(params):
     except KeyError:
         logger.warn("[%s] %s", params['method'], response['error']['message'])
         return None
+
+
+def get_global_setting(setting):
+    ''' Get a Kodi setting '''
+    json_result = xbmc.executeJSONRPC('{"jsonrpc": "2.0", "method": "Settings.GetSettingValue", "params": {"setting": "%s"}, "id": 1}' % setting)
+    return json.loads(json_result).get('result', dict()).get('value')
