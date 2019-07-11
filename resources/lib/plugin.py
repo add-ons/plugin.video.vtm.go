@@ -190,7 +190,7 @@ def show_movie(movie):
     })
     listitem.setInfo('video', {
         'title': movie_obj.name,
-        'plot': movie_obj.description,
+        'plot': _format_remaining(movie_obj.remaining) + movie_obj.description,
         'duration': movie_obj.duration,
         'year': movie_obj.year,
         'mediatype': movie_obj.mediatype,
@@ -273,7 +273,7 @@ def show_program(program, season=None):
                 'tvshowtitle': program_obj.name,
                 'title': episode.name,
                 'subtitle': program_obj.description,
-                'plot': episode.description,
+                'plot': _format_remaining(episode.remaining) + episode.description,
                 'duration': episode.duration,
                 'season': episode.season,
                 'episode': episode.number,
@@ -364,6 +364,19 @@ def play_movie(movie):
 @plugin.route('/play/episode/<episode>')
 def play_episode(episode):
     _stream('episodes', episode)
+
+
+def _format_remaining(days):
+    if days is None:
+        return ''
+    elif days == 0:
+        availability = 'Available until midnight'
+    elif days == 1:
+        availability = '%d day remaining' % days
+    else:
+        availability = '%d days remaining' % days
+
+    return '[COLOR silver]%s[/COLOR]\n\n' % availability
 
 
 def _stream(strtype, strid):

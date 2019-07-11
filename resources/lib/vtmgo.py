@@ -148,7 +148,7 @@ class Episode:
         self.description = description
         self.cover = cover
         self.duration = int(duration) if duration else None
-        self.remaining = int(remaining) if remaining else None
+        self.remaining = int(remaining) if remaining is not None else None
         self.mediatype = 'episode'
 
     def __repr__(self):
