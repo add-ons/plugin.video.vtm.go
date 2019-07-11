@@ -164,12 +164,10 @@ def show_catalog(category=None):
             listitem.setProperty('IsPlayable', 'true')
 
             if item.type == Content.CONTENT_TYPE_MOVIE:
-                xbmcplugin.addDirectoryItem(
-                    plugin.handle, plugin.url_for(play_movie, movie=item.id), listitem)
+                xbmcplugin.addDirectoryItem(plugin.handle, plugin.url_for(play_movie, movie=item.id), listitem)
 
             elif item.type == Content.CONTENT_TYPE_PROGRAM:
-                xbmcplugin.addDirectoryItem(
-                    plugin.handle, plugin.url_for(show_program, program=item.id), listitem, True)
+                xbmcplugin.addDirectoryItem(plugin.handle, plugin.url_for(show_program, program=item.id), listitem, True)
 
         if category == 'films':
             xbmcplugin.setContent(plugin.handle, 'movies')
@@ -243,8 +241,7 @@ def show_program(program, season=None):
                 'plot': '[B]%s[/B]\n%s' % (program_obj.name, program_obj.description),
                 'set': program_obj.name,
             })
-            xbmcplugin.addDirectoryItem(plugin.handle, plugin.url_for(show_program, program=program, season='all'),
-                                        listitem, True)
+            xbmcplugin.addDirectoryItem(plugin.handle, plugin.url_for(show_program, program=program, season='all'), listitem, True)
 
         for s in program_obj.seasons.values():
             listitem = ListItem('Season %d' % s.number, offscreen=True)
@@ -260,8 +257,7 @@ def show_program(program, season=None):
                 'set': program_obj.name,
                 'season': season,
             })
-            xbmcplugin.addDirectoryItem(plugin.handle, plugin.url_for(show_program, program=program, season=s.number),
-                                        listitem, True)
+            xbmcplugin.addDirectoryItem(plugin.handle, plugin.url_for(show_program, program=program, season=s.number), listitem, True)
         xbmcplugin.setContent(plugin.handle, 'tvshows')
 
         # Sort by label. Some programs return seasons unordered.
@@ -350,20 +346,19 @@ def show_search():
             listitem.setInfo('video', {
                 'mediatype': 'movie',
             })
-            xbmcplugin.addDirectoryItem(
-                plugin.handle, plugin.url_for(play_movie, movie=item.id), listitem)
+            xbmcplugin.addDirectoryItem(plugin.handle, plugin.url_for(play_movie, movie=item.id), listitem)
 
         elif item.type == Content.CONTENT_TYPE_PROGRAM:
             listitem.setInfo('video', {
                 'mediatype': None,  # This shows a folder icon
             })
-            xbmcplugin.addDirectoryItem(
-                plugin.handle, plugin.url_for(show_program, program=item.id), listitem, True)
+            xbmcplugin.addDirectoryItem(plugin.handle, plugin.url_for(show_program, program=item.id), listitem, True)
 
     xbmcplugin.setContent(plugin.handle, 'tvshows')
 
     # Sort like we get our results back.
     xbmcplugin.addSortMethod(plugin.handle, xbmcplugin.SORT_METHOD_UNSORTED)
+    xbmcplugin.addSortMethod(plugin.handle, xbmcplugin.SORT_METHOD_LABEL_IGNORE_FOLDERS)
     xbmcplugin.endOfDirectory(plugin.handle)
 
 
