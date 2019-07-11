@@ -1,14 +1,15 @@
 # -*- coding: utf-8 -*-
 
 from __future__ import absolute_import, division, unicode_literals
+
 import logging
 
 import xbmc
-from xbmcaddon import Addon
 import xbmcplugin
+from xbmcaddon import Addon
 from xbmcgui import Dialog, ListItem
-import routing
 
+import routing
 from resources.lib import kodilogging
 from resources.lib import kodiutils
 from resources.lib import vtmgostream
@@ -60,7 +61,6 @@ def index():
     xbmcplugin.addDirectoryItem(plugin.handle, plugin.url_for(show_search), listitem, True)
 
     xbmcplugin.addSortMethod(plugin.handle, xbmcplugin.SORT_METHOD_UNSORTED)
-    xbmcplugin.addSortMethod(plugin.handle, xbmcplugin.SORT_METHOD_LABEL)
     xbmcplugin.endOfDirectory(plugin.handle)
 
 
@@ -82,7 +82,10 @@ def show_live():
         description = ''
         try:
             if channel.epg[0]:
-                description = 'Now: ' + channel.epg[0].start.strftime('%H:%M') + ' - ' + channel.epg[0].end.strftime('%H:%M') + '\n'
+                description = 'Now: %s - %s\n' % (
+                    channel.epg[0].start.strftime('%H:%M'),
+                    channel.epg[0].end.strftime('%H:%M')
+                )
                 description += channel.epg[0].title + '\n'
                 description += '\n'
         except IndexError:
@@ -90,7 +93,10 @@ def show_live():
 
         try:
             if channel.epg[1]:
-                description += 'Next: ' + channel.epg[1].start.strftime('%H:%M') + ' - ' + channel.epg[1].end.strftime('%H:%M') + '\n'
+                description += 'Next: %s - %s\n' % (
+                    channel.epg[1].start.strftime('%H:%M'),
+                    channel.epg[1].end.strftime('%H:%M')
+                )
                 description += channel.epg[1].title + '\n'
                 description += '\n'
         except IndexError:
@@ -106,6 +112,7 @@ def show_live():
 
         xbmcplugin.addDirectoryItem(plugin.handle, plugin.url_for(play_live, channel=channel.id) + '?.pvr', listitem)
 
+    # Sort live channels by default like in VTM GO.
     xbmcplugin.addSortMethod(plugin.handle, xbmcplugin.SORT_METHOD_UNSORTED)
     xbmcplugin.addSortMethod(plugin.handle, xbmcplugin.SORT_METHOD_LABEL)
     xbmcplugin.endOfDirectory(plugin.handle)
@@ -130,8 +137,9 @@ def show_catalog(category=None):
             })
             xbmcplugin.addDirectoryItem(plugin.handle, plugin.url_for(show_catalog, category=cat.id), listitem, True)
 
-        xbmcplugin.addSortMethod(plugin.handle, xbmcplugin.SORT_METHOD_LABEL)
+        # Sort categories by default like in VTM GO.
         xbmcplugin.addSortMethod(plugin.handle, xbmcplugin.SORT_METHOD_UNSORTED)
+        xbmcplugin.addSortMethod(plugin.handle, xbmcplugin.SORT_METHOD_LABEL)
 
     else:
         # Show the items of a category
@@ -156,9 +164,8 @@ def show_catalog(category=None):
             listitem.setProperty('IsPlayable', 'true')
 
             if item.type == Content.CONTENT_TYPE_MOVIE:
-                # TODO: Doesn't seem to start the stream when I open it in an popup.
-                # xbmcplugin.addDirectoryItem(plugin.handle, plugin.url_for(show_movie, movie=item.id), listitem)
                 xbmcplugin.addDirectoryItem(plugin.handle, plugin.url_for(play_movie, movie=item.id), listitem)
+
             elif item.type == Content.CONTENT_TYPE_PROGRAM:
                 xbmcplugin.addDirectoryItem(plugin.handle, plugin.url_for(show_program, program=item.id), listitem, True)
 
@@ -167,8 +174,9 @@ def show_catalog(category=None):
         else:
             xbmcplugin.setContent(plugin.handle, 'tvshows')
 
-        xbmcplugin.addSortMethod(plugin.handle, xbmcplugin.SORT_METHOD_UNSORTED)
-        xbmcplugin.addSortMethod(plugin.handle, xbmcplugin.SORT_METHOD_LABEL)
+        # Sort items by label, but don't put folders at the top.
+        # Used for A-Z listing or when movies and episodes are mixed.
+        xbmcplugin.addSortMethod(plugin.handle, xbmcplugin.SORT_METHOD_LABEL_IGNORE_FOLDERS)
 
     xbmcplugin.endOfDirectory(plugin.handle)
 
@@ -251,9 +259,9 @@ def show_program(program, season=None):
             })
             xbmcplugin.addDirectoryItem(plugin.handle, plugin.url_for(show_program, program=program, season=s.number), listitem, True)
         xbmcplugin.setContent(plugin.handle, 'tvshows')
-        xbmcplugin.addSortMethod(plugin.handle, xbmcplugin.SORT_METHOD_EPISODE)
+
+        # Sort by label. Some programs return seasons unordered.
         xbmcplugin.addSortMethod(plugin.handle, xbmcplugin.SORT_METHOD_LABEL)
-        xbmcplugin.addSortMethod(plugin.handle, xbmcplugin.SORT_METHOD_UNSORTED)  # If you use unsorted, seasons go like: 8, 1, 9, 7
         xbmcplugin.endOfDirectory(plugin.handle)
         return
 
@@ -287,12 +295,9 @@ def show_program(program, season=None):
             xbmcplugin.addDirectoryItem(plugin.handle, plugin.url_for(play_episode, episode=episode.id), listitem)
 
     xbmcplugin.setContent(plugin.handle, 'episodes')
-    if season == 'all':  # If we sort episodes of all seasons, sorting by episode sorts also by season
-        xbmcplugin.addSortMethod(plugin.handle, xbmcplugin.SORT_METHOD_EPISODE)
-        xbmcplugin.addSortMethod(plugin.handle, xbmcplugin.SORT_METHOD_UNSORTED)
-    else:
-        xbmcplugin.addSortMethod(plugin.handle, xbmcplugin.SORT_METHOD_UNSORTED)
-        xbmcplugin.addSortMethod(plugin.handle, xbmcplugin.SORT_METHOD_EPISODE)
+
+    # Sort by episode number by default. Takes seasons into account.
+    xbmcplugin.addSortMethod(plugin.handle, xbmcplugin.SORT_METHOD_EPISODE)
     xbmcplugin.addSortMethod(plugin.handle, xbmcplugin.SORT_METHOD_LABEL)
     xbmcplugin.addSortMethod(plugin.handle, xbmcplugin.SORT_METHOD_DURATION)
     xbmcplugin.endOfDirectory(plugin.handle)
@@ -309,6 +314,8 @@ def show_youtube():
             'mediatype': 'video',
         })
         xbmcplugin.addDirectoryItem(plugin.handle, entry.get('path'), listitem, True)
+
+    # Sort by default like in our dict.
     xbmcplugin.addSortMethod(plugin.handle, xbmcplugin.SORT_METHOD_UNSORTED)
     xbmcplugin.addSortMethod(plugin.handle, xbmcplugin.SORT_METHOD_LABEL)
     xbmcplugin.endOfDirectory(plugin.handle)
@@ -334,20 +341,24 @@ def show_search():
     # Display results
     for item in items:
         listitem = ListItem(item.title, offscreen=True)
-        listitem.setInfo('video', {
-            'mediatype': 'tvshow',
-        })
 
         if item.type == Content.CONTENT_TYPE_MOVIE:
-            # TODO: Doesn't seem to start the stream when I open it in an popup.
-            # xbmcplugin.addDirectoryItem(plugin.handle, plugin.url_for(show_movie, movie=item.id), listitem)
+            listitem.setInfo('video', {
+                'mediatype': 'movie',
+            })
             xbmcplugin.addDirectoryItem(plugin.handle, plugin.url_for(play_movie, movie=item.id), listitem)
+
         elif item.type == Content.CONTENT_TYPE_PROGRAM:
+            listitem.setInfo('video', {
+                'mediatype': None,  # This shows a folder icon
+            })
             xbmcplugin.addDirectoryItem(plugin.handle, plugin.url_for(show_program, program=item.id), listitem, True)
 
     xbmcplugin.setContent(plugin.handle, 'tvshows')
+
+    # Sort like we get our results back.
     xbmcplugin.addSortMethod(plugin.handle, xbmcplugin.SORT_METHOD_UNSORTED)
-    xbmcplugin.addSortMethod(plugin.handle, xbmcplugin.SORT_METHOD_LABEL)
+    xbmcplugin.addSortMethod(plugin.handle, xbmcplugin.SORT_METHOD_LABEL_IGNORE_FOLDERS)
     xbmcplugin.endOfDirectory(plugin.handle)
 
 
