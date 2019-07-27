@@ -10,6 +10,7 @@ from urllib import urlencode, quote
 
 import requests
 from xbmcaddon import Addon
+from resources.lib.kodiutils import proxies
 
 ADDON = Addon()
 logger = logging.getLogger(ADDON.getAddonInfo('id'))
@@ -118,7 +119,8 @@ class VtmGoStream:
                                          'x-api-key': self._VTM_API_KEY,
                                          'Popcorn-SDK-Version': '1',
                                          'User-Agent': 'Dalvik/2.1.0 (Linux; U; Android 6.0.1; Nexus 5 Build/M4B30Z)',
-                                     })
+                                     },
+                                     proxies=proxies)
 
         if response.status_code != 200:
             raise Exception('Error %s in _get_stream_info.' % response.status_code)

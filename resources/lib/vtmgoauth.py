@@ -10,6 +10,7 @@ import re
 import requests
 from requests.exceptions import InvalidSchema
 from xbmcaddon import Addon
+from resources.lib.kodiutils import proxies
 
 ADDON = Addon()
 logger = logging.getLogger(ADDON.getAddonInfo('id'))
@@ -38,7 +39,7 @@ class VtmGoAuth:
             'scope': 'openid profile'
         }, headers={
             'User-Agent': 'Mozilla/5.0 (Linux; Android 6.0.1; Nexus 5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/74.0.3729.157 Mobile Safari/537.36'
-        })
+        }, proxies=proxies)
 
         # Now, send the login details. We will be redirected to vtmgo:// when we succeed. We then can extract an authorizationCode that we need to continue.
         try:
