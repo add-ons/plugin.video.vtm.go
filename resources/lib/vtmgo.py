@@ -77,7 +77,7 @@ class Content:
         """
         self.id = video_id
         self.title = title
-        self.description = description
+        self.description = description if description else ''
         self.cover = cover
         self.type = video_type
         # If it is a TV show we return None to get a folder icon
@@ -91,7 +91,7 @@ class Movie:
     def __init__(self, movie_id=None, name=None, description=None, year=None, cover=None, duration=None, remaining=None):
         self.id = movie_id
         self.name = name
-        self.description = description
+        self.description = description if description else ''
         self.year = year
         self.cover = cover
         self.duration = duration
@@ -114,7 +114,7 @@ class Program:
         """
         self.id = program_id
         self.name = name
-        self.description = description
+        self.description = description if description else ''
         self.cover = cover
         self.seasons = seasons
         self.mediatype = 'tvshow'
@@ -145,7 +145,7 @@ class Episode:
         self.number = int(number)
         self.season = int(season)
         self.name = name
-        self.description = description
+        self.description = description if description else ''
         self.cover = cover
         self.duration = int(duration) if duration else None
         self.remaining = int(remaining) if remaining is not None else None
