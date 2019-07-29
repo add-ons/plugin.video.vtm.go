@@ -8,6 +8,7 @@ from urllib import quote
 import dateutil.parser
 import requests
 from xbmcaddon import Addon
+from resources.lib.kodiutils import proxies
 
 ADDON = Addon()
 logger = logging.getLogger(ADDON.getAddonInfo('id'))
@@ -301,7 +302,7 @@ class VtmGo:
         if auth:
             headers['x-dpp-jwt'] = auth
 
-        response = requests.session().get('https://api.vtmgo.be' + url, headers=headers, verify=False)
+        response = requests.session().get('https://api.vtmgo.be' + url, headers=headers, verify=False, proxies=proxies)
 
         if response.status_code != 200:
             raise Exception('Error %s.' % response.status_code)
