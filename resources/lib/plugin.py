@@ -417,20 +417,28 @@ def _stream(strtype, strid):
 
     listitem.setProperty('IsPlayable', 'true')
     listitem.setProperty('inputstreamaddon', 'inputstream.adaptive')
-    listitem.setProperty('inputstream.adaptive.license_type', 'com.widevine.alpha')
     listitem.setProperty('inputstream.adaptive.manifest_type', 'mpd')
-    listitem.setProperty('inputstream.adaptive.license_key',
-                         _vtmgostream.create_license_key(resolved_stream.license_url, key_headers={
-                             'User-Agent': 'ANVSDK Android/5.0.39 (Linux; Android 6.0.1; Nexus 5)',
-                         }))
-
-    if strtype == 'channels':
-        listitem.setProperty('inputstream.adaptive.manifest_update_parameter', 'full')
-
     listitem.setMimeType('application/dash+xml')
     listitem.setContentLookup(False)
 
-    xbmcplugin.setResolvedUrl(plugin.handle, True, listitem)
+    if strtype == 'channels':
+        listitem.setProperty('inputstream.adaptive.manifest_update_parameter', 'full')
+    try:
+        from inputstreamhelper import Helper
+    except ImportError:
+        Dialog().ok(heading='VTM GO Add-on', line1='Please reboot Kodi')
+        return
+    is_helper = Helper('mpd', drm='com.widevine.alpha')
+    if is_helper.check_inputstream():
+        listitem.setProperty('inputstream.adaptive.license_type', 'com.widevine.alpha')
+        listitem.setProperty('inputstream.adaptive.license_key',
+                             _vtmgostream.create_license_key(resolved_stream.license_url, key_headers={
+                                 'User-Agent': 'ANVSDK Android/5.0.39 (Linux; Android 6.0.1; Nexus 5)',
+                             }))
+
+        xbmcplugin.setResolvedUrl(plugin.handle, True, listitem)
+    else:
+        Dialog().ok(heading='VTM GO Add-on', line1='You need to install InputStream Adaptive and Widevine CDM in Kodi to play this stream')
 
 
 def run(params):
