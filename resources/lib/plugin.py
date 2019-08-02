@@ -23,7 +23,7 @@ plugin = routing.Plugin()
 
 @plugin.route('/')
 def index():
-    listitem = ListItem("A-Z", offscreen=True)
+    listitem = ListItem('A-Z', offscreen=True)
     listitem.setArt({'icon': 'DefaultMovieTitle.png'})
     listitem.setInfo('video', {
         'plot': 'Alphabetically sorted list of programs',
@@ -62,6 +62,21 @@ def index():
 
     xbmcplugin.addSortMethod(plugin.handle, xbmcplugin.SORT_METHOD_UNSORTED)
     xbmcplugin.endOfDirectory(plugin.handle)
+
+
+@plugin.route('/check-credentials')
+def check_credentials():
+    from resources.lib import vtmgoauth
+    auth = vtmgoauth.VtmGoAuth(username=kodiutils.get_setting('email'), password=kodiutils.get_setting('password'))
+
+    try:
+        auth.login()
+        kodiutils.show_ok_dialog(ADDON.getAddonInfo('name'), 'Credentials are correct!')
+    except:
+        kodiutils.show_ok_dialog(ADDON.getAddonInfo('name'), 'Your credentials are not valid!')
+        raise
+
+    kodiutils.show_settings()
 
 
 @plugin.route('/live')
@@ -426,7 +441,7 @@ def _stream(strtype, strid):
     try:
         from inputstreamhelper import Helper
     except ImportError:
-        Dialog().ok(heading='VTM GO Add-on', line1='Please reboot Kodi')
+        Dialog().ok(heading=ADDON.getAddonInfo('name'), line1='Please reboot Kodi')
         return
     is_helper = Helper('mpd', drm='com.widevine.alpha')
     if is_helper.check_inputstream():
@@ -438,7 +453,7 @@ def _stream(strtype, strid):
 
         xbmcplugin.setResolvedUrl(plugin.handle, True, listitem)
     else:
-        Dialog().ok(heading='VTM GO Add-on', line1='You need to install InputStream Adaptive and Widevine CDM in Kodi to play this stream')
+        Dialog().ok(heading=ADDON.getAddonInfo('name'), line1='You need to install InputStream Adaptive and Widevine CDM in Kodi to play this stream')
 
 
 def run(params):
