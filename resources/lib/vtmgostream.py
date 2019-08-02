@@ -65,8 +65,12 @@ class VtmGoStream:
         url = anvato_stream_info['published_urls'][0]['embed_url']
         license_url = anvato_stream_info['published_urls'][0]['license_url']
 
-        # Try to resolve the manifest so we get a playable url.
-        url = self._resolve_manifest(url)
+        # Get MPEG DASH manifest url
+        url = self._download_manifest(url)
+
+        # Follow Location tag redirection because InputStream Adaptive doesn't support this yet
+        # https://github.com/peak3d/inputstream.adaptive/issues/286
+        url = self._redirect_manifest(url)
 
         # Extract subtitle info from our stream_info.
         subtitle_info = self._extract_subtitles_from_stream_info(stream_info)
@@ -246,8 +250,8 @@ class VtmGoStream:
         letters = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'
         return ''.join(random.choice(letters) for i in range(length))
 
-    def _download_manifest(self, url):
-        logger.info('Downloading manifest from %s', url)
+    def _download_text(self, url):
+        logger.info('Downloading text from %s', url)
         response = self._session.get(url,
                                      headers={
                                          'X-Anvato-User-Agent': self._ANVATO_USER_AGENT,
@@ -258,25 +262,27 @@ class VtmGoStream:
 
         return response.text
 
-    def _resolve_manifest(self, url):
-        # Download url and return Location so we follow redirection.
-        download = self._download_manifest(url)
-
-        # Follow when a <Location>url</Location> tag is found.
-        # https://github.com/peak3d/inputstream.adaptive/issues/286
-        matches = re.search(r"<Location>([^<]+)</Location>", download)
-        if matches:
-            logger.info('Followed redirection from %s to %s', url, matches.group(1))
-            return matches.group(1)
-
-        # Follow when a json with a master_m3u8 field is found.
+    def _download_manifest(self, url):
+        download = self._download_text(url)
         try:
             decoded = json.loads(download)
             if decoded['master_m3u8']:
                 logger.info('Followed redirection from %s to %s', url, decoded['master_m3u8'])
                 return decoded['master_m3u8']
         except Exception:
-            pass
+            logger.error('No manifest url found %s', url)
+
+        # Fallback to the url like we have it
+        return url
+
+    def _redirect_manifest(self, url):
+        # Follow when a <Location>url</Location> tag is found.
+        # https://github.com/peak3d/inputstream.adaptive/issues/286
+        download = self._download_text(url)
+        matches = re.search(r"<Location>([^<]+)</Location>", download)
+        if matches:
+            logger.info('Followed redirection from %s to %s', url, matches.group(1))
+            return matches.group(1)
 
         # Fallback to the url like we have it
         return url
