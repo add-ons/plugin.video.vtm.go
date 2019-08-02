@@ -10,6 +10,7 @@ import re
 import requests
 from requests.exceptions import InvalidSchema
 from xbmcaddon import Addon
+
 from resources.lib.kodiutils import proxies
 
 ADDON = Addon()
@@ -43,12 +44,17 @@ class VtmGoAuth:
 
         # Now, send the login details. We will be redirected to vtmgo:// when we succeed. We then can extract an authorizationCode that we need to continue.
         try:
-            session.post('https://login2.vtm.be/login/emailfirst/password?client_id=vtm-go-android', data={
+            response = session.post('https://login2.vtm.be/login/emailfirst/password?client_id=vtm-go-android', data={
                 'userName': self._username,
                 'password': self._password,
                 'jsEnabled': 'true',
             })
-            raise Exception('Invalid login details')
+
+            if 'Wachtwoord is niet correct' in response.text:
+                raise Exception('Invalid login details')
+
+            raise Exception('Unknown error while logging in')
+
         except InvalidSchema as e:
             # We get back an url like this: vtmgo://callback/oidc?state=yyyyyyyyyyyyyyyyyyyyyy&code=xxxxxxxxxxxxxxxxxxxxxxxxxx-xxxxxxxxxxxxxxxx
             # I found no other way to get this url then by parsing the Exception message. :(
