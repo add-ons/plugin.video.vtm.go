@@ -10,7 +10,7 @@ from urllib import urlencode, quote
 
 import requests
 from xbmcaddon import Addon
-from resources.lib.kodiutils import proxies
+from resources.lib.kodiutils import proxies, show_ok_dialog
 
 ADDON = Addon()
 logger = logging.getLogger(ADDON.getAddonInfo('id'))
@@ -60,6 +60,8 @@ class VtmGoStream:
 
         # Send a request for the stream info.
         anvato_stream_info = self._anvato_get_stream_info(anvato_info=anvato_info, stream_info=stream_info)
+        if anvato_stream_info is None:
+            return None  # No stream available (i.e. geo-blocked)
 
         # Get published urls.
         url = anvato_stream_info['published_urls'][0]['embed_url']
@@ -126,6 +128,9 @@ class VtmGoStream:
                                      },
                                      proxies=proxies)
 
+        if response.status_code == 403:
+            show_ok_dialog(heading='HTTP 403 Forbidden', message='This video may be geo-blocked, or your account is already being used currently.')
+            return None
         if response.status_code != 200:
             raise Exception('Error %s in _get_stream_info.' % response.status_code)
 
@@ -237,6 +242,9 @@ class VtmGoStream:
                                           'X-Anvato-User-Agent': self._ANVATO_USER_AGENT,
                                           'User-Agent': self._ANVATO_USER_AGENT,
                                       })
+        if response.status_code == 403:
+            show_ok_dialog(heading='HTTP 403 Forbidden', message='This video may be geo-blocked, or your account is already being used currently.')
+            return None
         if response.status_code != 200:
             raise Exception('Error %s.' % response.status_code)
 

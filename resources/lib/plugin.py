@@ -11,8 +11,8 @@ from xbmcgui import Dialog, ListItem
 
 import routing
 from resources.lib import kodilogging
-from resources.lib import kodiutils
 from resources.lib import vtmgostream
+from resources.lib.kodiutils import get_setting, get_global_setting, notification, show_ok_dialog, show_settings
 from resources.lib.vtmgo import VtmGo, Content
 
 ADDON = Addon()
@@ -67,16 +67,16 @@ def index():
 @plugin.route('/check-credentials')
 def check_credentials():
     from resources.lib import vtmgoauth
-    auth = vtmgoauth.VtmGoAuth(username=kodiutils.get_setting('email'), password=kodiutils.get_setting('password'))
+    auth = vtmgoauth.VtmGoAuth(username=get_setting('email'), password=get_setting('password'))
 
     try:
         auth.login()
-        kodiutils.show_ok_dialog(ADDON.getAddonInfo('name'), 'Credentials are correct!')
-    except:
-        kodiutils.show_ok_dialog(ADDON.getAddonInfo('name'), 'Your credentials are not valid!')
+        show_ok_dialog(message='Credentials are correct!')
+    except Exception:  # FIXME: This ought to be more specific
+        show_ok_dialog(message='Your credentials are not valid!')
         raise
 
-    kodiutils.show_settings()
+    show_settings()
 
 
 @plugin.route('/live')
@@ -85,7 +85,7 @@ def show_live():
         _vtmGo = VtmGo()
         channels = _vtmGo.get_live()
     except Exception as ex:
-        kodiutils.notification(ADDON.getAddonInfo('name'), ex.message)
+        notification(message=ex.message)
         raise
 
     for channel in channels:
@@ -94,28 +94,22 @@ def show_live():
             'icon': channel.logo,
         })
 
-        description = ''
-        try:
-            if channel.epg[0]:
-                description = 'Now: %s - %s\n' % (
-                    channel.epg[0].start.strftime('%H:%M'),
-                    channel.epg[0].end.strftime('%H:%M')
-                )
-                description += channel.epg[0].title + '\n'
-                description += '\n'
-        except IndexError:
-            pass
+        description = '[B][COLOR red]Geo-blocked[/COLOR][/B]\n\n'
+        if channel.epg:
+            description += 'Now: %s - %s\n' % (
+                channel.epg[0].start.strftime('%H:%M'),
+                channel.epg[0].end.strftime('%H:%M')
+            )
+            description += channel.epg[0].title + '\n'
+            description += '\n'
 
-        try:
-            if channel.epg[1]:
-                description += 'Next: %s - %s\n' % (
-                    channel.epg[1].start.strftime('%H:%M'),
-                    channel.epg[1].end.strftime('%H:%M')
-                )
-                description += channel.epg[1].title + '\n'
-                description += '\n'
-        except IndexError:
-            pass
+        if len(channel.epg) > 1:
+            description += 'Next: %s - %s\n' % (
+                channel.epg[1].start.strftime('%H:%M'),
+                channel.epg[1].end.strftime('%H:%M')
+            )
+            description += channel.epg[1].title + '\n'
+            description += '\n'
 
         listitem.setInfo('video', {
             'plot': description,
@@ -142,7 +136,7 @@ def show_catalog(category=None):
             _vtmGo = VtmGo()
             categories = _vtmGo.get_categories()
         except Exception as ex:
-            kodiutils.notification(ADDON.getAddonInfo('name'), ex.message)
+            notification(message=ex.message)
             raise
 
         for cat in categories:
@@ -162,7 +156,7 @@ def show_catalog(category=None):
             _vtmGo = VtmGo()
             items = _vtmGo.get_items(category)
         except Exception as ex:
-            kodiutils.notification(ADDON.getAddonInfo('name'), ex.message)
+            notification(message=ex.message)
             raise
 
         for item in items:
@@ -202,7 +196,7 @@ def show_movie(movie):
         _vtmGo = VtmGo()
         movie_obj = _vtmGo.get_movie(movie)
     except Exception as ex:
-        kodiutils.notification(ADDON.getAddonInfo('name'), ex.message)
+        notification(message=ex.message)
         raise
 
     listitem = ListItem(movie_obj.name, offscreen=True)
@@ -234,7 +228,7 @@ def show_program(program, season=None):
         _vtmGo = VtmGo()
         program_obj = _vtmGo.get_program(program)
     except Exception as ex:
-        kodiutils.notification(ADDON.getAddonInfo('name'), ex.message)
+        notification(message=ex.message)
         raise
 
     seasons = program_obj.seasons.values()
@@ -243,7 +237,7 @@ def show_program(program, season=None):
     if season is None and len(seasons) > 1:
 
         # Add an '* All seasons' entry when configured in Kodi
-        if kodiutils.get_global_setting('videolibrary.showallitems') is True:
+        if get_global_setting('videolibrary.showallitems') is True:
             listitem = ListItem('* All seasons', offscreen=True)
             listitem.setArt({
                 'thumb': program_obj.cover,
@@ -351,7 +345,7 @@ def show_search():
         _vtmGo = VtmGo()
         items = _vtmGo.do_search(query)
     except Exception as ex:
-        kodiutils.notification(ADDON.getAddonInfo('name'), ex.message)
+        notification(message=ex.message)
         raise
 
     # Display results
@@ -403,13 +397,15 @@ def _format_remaining(days):
     else:
         availability = '%d days remaining' % days
 
-    return '[COLOR silver]%s[/COLOR]\n\n' % availability
+    return '[B][COLOR blue]%s[/COLOR][/B]\n\n' % availability
 
 
 def _stream(strtype, strid):
     # Get url
     _vtmgostream = vtmgostream.VtmGoStream()
     resolved_stream = _vtmgostream.get_stream(strtype, strid)
+    if resolved_stream is None:  # If no stream is available (i.e. geo-blocked)
+        return
 
     # Create listitem
     listitem = ListItem(path=resolved_stream.url, offscreen=True)
@@ -441,7 +437,7 @@ def _stream(strtype, strid):
     try:
         from inputstreamhelper import Helper
     except ImportError:
-        Dialog().ok(heading=ADDON.getAddonInfo('name'), line1='Please reboot Kodi')
+        show_ok_dialog(message='Please reboot Kodi')
         return
     is_helper = Helper('mpd', drm='com.widevine.alpha')
     if is_helper.check_inputstream():
@@ -453,7 +449,7 @@ def _stream(strtype, strid):
 
         xbmcplugin.setResolvedUrl(plugin.handle, True, listitem)
     else:
-        Dialog().ok(heading=ADDON.getAddonInfo('name'), line1='You need to install InputStream Adaptive and Widevine CDM in Kodi to play this stream')
+        show_ok_dialog(message='You need to install InputStream Adaptive and Widevine CDM in Kodi to play this stream')
 
 
 def run(params):
