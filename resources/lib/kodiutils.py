@@ -99,7 +99,7 @@ def has_socks():
 
 def get_proxies():
     ''' Return a usable proxies dictionary from Kodi proxy settings '''
-    usehttpproxy = get_global_setting('network.usehttpproxy')
+    usehttpproxy = get_global_setting('network.usehttpproxy')  # noqa; pylint: disable=unreachable
     if usehttpproxy is False:
         return None
 
