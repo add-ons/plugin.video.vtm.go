@@ -58,7 +58,7 @@ class VtmGoAuth:
         except InvalidSchema as e:
             # We get back an url like this: vtmgo://callback/oidc?state=yyyyyyyyyyyyyyyyyyyyyy&code=xxxxxxxxxxxxxxxxxxxxxxxxxx-xxxxxxxxxxxxxxxx
             # I found no other way to get this url then by parsing the Exception message. :(
-            matches = re.search(r"code=([^']+)", e.message)
+            matches = re.search(r"code=([^']+)", str(e))
             if matches:
                 code = matches.group(1)
             else:

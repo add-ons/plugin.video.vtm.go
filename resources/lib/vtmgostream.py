@@ -6,7 +6,10 @@ import json
 import logging
 import random
 import re
-from urllib import urlencode, quote
+try:  # Python 3
+    from urllib.parse import urlencode, quote
+except ImportError:  # Python 2
+    from urllib import urlencode, quote
 
 import requests
 from xbmcaddon import Addon
@@ -88,7 +91,7 @@ class VtmGoStream:
                 license_url=license_url,
                 cookies=self._session.cookies.get_dict()
             )
-        elif stream_type == 'movies':
+        if stream_type == 'movies':
             # Movie
             return ResolvedStream(
                 program=None,
@@ -99,7 +102,7 @@ class VtmGoStream:
                 license_url=license_url,
                 cookies=self._session.cookies.get_dict()
             )
-        elif stream_type == 'channels':
+        if stream_type == 'channels':
             # Live TV
             return ResolvedStream(
                 program=None,
