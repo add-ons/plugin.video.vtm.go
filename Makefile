@@ -5,9 +5,10 @@ addon_xml = addon.xml
 # Collect information to build as sensible package name
 name = $(shell xmllint --xpath 'string(/addon/@id)' $(addon_xml))
 version = $(shell xmllint --xpath 'string(/addon/@version)' $(addon_xml))
+git_branch = $(shell git rev-parse --abbrev-ref HEAD)
 git_hash = $(shell git rev-parse --short HEAD)
 
-zip_name = $(name)-$(version)-$(git_hash).zip
+zip_name = $(name)-$(version)-$(git_branch)-$(git_hash).zip
 include_files = main.py addon.xml LICENSE README.md resources/
 include_paths = $(patsubst %,$(name)/%,$(include_files))
 exclude_files = \*.new \*.orig \*.pyc \*.pyo

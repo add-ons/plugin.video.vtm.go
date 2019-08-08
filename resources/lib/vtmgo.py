@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 
 from __future__ import absolute_import, division, unicode_literals
+import re
+import os.path
 import json
 import logging
 try:  # Python 3
@@ -30,6 +32,7 @@ class LiveChannel:
         self.name = name
         self.logo = logo
         self.epg = epg
+        self.geoblocked = True
         self.mediatype = 'video'
 
     def __repr__(self):
@@ -70,7 +73,7 @@ class Content:
     CONTENT_TYPE_MOVIE = 'MOVIE'
     CONTENT_TYPE_PROGRAM = 'PROGRAM'
 
-    def __init__(self, video_id=None, title=None, description=None, cover=None, video_type=None):
+    def __init__(self, video_id=None, title=None, description=None, cover=None, video_type=None, geoblocked=None):
         """
         Defines a Category from the Catalogue.
         :type video_id: basestring
@@ -78,12 +81,14 @@ class Content:
         :type description: basestring
         :type cover: basestring
         :type video_type: basestring
+        :type geoblocked: boolean
         """
         self.id = video_id
         self.title = title
         self.description = description if description else ''
         self.cover = cover
         self.type = video_type
+        self.geoblocked = geoblocked
         # If it is a TV show we return None to get a folder icon
         self.mediatype = 'movie' if video_type == self.CONTENT_TYPE_MOVIE else None
 
@@ -92,7 +97,7 @@ class Content:
 
 
 class Movie:
-    def __init__(self, movie_id=None, name=None, description=None, year=None, cover=None, duration=None, remaining=None):
+    def __init__(self, movie_id=None, name=None, description=None, year=None, cover=None, duration=None, remaining=None, geoblocked=None, channel=None):
         self.id = movie_id
         self.name = name
         self.description = description if description else ''
@@ -100,6 +105,8 @@ class Movie:
         self.cover = cover
         self.duration = duration
         self.remaining = remaining
+        self.geoblocked = geoblocked
+        self.channel = channel
         self.mediatype = 'movie'
 
     def __repr__(self):
@@ -107,7 +114,7 @@ class Movie:
 
 
 class Program:
-    def __init__(self, program_id=None, name=None, description=None, cover=None, seasons=None):
+    def __init__(self, program_id=None, name=None, description=None, cover=None, seasons=None, geoblocked=None, channel=None):
         """
         Defines a Program.
         :type program_id: basestring
@@ -121,6 +128,8 @@ class Program:
         self.description = description if description else ''
         self.cover = cover
         self.seasons = seasons
+        self.geoblocked = geoblocked
+        self.channel = channel
         self.mediatype = 'tvshow'
 
     def __repr__(self):
@@ -128,7 +137,7 @@ class Program:
 
 
 class Season:
-    def __init__(self, number=None, episodes=None, cover=None):
+    def __init__(self, number=None, episodes=None, cover=None, channel=None):
         """
 
         :type number: basestring
@@ -138,21 +147,24 @@ class Season:
         self.number = int(number)
         self.episodes = episodes
         self.cover = cover
+        self.channel = channel
 
     def __repr__(self):
         return "%r" % self.__dict__
 
 
 class Episode:
-    def __init__(self, episode_id=None, number=None, season=None, name=None, description=None, cover=None, duration=None, remaining=None):
+    def __init__(self, episode_id=None, number=None, season=None, name=None, description=None, cover=None, duration=None, remaining=None, geoblocked=None, channel=None):
         self.id = episode_id
         self.number = int(number)
         self.season = int(season)
-        self.name = name
+        self.name = re.compile('^%d. ' % number).sub('', name)  # Strip episode from name
         self.description = description if description else ''
         self.cover = cover
         self.duration = int(duration) if duration else None
         self.remaining = int(remaining) if remaining is not None else None
+        self.geoblocked = geoblocked
+        self.channel = channel
         self.mediatype = 'episode'
 
     def __repr__(self):
@@ -178,18 +190,18 @@ class VtmGo:
         info = json.loads(response)
 
         channels = []
-        for item in info['channels']:
+        for item in info.get('channels'):
             epg = []
-            for item_epg in item['broadcasts']:
+            for item_epg in item.get('broadcasts', []):
                 epg.append(LiveChannelEpg(
-                    title=item_epg['name'],
-                    start=dateutil.parser.parse(item_epg['startsAt']),
-                    end=dateutil.parser.parse(item_epg['endsAt']),
+                    title=item_epg.get('name'),
+                    start=dateutil.parser.parse(item_epg.get('startsAt')),
+                    end=dateutil.parser.parse(item_epg.get('endsAt')),
                 ))
             channels.append(LiveChannel(
-                channel_id=item['channelId'],
-                logo=item['channelLogoUrl'],
-                name=item['name'],
+                channel_id=item.get('channelId'),
+                logo=item.get('channelLogoUrl'),
+                name=item.get('name'),
                 epg=epg,
             ))
 
@@ -200,10 +212,10 @@ class VtmGo:
         info = json.loads(response)
 
         categories = []
-        for item in info['catalogFilters']:
+        for item in info.get('catalogFilters', []):
             categories.append(Category(
-                category_id=item['id'],
-                title=item['title'],
+                category_id=item.get('id'),
+                title=item.get('title'),
             ))
 
         return categories
@@ -216,12 +228,13 @@ class VtmGo:
         info = json.loads(response)
 
         items = []
-        for item in info['pagedTeasers']['content']:
+        for item in info.get('pagedTeasers', {}).get('content', []):
             items.append(Content(
-                video_id=item['target']['id'],
-                title=item['title'],
-                cover=item['imageUrl'],
-                video_type=item['target']['type'],
+                video_id=item.get('target', {}).get('id'),
+                title=item.get('title'),
+                cover=item.get('imageUrl'),
+                video_type=item.get('target', {}).get('type'),
+                geoblocked=item.get('geoBlocked'),
             ))
 
         return items
@@ -229,48 +242,68 @@ class VtmGo:
     def get_movie(self, movie_id):
         response = self._get_url('/vtmgo/movies/' + movie_id)
         info = json.loads(response)
+        movie = info.get('movie', {})
+        channel_url = movie.get('channelLogoUrl')
+        if channel_url:
+            channel = os.path.basename(channel_url).split('-')[0],
+        else:
+            channel = 'vtmgo'
 
         return Movie(
-            movie_id=info['movie']['id'],
-            name=info['movie']['name'],
-            description=info['movie']['description'],
-            duration=info['movie']['durationSeconds'],
-            cover=info['movie']['bigPhotoUrl'],
-            year=info['movie']['productionYear'],
-            remaining=info['movie']['remainingDaysAvailable'],
+            movie_id=movie.get('id'),
+            name=movie.get('name'),
+            description=movie.get('description'),
+            duration=movie.get('durationSeconds'),
+            cover=movie.get('bigPhotoUrl'),
+            year=movie.get('productionYear'),
+            geoblocked=movie.get('geoBlocked'),
+            remaining=movie.get('remainingDaysAvailable'),
+            channel=channel,
         )
 
     def get_program(self, program_id):
         response = self._get_url('/vtmgo/programs/' + program_id)
         info = json.loads(response)
+        program = info.get('program', {})
+        channel_url = program.get('channelLogoUrl')
+        if channel_url:
+            channel = os.path.basename(channel_url).split('-')[0],
+        else:
+            channel = 'vtmgo'
 
         seasons = {}
-        for item_season in info['program']['seasons']:
+        for item_season in program.get('seasons', []):
             episodes = {}
-            for item_episode in item_season['episodes']:
-                episodes[item_episode['index']] = Episode(
-                    episode_id=item_episode['id'],
-                    number=item_episode['index'],
-                    season=item_season['index'],
-                    name=item_episode['name'],
-                    description=item_episode['description'],
-                    duration=item_episode['durationSeconds'],
-                    cover=item_episode['bigPhotoUrl'],
-                    remaining=item_episode['remainingDaysAvailable'],
+
+            for item_episode in item_season.get('episodes', []):
+                episodes[item_episode.get('index')] = Episode(
+                    episode_id=item_episode.get('id'),
+                    number=item_episode.get('index'),
+                    season=item_season.get('index'),
+                    name=item_episode.get('name'),
+                    description=item_episode.get('description'),
+                    duration=item_episode.get('durationSeconds'),
+                    cover=item_episode.get('bigPhotoUrl'),
+                    geoblocked=program.get('geoBlocked'),
+                    remaining=item_episode.get('remainingDaysAvailable'),
+                    channel=channel,
                 )
 
-            seasons[item_season['index']] = Season(
-                number=item_season['index'],
+            seasons[item_season.get('index')] = Season(
+                number=item_season.get('index'),
                 episodes=episodes,
-                cover=item_season['episodes'][0]['bigPhotoUrl'],
+                cover=item_season.get('episodes', [{}])[0].get('bigPhotoUrl') if episodes else program.get('bigPhotoUrl'),
+                channel=channel,
             )
 
         return Program(
-            program_id=info['program']['id'],
-            name=info['program']['name'],
-            description=info['program']['description'],
-            cover=info['program']['bigPhotoUrl'],
+            program_id=program.get('id'),
+            name=program.get('name'),
+            description=program.get('description'),
+            cover=program.get('bigPhotoUrl'),
+            geoblocked=program.get('geoBlocked'),
             seasons=seasons,
+            channel=channel,
         )
 
     # def get_episodes(self, episode_id):
@@ -284,11 +317,11 @@ class VtmGo:
         results = json.loads(response)
 
         items = []
-        for item in results['suggestions']:
+        for item in results.get('suggestions', []):
             items.append(Content(
-                video_id=item['id'],
-                title=item['name'],
-                video_type=item['type'],
+                video_id=item.get('id'),
+                title=item.get('name'),
+                video_type=item.get('type'),
             ))
 
         return items
