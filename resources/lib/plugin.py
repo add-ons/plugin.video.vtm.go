@@ -85,7 +85,7 @@ def show_live():
         _vtmGo = VtmGo()
         channels = _vtmGo.get_live()
     except Exception as ex:
-        notification(message=ex.message)
+        notification(message=str(ex))
         raise
 
     for channel in channels:
@@ -136,7 +136,7 @@ def show_catalog(category=None):
             _vtmGo = VtmGo()
             categories = _vtmGo.get_categories()
         except Exception as ex:
-            notification(message=ex.message)
+            notification(message=str(ex))
             raise
 
         for cat in categories:
@@ -156,7 +156,7 @@ def show_catalog(category=None):
             _vtmGo = VtmGo()
             items = _vtmGo.get_items(category)
         except Exception as ex:
-            notification(message=ex.message)
+            notification(message=str(ex))
             raise
 
         for item in items:
@@ -196,7 +196,7 @@ def show_movie(movie):
         _vtmGo = VtmGo()
         movie_obj = _vtmGo.get_movie(movie)
     except Exception as ex:
-        notification(message=ex.message)
+        notification(message=str(ex))
         raise
 
     listitem = ListItem(movie_obj.name, offscreen=True)
@@ -228,7 +228,7 @@ def show_program(program, season=None):
         _vtmGo = VtmGo()
         program_obj = _vtmGo.get_program(program)
     except Exception as ex:
-        notification(message=ex.message)
+        notification(message=str(ex))
         raise
 
     seasons = program_obj.seasons.values()
@@ -274,7 +274,7 @@ def show_program(program, season=None):
         xbmcplugin.endOfDirectory(plugin.handle)
         return
 
-    elif season != 'all' and season is not None:
+    if season != 'all' and season is not None:
         # Use the season that was selected
         seasons = [program_obj.seasons[int(season)]]
 
@@ -345,7 +345,7 @@ def show_search():
         _vtmGo = VtmGo()
         items = _vtmGo.do_search(query)
     except Exception as ex:
-        notification(message=ex.message)
+        notification(message=str(ex))
         raise
 
     # Display results
@@ -390,7 +390,7 @@ def play_episode(episode):
 def _format_remaining(days):
     if days is None:
         return ''
-    elif days == 0:
+    if days == 0:
         availability = 'Available until midnight'
     elif days == 1:
         availability = '%d day remaining' % days
@@ -448,8 +448,6 @@ def _stream(strtype, strid):
                              }))
 
         xbmcplugin.setResolvedUrl(plugin.handle, True, listitem)
-    else:
-        show_ok_dialog(message='You need to install InputStream Adaptive and Widevine CDM in Kodi to play this stream')
 
 
 def run(params):

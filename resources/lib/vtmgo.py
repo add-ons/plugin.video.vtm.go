@@ -3,10 +3,13 @@
 from __future__ import absolute_import, division, unicode_literals
 import json
 import logging
-from urllib import quote
+try:  # Python 3
+    from urllib.parse import quote
+except ImportError:  # Python 2
+    from urllib import quote
 
-import dateutil.parser
 import requests
+import dateutil.parser
 from xbmcaddon import Addon
 from resources.lib.kodiutils import proxies
 

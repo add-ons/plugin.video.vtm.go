@@ -2,7 +2,7 @@
 <settings>
     <category label="Account">
         <setting id="email" type="text" label="E-mail" default=""/>
-        <setting id="password" type="text" label="Password" default=""/>
+        <setting id="password" option="hidden" type="text" label="Password" default=""/>
         <setting subsetting="true" label="Check your credentials" type="action" option="close" action="RunPlugin(plugin://plugin.video.vtm.go/check-credentials)" enable="!eq(-2,) + !eq(-1,)"/>
     </category>
 </settings>
