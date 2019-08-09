@@ -5,4 +5,7 @@
         <setting id="password" option="hidden" type="text" label="Password" default=""/>
         <setting subsetting="true" label="Check your credentials" type="action" option="close" action="RunPlugin(plugin://plugin.video.vtm.go/check-credentials)" enable="!eq(-2,) + !eq(-1,)"/>
     </category>
+    <category label="Kids mode">
+        <setting id="kids_mode_enabled" type="bool" label="Enable KIDS mode" default="true"/>
+    </category>
 </settings>

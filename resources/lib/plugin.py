@@ -12,7 +12,7 @@ from xbmcgui import Dialog, ListItem
 import routing
 from resources.lib import kodilogging
 from resources.lib import vtmgostream
-from resources.lib.kodiutils import get_cond_visibility, get_global_setting, get_setting, notification, show_ok_dialog, show_settings
+from resources.lib.kodiutils import get_cond_visibility, get_global_setting, get_setting, notification, show_ok_dialog, show_settings, get_setting_as_bool, set_setting
 from resources.lib.vtmgo import VtmGo, Content
 
 ADDON = Addon()
@@ -45,7 +45,7 @@ def index():
     xbmcplugin.addDirectoryItem(plugin.handle, plugin.url_for(show_livetv), listitem, True)
 
     # Only provide YouTube option when plugin.video.youtube is available
-    if xbmc.getCondVisibility('System.HasAddon(plugin.video.youtube)') != 0:
+    if not get_setting_as_bool('kids_mode_enabled') and xbmc.getCondVisibility('System.HasAddon(plugin.video.youtube)') != 0:
         listitem = ListItem('YouTube', offscreen=True)
         listitem.setArt({'icon': 'DefaultTags.png'})
         listitem.setInfo('video', {
@@ -60,8 +60,35 @@ def index():
     })
     xbmcplugin.addDirectoryItem(plugin.handle, plugin.url_for(show_search), listitem, True)
 
+    if get_setting_as_bool('kids_mode_enabled'):
+        listitem = ListItem('Leave KIDS mode', offscreen=True)
+        listitem.setArt({'icon': 'DefaultAddonService.png'})
+        listitem.setInfo('video', {
+            'plot': 'Leave the KIDS mode',
+        })
+        xbmcplugin.addDirectoryItem(plugin.handle, plugin.url_for(kids_mode_deactivate), listitem, True)
+    else:
+        listitem = ListItem('Enter KIDS mode', offscreen=True)
+        listitem.setArt({'icon': 'DefaultAddonService.png'})
+        listitem.setInfo('video', {
+            'plot': 'Go to the KIDS mode',
+        })
+        xbmcplugin.addDirectoryItem(plugin.handle, plugin.url_for(kids_mode_activate), listitem, True)
+
     xbmcplugin.addSortMethod(plugin.handle, xbmcplugin.SORT_METHOD_UNSORTED)
     xbmcplugin.endOfDirectory(plugin.handle)
+
+
+@plugin.route('/kidsmode/activate')
+def kids_mode_activate():
+    set_setting('kids_mode_enabled', 'true')
+    xbmc.executebuiltin("Container.Update(%s)" % plugin.url_for(index))
+
+
+@plugin.route('/kidsmode/deactivate')
+def kids_mode_deactivate():
+    set_setting('kids_mode_enabled', 'false')
+    xbmc.executebuiltin("Container.Update(%s)" % plugin.url_for(index))
 
 
 @plugin.route('/check-credentials')
@@ -82,7 +109,7 @@ def check_credentials():
 @plugin.route('/livetv')
 def show_livetv():
     try:
-        _vtmGo = VtmGo()
+        _vtmGo = _get_vtmgo_object()
         channels = _vtmGo.get_live()
     except Exception as ex:
         notification(message=str(ex))
@@ -132,7 +159,7 @@ def show_catalog(category=None):
     if category is None:
         # Show all categories
         try:
-            _vtmGo = VtmGo()
+            _vtmGo = _get_vtmgo_object()
             categories = _vtmGo.get_categories()
         except Exception as ex:
             notification(message=str(ex))
@@ -152,7 +179,7 @@ def show_catalog(category=None):
     else:
         # Show the items of a category
         try:
-            _vtmGo = VtmGo()
+            _vtmGo = _get_vtmgo_object()
             items = _vtmGo.get_items(category)
         except Exception as ex:
             notification(message=str(ex))
@@ -192,7 +219,7 @@ def show_catalog(category=None):
 @plugin.route('/movie/<movie>')
 def show_movie(movie):
     try:
-        _vtmGo = VtmGo()
+        _vtmGo = _get_vtmgo_object()
         movie_obj = _vtmGo.get_movie(movie)
     except Exception as ex:
         notification(message=str(ex))
@@ -224,7 +251,7 @@ def show_movie(movie):
 @plugin.route('/program/<program>/<season>')
 def show_program(program, season=None):
     try:
-        _vtmGo = VtmGo()
+        _vtmGo = _get_vtmgo_object()
         program_obj = _vtmGo.get_program(program)
     except Exception as ex:
         notification(message=str(ex))
@@ -361,7 +388,7 @@ def show_search():
 
     try:
         # Do search
-        _vtmGo = VtmGo()
+        _vtmGo = _get_vtmgo_object()
         items = _vtmGo.do_search(query)
     except Exception as ex:
         notification(message=str(ex))
@@ -502,6 +529,10 @@ def _stream(strtype, strid):
                              }))
 
         xbmcplugin.setResolvedUrl(plugin.handle, True, listitem)
+
+
+def _get_vtmgo_object():
+    return VtmGo(mode='vtmgo-kids' if get_setting_as_bool('kids_mode_enabled') else 'vtmgo')
 
 
 def run(params):
