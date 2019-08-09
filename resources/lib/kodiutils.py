@@ -66,13 +66,7 @@ def kodi_json_request(params):
     except UnicodeDecodeError:
         response = json.loads(request.decode('utf-8', 'ignore'))
 
-    try:
-        if 'result' in response:
-            return response['result']
-        return None
-    except KeyError:
-        logger.warning("[%s] %s", params['method'], response['error']['message'])
-        return None
+    return response.get('result')
 
 
 def get_global_setting(setting):

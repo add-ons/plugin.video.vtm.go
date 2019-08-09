@@ -56,10 +56,10 @@ class VtmGoStream:
         anvato_info = self._extract_anvato_stream_from_stream_info(stream_info)
 
         # Ask the anvacks to know where we have to send our requests. (I hardcoded this for now)
-        # anv_acks = self._anvato_get_anvacks(anvato_info['accessKey'])
+        # anv_acks = self._anvato_get_anvacks(anvato_info.get('accessKey'))
 
         # Get the server time. (We don't seem to need this)
-        # server_time = self._anvato_get_server_time(anvato_info['accessKey'])
+        # server_time = self._anvato_get_server_time(anvato_info.get('accessKey'))
 
         # Send a request for the stream info.
         anvato_stream_info = self._anvato_get_stream_info(anvato_info=anvato_info, stream_info=stream_info)
@@ -195,7 +195,7 @@ class VtmGoStream:
         return info
 
     def _anvato_get_stream_info(self, anvato_info, stream_info):
-        url = 'https://tkx.apis.anvato.net/rest/v2/mcp/video/%s' % anvato_info['video']
+        url = 'https://tkx.apis.anvato.net/rest/v2/mcp/video/{video}'.format(**anvato_info)
         logger.info('Getting stream info from %s with access_key %s and token %s', url, anvato_info['accessKey'], anvato_info['token'])
 
         response = self._session.post(url,
@@ -277,9 +277,9 @@ class VtmGoStream:
         download = self._download_text(url)
         try:
             decoded = json.loads(download)
-            if decoded['master_m3u8']:
-                logger.info('Followed redirection from %s to %s', url, decoded['master_m3u8'])
-                return decoded['master_m3u8']
+            if decoded.get('master_m3u8'):
+                logger.info('Followed redirection from %s to %s', url, decoded.get('master_m3u8'))
+                return decoded.get('master_m3u8')
         except Exception:
             logger.error('No manifest url found %s', url)
 

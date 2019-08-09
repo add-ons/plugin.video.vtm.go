@@ -210,6 +210,7 @@ def show_movie(movie):
         'duration': movie_obj.duration,
         'year': movie_obj.year,
         'mediatype': movie_obj.mediatype,
+        'aired': movie_obj.aired,
     })
     listitem.addStreamInfo('video', {
         'duration': movie_obj.duration,
@@ -296,6 +297,7 @@ def show_program(program, season=None):
                 'mediatype': episode.mediatype,
                 'set': program_obj.name,
                 'studio': episode.channel,
+                'aired': episode.aired,
             })
             listitem.addStreamInfo('video', {
                 'duration': episode.duration,
@@ -410,8 +412,15 @@ def _format_plot(obj):
     plot = ''
 
     # Add program name to plot
-    if hasattr(obj, 'name'):
-        plot += '[B]{name}[/B]\n'.format(name=obj.name)
+    if hasattr(obj, 'name') or (hasattr(obj, 'legal') and obj.legal):
+        if hasattr(obj, 'name'):
+            plot += '[B]{name}[/B] '.format(name=obj.name)
+        if hasattr(obj, 'legal') and obj.legal:
+            plot += '[COLOR gray]'
+            for icon in obj.legal:
+                plot += '[%s]' % icon
+            plot += '[/COLOR]'
+        plot += '\n'
 
     if hasattr(obj, 'geoblocked') and obj.geoblocked:
         plot += '[COLOR red]Geo-blocked[/COLOR]\n'

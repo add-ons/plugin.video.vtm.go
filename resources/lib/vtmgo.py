@@ -97,7 +97,7 @@ class Content:
 
 
 class Movie:
-    def __init__(self, movie_id=None, name=None, description=None, year=None, cover=None, duration=None, remaining=None, geoblocked=None, channel=None):
+    def __init__(self, movie_id=None, name=None, description=None, year=None, cover=None, duration=None, remaining=None, geoblocked=None, channel=None, legal=None, aired=None):
         self.id = movie_id
         self.name = name
         self.description = description if description else ''
@@ -107,6 +107,8 @@ class Movie:
         self.remaining = remaining
         self.geoblocked = geoblocked
         self.channel = channel
+        self.legal = legal
+        self.aired = aired
         self.mediatype = 'movie'
 
     def __repr__(self):
@@ -114,7 +116,7 @@ class Movie:
 
 
 class Program:
-    def __init__(self, program_id=None, name=None, description=None, cover=None, seasons=None, geoblocked=None, channel=None):
+    def __init__(self, program_id=None, name=None, description=None, cover=None, seasons=None, geoblocked=None, channel=None, legal=None):
         """
         Defines a Program.
         :type program_id: basestring
@@ -130,6 +132,7 @@ class Program:
         self.seasons = seasons
         self.geoblocked = geoblocked
         self.channel = channel
+        self.legal = legal
         self.mediatype = 'tvshow'
 
     def __repr__(self):
@@ -137,7 +140,7 @@ class Program:
 
 
 class Season:
-    def __init__(self, number=None, episodes=None, cover=None, channel=None):
+    def __init__(self, number=None, episodes=None, cover=None, geoblocked=None, channel=None, legal=None):
         """
 
         :type number: basestring
@@ -147,14 +150,16 @@ class Season:
         self.number = int(number)
         self.episodes = episodes
         self.cover = cover
+        self.geoblocked = geoblocked
         self.channel = channel
+        self.legal = legal
 
     def __repr__(self):
         return "%r" % self.__dict__
 
 
 class Episode:
-    def __init__(self, episode_id=None, number=None, season=None, name=None, description=None, cover=None, duration=None, remaining=None, geoblocked=None, channel=None):
+    def __init__(self, episode_id=None, number=None, season=None, name=None, description=None, cover=None, duration=None, remaining=None, geoblocked=None, channel=None, legal=None, aired=None):
         self.id = episode_id
         self.number = int(number)
         self.season = int(season)
@@ -165,6 +170,8 @@ class Episode:
         self.remaining = int(remaining) if remaining is not None else None
         self.geoblocked = geoblocked
         self.channel = channel
+        self.legal = legal
+        self.aired = aired
         self.mediatype = 'episode'
 
     def __repr__(self):
@@ -258,6 +265,8 @@ class VtmGo:
             year=movie.get('productionYear'),
             geoblocked=movie.get('geoBlocked'),
             remaining=movie.get('remainingDaysAvailable'),
+            legal=movie.get('legalIcons'),
+            aired=movie.get('broadcastTimestamp'),
             channel=channel,
         )
 
@@ -287,13 +296,17 @@ class VtmGo:
                     geoblocked=program.get('geoBlocked'),
                     remaining=item_episode.get('remainingDaysAvailable'),
                     channel=channel,
+                    legal=program.get('legalIcons'),
+                    aired=item_episode.get('broadcastTimestamp'),
                 )
 
             seasons[item_season.get('index')] = Season(
                 number=item_season.get('index'),
                 episodes=episodes,
                 cover=item_season.get('episodes', [{}])[0].get('bigPhotoUrl') if episodes else program.get('bigPhotoUrl'),
+                geoblocked=program.get('geoBlocked'),
                 channel=channel,
+                legal=program.get('legalIcons'),
             )
 
         return Program(
@@ -304,6 +317,7 @@ class VtmGo:
             geoblocked=program.get('geoBlocked'),
             seasons=seasons,
             channel=channel,
+            legal=program.get('legalIcons'),
         )
 
     # def get_episodes(self, episode_id):
