@@ -12,7 +12,7 @@ from xbmcgui import Dialog, ListItem
 import routing
 from resources.lib import kodilogging
 from resources.lib import vtmgostream
-from resources.lib.kodiutils import get_setting, get_global_setting, notification, show_ok_dialog, show_settings
+from resources.lib.kodiutils import get_cond_visibility, get_global_setting, get_setting, notification, show_ok_dialog, show_settings
 from resources.lib.vtmgo import VtmGo, Content
 
 ADDON = Addon()
@@ -42,7 +42,7 @@ def index():
     listitem.setInfo('video', {
         'plot': 'Watch channels live via Internet',
     })
-    xbmcplugin.addDirectoryItem(plugin.handle, plugin.url_for(show_live), listitem, True)
+    xbmcplugin.addDirectoryItem(plugin.handle, plugin.url_for(show_livetv), listitem, True)
 
     # Only provide YouTube option when plugin.video.youtube is available
     if xbmc.getCondVisibility('System.HasAddon(plugin.video.youtube)') != 0:
@@ -79,8 +79,8 @@ def check_credentials():
     show_settings()
 
 
-@plugin.route('/live')
-def show_live():
+@plugin.route('/livetv')
+def show_livetv():
     try:
         _vtmGo = VtmGo()
         channels = _vtmGo.get_live()
@@ -90,36 +90,35 @@ def show_live():
 
     for channel in channels:
         listitem = ListItem(channel.name, offscreen=True)
-        listitem.setArt({
-            'icon': channel.logo,
-        })
 
-        description = '[B][COLOR red]Geo-blocked[/COLOR][/B]\n\n'
-        if channel.epg:
-            description += 'Now: %s - %s\n' % (
-                channel.epg[0].start.strftime('%H:%M'),
-                channel.epg[0].end.strftime('%H:%M')
-            )
-            description += channel.epg[0].title + '\n'
-            description += '\n'
+        # Try to use the white icons for thumbnails (used for icons as well)
+        if get_cond_visibility('System.HasAddon(resource.images.studios.white)') == 1:
+            thumb = 'resource://resource.images.studios.white/{studio}.png'.format(studio=channel.name)
+        else:
+            thumb = channel.logo
 
-        if len(channel.epg) > 1:
-            description += 'Next: %s - %s\n' % (
-                channel.epg[1].start.strftime('%H:%M'),
-                channel.epg[1].end.strftime('%H:%M')
-            )
-            description += channel.epg[1].title + '\n'
-            description += '\n'
+        # Try to use the coloured icons for fanart
+        if get_cond_visibility('System.HasAddon(resource.images.studios.coloured)') == 1:
+            fanart = 'resource://resource.images.studios.coloured/{studio}.png'.format(studio=channel.name)
+        elif get_cond_visibility('System.HasAddon(resource.images.studios.white)') == 1:
+            fanart = 'resource://resource.images.studios.white/{studio}.png'.format(studio=channel.name)
+        else:
+            fanart = channel.logo
 
         listitem.setInfo('video', {
-            'plot': description,
+            'plot': _format_plot(channel),
             'playcount': 0,
             'studio': channel.name,
             'mediatype': channel.mediatype,
         })
+        listitem.setArt({
+            'icon': channel.logo,
+            'fanart': fanart,
+            'thumb': thumb,
+        })
         listitem.setProperty('IsPlayable', 'true')
 
-        xbmcplugin.addDirectoryItem(plugin.handle, plugin.url_for(play_live, channel=channel.id) + '?.pvr', listitem)
+        xbmcplugin.addDirectoryItem(plugin.handle, plugin.url_for(play_livetv, channel=channel.id) + '?.pvr', listitem)
 
     # Sort live channels by default like in VTM GO.
     xbmcplugin.addSortMethod(plugin.handle, xbmcplugin.SORT_METHOD_UNSORTED)
@@ -207,7 +206,7 @@ def show_movie(movie):
     })
     listitem.setInfo('video', {
         'title': movie_obj.name,
-        'plot': _format_remaining(movie_obj.remaining) + movie_obj.description,
+        'plot': _format_plot(movie_obj),
         'duration': movie_obj.duration,
         'year': movie_obj.year,
         'mediatype': movie_obj.mediatype,
@@ -247,7 +246,7 @@ def show_program(program, season=None):
                 'tvshowtitle': program_obj.name,
                 'title': 'All seasons',
                 'subtitle': program_obj.description,
-                'plot': '[B]%s[/B]\n%s' % (program_obj.name, program_obj.description),
+                'plot': _format_plot(program_obj),
                 'set': program_obj.name,
             })
             xbmcplugin.addDirectoryItem(plugin.handle, plugin.url_for(show_program, program=program, season='all'), listitem, True)
@@ -262,7 +261,7 @@ def show_program(program, season=None):
                 'tvshowtitle': program_obj.name,
                 'title': 'Season %d' % s.number,
                 'subtitle': program_obj.description,
-                'plot': '[B]%s[/B]\n%s' % (program_obj.name, program_obj.description),
+                'plot': _format_plot(program_obj),
                 'set': program_obj.name,
                 'season': season,
             })
@@ -290,12 +289,13 @@ def show_program(program, season=None):
                 'tvshowtitle': program_obj.name,
                 'title': episode.name,
                 'subtitle': program_obj.description,
-                'plot': _format_remaining(episode.remaining) + episode.description,
+                'plot': _format_plot(episode),
                 'duration': episode.duration,
                 'season': episode.season,
                 'episode': episode.number,
                 'mediatype': episode.mediatype,
                 'set': program_obj.name,
+                'studio': episode.channel,
             })
             listitem.addStreamInfo('video', {
                 'duration': episode.duration,
@@ -317,11 +317,30 @@ def show_program(program, season=None):
 def show_youtube():
     from resources.lib import YOUTUBE
     for entry in YOUTUBE:
+        # Try to use the white icons for thumbnails (used for icons as well)
+        if get_cond_visibility('System.HasAddon(resource.images.studios.white)') == 1:
+            thumb = 'resource://resource.images.studios.white/{studio}.png'.format(**entry)
+        else:
+            thumb = 'DefaultTags.png'
+
+        # Try to use the coloured icons for fanart
+        if get_cond_visibility('System.HasAddon(resource.images.studios.coloured)') == 1:
+            fanart = 'resource://resource.images.studios.coloured/{studio}.png'.format(**entry)
+        elif get_cond_visibility('System.HasAddon(resource.images.studios.white)') == 1:
+            fanart = 'resource://resource.images.studios.white/{studio}.png'.format(**entry)
+        else:
+            fanart = 'DefaultTags.png'
+
         listitem = ListItem(entry.get('label'), offscreen=True)
         listitem.setInfo('video', {
             'plot': 'Watch [B]%(label)s[/B] on YouTube' % entry,
             'studio': entry.get('studio'),
             'mediatype': 'video',
+        })
+        listitem.setArt({
+            'icon': 'DefaultTags.png',
+            'fanart': fanart,
+            'thumb': thumb,
         })
         xbmcplugin.addDirectoryItem(plugin.handle, entry.get('path'), listitem, True)
 
@@ -372,8 +391,8 @@ def show_search():
     xbmcplugin.endOfDirectory(plugin.handle)
 
 
-@plugin.route('/play/live/<channel>')
-def play_live(channel):
+@plugin.route('/play/livetv/<channel>')
+def play_livetv(channel):
     _stream('channels', channel)
 
 
@@ -387,17 +406,52 @@ def play_episode(episode):
     _stream('episodes', episode)
 
 
-def _format_remaining(days):
-    if days is None:
-        return ''
-    if days == 0:
-        availability = 'Available until midnight'
-    elif days == 1:
-        availability = '%d day remaining' % days
-    else:
-        availability = '%d days remaining' % days
+def _format_plot(obj):
+    plot = ''
 
-    return '[B][COLOR blue]%s[/COLOR][/B]\n\n' % availability
+    # Add program name to plot
+    if hasattr(obj, 'name'):
+        plot += '[B]{name}[/B]\n'.format(name=obj.name)
+
+    if hasattr(obj, 'geoblocked') and obj.geoblocked:
+        plot += '[COLOR red]Geo-blocked[/COLOR]\n'
+
+    if hasattr(obj, 'remaining') and obj.remaining is not None:
+        if obj.remaining == 0:
+            plot += '[COLOR blue]Available until midnight[/COLOR]\n'
+        elif obj.remaining == 1:
+            plot += '[COLOR blue]One day remaining[/COLOR]\n'
+        elif obj.remaining / 365 > 5:
+            pass  # If it is available for more than 5 years, do not show
+        elif obj.remaining / 365 > 2:
+            plot += '[COLOR blue]{years} years remaining[/COLOR]\n'.format(years=int(obj.remaining / 365))
+        elif obj.remaining / 30.5 > 3:
+            plot += '[COLOR blue]{months} months remaining[/COLOR]\n'.format(months=int(obj.remaining / 30.5))
+        else:
+            plot += '[COLOR blue]{days} days remaining[/COLOR]\n'.format(days=obj.remaining)
+
+    if plot:
+        plot += '\n'
+
+    if hasattr(obj, 'description'):
+        plot += obj.description
+
+    if hasattr(obj, 'epg'):
+        if obj.epg:
+            plot += '[COLOR yellow][B]Now:[/B] %s - %s\n' % (
+                obj.epg[0].start.strftime('%H:%M'),
+                obj.epg[0].end.strftime('%H:%M'),
+            )
+            plot += '» %s[/COLOR]\n' % obj.epg[0].title
+
+        if len(obj.epg) > 1:
+            plot += '[B]Next:[/B] %s - %s\n' % (
+                obj.epg[1].start.strftime('%H:%M'),
+                obj.epg[1].end.strftime('%H:%M'),
+            )
+            plot += '» %s\n' % obj.epg[1].title
+
+    return plot
 
 
 def _stream(strtype, strid):

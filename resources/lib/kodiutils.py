@@ -85,6 +85,11 @@ def get_global_setting(setting):
         return None
 
 
+def get_cond_visibility(condition):
+    ''' Test a condition in XBMC '''
+    return xbmc.getCondVisibility(condition)
+
+
 def has_socks():
     ''' Test if socks is installed, and remember this information '''
     if not hasattr(has_socks, 'installed'):
