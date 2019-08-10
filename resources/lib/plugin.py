@@ -65,14 +65,14 @@ def index():
     if get_setting_as_bool('kids_mode_switching'):
         if not kids:
             listitem = ListItem('Enable Kids Mode', offscreen=True)
-            listitem.setArt({'icon': 'DefaultAddonService.png'})
+            listitem.setArt({'icon': 'DefaultUser.png'})
             listitem.setInfo('video', {
                 'plot': 'Enable the Kids Mode',
             })
             xbmcplugin.addDirectoryItem(plugin.handle, plugin.url_for(kids_mode, status='enable'), listitem, True)
         else:
             listitem = ListItem('Disable Kids Mode', offscreen=True)
-            listitem.setArt({'icon': 'DefaultAddonService.png'})
+            listitem.setArt({'icon': 'DefaultUser.png'})
             listitem.setInfo('video', {
                 'plot': 'Disable the Kids Mode',
             })
