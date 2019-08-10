@@ -78,9 +78,9 @@ class VtmGoAuth:
         })
         tokens = json.loads(response.text)
 
-        self._token = tokens['jsonWebToken']
-        self._name = tokens['name']
-        self._accountId = tokens['accountId']
+        self._token = tokens.get('jsonWebToken')
+        self._name = tokens.get('name')
+        self._accountId = tokens.get('accountId')
 
         return self._token
 
