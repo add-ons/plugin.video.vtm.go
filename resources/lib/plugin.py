@@ -23,7 +23,7 @@ plugin = routing.Plugin()
 
 @plugin.route('/')
 def index():
-    kids = 1 if get_setting_as_bool('kids_mode_enabled') else 0
+    kids = get_setting_as_bool('kids_mode_enabled')
 
     listitem = ListItem('A-Z', offscreen=True)
     listitem.setArt({'icon': 'DefaultMovieTitle.png'})
@@ -47,13 +47,13 @@ def index():
     xbmcplugin.addDirectoryItem(plugin.handle, plugin.url_for(show_livetv, kids=kids), listitem, True)
 
     # Only provide YouTube option when plugin.video.youtube is available
-    if not kids and xbmc.getCondVisibility('System.HasAddon(plugin.video.youtube)') != 0:
+    if xbmc.getCondVisibility('System.HasAddon(plugin.video.youtube)') != 0:
         listitem = ListItem('YouTube', offscreen=True)
         listitem.setArt({'icon': 'DefaultTags.png'})
         listitem.setInfo('video', {
             'plot': 'Watch YouTube content',
         })
-        xbmcplugin.addDirectoryItem(plugin.handle, plugin.url_for(show_youtube), listitem, True)
+        xbmcplugin.addDirectoryItem(plugin.handle, plugin.url_for(show_youtube, kids=kids), listitem, True)
 
     listitem = ListItem('Search', offscreen=True)
     listitem.setArt({'icon': 'DefaultAddonsSearch.png'})
@@ -105,8 +105,9 @@ def check_credentials():
 
 @plugin.route('/livetv')
 def show_livetv():
+    kids = _get_kids_mode()
     try:
-        _vtmGo = _get_vtmgo_object()
+        _vtmGo = VtmGo(kids=kids)
         channels = _vtmGo.get_live()
     except Exception as ex:
         notification(message=str(ex))
@@ -153,11 +154,11 @@ def show_livetv():
 @plugin.route('/catalog')
 @plugin.route('/catalog/<category>')
 def show_catalog(category=None):
-    kids = plugin.args.get('kids')
+    kids = _get_kids_mode()
     if category is None:
         # Show all categories
         try:
-            _vtmGo = _get_vtmgo_object()
+            _vtmGo = VtmGo(kids=kids)
             categories = _vtmGo.get_categories()
         except Exception as ex:
             notification(message=str(ex))
@@ -177,7 +178,7 @@ def show_catalog(category=None):
     else:
         # Show the items of a category
         try:
-            _vtmGo = _get_vtmgo_object()
+            _vtmGo = VtmGo(kids=kids)
             items = _vtmGo.get_items(category)
         except Exception as ex:
             notification(message=str(ex))
@@ -216,8 +217,9 @@ def show_catalog(category=None):
 
 @plugin.route('/movie/<movie>')
 def show_movie(movie):
+    kids = _get_kids_mode()
     try:
-        _vtmGo = _get_vtmgo_object()
+        _vtmGo = VtmGo(kids=kids)
         movie_obj = _vtmGo.get_movie(movie)
     except Exception as ex:
         notification(message=str(ex))
@@ -248,9 +250,9 @@ def show_movie(movie):
 @plugin.route('/program/<program>')
 @plugin.route('/program/<program>/<season>')
 def show_program(program, season=None):
-    kids = plugin.args.get('kids')
+    kids = _get_kids_mode()
     try:
-        _vtmGo = _get_vtmgo_object()
+        _vtmGo = VtmGo(kids=kids)
         program_obj = _vtmGo.get_program(program)
     except Exception as ex:
         notification(message=str(ex))
@@ -341,8 +343,13 @@ def show_program(program, season=None):
 
 @plugin.route('/youtube')
 def show_youtube():
+    kids = _get_kids_mode()
     from resources.lib import YOUTUBE
     for entry in YOUTUBE:
+        # Skip non-kids channels when we are in kids mode.
+        if kids and entry.get('kids') is False:
+            continue
+
         # Try to use the white icons for thumbnails (used for icons as well)
         if get_cond_visibility('System.HasAddon(resource.images.studios.white)') == 1:
             thumb = 'resource://resource.images.studios.white/{studio}.png'.format(**entry)
@@ -378,6 +385,8 @@ def show_youtube():
 
 @plugin.route('/search')
 def show_search():
+    kids = _get_kids_mode()
+
     # Ask for query
     keyboard = xbmc.Keyboard('', 'Search')
     keyboard.doModal()
@@ -387,7 +396,7 @@ def show_search():
 
     try:
         # Do search
-        _vtmGo = _get_vtmgo_object()
+        _vtmGo = VtmGo(kids=kids)
         items = _vtmGo.do_search(query)
     except Exception as ex:
         notification(message=str(ex))
@@ -407,7 +416,7 @@ def show_search():
             listitem.setInfo('video', {
                 'mediatype': None,  # This shows a folder icon
             })
-            xbmcplugin.addDirectoryItem(plugin.handle, plugin.url_for(show_program, program=item.id), listitem, True)
+            xbmcplugin.addDirectoryItem(plugin.handle, plugin.url_for(show_program, program=item.id, kids=kids), listitem, True)
 
     xbmcplugin.setContent(plugin.handle, 'tvshows')
 
@@ -530,9 +539,12 @@ def _stream(strtype, strid):
         xbmcplugin.setResolvedUrl(plugin.handle, True, listitem)
 
 
-def _get_vtmgo_object():
-    kids = plugin.args.get('kids')[0]
-    return VtmGo(mode='vtmgo-kids' if kids == '1' else 'vtmgo')
+def _get_kids_mode():
+    # kids will contain a string of 'True' or 'False'
+    kids = plugin.args.get('kids')
+    if kids:
+        return True if kids[0] == 'True' else False
+    return False
 
 
 def run(params):

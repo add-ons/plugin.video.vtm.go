@@ -172,9 +172,9 @@ class Episode:
 
 
 class VtmGo:
-    def __init__(self, mode='vtmgo'):
+    def __init__(self, kids=False):
         # This can be vtmgo or vtmgo-kids
-        self._mode = mode
+        self._mode = 'vtmgo-kids' if kids else 'vtmgo'
 
     def get_config(self):
         ''' Not sure if we need this '''
