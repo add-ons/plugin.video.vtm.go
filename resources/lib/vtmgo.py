@@ -179,6 +179,9 @@ class Episode:
 
 
 class VtmGo:
+    def __init__(self, kids=False):
+        # This can be vtmgo or vtmgo-kids
+        self._mode = 'vtmgo-kids' if kids else 'vtmgo'
 
     def get_config(self):
         ''' Not sure if we need this '''
@@ -188,12 +191,12 @@ class VtmGo:
 
     def get_main(self):
         ''' Not sure if we need this '''
-        response = self._get_url('/vtmgo/main')
+        response = self._get_url('/%s/main' % self._mode)
         info = json.loads(response)
         return info
 
     def get_live(self):
-        response = self._get_url('/vtmgo/live')
+        response = self._get_url('/%s/live' % self._mode)
         info = json.loads(response)
 
         channels = []
@@ -215,7 +218,7 @@ class VtmGo:
         return channels
 
     def get_categories(self):
-        response = self._get_url('/vtmgo/catalog/filters')
+        response = self._get_url('/%s/catalog/filters' % self._mode)
         info = json.loads(response)
 
         categories = []
@@ -229,9 +232,9 @@ class VtmGo:
 
     def get_items(self, category=None):
         if category and category != 'all':
-            response = self._get_url('/vtmgo/catalog?pageSize=%d&filter=%s' % (1000, quote(category)))
+            response = self._get_url('/%s/catalog?pageSize=%d&filter=%s' % (self._mode, 1000, quote(category)))
         else:
-            response = self._get_url('/vtmgo/catalog?pageSize=1000')
+            response = self._get_url('/%s/catalog?pageSize=1000' % self._mode)
         info = json.loads(response)
 
         items = []
@@ -247,7 +250,7 @@ class VtmGo:
         return items
 
     def get_movie(self, movie_id):
-        response = self._get_url('/vtmgo/movies/' + movie_id)
+        response = self._get_url('/%s/movies/%s' % (self._mode, movie_id))
         info = json.loads(response)
         movie = info.get('movie', {})
         channel_url = movie.get('channelLogoUrl')
@@ -271,7 +274,7 @@ class VtmGo:
         )
 
     def get_program(self, program_id):
-        response = self._get_url('/vtmgo/programs/' + program_id)
+        response = self._get_url('/%s/programs/%s' % (self._mode, program_id))
         info = json.loads(response)
         program = info.get('program', {})
         channel_url = program.get('channelLogoUrl')
@@ -321,13 +324,13 @@ class VtmGo:
         )
 
     # def get_episodes(self, episode_id):
-    #     response = self._get_url('/vtmgo/episodes/' + episode_id)
+    #     response = self._get_url('/%s/episodes/%s' % (self._mode, episode_id))
     #     info = json.loads(response)
     #
     #     return info
 
     def do_search(self, search):
-        response = self._get_url('/vtmgo/autocomplete/?maxItems=50&keywords=%s' % quote(search))
+        response = self._get_url('/%s/autocomplete/?maxItems=50&keywords=%s' % (self._mode, quote(search)))
         results = json.loads(response)
 
         items = []
