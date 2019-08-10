@@ -23,29 +23,31 @@ plugin = routing.Plugin()
 
 @plugin.route('/')
 def index():
+    kids = 1 if get_setting_as_bool('kids_mode_enabled') else 0
+
     listitem = ListItem('A-Z', offscreen=True)
     listitem.setArt({'icon': 'DefaultMovieTitle.png'})
     listitem.setInfo('video', {
         'plot': 'Alphabetically sorted list of programs',
     })
-    xbmcplugin.addDirectoryItem(plugin.handle, plugin.url_for(show_catalog, category='all'), listitem, True)
+    xbmcplugin.addDirectoryItem(plugin.handle, plugin.url_for(show_catalog, category='all', kids=kids), listitem, True)
 
     listitem = ListItem('Catalogue', offscreen=True)
     listitem.setArt({'icon': 'DefaultGenre.png'})
     listitem.setInfo('video', {
         'plot': 'TV Shows and Movies listed by category',
     })
-    xbmcplugin.addDirectoryItem(plugin.handle, plugin.url_for(show_catalog), listitem, True)
+    xbmcplugin.addDirectoryItem(plugin.handle, plugin.url_for(show_catalog, kids=kids), listitem, True)
 
     listitem = ListItem('Live TV', offscreen=True)
     listitem.setArt({'icon': 'DefaultAddonPVRClient.png'})
     listitem.setInfo('video', {
         'plot': 'Watch channels live via Internet',
     })
-    xbmcplugin.addDirectoryItem(plugin.handle, plugin.url_for(show_livetv), listitem, True)
+    xbmcplugin.addDirectoryItem(plugin.handle, plugin.url_for(show_livetv, kids=kids), listitem, True)
 
     # Only provide YouTube option when plugin.video.youtube is available
-    if not get_setting_as_bool('kids_mode_enabled') and xbmc.getCondVisibility('System.HasAddon(plugin.video.youtube)') != 0:
+    if not kids and xbmc.getCondVisibility('System.HasAddon(plugin.video.youtube)') != 0:
         listitem = ListItem('YouTube', offscreen=True)
         listitem.setArt({'icon': 'DefaultTags.png'})
         listitem.setInfo('video', {
@@ -58,37 +60,32 @@ def index():
     listitem.setInfo('video', {
         'plot': 'Search the VTM GO catalogue',
     })
-    xbmcplugin.addDirectoryItem(plugin.handle, plugin.url_for(show_search), listitem, True)
+    xbmcplugin.addDirectoryItem(plugin.handle, plugin.url_for(show_search, kids=kids), listitem, True)
 
-    if get_setting_as_bool('kids_mode_enabled'):
-        listitem = ListItem('Leave KIDS mode', offscreen=True)
-        listitem.setArt({'icon': 'DefaultAddonService.png'})
-        listitem.setInfo('video', {
-            'plot': 'Leave the KIDS mode',
-        })
-        xbmcplugin.addDirectoryItem(plugin.handle, plugin.url_for(kids_mode_deactivate), listitem, True)
-    else:
-        listitem = ListItem('Enter KIDS mode', offscreen=True)
-        listitem.setArt({'icon': 'DefaultAddonService.png'})
-        listitem.setInfo('video', {
-            'plot': 'Go to the KIDS mode',
-        })
-        xbmcplugin.addDirectoryItem(plugin.handle, plugin.url_for(kids_mode_activate), listitem, True)
+    if get_setting_as_bool('kids_mode_switching'):
+        if not kids:
+            listitem = ListItem('Enable Kids Mode', offscreen=True)
+            listitem.setArt({'icon': 'DefaultAddonService.png'})
+            listitem.setInfo('video', {
+                'plot': 'Enable the Kids Mode',
+            })
+            xbmcplugin.addDirectoryItem(plugin.handle, plugin.url_for(kids_mode, status='enable'), listitem, True)
+        else:
+            listitem = ListItem('Disable Kids Mode', offscreen=True)
+            listitem.setArt({'icon': 'DefaultAddonService.png'})
+            listitem.setInfo('video', {
+                'plot': 'Disable the Kids Mode',
+            })
+            xbmcplugin.addDirectoryItem(plugin.handle, plugin.url_for(kids_mode, status='disable'), listitem, True)
 
     xbmcplugin.addSortMethod(plugin.handle, xbmcplugin.SORT_METHOD_UNSORTED)
     xbmcplugin.endOfDirectory(plugin.handle)
 
 
-@plugin.route('/kidsmode/activate')
-def kids_mode_activate():
-    set_setting('kids_mode_enabled', 'true')
-    xbmc.executebuiltin("Container.Update(%s)" % plugin.url_for(index))
-
-
-@plugin.route('/kidsmode/deactivate')
-def kids_mode_deactivate():
-    set_setting('kids_mode_enabled', 'false')
-    xbmc.executebuiltin("Container.Update(%s)" % plugin.url_for(index))
+@plugin.route('/kids-mode/<status>')
+def kids_mode(status):
+    set_setting('kids_mode_enabled', 'true' if status == 'enable' else 'false')
+    xbmc.executebuiltin('Container.Refresh')
 
 
 @plugin.route('/check-credentials')
@@ -156,6 +153,7 @@ def show_livetv():
 @plugin.route('/catalog')
 @plugin.route('/catalog/<category>')
 def show_catalog(category=None):
+    kids = plugin.args.get('kids')
     if category is None:
         # Show all categories
         try:
@@ -170,7 +168,7 @@ def show_catalog(category=None):
             listitem.setInfo('video', {
                 'plot': '[B]%s[/B]' % cat.title,
             })
-            xbmcplugin.addDirectoryItem(plugin.handle, plugin.url_for(show_catalog, category=cat.id), listitem, True)
+            xbmcplugin.addDirectoryItem(plugin.handle, plugin.url_for(show_catalog, category=cat.id, kids=kids), listitem, True)
 
         # Sort categories by default like in VTM GO.
         xbmcplugin.addSortMethod(plugin.handle, xbmcplugin.SORT_METHOD_UNSORTED)
@@ -202,7 +200,7 @@ def show_catalog(category=None):
                 xbmcplugin.addDirectoryItem(plugin.handle, plugin.url_for(play_movie, movie=item.id), listitem)
 
             elif item.type == Content.CONTENT_TYPE_PROGRAM:
-                xbmcplugin.addDirectoryItem(plugin.handle, plugin.url_for(show_program, program=item.id), listitem, True)
+                xbmcplugin.addDirectoryItem(plugin.handle, plugin.url_for(show_program, program=item.id, kids=kids), listitem, True)
 
         if category == 'films':
             xbmcplugin.setContent(plugin.handle, 'movies')
@@ -250,6 +248,7 @@ def show_movie(movie):
 @plugin.route('/program/<program>')
 @plugin.route('/program/<program>/<season>')
 def show_program(program, season=None):
+    kids = plugin.args.get('kids')
     try:
         _vtmGo = _get_vtmgo_object()
         program_obj = _vtmGo.get_program(program)
@@ -276,7 +275,7 @@ def show_program(program, season=None):
                 'plot': _format_plot(program_obj),
                 'set': program_obj.name,
             })
-            xbmcplugin.addDirectoryItem(plugin.handle, plugin.url_for(show_program, program=program, season='all'), listitem, True)
+            xbmcplugin.addDirectoryItem(plugin.handle, plugin.url_for(show_program, program=program, season='all', kids=kids), listitem, True)
 
         for s in program_obj.seasons.values():
             listitem = ListItem('Season %d' % s.number, offscreen=True)
@@ -532,7 +531,8 @@ def _stream(strtype, strid):
 
 
 def _get_vtmgo_object():
-    return VtmGo(mode='vtmgo-kids' if get_setting_as_bool('kids_mode_enabled') else 'vtmgo')
+    kids = plugin.args.get('kids')[0]
+    return VtmGo(mode='vtmgo-kids' if kids == '1' else 'vtmgo')
 
 
 def run(params):
