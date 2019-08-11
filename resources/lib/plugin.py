@@ -20,6 +20,8 @@ logger = logging.getLogger(ADDON.getAddonInfo('id'))
 kodilogging.config()
 plugin = routing.Plugin()
 
+KIDS_MODE_STR = '\n\n[B][COLOR lightblue]Kids Zone[/COLOR][/B]'
+
 
 @plugin.route('/')
 def show_index():
@@ -28,21 +30,24 @@ def show_index():
     listitem = ListItem('A-Z', offscreen=True)
     listitem.setArt({'icon': 'DefaultMovieTitle.png'})
     listitem.setInfo('video', {
-        'plot': 'Alphabetically sorted list of programs',
+        'plot': 'Alphabetically sorted list of programs' +
+                (KIDS_MODE_STR if kids else ''),
     })
     xbmcplugin.addDirectoryItem(plugin.handle, plugin.url_for(show_catalog, category='all', kids=kids), listitem, True)
 
     listitem = ListItem('Catalogue', offscreen=True)
     listitem.setArt({'icon': 'DefaultGenre.png'})
     listitem.setInfo('video', {
-        'plot': 'TV Shows and Movies listed by category',
+        'plot': 'TV Shows and Movies listed by category' +
+                (KIDS_MODE_STR if kids else ''),
     })
     xbmcplugin.addDirectoryItem(plugin.handle, plugin.url_for(show_catalog, kids=kids), listitem, True)
 
     listitem = ListItem('Live TV', offscreen=True)
     listitem.setArt({'icon': 'DefaultAddonPVRClient.png'})
     listitem.setInfo('video', {
-        'plot': 'Watch channels live via Internet',
+        'plot': 'Watch channels live via Internet' +
+                (KIDS_MODE_STR if kids else ''),
     })
     xbmcplugin.addDirectoryItem(plugin.handle, plugin.url_for(show_livetv, kids=kids), listitem, True)
 
@@ -51,14 +56,16 @@ def show_index():
         listitem = ListItem('YouTube', offscreen=True)
         listitem.setArt({'icon': 'DefaultTags.png'})
         listitem.setInfo('video', {
-            'plot': 'Watch YouTube content',
+            'plot': 'Watch YouTube content' +
+                    (KIDS_MODE_STR if kids else ''),
         })
         xbmcplugin.addDirectoryItem(plugin.handle, plugin.url_for(show_youtube, kids=kids), listitem, True)
 
     listitem = ListItem('Search', offscreen=True)
     listitem.setArt({'icon': 'DefaultAddonsSearch.png'})
     listitem.setInfo('video', {
-        'plot': 'Search the VTM GO catalogue',
+        'plot': 'Search the VTM GO catalogue' +
+                (KIDS_MODE_STR if kids else ''),
     })
     xbmcplugin.addDirectoryItem(plugin.handle, plugin.url_for(show_search, kids=kids), listitem, True)
 
