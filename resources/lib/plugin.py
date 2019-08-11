@@ -22,8 +22,8 @@ plugin = routing.Plugin()
 
 
 @plugin.route('/')
-def index():
-    kids = get_setting_as_bool('kids_mode_enabled')
+def show_index():
+    kids = _get_kids_mode()
 
     listitem = ListItem('A-Z', offscreen=True)
     listitem.setArt({'icon': 'DefaultMovieTitle.png'})
@@ -62,30 +62,16 @@ def index():
     })
     xbmcplugin.addDirectoryItem(plugin.handle, plugin.url_for(show_search, kids=kids), listitem, True)
 
-    if get_setting_as_bool('kids_mode_switching'):
-        if not kids:
-            listitem = ListItem('Enable Kids Mode', offscreen=True)
-            listitem.setArt({'icon': 'DefaultUser.png'})
-            listitem.setInfo('video', {
-                'plot': 'Enable the Kids Mode',
-            })
-            xbmcplugin.addDirectoryItem(plugin.handle, plugin.url_for(kids_mode, status='enable'), listitem, True)
-        else:
-            listitem = ListItem('Disable Kids Mode', offscreen=True)
-            listitem.setArt({'icon': 'DefaultUser.png'})
-            listitem.setInfo('video', {
-                'plot': 'Disable the Kids Mode',
-            })
-            xbmcplugin.addDirectoryItem(plugin.handle, plugin.url_for(kids_mode, status='disable'), listitem, True)
+    if get_setting_as_bool('kids_mode_switching') and not kids:
+        listitem = ListItem('Kids Zone', offscreen=True)
+        listitem.setArt({'icon': 'DefaultUser.png'})
+        listitem.setInfo('video', {
+            'plot': 'Go to the Kids Zone',
+        })
+        xbmcplugin.addDirectoryItem(plugin.handle, plugin.url_for(show_index, kids=True), listitem, True)
 
     xbmcplugin.addSortMethod(plugin.handle, xbmcplugin.SORT_METHOD_UNSORTED)
     xbmcplugin.endOfDirectory(plugin.handle)
-
-
-@plugin.route('/kids-mode/<status>')
-def kids_mode(status):
-    set_setting('kids_mode_enabled', 'true' if status == 'enable' else 'false')
-    xbmc.executebuiltin('Container.Refresh')
 
 
 @plugin.route('/check-credentials')
@@ -549,6 +535,10 @@ def _stream(strtype, strid):
 
 
 def _get_kids_mode():
+
+    if get_setting_as_bool('kids_zone_forced'):
+        return True
+
     # kids will contain a string of 'True' or 'False'
     kids = plugin.args.get('kids')
     if kids:
