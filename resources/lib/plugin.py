@@ -505,6 +505,17 @@ def _stream(strtype, strid):
     if resolved_stream is None:  # If no stream is available (i.e. geo-blocked)
         return
 
+    # Lookup metadata
+    _vtmgo = VtmGo()
+    if strtype == 'movies':
+        details = _vtmgo.get_movie(strid)
+        description = details.description
+    elif strtype == 'episodes':
+        details = _vtmgo.get_episode(strid)
+        description = details.description
+    else:
+        description = None
+
     # Create listitem
     listitem = ListItem(path=resolved_stream.url, offscreen=True)
 
@@ -512,6 +523,7 @@ def _stream(strtype, strid):
     listitem.setInfo('video', {
         'title': resolved_stream.title,
         'tvshowtitle': resolved_stream.program,
+        'plot': description,
         'duration': resolved_stream.duration,
     })
     listitem.addStreamInfo('video', {
