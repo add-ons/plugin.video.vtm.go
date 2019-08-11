@@ -4,13 +4,18 @@
 
 # VTM GO Kodi add-on
 
-**This add-on is currently under development and isn't ready for use yet. See the issue tracker for known issues.**
+**This add-on is currently under development and isn't ready for use yet. The [Release 1.0](https://github.com/michaelarnauts/plugin.video.vtm.go/issues?q=is%3Aopen+is%3Aissue+milestone%3A%22Release+1.0%22) milestone indicates what issues I think are blocking the general use of this add-on.**
 
 *plugin.video.vtm.go* is a Kodi add-on for watching all live video streams and all video-on-demand content available on the VTM GO platform.
 
-The following features will be supported:
+The following features are supported:
 * Watch live TV (VTM, Q2, Vitaya, CAZ, VTM Kids, VTM Kids Jr & QMusic)
 * Watch on-demand content (movies and series)
+* Watch YouTube content from some of the Medialaan channels
 * Search the catalogue
+* Browse the Kids zone
 
-The VTM GO add-on is provided 'as is' without any warranty of any kind, and is not endorsed by Medialaan.
+## Disclaimer
+
+This add-on is not officially commissioned/supported by Medialaan and is provided 'as is' without any warranty of any kind.
+The VTM GO name, VTM GO logo and channel icons are property of Medialaan and are used according to the fair use policy. 
