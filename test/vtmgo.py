@@ -82,10 +82,10 @@ class TestVtmGo(unittest.TestCase):
         self.assertTrue(info)
         print(info)
 
-    # def test_get_episodes(self):
-    #     info = self._vtmgo.get_episodes('ae0fa98d-6ed5-4f4a-8581-a051ed3bb755')
-    #     self.assertTrue(info)
-    #     print(info)
+    def test_get_episode(self):
+        info = self._vtmgo.get_episode('ae0fa98d-6ed5-4f4a-8581-a051ed3bb755')
+        self.assertTrue(info)
+        print(info)
 
     def test_get_stream(self):
         info = self._vtmgostream.get_stream('episodes', 'ae0fa98d-6ed5-4f4a-8581-a051ed3bb755')

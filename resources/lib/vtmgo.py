@@ -1,10 +1,12 @@
 # -*- coding: utf-8 -*-
 
 from __future__ import absolute_import, division, unicode_literals
-import re
-import os.path
+
 import json
 import logging
+import os.path
+import re
+
 try:  # Python 3
     from urllib.parse import quote
 except ImportError:  # Python 2
@@ -323,11 +325,19 @@ class VtmGo:
             legal=program.get('legalIcons'),
         )
 
-    # def get_episodes(self, episode_id):
-    #     response = self._get_url('/%s/episodes/%s' % (self._mode, episode_id))
-    #     info = json.loads(response)
-    #
-    #     return info
+    def get_episode(self, episode_id):
+        response = self._get_url('/%s/episodes/%s' % (self._mode, episode_id))
+        info = json.loads(response)
+        episode = info.get('episode', {})
+
+        return Episode(
+            episode_id=episode.get('id'),
+            number=episode.get('index'),
+            season=episode.get('seasonIndex'),
+            name=episode.get('name'),
+            description=episode.get('description'),
+            cover=episode.get('bigPhotoUrl'),
+        )
 
     def do_search(self, search):
         response = self._get_url('/%s/autocomplete/?maxItems=50&keywords=%s' % (self._mode, quote(search)))
