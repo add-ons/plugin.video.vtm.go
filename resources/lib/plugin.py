@@ -12,7 +12,7 @@ from xbmcgui import Dialog, ListItem
 import routing
 from resources.lib import kodilogging
 from resources.lib import vtmgostream
-from resources.lib.kodiutils import get_cond_visibility, get_global_setting, get_setting, notification, show_ok_dialog, show_settings, get_setting_as_bool, set_setting
+from resources.lib.kodiutils import get_cond_visibility, get_global_setting, get_setting, notification, show_ok_dialog, show_settings, get_setting_as_bool
 from resources.lib.vtmgo import VtmGo, Content
 
 ADDON = Addon()
@@ -535,7 +535,6 @@ def _stream(strtype, strid):
 
 
 def _get_kids_mode():
-
     if get_setting_as_bool('kids_zone_forced'):
         return True
 
