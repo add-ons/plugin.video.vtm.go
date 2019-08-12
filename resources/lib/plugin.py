@@ -12,7 +12,7 @@ from xbmcgui import Dialog, ListItem
 import routing
 from resources.lib import kodilogging
 from resources.lib import vtmgostream
-from resources.lib.kodiutils import get_cond_visibility, get_global_setting, get_setting, notification, show_ok_dialog, show_settings, get_setting_as_bool, set_setting
+from resources.lib.kodiutils import get_cond_visibility, get_global_setting, get_setting, notification, show_ok_dialog, show_settings, get_setting_as_bool
 from resources.lib.vtmgo import VtmGo, Content
 
 ADDON = Addon()
@@ -20,29 +20,34 @@ logger = logging.getLogger(ADDON.getAddonInfo('id'))
 kodilogging.config()
 plugin = routing.Plugin()
 
+KIDS_MODE_STR = '\n\n[B][COLOR lightblue]Kids Zone[/COLOR][/B]'
+
 
 @plugin.route('/')
-def index():
-    kids = get_setting_as_bool('kids_mode_enabled')
+def show_index():
+    kids = _get_kids_mode()
 
     listitem = ListItem('A-Z', offscreen=True)
     listitem.setArt({'icon': 'DefaultMovieTitle.png'})
     listitem.setInfo('video', {
-        'plot': 'Alphabetically sorted list of programs',
+        'plot': 'Alphabetically sorted list of programs' +
+                (KIDS_MODE_STR if kids else ''),
     })
     xbmcplugin.addDirectoryItem(plugin.handle, plugin.url_for(show_catalog, category='all', kids=kids), listitem, True)
 
     listitem = ListItem('Catalogue', offscreen=True)
     listitem.setArt({'icon': 'DefaultGenre.png'})
     listitem.setInfo('video', {
-        'plot': 'TV Shows and Movies listed by category',
+        'plot': 'TV Shows and Movies listed by category' +
+                (KIDS_MODE_STR if kids else ''),
     })
     xbmcplugin.addDirectoryItem(plugin.handle, plugin.url_for(show_catalog, kids=kids), listitem, True)
 
     listitem = ListItem('Live TV', offscreen=True)
     listitem.setArt({'icon': 'DefaultAddonPVRClient.png'})
     listitem.setInfo('video', {
-        'plot': 'Watch channels live via Internet',
+        'plot': 'Watch channels live via Internet' +
+                (KIDS_MODE_STR if kids else ''),
     })
     xbmcplugin.addDirectoryItem(plugin.handle, plugin.url_for(show_livetv, kids=kids), listitem, True)
 
@@ -51,41 +56,29 @@ def index():
         listitem = ListItem('YouTube', offscreen=True)
         listitem.setArt({'icon': 'DefaultTags.png'})
         listitem.setInfo('video', {
-            'plot': 'Watch YouTube content',
+            'plot': 'Watch YouTube content' +
+                    (KIDS_MODE_STR if kids else ''),
         })
         xbmcplugin.addDirectoryItem(plugin.handle, plugin.url_for(show_youtube, kids=kids), listitem, True)
 
     listitem = ListItem('Search', offscreen=True)
     listitem.setArt({'icon': 'DefaultAddonsSearch.png'})
     listitem.setInfo('video', {
-        'plot': 'Search the VTM GO catalogue',
+        'plot': 'Search the VTM GO catalogue' +
+                (KIDS_MODE_STR if kids else ''),
     })
     xbmcplugin.addDirectoryItem(plugin.handle, plugin.url_for(show_search, kids=kids), listitem, True)
 
-    if get_setting_as_bool('kids_mode_switching'):
-        if not kids:
-            listitem = ListItem('Enable Kids Mode', offscreen=True)
-            listitem.setArt({'icon': 'DefaultUser.png'})
-            listitem.setInfo('video', {
-                'plot': 'Enable the Kids Mode',
-            })
-            xbmcplugin.addDirectoryItem(plugin.handle, plugin.url_for(kids_mode, status='enable'), listitem, True)
-        else:
-            listitem = ListItem('Disable Kids Mode', offscreen=True)
-            listitem.setArt({'icon': 'DefaultUser.png'})
-            listitem.setInfo('video', {
-                'plot': 'Disable the Kids Mode',
-            })
-            xbmcplugin.addDirectoryItem(plugin.handle, plugin.url_for(kids_mode, status='disable'), listitem, True)
+    if get_setting_as_bool('kids_mode_switching') and not kids:
+        listitem = ListItem('Kids Zone', offscreen=True)
+        listitem.setArt({'icon': 'DefaultUser.png'})
+        listitem.setInfo('video', {
+            'plot': 'Go to the Kids Zone',
+        })
+        xbmcplugin.addDirectoryItem(plugin.handle, plugin.url_for(show_index, kids=True), listitem, True)
 
     xbmcplugin.addSortMethod(plugin.handle, xbmcplugin.SORT_METHOD_UNSORTED)
     xbmcplugin.endOfDirectory(plugin.handle)
-
-
-@plugin.route('/kids-mode/<status>')
-def kids_mode(status):
-    set_setting('kids_mode_enabled', 'true' if status == 'enable' else 'false')
-    xbmc.executebuiltin('Container.Refresh')
 
 
 @plugin.route('/check-credentials')
@@ -561,6 +554,9 @@ def _stream(strtype, strid):
 
 
 def _get_kids_mode():
+    if get_setting_as_bool('kids_zone_forced'):
+        return True
+
     # kids will contain a string of 'True' or 'False'
     kids = plugin.args.get('kids')
     if kids:
