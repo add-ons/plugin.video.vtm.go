@@ -99,7 +99,8 @@ class Content:
 
 
 class Movie:
-    def __init__(self, movie_id=None, name=None, description=None, year=None, cover=None, duration=None, remaining=None, geoblocked=None, channel=None, legal=None, aired=None):
+    def __init__(self, movie_id=None, name=None, description=None, year=None, cover=None, duration=None, remaining=None, geoblocked=None,
+                 channel=None, legal=None, aired=None):
         self.id = movie_id
         self.name = name
         self.description = description if description else ''
@@ -161,7 +162,8 @@ class Season:
 
 
 class Episode:
-    def __init__(self, episode_id=None, number=None, season=None, name=None, description=None, cover=None, duration=None, remaining=None, geoblocked=None, channel=None, legal=None, aired=None):
+    def __init__(self, episode_id=None, number=None, season=None, name=None, description=None, cover=None, duration=None, remaining=None, geoblocked=None,
+                 channel=None, legal=None, aired=None):
         self.id = episode_id
         self.number = int(number)
         self.season = int(season)
@@ -257,7 +259,7 @@ class VtmGo:
         movie = info.get('movie', {})
         channel_url = movie.get('channelLogoUrl')
         if channel_url:
-            channel = os.path.basename(channel_url).split('-')[0],
+            channel = os.path.basename(channel_url).split('-')[0]
         else:
             channel = 'vtmgo'
 
@@ -281,7 +283,7 @@ class VtmGo:
         program = info.get('program', {})
         channel_url = program.get('channelLogoUrl')
         if channel_url:
-            channel = os.path.basename(channel_url).split('-')[0],
+            channel = os.path.basename(channel_url).split('-')[0]
         else:
             channel = 'vtmgo'
 
