@@ -1,20 +1,11 @@
 # -*- coding: utf-8 -*-
 
 from __future__ import absolute_import, division, unicode_literals
-
-import json
-import logging
 import random
-import re
-
 import requests
 from requests.exceptions import InvalidSchema
-from xbmcaddon import Addon
 
 from .kodiutils import localize, proxies
-
-ADDON = Addon()
-logger = logging.getLogger(ADDON.getAddonInfo('id'))
 
 
 class VtmGoAuth:
@@ -51,18 +42,19 @@ class VtmGoAuth:
             })
 
             if 'Wachtwoord is niet correct' in response.text:
-                raise Exception(localize(30801))  # Invalid login details
+                raise Exception(localize(30701))  # Invalid login details
 
-            raise Exception(localize(30802))  # Unknown error while logging in
+            raise Exception(localize(30702))  # Unknown error while logging in
 
         except InvalidSchema as e:
             # We get back an url like this: vtmgo://callback/oidc?state=yyyyyyyyyyyyyyyyyyyyyy&code=xxxxxxxxxxxxxxxxxxxxxxxxxx-xxxxxxxxxxxxxxxx
             # I found no other way to get this url then by parsing the Exception message. :(
+            import re
             matches = re.search(r"code=([^']+)", str(e))
             if matches:
                 code = matches.group(1)
             else:
-                raise Exception(localize(30803))  # Could not extract authentication code
+                raise Exception(localize(30703))  # Could not extract authentication code
 
         # Okay, final stage. We now need to use our authorizationCode to get a valid JWT.
         response = session.post('https://api.vtmgo.be/authorize', json={
@@ -76,6 +68,7 @@ class VtmGoAuth:
             'x-persgroep-os-version': '23',
             'User-Agent': 'VTMGO/6.5.0 (be.vmma.vtm.zenderapp; build:11019; Android 23) okhttp/3.12.1'
         })
+        import json
         tokens = json.loads(response.text)
 
         self._token = tokens.get('jsonWebToken')

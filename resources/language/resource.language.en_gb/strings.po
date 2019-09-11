@@ -129,36 +129,112 @@ msgstr ""
 
 
 ### ERRORS
-msgctxt "#30801"
+msgctxt "#30701"
 msgid "Invalid login details"
 msgstr ""
 
-msgctxt "#30802"
+msgctxt "#30702"
 msgid "Unknown error while logging in"
 msgstr ""
 
-msgctxt "#30803"
+msgctxt "#30703"
 msgid "Could not extract authentication code"
 msgstr ""
 
-msgctxt "#30804"
+msgctxt "#30704"
 msgid "This video may be geo-blocked, or your account is already being used currently."
 msgstr ""
 
-msgctxt "#30805"
+msgctxt "#30705"
 msgid "Could not parse media info."
 msgstr ""
 
-msgctxt "#30806"
+msgctxt "#30706"
 msgid "No stream found that we can handle."
 msgstr ""
 
-msgctxt "#30807"
+msgctxt "#30707"
 msgid "Unhandled videoType {type}"
 msgstr ""
 
 
 ### SETTINGS
-msgctxt "#30901"
-msgid ""
+msgctxt "#30800"
+msgid "Credentials"
+msgstr ""
+
+msgctxt "#30801"
+msgid "VTM GO login"
+msgstr ""
+
+msgctxt "#30803"
+msgid "Email address"
+msgstr ""
+
+msgctxt "#30805"
+msgid "Password"
+msgstr ""
+
+msgctxt "#30807"
+msgid "Check your credentials"
+msgstr ""
+
+msgctxt "#30820"
+msgid "Interface"
+msgstr ""
+
+msgctxt "#30821"
+msgid "Features"
+msgstr ""
+
+msgctxt "#30823"
+msgid "Force Kids Zone"
+msgstr ""
+
+msgctxt "#30860"
+msgid "Playback"
+msgstr ""
+
+msgctxt "#30861"
+msgid "Subtitles"
+msgstr ""
+
+msgctxt "#30863"
+msgid "Always show subtitles when available"
+msgstr ""
+
+msgctxt "#30865"
+msgid "Streaming"
+msgstr ""
+
+msgctxt "#30867"
+msgid "Maximum bandwidth (kbps)"
+msgstr ""
+
+msgctxt "#30880"
+msgid "Expert"
+msgstr ""
+
+msgctxt "#30881"
+msgid "Streaming"
+msgstr ""
+
+msgctxt "#30883"
+msgid "InputStream Helper information"
+msgstr ""
+
+msgctxt "#30885"
+msgid "InputStream Adaptive settings..."
+msgstr ""
+
+msgctxt "#30887"
+msgid "InputStream Helper settings... [COLOR gray][I](for protected content)[/I][/COLOR]"
+msgstr ""
+
+msgctxt "#30889"
+msgid "Logging"
+msgstr ""
+
+msgctxt "#30891"
+msgid "Log level"
 msgstr ""

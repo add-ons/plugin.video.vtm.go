@@ -6,6 +6,7 @@ import json
 LOGFATAL = 'Fatal'
 LOGERROR = 'Error'
 LOGWARNING = 'Warning'
+LOGNOTICE = 'Notice'
 LOGINFO = 'Info'
 LOGDEBUG = 'Debug'
 LOGNONE = ''
