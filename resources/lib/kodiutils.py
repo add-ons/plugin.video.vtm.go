@@ -13,6 +13,13 @@ ADDON = Addon()
 logger = logging.getLogger(__name__)
 
 
+class SafeDict(dict):
+    ''' A safe dictionary implementation that does not break down on missing keys '''
+    def __missing__(self, key):
+        ''' Replace missing keys with the original placeholder '''
+        return '{' + key + '}'
+
+
 def notification(heading=ADDON.getAddonInfo('name'), message='', time=5000, icon=ADDON.getAddonInfo('icon'), sound=True):
     ''' Show a Kodi notification '''
     Dialog().notification(heading=heading, message=message, icon=icon, time=time, sound=sound)
@@ -51,10 +58,6 @@ def get_setting_as_int(setting):
         return int(get_setting_as_float(setting))
     except ValueError:
         return 0
-
-
-def get_string(string_id):
-    return ADDON.getLocalizedString(string_id).encode('utf-8', 'ignore')
 
 
 def kodi_json_request(params):
@@ -108,7 +111,7 @@ def get_proxies():
     if httpproxytype != 0 and not socks_supported:
         # Only open the dialog the first time (to avoid multiple popups)
         if socks_supported is None:
-            show_ok_dialog('', 'Using a SOCKS proxy requires the PySocks library (script.module.pysocks) installed.')
+            show_ok_dialog('', localize(30200))  # Needs PySocks library
         return None
 
     proxy_types = ['http', 'socks4', 'socks4a', 'socks5', 'socks5h']
@@ -134,6 +137,14 @@ def get_proxies():
         return None
 
     return dict(http=proxy_address, https=proxy_address)
+
+
+def localize(string_id, **kwargs):
+    ''' Return the translated string from the .po language files, optionally translating variables '''
+    if kwargs:
+        import string
+        return string.Formatter().vformat(ADDON.getLocalizedString(string_id), (), SafeDict(**kwargs))
+    return ADDON.getLocalizedString(string_id)
 
 
 proxies = get_proxies()

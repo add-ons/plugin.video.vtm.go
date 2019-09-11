@@ -11,7 +11,7 @@ import requests
 from requests.exceptions import InvalidSchema
 from xbmcaddon import Addon
 
-from resources.lib.kodiutils import proxies
+from .kodiutils import localize, proxies
 
 ADDON = Addon()
 logger = logging.getLogger(ADDON.getAddonInfo('id'))
@@ -51,9 +51,9 @@ class VtmGoAuth:
             })
 
             if 'Wachtwoord is niet correct' in response.text:
-                raise Exception('Invalid login details')
+                raise Exception(localize(30801))  # Invalid login details
 
-            raise Exception('Unknown error while logging in')
+            raise Exception(localize(30802))  # Unknown error while logging in
 
         except InvalidSchema as e:
             # We get back an url like this: vtmgo://callback/oidc?state=yyyyyyyyyyyyyyyyyyyyyy&code=xxxxxxxxxxxxxxxxxxxxxxxxxx-xxxxxxxxxxxxxxxx
@@ -62,7 +62,7 @@ class VtmGoAuth:
             if matches:
                 code = matches.group(1)
             else:
-                raise Exception('Could not extract authentication code')
+                raise Exception(localize(30803))  # Could not extract authentication code
 
         # Okay, final stage. We now need to use our authorizationCode to get a valid JWT.
         response = session.post('https://api.vtmgo.be/authorize', json={
