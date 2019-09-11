@@ -1,4 +1,4 @@
-kodistubs
+polib
 pylint
 python-dateutil
 requests

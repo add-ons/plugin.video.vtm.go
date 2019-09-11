@@ -13,7 +13,7 @@ except ImportError:  # Python 2
 
 import requests
 from xbmcaddon import Addon
-from resources.lib.kodiutils import proxies, show_ok_dialog
+from .kodiutils import localize, proxies, show_ok_dialog
 
 ADDON = Addon()
 logger = logging.getLogger(ADDON.getAddonInfo('id'))
@@ -114,7 +114,7 @@ class VtmGoStream:
                 cookies=self._session.cookies.get_dict()
             )
 
-        raise Exception('Unhandled videoType %s' % stream_type)
+        raise Exception(localize(30807, type=stream_type))  # Unhandled videoType
 
     def _get_stream_info(self, strtype, stream_id):
         url = 'https://videoplayer-service.api.persgroep.cloud/config/%s/%s' % (strtype, stream_id)
@@ -132,7 +132,7 @@ class VtmGoStream:
                                      proxies=proxies)
 
         if response.status_code == 403:
-            show_ok_dialog(heading='HTTP 403 Forbidden', message='This video may be geo-blocked, or your account is already being used currently.')
+            show_ok_dialog(heading='HTTP 403 Forbidden', message=localize(30804))  # Geo-blocked
             return None
         if response.status_code != 200:
             raise Exception('Error %s in _get_stream_info.' % response.status_code)
@@ -146,7 +146,7 @@ class VtmGoStream:
             if stream['type'] == 'anvato':
                 return stream['anvato']
 
-        raise Exception('No stream found that we can handle.')
+        raise Exception(localize(30806))  # No stream found that we can handle
 
     def _extract_subtitles_from_stream_info(self, stream_info):
         subtitles = []
@@ -246,14 +246,14 @@ class VtmGoStream:
                                           'User-Agent': self._ANVATO_USER_AGENT,
                                       })
         if response.status_code == 403:
-            show_ok_dialog(heading='HTTP 403 Forbidden', message='This video may be geo-blocked, or your account is already being used currently.')
+            show_ok_dialog(heading='HTTP 403 Forbidden', message=localize(30804))  # Geo-blocked error
             return None
         if response.status_code != 200:
             raise Exception('Error %s.' % response.status_code)
 
         matches = re.search(r"^anvatoVideoJSONLoaded\((.*)\)$", response.text)
         if not matches:
-            raise Exception('Could not parse media info.')
+            raise Exception(localize(30805))  # Could not parse media info
         info = json.loads(matches.group(1))
         return info
 

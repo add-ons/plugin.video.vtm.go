@@ -1,0 +1,164 @@
+# Kodi Media Center language file
+# Addon Name: VTM GO
+# Addon id: plugin.video.vtm.go
+# Addon Provider: michaelarnauts
+msgid ""
+msgstr ""
+"Project-Id-Version: plugin.video.vtm.go\n"
+"Report-Msgid-Bugs-To: https://github.com/michaelarnauts/plugin.video.vtm.go\n"
+"POT-Creation-Date: 2019-09-11 23:00+0000\n"
+"PO-Revision-Date: 2019-09-11 23:00+0000\n"
+"Last-Translator: Dag Wieers <dag@wieers.com>\n"
+"Language-Team: English\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Language: en\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+### MENUS
+msgctxt "#30001"
+msgid "A-Z"
+msgstr ""
+
+msgctxt "#30002"
+msgid "Alphabetically sorted list of programs"
+msgstr ""
+
+msgctxt "#30003"
+msgid "Catalogue"
+msgstr ""
+
+msgctxt "#30004"
+msgid "TV Shows and Movies listed by category"
+msgstr ""
+
+msgctxt "#30005"
+msgid "Live TV"
+msgstr ""
+
+msgctxt "#30006"
+msgid "Watch channels live via Internet"
+msgstr ""
+
+msgctxt "#30007"
+msgid "YouTube"
+msgstr ""
+
+msgctxt "#30008"
+msgid "Watch YouTube content'"
+msgstr ""
+
+msgctxt "#30009"
+msgid "Search"
+msgstr ""
+
+msgctxt "#30010"
+msgid "Search the VTM GO catalogue"
+msgstr ""
+
+msgctxt "#30011"
+msgid "Kids Zone"
+msgstr ""
+
+msgctxt "#30012"
+msgid "Go to the Kids Zone"
+msgstr ""
+
+
+### CODE
+msgctxt "#30200"
+msgid "Using a SOCKS proxy requires the PySocks library (script.module.pysocks) installed."
+msgstr ""
+
+msgctxt "#30201"
+msgid "[B][COLOR lightblue]Kids Zone[/COLOR][/B]"
+msgstr ""
+
+msgctxt "#30202"
+msgid "Credentials are correct!"
+msgstr ""
+
+msgctxt "#30203"
+msgid "Your credentials are not valid!"
+msgstr ""
+
+msgctxt "#30204"
+msgid "* All seasons"
+msgstr ""
+
+msgctxt "#30205"
+msgid "Season {season}"
+msgstr ""
+
+msgctxt "#30206"
+msgid "Watch [B]{label}[/B] on YouTube"
+msgstr ""
+
+msgctxt "#30207"
+msgid "[COLOR red]Geo-blocked[/COLOR]\n"
+msgstr ""
+
+msgctxt "#30208"
+msgid "[COLOR blue]Available until midnight[/COLOR]\n"
+msgstr ""
+
+msgctxt "#30209"
+msgid "[COLOR blue]One day remaining[/COLOR]\n"
+msgstr ""
+
+msgctxt "#30210"
+msgid "[COLOR blue]{years} years remaining[/COLOR]\n"
+msgstr ""
+
+msgctxt "#30211"
+msgid "[COLOR blue]{months} months remaining[/COLOR]\n"
+msgstr ""
+
+msgctxt "#30212"
+msgid "[COLOR blue]{days} days remaining[/COLOR]\n"
+msgstr ""
+
+msgctxt "#30213"
+msgid "[COLOR yellow][B]Now:[/B] {start} - {end}\n» {title}[/COLOR]\n"
+msgstr ""
+
+msgctxt "#30214"
+msgid "[B]Next:[/B] {start} - {end}\n» {title}\n"
+msgstr ""
+
+
+### ERRORS
+msgctxt "#30801"
+msgid "Invalid login details"
+msgstr ""
+
+msgctxt "#30802"
+msgid "Unknown error while logging in"
+msgstr ""
+
+msgctxt "#30803"
+msgid "Could not extract authentication code"
+msgstr ""
+
+msgctxt "#30804"
+msgid "This video may be geo-blocked, or your account is already being used currently."
+msgstr ""
+
+msgctxt "#30805"
+msgid "Could not parse media info."
+msgstr ""
+
+msgctxt "#30806"
+msgid "No stream found that we can handle."
+msgstr ""
+
+msgctxt "#30807"
+msgid "Unhandled videoType {type}"
+msgstr ""
+
+
+### SETTINGS
+msgctxt "#30901"
+msgid ""
+msgstr ""

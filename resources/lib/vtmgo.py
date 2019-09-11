@@ -15,7 +15,7 @@ except ImportError:  # Python 2
 import requests
 import dateutil.parser
 from xbmcaddon import Addon
-from resources.lib.kodiutils import proxies
+from .kodiutils import proxies
 
 ADDON = Addon()
 logger = logging.getLogger(ADDON.getAddonInfo('id'))

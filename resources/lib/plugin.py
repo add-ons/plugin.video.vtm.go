@@ -1,79 +1,72 @@
 # -*- coding: utf-8 -*-
 
 from __future__ import absolute_import, division, unicode_literals
-
 import logging
 
-import xbmc
 import xbmcplugin
+from xbmc import Keyboard
 from xbmcaddon import Addon
 from xbmcgui import Dialog, ListItem
 
 import routing
-from resources.lib import kodilogging
-from resources.lib import vtmgostream
-from resources.lib.kodiutils import get_cond_visibility, get_global_setting, get_setting, notification, show_ok_dialog, show_settings, get_setting_as_bool
-from resources.lib.vtmgo import VtmGo, Content
+
+from .kodilogging import config
+from .kodiutils import get_cond_visibility, get_setting, get_setting_as_bool, get_global_setting, localize, notification, show_ok_dialog, show_settings
+from .vtmgo import Content, VtmGo
+from .vtmgostream import VtmGoStream
 
 ADDON = Addon()
 logger = logging.getLogger(ADDON.getAddonInfo('id'))
-kodilogging.config()
+config()
 plugin = routing.Plugin()
-
-KIDS_MODE_STR = '\n\n[B][COLOR lightblue]Kids Zone[/COLOR][/B]'
 
 
 @plugin.route('/')
 def show_index():
     kids = _get_kids_mode()
 
-    listitem = ListItem('A-Z', offscreen=True)
+    listitem = ListItem(localize(30001), offscreen=True)  # A-Z
     listitem.setArt({'icon': 'DefaultMovieTitle.png'})
     listitem.setInfo('video', {
-        'plot': 'Alphabetically sorted list of programs'
-                + (KIDS_MODE_STR if kids else ''),
+        'plot': localize(30002) + ('\n\n' + localize(30201) if kids else ''),
     })
     xbmcplugin.addDirectoryItem(plugin.handle, plugin.url_for(show_catalog, category='all', kids=kids), listitem, True)
 
-    listitem = ListItem('Catalogue', offscreen=True)
+    listitem = ListItem(localize(30003), offscreen=True)  # Catalogue
     listitem.setArt({'icon': 'DefaultGenre.png'})
     listitem.setInfo('video', {
-        'plot': 'TV Shows and Movies listed by category'
-                + (KIDS_MODE_STR if kids else ''),
+        'plot': localize(30004) + ('\n\n' + localize(30201) if kids else ''),
     })
     xbmcplugin.addDirectoryItem(plugin.handle, plugin.url_for(show_catalog, kids=kids), listitem, True)
 
-    listitem = ListItem('Live TV', offscreen=True)
+    listitem = ListItem(localize(30005), offscreen=True)  # Live TV
     listitem.setArt({'icon': 'DefaultAddonPVRClient.png'})
     listitem.setInfo('video', {
-        'plot': 'Watch channels live via Internet'
-                + (KIDS_MODE_STR if kids else ''),
+        'plot': localize(30006) + ('\n\n' + localize(30201) if kids else ''),
     })
     xbmcplugin.addDirectoryItem(plugin.handle, plugin.url_for(show_livetv, kids=kids), listitem, True)
 
     # Only provide YouTube option when plugin.video.youtube is available
-    if xbmc.getCondVisibility('System.HasAddon(plugin.video.youtube)') != 0:
-        listitem = ListItem('YouTube', offscreen=True)
+    if get_cond_visibility('System.HasAddon(plugin.video.youtube)') != 0:
+        listitem = ListItem(localize(30007), offscreen=True)  # YouTube
         listitem.setArt({'icon': 'DefaultTags.png'})
         listitem.setInfo('video', {
-            'plot': 'Watch YouTube content'
-                    + (KIDS_MODE_STR if kids else ''),
+            'plot': localize(30008) + ('\n\n' + localize(30201) if kids else ''),
         })
         xbmcplugin.addDirectoryItem(plugin.handle, plugin.url_for(show_youtube, kids=kids), listitem, True)
 
-    listitem = ListItem('Search', offscreen=True)
+    listitem = ListItem(localize(30009), offscreen=True)  # Search
     listitem.setArt({'icon': 'DefaultAddonsSearch.png'})
     listitem.setInfo('video', {
-        'plot': 'Search the VTM GO catalogue'
-                + (KIDS_MODE_STR if kids else ''),
+        'plot': localize(30010) + ('\n\n' + localize(30201) if kids else ''),
     })
     xbmcplugin.addDirectoryItem(plugin.handle, plugin.url_for(show_search, kids=kids), listitem, True)
 
     if get_setting_as_bool('kids_mode_switching') and not kids:
-        listitem = ListItem('Kids Zone', offscreen=True)
+        listitem = ListItem(localize(30011), offscreen=True)  # Kids Zone
         listitem.setArt({'icon': 'DefaultUser.png'})
         listitem.setInfo('video', {
-            'plot': 'Go to the Kids Zone',
+            'plot': localize(30012),
         })
         xbmcplugin.addDirectoryItem(plugin.handle, plugin.url_for(show_index, kids=True), listitem, True)
 
@@ -83,14 +76,14 @@ def show_index():
 
 @plugin.route('/check-credentials')
 def check_credentials():
-    from resources.lib import vtmgoauth
-    auth = vtmgoauth.VtmGoAuth(username=get_setting('email'), password=get_setting('password'))
+    from .vtmgoauth import VtmGoAuth
+    auth = VtmGoAuth(username=get_setting('email'), password=get_setting('password'))
 
     try:
         auth.login()
-        show_ok_dialog(message='Credentials are correct!')
+        show_ok_dialog(message=localize(30202))  # Credentials are correct!
     except Exception:  # FIXME: This ought to be more specific
-        show_ok_dialog(message='Your credentials are not valid!')
+        show_ok_dialog(message=localize(30203))  # Your credentials are not valid!
         raise
 
     show_settings()
@@ -160,7 +153,7 @@ def show_catalog(category=None):
         for cat in categories:
             listitem = ListItem(cat.title, offscreen=True)
             listitem.setInfo('video', {
-                'plot': '[B]%s[/B]' % cat.title,
+                'plot': '[B]{category}[/B]'.format(category=cat.title),
             })
             xbmcplugin.addDirectoryItem(plugin.handle, plugin.url_for(show_catalog, category=cat.id, kids=kids), listitem, True)
 
@@ -259,7 +252,7 @@ def show_program(program, season=None):
 
         # Add an '* All seasons' entry when configured in Kodi
         if get_global_setting('videolibrary.showallitems') is True:
-            listitem = ListItem('* All seasons', offscreen=True)
+            listitem = ListItem(localize(30204), offscreen=True)  # * All seasons
             listitem.setArt({
                 'thumb': program_obj.cover,
                 'fanart': program_obj.cover,
@@ -274,7 +267,7 @@ def show_program(program, season=None):
             xbmcplugin.addDirectoryItem(plugin.handle, plugin.url_for(show_program, program=program, season='all', kids=kids), listitem, True)
 
         for s in program_obj.seasons.values():
-            listitem = ListItem('Season %d' % s.number, offscreen=True)
+            listitem = ListItem(localize(30205, season=s.number), offscreen=True)  # Season X
             listitem.setArt({
                 'thumb': s.cover,
                 'fanart': program_obj.cover,
@@ -339,7 +332,7 @@ def show_program(program, season=None):
 @plugin.route('/youtube')
 def show_youtube():
     kids = _get_kids_mode()
-    from resources.lib import YOUTUBE
+    from . import YOUTUBE
     for entry in YOUTUBE:
         # Skip non-kids channels when we are in kids mode.
         if kids and entry.get('kids') is False:
@@ -361,7 +354,7 @@ def show_youtube():
 
         listitem = ListItem(entry.get('label'), offscreen=True)
         listitem.setInfo('video', {
-            'plot': 'Watch [B]%(label)s[/B] on YouTube' % entry,
+            'plot': localize(2330206, label=entry),
             'studio': entry.get('studio'),
             'mediatype': 'video',
         })
@@ -383,7 +376,7 @@ def show_search():
     kids = _get_kids_mode()
 
     # Ask for query
-    keyboard = xbmc.Keyboard('', 'Search')
+    keyboard = Keyboard('', 'Search')
     keyboard.doModal()
     if not keyboard.isConfirmed():
         return
@@ -451,21 +444,21 @@ def _format_plot(obj):
         plot += '\n'
 
     if hasattr(obj, 'geoblocked') and obj.geoblocked:
-        plot += '[COLOR red]Geo-blocked[/COLOR]\n'
+        plot += localize(30207)  # Geo-blocked
 
     if hasattr(obj, 'remaining') and obj.remaining is not None:
         if obj.remaining == 0:
-            plot += '[COLOR blue]Available until midnight[/COLOR]\n'
+            plot += localize(30208)  # Available until midnight
         elif obj.remaining == 1:
-            plot += '[COLOR blue]One day remaining[/COLOR]\n'
+            plot += localize(30209)  # One more day remaining
         elif obj.remaining / 365 > 5:
             pass  # If it is available for more than 5 years, do not show
         elif obj.remaining / 365 > 2:
-            plot += '[COLOR blue]{years} years remaining[/COLOR]\n'.format(years=int(obj.remaining / 365))
+            plot += localize(30210, years=int(obj.remaining / 365))  # X years remaining
         elif obj.remaining / 30.5 > 3:
-            plot += '[COLOR blue]{months} months remaining[/COLOR]\n'.format(months=int(obj.remaining / 30.5))
+            plot += localize(30211, months=int(obj.remaining / 30.5))  # X months remaining
         else:
-            plot += '[COLOR blue]{days} days remaining[/COLOR]\n'.format(days=obj.remaining)
+            plot += localize(20112, days=obj.remaining)  # X days remaining
 
     if plot:
         plot += '\n'
@@ -475,25 +468,23 @@ def _format_plot(obj):
 
     if hasattr(obj, 'epg'):
         if obj.epg:
-            plot += '[COLOR yellow][B]Now:[/B] %s - %s\n' % (
-                obj.epg[0].start.strftime('%H:%M'),
-                obj.epg[0].end.strftime('%H:%M'),
-            )
-            plot += '» %s[/COLOR]\n' % obj.epg[0].title
+            plot += localize(30213,  # Now
+                             start=obj.epg[0].start.strftime('%H:%M'),
+                             end=obj.epg[0].end.strftime('%H:%M'),
+                             title=obj.epg[0].title)
 
         if len(obj.epg) > 1:
-            plot += '[B]Next:[/B] %s - %s\n' % (
-                obj.epg[1].start.strftime('%H:%M'),
-                obj.epg[1].end.strftime('%H:%M'),
-            )
-            plot += '» %s\n' % obj.epg[1].title
+            plot += localize(30214,  # Next
+                             start=obj.epg[0].start.strftime('%H:%M'),
+                             end=obj.epg[0].end.strftime('%H:%M'),
+                             title=obj.epg[0].title)
 
     return plot
 
 
 def _stream(strtype, strid):
     # Get url
-    _vtmgostream = vtmgostream.VtmGoStream()
+    _vtmgostream = VtmGoStream()
     resolved_stream = _vtmgostream.get_stream(strtype, strid)
     if resolved_stream is None:  # If no stream is available (i.e. geo-blocked)
         return
@@ -540,7 +531,7 @@ def _stream(strtype, strid):
     try:
         from inputstreamhelper import Helper
     except ImportError:
-        show_ok_dialog(message='Please reboot Kodi')
+        show_ok_dialog(message=localize(30215))  # Please reboot Kodi
         return
     is_helper = Helper('mpd', drm='com.widevine.alpha')
     if is_helper.check_inputstream():
