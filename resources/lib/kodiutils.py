@@ -20,6 +20,19 @@ class SafeDict(dict):
         return '{' + key + '}'
 
 
+def to_unicode(text, encoding='utf-8'):
+    ''' Force text to unicode '''
+    return text.decode(encoding) if isinstance(text, bytes) else text
+
+
+def from_unicode(text, encoding='utf-8'):
+    ''' Force unicode to text '''
+    import sys
+    if sys.version_info.major == 2 and isinstance(text, unicode):  # noqa: F821; pylint: disable=undefined-variable
+        return text.encode(encoding)
+    return text
+
+
 def notification(heading=ADDON.getAddonInfo('name'), message='', time=5000, icon=ADDON.getAddonInfo('icon'), sound=True):
     ''' Show a Kodi notification '''
     Dialog().notification(heading=heading, message=message, icon=icon, time=time, sound=sound)
@@ -35,7 +48,7 @@ def show_settings():
 
 
 def get_setting(setting):
-    return ADDON.getSetting(setting).strip().decode('utf-8')
+    return to_unicode(ADDON.getSetting(setting).strip())
 
 
 def set_setting(setting, value):
@@ -64,10 +77,7 @@ def kodi_json_request(params):
     data = json.dumps(params)
     request = xbmc.executeJSONRPC(data)
 
-    try:
-        response = json.loads(request)
-    except UnicodeDecodeError:
-        response = json.loads(request.decode('utf-8', 'ignore'))
+    response = json.loads(request)
 
     return response.get('result')
 
