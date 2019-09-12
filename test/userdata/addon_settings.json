@@ -1,0 +1,8 @@
+{
+    "_comment": "do-not-add-email-and-password-here", 
+    "email": "", 
+    "log_level": "Info", 
+    "max_bandwidth": "0", 
+    "password": "", 
+    "show_subtitles": "true"
+}

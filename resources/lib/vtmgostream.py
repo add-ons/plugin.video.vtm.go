@@ -3,9 +3,8 @@
 from __future__ import absolute_import, division, unicode_literals
 
 import json
-import logging
 import random
-import re
+from logging import getLogger
 try:  # Python 3
     from urllib.parse import urlencode, quote
 except ImportError:  # Python 2
@@ -13,10 +12,11 @@ except ImportError:  # Python 2
 
 import requests
 from xbmcaddon import Addon
+
 from .kodiutils import localize, proxies, show_ok_dialog
 
 ADDON = Addon()
-logger = logging.getLogger(ADDON.getAddonInfo('id'))
+logger = getLogger(ADDON.getAddonInfo('id'))
 
 
 class ResolvedStream:
@@ -114,11 +114,11 @@ class VtmGoStream:
                 cookies=self._session.cookies.get_dict()
             )
 
-        raise Exception(localize(30807, type=stream_type))  # Unhandled videoType
+        raise Exception(localize(30707, type=stream_type))  # Unhandled videoType
 
     def _get_stream_info(self, strtype, stream_id):
         url = 'https://videoplayer-service.api.persgroep.cloud/config/%s/%s' % (strtype, stream_id)
-        logger.info('Getting stream info from %s', url)
+        logger.debug('Getting stream info from %s', url)
         response = self._session.get(url,
                                      params={
                                          'startPosition': '0.0',
@@ -132,7 +132,7 @@ class VtmGoStream:
                                      proxies=proxies)
 
         if response.status_code == 403:
-            show_ok_dialog(heading='HTTP 403 Forbidden', message=localize(30804))  # Geo-blocked
+            show_ok_dialog(heading='HTTP 403 Forbidden', message=localize(30704))  # Geo-blocked
             return None
         if response.status_code != 200:
             raise Exception('Error %s in _get_stream_info.' % response.status_code)
@@ -146,7 +146,7 @@ class VtmGoStream:
             if stream['type'] == 'anvato':
                 return stream['anvato']
 
-        raise Exception(localize(30806))  # No stream found that we can handle
+        raise Exception(localize(30706))  # No stream found that we can handle
 
     def _extract_subtitles_from_stream_info(self, stream_info):
         subtitles = []
@@ -159,8 +159,8 @@ class VtmGoStream:
         return subtitles
 
     def _anvato_get_anvacks(self, access_key):
-        url = 'https://access-prod.apis.anvato.net/anvacks/%s' % access_key
-        logger.info('Getting anvacks from %s', url)
+        url = 'https://access-prod.apis.anvato.net/anvacks/{key}'.format(key=access_key)
+        logger.debug('Getting anvacks from %s', url)
         response = self._session.get(url,
                                      params={
                                          'apikey': self._ANVATO_API_KEY,
@@ -178,7 +178,7 @@ class VtmGoStream:
 
     def _anvato_get_server_time(self, access_key):
         url = 'https://tkx.apis.anvato.net/rest/v2/server_time'
-        logger.info('Getting servertime from %s with access_key %s', url, access_key)
+        logger.debug('Getting servertime from %s with access_key %s', url, access_key)
         response = self._session.get(url,
                                      params={
                                          'anvack': access_key,
@@ -196,7 +196,7 @@ class VtmGoStream:
 
     def _anvato_get_stream_info(self, anvato_info, stream_info):
         url = 'https://tkx.apis.anvato.net/rest/v2/mcp/video/{video}'.format(**anvato_info)
-        logger.info('Getting stream info from %s with access_key %s and token %s', url, anvato_info['accessKey'], anvato_info['token'])
+        logger.debug('Getting stream info from %s with access_key %s and token %s', url, anvato_info['accessKey'], anvato_info['token'])
 
         response = self._session.post(url,
                                       json={
@@ -246,14 +246,15 @@ class VtmGoStream:
                                           'User-Agent': self._ANVATO_USER_AGENT,
                                       })
         if response.status_code == 403:
-            show_ok_dialog(heading='HTTP 403 Forbidden', message=localize(30804))  # Geo-blocked error
+            show_ok_dialog(heading='HTTP 403 Forbidden', message=localize(30704))  # Geo-blocked error
             return None
         if response.status_code != 200:
             raise Exception('Error %s.' % response.status_code)
 
+        import re
         matches = re.search(r"^anvatoVideoJSONLoaded\((.*)\)$", response.text)
         if not matches:
-            raise Exception(localize(30805))  # Could not parse media info
+            raise Exception(localize(30705))  # Could not parse media info
         info = json.loads(matches.group(1))
         return info
 
@@ -262,7 +263,7 @@ class VtmGoStream:
         return ''.join(random.choice(letters) for i in range(length))
 
     def _download_text(self, url):
-        logger.info('Downloading text from %s', url)
+        logger.debug('Downloading text from %s', url)
         response = self._session.get(url,
                                      headers={
                                          'X-Anvato-User-Agent': self._ANVATO_USER_AGENT,
@@ -278,7 +279,7 @@ class VtmGoStream:
         try:
             decoded = json.loads(download)
             if decoded.get('master_m3u8'):
-                logger.info('Followed redirection from %s to %s', url, decoded.get('master_m3u8'))
+                logger.debug('Followed redirection from %s to %s', url, decoded.get('master_m3u8'))
                 return decoded.get('master_m3u8')
         except Exception:
             logger.error('No manifest url found %s', url)
@@ -287,12 +288,13 @@ class VtmGoStream:
         return url
 
     def _redirect_manifest(self, url):
+        import re
         # Follow when a <Location>url</Location> tag is found.
         # https://github.com/peak3d/inputstream.adaptive/issues/286
         download = self._download_text(url)
         matches = re.search(r"<Location>([^<]+)</Location>", download)
         if matches:
-            logger.info('Followed redirection from %s to %s', url, matches.group(1))
+            logger.debug('Followed redirection from %s to %s', url, matches.group(1))
             return matches.group(1)
 
         # Fallback to the url like we have it

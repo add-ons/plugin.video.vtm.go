@@ -1,9 +1,10 @@
 # -*- coding: utf-8 -*-
 from __future__ import absolute_import, division, print_function, unicode_literals
 
-from xbmcextra import global_settings, import_language, read_addon_xml
+from xbmcextra import addon_settings, global_settings, import_language, read_addon_xml
 
 GLOBAL_SETTINGS = global_settings()
+ADDON_SETTINGS = addon_settings()
 ADDON_INFO = read_addon_xml('addon.xml')
 ADDON_ID = list(ADDON_INFO)[0]
 PO = import_language(language=GLOBAL_SETTINGS.get('locale.language'))
@@ -27,4 +28,22 @@ class Addon:
         for entry in PO:
             if entry.msgctxt == '#%s' % msgctxt:
                 return entry.msgstr or entry.msgid
-        return 'vrttest'
+        return 'vtmtest'
+
+    def getSetting(self, key):
+        ''' A working implementation for the xbmcaddon Addon class getSetting() method '''
+        return ADDON_SETTINGS.get(self.id, ADDON_SETTINGS).get(key, '')
+
+    @staticmethod
+    def openSettings():
+        ''' A stub implementation for the xbmcaddon Addon class openSettings() method '''
+
+    def setSetting(self, key, value):
+        ''' A stub implementation for the xbmcaddon Addon class setSetting() method '''
+        import json
+        if self.id in ADDON_SETTINGS:
+            ADDON_SETTINGS[self.id][key] = value
+        else:
+            ADDON_SETTINGS[key] = value
+        with open('test/userdata/addon_settings.json', 'w') as fd:
+            json.dump(ADDON_SETTINGS, fd, sort_keys=True, indent=4)

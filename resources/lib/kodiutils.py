@@ -1,16 +1,11 @@
 # -*- coding: utf-8 -*-
 
 from __future__ import absolute_import, division, unicode_literals
-import json
-import logging
-
 import xbmc
 from xbmcaddon import Addon
 from xbmcgui import Dialog
 
-# read settings
 ADDON = Addon()
-logger = logging.getLogger(__name__)
 
 
 class SafeDict(dict):
@@ -33,6 +28,18 @@ def from_unicode(text, encoding='utf-8'):
     return text
 
 
+def has_socks():
+    ''' Test if socks is installed, and remember this information '''
+    if not hasattr(has_socks, 'installed'):
+        try:
+            import socks  # noqa: F401; pylint: disable=unused-variable,unused-import
+            has_socks.installed = True
+        except ImportError:
+            has_socks.installed = False
+            return None  # Detect if this is the first run
+    return has_socks.installed
+
+
 def notification(heading=ADDON.getAddonInfo('name'), message='', time=5000, icon=ADDON.getAddonInfo('icon'), sound=True):
     ''' Show a Kodi notification '''
     Dialog().notification(heading=heading, message=message, icon=icon, time=time, sound=sound)
@@ -47,12 +54,33 @@ def show_settings():
     ADDON.openSettings()
 
 
-def get_setting(setting):
-    return to_unicode(ADDON.getSetting(setting).strip())
+def kodi_json_request(params):
+    import json
+    data = json.dumps(params)
+    request = xbmc.executeJSONRPC(data)
+
+    try:
+        response = json.loads(request)
+    except UnicodeDecodeError:
+        response = json.loads(request.decode('utf-8', 'ignore'))
+
+    return response.get('result')
 
 
-def set_setting(setting, value):
-    ADDON.setSetting(setting, str(value))
+def localize(string_id, **kwargs):
+    ''' Return the translated string from the .po language files, optionally translating variables '''
+    if kwargs:
+        import string
+        return string.Formatter().vformat(ADDON.getLocalizedString(string_id), (), SafeDict(**kwargs))
+    return ADDON.getLocalizedString(string_id)
+
+
+def get_setting(setting_id, default=None):
+    ''' Get an add-on setting '''
+    value = to_unicode(ADDON.getSetting(setting_id))
+    if value == '' and default is not None:
+        return default
+    return value
 
 
 def get_setting_as_bool(setting):
@@ -73,40 +101,34 @@ def get_setting_as_int(setting):
         return 0
 
 
-def kodi_json_request(params):
-    data = json.dumps(params)
-    request = xbmc.executeJSONRPC(data)
+def set_setting(setting_id, setting_value):
+    ''' Set an add-on setting '''
+    return ADDON.setSetting(setting_id, setting_value)
 
-    response = json.loads(request)
 
-    return response.get('result')
+def open_settings():
+    ''' Open the add-in settings window, shows Credentials '''
+    ADDON.openSettings()
 
 
 def get_global_setting(setting):
     ''' Get a Kodi setting '''
+    import json
     json_result = xbmc.executeJSONRPC('{"jsonrpc": "2.0", "method": "Settings.GetSettingValue", "params": {"setting": "%s"}, "id": 1}' % setting)
-    # TODO: Implement proper kodi stubs for testing
-    try:
-        return json.loads(json_result).get('result', dict()).get('value')
-    except ValueError:  # e.g. when xbmc.executeJSONRPC is a stub
-        return None
+    return json.loads(json_result).get('result', dict()).get('value')
 
 
-def get_cond_visibility(condition):
-    ''' Test a condition in XBMC '''
-    return xbmc.getCondVisibility(condition)
-
-
-def has_socks():
-    ''' Test if socks is installed, and remember this information '''
-    if not hasattr(has_socks, 'installed'):
-        try:
-            import socks  # noqa: F401; pylint: disable=unused-variable,unused-import
-            has_socks.installed = True
-        except ImportError:
-            has_socks.installed = False
-            return None  # Detect if this is the first run
-    return has_socks.installed
+def get_max_bandwidth():
+    ''' Get the max bandwidth based on Kodi and VTM GO add-on settings '''
+    vtmgo_max_bandwidth = int(get_setting('max_bandwidth', '0'))
+    global_max_bandwidth = int(get_global_setting('network.bandwidth'))
+    if vtmgo_max_bandwidth != 0 and global_max_bandwidth != 0:
+        return min(vtmgo_max_bandwidth, global_max_bandwidth)
+    if vtmgo_max_bandwidth != 0:
+        return vtmgo_max_bandwidth
+    if global_max_bandwidth != 0:
+        return global_max_bandwidth
+    return 0
 
 
 def get_proxies():
@@ -149,12 +171,9 @@ def get_proxies():
     return dict(http=proxy_address, https=proxy_address)
 
 
-def localize(string_id, **kwargs):
-    ''' Return the translated string from the .po language files, optionally translating variables '''
-    if kwargs:
-        import string
-        return string.Formatter().vformat(ADDON.getLocalizedString(string_id), (), SafeDict(**kwargs))
-    return ADDON.getLocalizedString(string_id)
-
-
 proxies = get_proxies()
+
+
+def get_cond_visibility(condition):
+    ''' Test a condition in XBMC '''
+    return xbmc.getCondVisibility(condition)

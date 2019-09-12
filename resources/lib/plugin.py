@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 
 from __future__ import absolute_import, division, unicode_literals
-import logging
 
 import xbmcplugin
 from xbmc import Keyboard
@@ -10,14 +9,12 @@ from xbmcgui import Dialog, ListItem
 
 import routing
 
-from .kodilogging import config
-from .kodiutils import get_cond_visibility, get_setting, get_setting_as_bool, get_global_setting, localize, notification, show_ok_dialog, show_settings
+from .kodiutils import (get_cond_visibility, get_max_bandwidth, get_setting, get_setting_as_bool,
+                        get_global_setting, localize, notification, show_ok_dialog, show_settings)
 from .vtmgo import Content, VtmGo
 from .vtmgostream import VtmGoStream
 
 ADDON = Addon()
-logger = logging.getLogger(ADDON.getAddonInfo('id'))
-config()
 plugin = routing.Plugin()
 
 
@@ -515,12 +512,16 @@ def _stream(strtype, strid):
     })
 
     # Add subtitle info
-    listitem.setSubtitles(resolved_stream.subtitles)
-    listitem.addStreamInfo('subtitle', {
-        'language': 'nl',
-    })
+    subtitles_visible = get_setting('showsubtitles', 'true') == 'true'
+    if subtitles_visible and resolved_stream.subtitles:
+        listitem.setSubtitles(resolved_stream.subtitles)
+        listitem.addStreamInfo('subtitle', {
+            'language': 'nl',
+        })
 
     listitem.setProperty('IsPlayable', 'true')
+    listitem.setProperty('network.bandwidth', str(get_max_bandwidth() * 1000))
+    listitem.setProperty('inputstream.adaptive.max_bandwidth', str(get_max_bandwidth() * 1000))
     listitem.setProperty('inputstreamaddon', 'inputstream.adaptive')
     listitem.setProperty('inputstream.adaptive.manifest_type', 'mpd')
     listitem.setMimeType('application/dash+xml')

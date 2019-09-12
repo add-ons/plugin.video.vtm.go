@@ -1,11 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from __future__ import absolute_import, division, unicode_literals
-
 import json
-import logging
-import os.path
-import re
 
 try:  # Python 3
     from urllib.parse import quote
@@ -13,12 +9,7 @@ except ImportError:  # Python 2
     from urllib import quote
 
 import requests
-import dateutil.parser
-from xbmcaddon import Addon
 from .kodiutils import proxies
-
-ADDON = Addon()
-logger = logging.getLogger(ADDON.getAddonInfo('id'))
 
 
 class LiveChannel:
@@ -164,6 +155,7 @@ class Season:
 class Episode:
     def __init__(self, episode_id=None, number=None, season=None, name=None, description=None, cover=None, duration=None, remaining=None, geoblocked=None,
                  channel=None, legal=None, aired=None):
+        import re
         self.id = episode_id
         self.number = int(number)
         self.season = int(season)
@@ -200,6 +192,7 @@ class VtmGo:
         return info
 
     def get_live(self):
+        import dateutil.parser
         response = self._get_url('/%s/live' % self._mode)
         info = json.loads(response)
 
@@ -259,6 +252,7 @@ class VtmGo:
         movie = info.get('movie', {})
         channel_url = movie.get('channelLogoUrl')
         if channel_url:
+            import os.path
             channel = os.path.basename(channel_url).split('-')[0]
         else:
             channel = 'vtmgo'
@@ -283,6 +277,7 @@ class VtmGo:
         program = info.get('program', {})
         channel_url = program.get('channelLogoUrl')
         if channel_url:
+            import os.path
             channel = os.path.basename(channel_url).split('-')[0]
         else:
             channel = 'vtmgo'

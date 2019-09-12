@@ -35,14 +35,14 @@ def uri_to_path(uri):
     ''' Shorten a plugin URI to just the path '''
     if uri is None:
         return None
-    return ' \033[33m→ \033[34m%s\033[39;0m' % uri.replace('plugin://plugin.video.vrt.nu', '')
+    return ' \033[33m→ \033[34m%s\033[39;0m' % uri.replace('plugin://plugin.video.vtm.go', '')
 
 
 def read_addon_xml(path):
     ''' Parse the addon.xml and return an info dictionary '''
     info = dict(
-        path='./',  # '/storage/.kodi/addons/plugin.video.vrt.nu',
-        profile='special://userdata',  # 'special://profile/addon_data/plugin.video.vrt.nu/',
+        path='./',  # '/storage/.kodi/addons/plugin.video.vtm.go',
+        profile='special://userdata',  # 'special://profile/addon_data/plugin.video.vtm.go/',
         type='xbmc.python.pluginsource',
     )
 
@@ -96,6 +96,29 @@ def global_settings():
         if 'PROXY_PASSWORD' in os.environ:
             print('Using proxy server from environment variable PROXY_PASSWORD')
             settings['network.httpproxypassword'] = os.environ.get('PROXY_PASSWORD')
+    return settings
+
+
+def addon_settings():
+    ''' Use the addon_settings file '''
+    try:
+        with open('test/userdata/addon_settings.json') as f:
+            settings = json.load(f)
+    except OSError as e:
+        print("Error using 'test/userdata/addon_settings.json': %s" % e, file=sys.stderr)
+        settings = {}
+
+    # Read credentials from credentials.json
+    try:
+        with open('test/userdata/credentials.json') as f:
+            settings.update(json.load(f))
+    except (IOError, OSError) as e:
+        if 'VTMGO_USERNAME' in os.environ and 'VTMGO_PASSWORD' in os.environ:
+            print('Using credentials from the environment variables VTMGO_USERNAME and VTMGO_PASSWORD')
+            settings['email'] = os.environ.get('VTMGO_USERNAME')
+            settings['password'] = os.environ.get('VTMGO_PASSWORD')
+        else:
+            print("Error using 'test/userdata/credentials.json': %s" % e, file=sys.stderr)
     return settings
 
 
