@@ -32,7 +32,7 @@ class Addon:
         for entry in PO:
             if entry.msgctxt == '#%s' % msgctxt:
                 return entry.msgstr or entry.msgid
-        print('ERROR: Unable to translate #{msgctxt}')
+        print('ERROR: Unable to translate #{msgctxt}'.format(msgctxt=msgctxt))
         return '<Untranslated>'
 
     def getSetting(self, key):

@@ -195,7 +195,11 @@ msgid "Features"
 msgstr ""
 
 msgctxt "#30823"
-msgid "Force Kids Zone"
+msgid "Use Kids zone"
+msgstr ""
+
+msgctxt "#30825"
+msgid "Force Kids zone"
 msgstr ""
 
 msgctxt "#30860"
