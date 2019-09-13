@@ -5,7 +5,7 @@ import logging
 
 from xbmc import log, LOGDEBUG, LOGERROR, LOGFATAL, LOGINFO, LOGNONE, LOGNOTICE, LOGWARNING
 from xbmcaddon import Addon
-from .kodiutils import from_unicode, to_unicode, get_global_setting, get_setting
+from resources.lib.kodiutils import from_unicode, to_unicode, get_global_setting, get_setting
 
 levels = {
     logging.CRITICAL: LOGFATAL,

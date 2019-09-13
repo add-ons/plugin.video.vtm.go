@@ -3,9 +3,7 @@
 from __future__ import absolute_import, division, unicode_literals
 import random
 import requests
-from requests.exceptions import InvalidSchema
-
-from .kodiutils import localize, proxies
+from resources.lib.kodiutils import localize, proxies
 
 
 class VtmGoAuth:
@@ -46,7 +44,7 @@ class VtmGoAuth:
 
             raise Exception(localize(30702))  # Unknown error while logging in
 
-        except InvalidSchema as e:
+        except requests.exceptions.InvalidSchema as e:
             # We get back an url like this: vtmgo://callback/oidc?state=yyyyyyyyyyyyyyyyyyyyyy&code=xxxxxxxxxxxxxxxxxxxxxxxxxx-xxxxxxxxxxxxxxxx
             # I found no other way to get this url then by parsing the Exception message. :(
             import re

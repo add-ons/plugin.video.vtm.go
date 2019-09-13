@@ -1,5 +1,5 @@
 ENVS := flake8,py27,py36
-
+export PYTHONPATH := $(CURDIR):$(CURDIR)/test
 addon_xml = addon.xml
 
 # Collect information to build as sensible package name
@@ -16,7 +16,7 @@ zip_dir = $(name)/
 
 blue = \e[1;34m
 white = \e[1;37m
-reset = \e[0m
+reset = \e[0;39m
 
 .PHONY: test
 
@@ -24,24 +24,29 @@ all: test zip
 
 package: zip
 
-test: sanity unit
+test: sanity unit run
 
 sanity: tox pylint
 
 tox:
 	@echo -e "$(white)=$(blue) Starting sanity tox test$(reset)"
 	tox -q -e $(ENVS)
-	@echo -e "$(white)=$(blue) Sanity tox test finished successfully.$(reset)"
 
 pylint:
 	@echo -e "$(white)=$(blue) Starting sanity pylint test$(reset)"
 	pylint *.py resources/lib/ test/
-	@echo -e "$(white)=$(blue) Sanity pylint test finished successfully.$(reset)"
+
+addon: clean
+	@echo -e "$(white)=$(blue) Starting sanity addon tests$(reset)"
+	odi-addon-checker . --branch=leia
 
 unit:
 	@echo -e "$(white)=$(blue) Starting unit tests$(reset)"
-	PYTHONPATH=$(CURDIR) python test/vtmgo.py
-	@echo -e "$(white)=$(blue) Unit tests finished successfully.$(reset)"
+	python -m unittest discover
+
+run:
+	@echo -e "$(white)=$(blue) Run CLI$(reset)"
+	python test/run.py /
 
 zip: clean
 	@echo -e "$(white)=$(blue) Building new package$(reset)"
@@ -51,4 +56,6 @@ zip: clean
 
 clean:
 	find . -name '*.pyc' -type f -delete
-	find resources -name '__pycache__' -type d -delete
+	find . -name '__pycache__' -type d -delete
+	rm -rf .pytest_cache/ .tox/
+	rm -f *.log

@@ -9,7 +9,7 @@ except ImportError:  # Python 2
     from urllib import quote
 
 import requests
-from .kodiutils import proxies
+from resources.lib.kodiutils import proxies
 
 
 class LiveChannel:
