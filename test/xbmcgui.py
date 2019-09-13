@@ -33,6 +33,73 @@ class Dialog:
     def info(listitem):
         ''' A stub implementation for the xbmcgui Dialog class info() method '''
 
+    @staticmethod
+    def yesno(heading, line1, line2=None, line3=None, nolabel=None, yeslabel=None, autoclose=0):
+        ''' A stub implementation for the xbmcgui Dialog class yesno() method '''
+        heading = kodi_to_ansi(heading)
+        line1 = kodi_to_ansi(line1)
+        print('\033[37;100mYESNO:\033[35;0m [%s] \033[35;0m%s\033[39;0m' % (heading, line1))
+        return True
+
+    @staticmethod
+    def textviewer(heading, text=None, usemono=None):
+        ''' A stub implementation for the xbmcgui Dialog class textviewer() method '''
+        heading = kodi_to_ansi(heading)
+        text = kodi_to_ansi(text)
+        print('\033[37;100mTEXTVIEWER:\033[35;0m [%s]\n\033[35;0m%s\033[39;0m' % (heading, text))
+
+
+class DialogProgress:
+    ''' A reimplementation of the xbmcgui DialogProgress '''
+
+    def __init__(self):
+        ''' A stub constructor for the xbmcgui DialogProgress class '''
+        self.percentage = 0
+
+    @staticmethod
+    def close():
+        ''' A stub implementation for the xbmcgui DialogProgress class close() method '''
+        print()
+
+    @staticmethod
+    def create(heading, line1, line2=None, line3=None):
+        ''' A stub implementation for the xbmcgui DialogProgress class create() method '''
+        heading = kodi_to_ansi(heading)
+        line1 = kodi_to_ansi(line1)
+        print('\033[37;100mPROGRESS:\033[35;0m [%s] \033[35;0m%s\033[39;0m' % (heading, line1))
+
+    @staticmethod
+    def iscanceled():
+        ''' A stub implementation for the xbmcgui DialogProgress class iscanceled() method '''
+
+    def update(self, percentage, line1=None, line2=None, line3=None):
+        ''' A stub implementation for the xbmcgui DialogProgress class update() method '''
+        if (percentage - 5) < self.percentage:
+            return
+        self.percentage = percentage
+        line1 = kodi_to_ansi(line1)
+        line2 = kodi_to_ansi(line2)
+        line3 = kodi_to_ansi(line3)
+        if line1 or line2 or line3:
+            print('\033[37;100mPROGRESS:\033[35;0m [%d%%] \033[35;0m%s\033[39;0m' % (percentage, line1 or line2 or line3))
+        else:
+            print('\033[1G\033[37;100mPROGRESS:\033[35;0m [%d%%]\033[39;0m' % (percentage), end='')
+
+
+class DialogBusy:
+    ''' A reimplementation of the xbmcgui DialogBusy '''
+
+    def __init__(self):
+        ''' A stub constructor for the xbmcgui DialogBusy class '''
+
+    @staticmethod
+    def close():
+        ''' A stub implementation for the xbmcgui DialogBusy class close() method '''
+
+    @staticmethod
+    def create():
+        ''' A stub implementation for the xbmcgui DialogBusy class create() method '''
+
 
 class ListItem:
     ''' A reimplementation of the xbmcgui ListItem class '''

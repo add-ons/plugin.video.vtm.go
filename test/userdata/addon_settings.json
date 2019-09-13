@@ -1,9 +1,20 @@
 {
-    "_comment": "do-not-add-email-and-password-here", 
-    "email": "", 
-    "kids_mode_switching": "true", 
-    "log_level": "Info", 
-    "max_bandwidth": 4096, 
-    "password": "", 
-    "show_subtitles": "true"
+    "inputstream.adaptive": {
+        "DECRYPTERPATH": "special://home/cdm"
+    },
+    "inputstream.rtmp": {},
+    "script.module.inputstreamhelper": {
+        "disabled": "false",
+        "last_update": "",
+        "version": ""
+    },
+    "plugin.video.vtm.go": {
+        "_comment": "do-not-add-email-and-password-here",
+        "email": "",
+        "kids_mode_switching": "true",
+        "log_level": "Info",
+        "max_bandwidth": 4096,
+        "password": "",
+        "show_subtitles": "true"
+    }
 }

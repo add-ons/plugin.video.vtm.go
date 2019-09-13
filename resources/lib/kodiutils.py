@@ -54,19 +54,6 @@ def show_settings():
     ADDON.openSettings()
 
 
-def kodi_json_request(params):
-    import json
-    data = json.dumps(params)
-    request = xbmc.executeJSONRPC(data)
-
-    try:
-        response = json.loads(request)
-    except UnicodeDecodeError:
-        response = json.loads(request.decode('utf-8', 'ignore'))
-
-    return response.get('result')
-
-
 def localize(string_id, **kwargs):
     ''' Return the translated string from the .po language files, optionally translating variables '''
     if kwargs:
@@ -87,28 +74,9 @@ def get_setting_as_bool(setting):
     return get_setting(setting).lower() == "true"
 
 
-def get_setting_as_float(setting):
-    try:
-        return float(get_setting(setting))
-    except ValueError:
-        return 0
-
-
-def get_setting_as_int(setting):
-    try:
-        return int(get_setting_as_float(setting))
-    except ValueError:
-        return 0
-
-
 def set_setting(setting_id, setting_value):
     ''' Set an add-on setting '''
     return ADDON.setSetting(setting_id, setting_value)
-
-
-def open_settings():
-    ''' Open the add-in settings window, shows Credentials '''
-    ADDON.openSettings()
 
 
 def get_global_setting(setting):
