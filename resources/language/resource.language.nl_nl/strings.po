@@ -6,242 +6,250 @@ msgid ""
 msgstr ""
 "Project-Id-Version: plugin.video.vtm.go\n"
 "Report-Msgid-Bugs-To: https://github.com/michaelarnauts/plugin.video.vtm.go\n"
-"POT-Creation-Date: 2019-09-11 23:00+0000\n"
-"PO-Revision-Date: 2019-09-11 23:00+0000\n"
+"POT-Creation-Date: 2019-09-13 22:00+0000\n"
+"PO-Revision-Date: 2019-09-13 22:00+0000\n"
 "Last-Translator: Dag Wieers <dag@wieers.com>\n"
-"Language-Team: English\n"
+"Language-Team: Nederlands\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Language: en\n"
+"Language: nl\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
 ### MENUS
 msgctxt "#30001"
 msgid "A-Z"
-msgstr ""
+msgstr "A-Z"
 
 msgctxt "#30002"
 msgid "Alphabetically sorted list of programs"
-msgstr ""
+msgstr "Volledige lijst van tv-programma's"
 
 msgctxt "#30003"
 msgid "Catalogue"
-msgstr ""
+msgstr "Catalogus"
 
 msgctxt "#30004"
 msgid "TV Shows and Movies listed by category"
-msgstr ""
+msgstr "Tv-programma's en films per categorie"
 
 msgctxt "#30005"
 msgid "Live TV"
-msgstr ""
+msgstr "Live tv"
 
 msgctxt "#30006"
-msgid "Watch channels live via Internet"
-msgstr ""
+msgid "Watch TV channels live via Internet"
+msgstr "Bekijk tv-kanalen live via Internet"
 
 msgctxt "#30007"
 msgid "YouTube"
-msgstr ""
+msgstr "YouTube"
 
 msgctxt "#30008"
 msgid "Watch YouTube content"
-msgstr ""
+msgstr "Bekijk video's op YouTube"
 
 msgctxt "#30009"
-msgid "Search"
-msgstr ""
+msgid "Search VTM GO"
+msgstr "Doorzoek VTM GO"
 
 msgctxt "#30010"
 msgid "Search the VTM GO catalogue"
-msgstr ""
+msgstr "Doorzoek de VTM catalogus"
 
 msgctxt "#30011"
-msgid "Kids Zone"
-msgstr ""
+msgid "Kids zone"
+msgstr "Kids zone"
 
 msgctxt "#30012"
-msgid "Go to the Kids Zone"
-msgstr ""
+msgid "Go to the Kids zone"
+msgstr "Ga naar de Kids zone"
 
 msgctxt "#30013"
-msgid "TV Guide"
-msgstr ""
+msgid "TV guide"
+msgstr "Tv-gids"
 
 msgctxt "#30014"
-msgid "Browse the TV Guide"
-msgstr ""
+msgid "Browse the TV guide"
+msgstr "Doorblader de tv-gids"
 
 ### CODE
 msgctxt "#30200"
 msgid "Using a SOCKS proxy requires the PySocks library (script.module.pysocks) installed."
-msgstr ""
+msgstr "De PySocks library (script.module.pysocks) is nodig voor het gebruik van een SOCKS proxy."
 
 msgctxt "#30201"
-msgid "[B][COLOR lightblue]Kids Zone[/COLOR][/B]"
-msgstr ""
+msgid "[B][COLOR lightblue]Kids zone[/COLOR][/B]"
+msgstr "[B][COLOR lightblue]Kids zone[/COLOR][/B]"
 
 msgctxt "#30202"
 msgid "Credentials are correct!"
-msgstr ""
+msgstr "De VTM GO inloggegevens werken perfect!"
 
 msgctxt "#30203"
 msgid "Your credentials are not valid!"
-msgstr ""
+msgstr "De VTM GO inloggegevens zijn onjuist!"
 
 msgctxt "#30204"
 msgid "* All seasons"
-msgstr ""
+msgstr "* Alle seizoenen"
 
 msgctxt "#30205"
 msgid "Season {season}"
-msgstr ""
+msgstr "Seizoen {season}"
 
 msgctxt "#30206"
 msgid "Watch [B]{label}[/B] on YouTube"
-msgstr ""
+msgstr "Bekijk [B]{label}[/B] op YouTube"
 
 msgctxt "#30207"
 msgid "[COLOR red]Geo-blocked[/COLOR]\n"
-msgstr ""
+msgstr "[COLOR red]Geo-geblokkeerd[/COLOR]\n"
 
 msgctxt "#30208"
-msgid "[COLOR blue]Available until midnight[/COLOR]\n"
-msgstr ""
+msgid "[COLOR blue]Available [B]until midnight[/B][/COLOR]\n"
+msgstr "[COLOR blue]Beschikbaar [B]tot middernacht[/B][/COLOR]\n"
 
 msgctxt "#30209"
-msgid "[COLOR blue]One day remaining[/COLOR]\n"
-msgstr ""
+msgid "[COLOR blue][B]One more day[/B] remaining[/COLOR]\n"
+msgstr "[COLOR blue]Nog [B]één dag[/B] beschikbaar[/COLOR]\n"
 
 msgctxt "#30210"
-msgid "[COLOR blue]{years} years remaining[/COLOR]\n"
-msgstr ""
+msgid "[COLOR blue][B]{years} more years[/B] remaining[/COLOR]\n"
+msgstr "[COLOR blue]Nog [B]{years} jaren[/B] beschikbaar[/COLOR]\n"
 
 msgctxt "#30211"
-msgid "[COLOR blue]{months} months remaining[/COLOR]\n"
-msgstr ""
+msgid "[COLOR blue][B]{months} more months[/B] remaining[/COLOR]\n"
+msgstr "[COLOR blue]Nog [B]{months} maanden[/B] beschikbaar[/COLOR]\n"
 
 msgctxt "#30212"
-msgid "[COLOR blue]{days} days remaining[/COLOR]\n"
-msgstr ""
+msgid "[COLOR blue][B]{days} more days[/B] remaining[/COLOR]\n"
+msgstr "[COLOR blue]Nog [B]{days} dagen[/B] beschikbaar[/COLOR]\n"
 
 msgctxt "#30213"
 msgid "[COLOR yellow][B]Now:[/B] {start} - {end}\n» {title}[/COLOR]\n"
-msgstr ""
+msgstr "[COLOR yellow][B]Nu:[/B] {start} - {end}\n» {title}[/COLOR]\n"
 
 msgctxt "#30214"
 msgid "[B]Next:[/B] {start} - {end}\n» {title}\n"
-msgstr ""
+msgstr "[B]Straks:[/B] {start} - {end}\n» {title}\n"
 
 
 ### ERRORS
 msgctxt "#30701"
 msgid "Invalid login details"
-msgstr ""
+msgstr "Foutieve inloggegevens"
 
 msgctxt "#30702"
 msgid "Unknown error while logging in"
-msgstr ""
+msgstr "Onbekende fout bij het inloggen"
 
 msgctxt "#30703"
 msgid "Could not extract authentication code"
-msgstr ""
+msgstr "Onbekend of ontbrekende authenticate-code"
 
 msgctxt "#30704"
 msgid "This video may be geo-blocked, or your account is already being used currently."
-msgstr ""
+msgstr "Deze video werd wellicht geografisch geblokkeerd, of je account is reeds in gebruik."
 
 msgctxt "#30705"
 msgid "Could not parse media info."
-msgstr ""
+msgstr "De media info kon niet geïnterpreteerd worden."
 
 msgctxt "#30706"
 msgid "No stream found that we can handle."
-msgstr ""
+msgstr "Er is geen werkende stream gevonden."
 
 msgctxt "#30707"
 msgid "Unhandled videoType {type}"
-msgstr ""
+msgstr "Niet-ondersteunde videoType {type}"
+
+msgctxt "#30708"
+msgid "Please restart Kodi."
+msgstr "Gelieve Kodi te herstarten."
 
 
 ### SETTINGS
 msgctxt "#30800"
 msgid "Credentials"
-msgstr ""
+msgstr "Inloggegevens"
 
 msgctxt "#30801"
 msgid "VTM GO login"
-msgstr ""
+msgstr "VTM GO login"
 
 msgctxt "#30803"
 msgid "Email address"
-msgstr ""
+msgstr "E-mailadres"
 
 msgctxt "#30805"
 msgid "Password"
-msgstr ""
+msgstr "Wachtwoord"
 
 msgctxt "#30807"
 msgid "Check your credentials"
-msgstr ""
+msgstr "Controleer je logingegegevns"
 
 msgctxt "#30820"
 msgid "Interface"
-msgstr ""
+msgstr "Interface"
 
 msgctxt "#30821"
 msgid "Features"
-msgstr ""
+msgstr "Functionaliteit"
 
 msgctxt "#30823"
-msgid "Force Kids Zone"
-msgstr ""
+msgid "Use Kids zone"
+msgstr "Gebruik Kids zone"
+
+msgctxt "#30825"
+msgid "Force Kids zone"
+msgstr "Forceer Kids zone"
 
 msgctxt "#30860"
 msgid "Playback"
-msgstr ""
+msgstr "Afspelen"
 
 msgctxt "#30861"
 msgid "Subtitles"
-msgstr ""
+msgstr "Ondertiteling"
 
 msgctxt "#30863"
 msgid "Always show subtitles when available"
-msgstr ""
+msgstr "Toon ondertiteling indien beschikbaar"
 
 msgctxt "#30865"
 msgid "Streaming"
-msgstr ""
+msgstr "Streaming"
 
 msgctxt "#30867"
 msgid "Maximum bandwidth (kbps)"
-msgstr ""
+msgstr "Maximale bandbreedte (kbps)"
 
 msgctxt "#30880"
 msgid "Expert"
-msgstr ""
+msgstr "Expert"
 
 msgctxt "#30881"
 msgid "Streaming"
-msgstr ""
+msgstr "Streaming"
 
 msgctxt "#30883"
 msgid "InputStream Helper information"
-msgstr ""
+msgstr "InputStream Helper informatie"
 
 msgctxt "#30885"
 msgid "InputStream Adaptive settings..."
-msgstr ""
+msgstr "InputStream Adaptive configuratie..."
 
 msgctxt "#30887"
 msgid "InputStream Helper settings... [COLOR gray][I](for protected content)[/I][/COLOR]"
-msgstr ""
+msgstr "InputStream Helper configuratie... [COLOR gray][I](voor beveiligde video's)[/I][/COLOR]"
 
 msgctxt "#30889"
 msgid "Logging"
-msgstr ""
+msgstr "Logboek"
 
 msgctxt "#30891"
 msgid "Log level"
-msgstr ""
+msgstr "Log niveau"
