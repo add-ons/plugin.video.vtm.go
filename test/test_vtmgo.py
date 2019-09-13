@@ -1,4 +1,7 @@
 # -*- coding: utf-8 -*-
+
+# pylint: disable=missing-docstring
+
 from __future__ import absolute_import, division, print_function, unicode_literals
 import sys
 import json

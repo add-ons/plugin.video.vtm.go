@@ -1,8 +1,9 @@
 {
     "_comment": "do-not-add-email-and-password-here", 
     "email": "", 
+    "kids_mode_switching": "true", 
     "log_level": "Info", 
-    "max_bandwidth": "0", 
+    "max_bandwidth": 4096, 
     "password": "", 
     "show_subtitles": "true"
 }

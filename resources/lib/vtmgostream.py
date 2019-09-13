@@ -13,7 +13,7 @@ except ImportError:  # Python 2
 import requests
 from xbmcaddon import Addon
 
-from .kodiutils import localize, proxies, show_ok_dialog
+from resources.lib.kodiutils import localize, proxies, show_ok_dialog
 
 ADDON = Addon()
 logger = getLogger(ADDON.getAddonInfo('id'))

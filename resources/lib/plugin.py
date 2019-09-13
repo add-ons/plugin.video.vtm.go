@@ -2,17 +2,18 @@
 
 from __future__ import absolute_import, division, unicode_literals
 
+import routing
+
 import xbmcplugin
 from xbmc import Keyboard
 from xbmcaddon import Addon
 from xbmcgui import Dialog, ListItem
 
-import routing
-
-from .kodiutils import (get_cond_visibility, get_max_bandwidth, get_setting, get_setting_as_bool,
-                        get_global_setting, localize, notification, show_ok_dialog, show_settings)
-from .vtmgo import Content, VtmGo
-from .vtmgostream import VtmGoStream
+from resources.lib.kodiutils import (get_cond_visibility, get_max_bandwidth, get_setting,
+                                     get_setting_as_bool, get_global_setting, localize,
+                                     notification, show_ok_dialog, show_settings)
+from resources.lib.vtmgo import Content, VtmGo
+from resources.lib.vtmgostream import VtmGoStream
 
 ADDON = Addon()
 plugin = routing.Plugin()
@@ -76,7 +77,7 @@ def show_index():
 
 @plugin.route('/check-credentials')
 def check_credentials():
-    from .vtmgoauth import VtmGoAuth
+    from resources.lib.vtmgoauth import VtmGoAuth
     auth = VtmGoAuth(username=get_setting('email'), password=get_setting('password'))
 
     try:
@@ -295,7 +296,7 @@ def show_program(program, season=None):
 
         # Sort by label. Some programs return seasons unordered.
         xbmcplugin.addSortMethod(plugin.handle, xbmcplugin.SORT_METHOD_LABEL)
-        xbmcplugin.setPluginCategory(plugin.handle, category=program.title())
+        xbmcplugin.setPluginCategory(plugin.handle, category=program_obj.name)
         ok = xbmcplugin.addDirectoryItems(plugin.handle, listing, len(listing))
         xbmcplugin.endOfDirectory(plugin.handle, ok, cacheToDisc=True)
         return
@@ -338,7 +339,7 @@ def show_program(program, season=None):
     xbmcplugin.addSortMethod(plugin.handle, xbmcplugin.SORT_METHOD_LABEL)
     xbmcplugin.addSortMethod(plugin.handle, xbmcplugin.SORT_METHOD_DURATION)
     xbmcplugin.addSortMethod(plugin.handle, xbmcplugin.SORT_METHOD_UNSORTED)
-    xbmcplugin.setPluginCategory(plugin.handle, category=program.title())
+    xbmcplugin.setPluginCategory(plugin.handle, category=program_obj.name)
     ok = xbmcplugin.addDirectoryItems(plugin.handle, listing, len(listing))
     xbmcplugin.endOfDirectory(plugin.handle, ok, cacheToDisc=True)
 
@@ -349,7 +350,7 @@ def show_youtube():
 
     listing = []
 
-    from . import YOUTUBE
+    from resources.lib import YOUTUBE
     for entry in YOUTUBE:
         # Skip non-kids channels when we are in kids mode.
         if kids and entry.get('kids') is False:
@@ -497,9 +498,9 @@ def _format_plot(obj):
 
         if len(obj.epg) > 1:
             plot += localize(30214,  # Next
-                             start=obj.epg[0].start.strftime('%H:%M'),
-                             end=obj.epg[0].end.strftime('%H:%M'),
-                             title=obj.epg[0].title)
+                             start=obj.epg[1].start.strftime('%H:%M'),
+                             end=obj.epg[1].end.strftime('%H:%M'),
+                             title=obj.epg[1].title)
 
     return plot
 
@@ -577,7 +578,7 @@ def _get_kids_mode():
     # kids will contain a string of 'True' or 'False'
     kids = plugin.args.get('kids')
     if kids:
-        return True if kids[0] == 'True' else False
+        return kids[0] == 'True'
     return False
 
 

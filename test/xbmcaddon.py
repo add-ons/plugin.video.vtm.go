@@ -1,6 +1,10 @@
 # -*- coding: utf-8 -*-
-from __future__ import absolute_import, division, print_function, unicode_literals
+# Copyright: (c) 2019, Dag Wieers (@dagwieers) <dag@wieers.com>
+# GNU General Public License v3.0 (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
+''' This file implements the Kodi xbmcaddon module, either using stubs or alternative functionality '''
 
+from __future__ import absolute_import, division, print_function, unicode_literals
+import json
 from xbmcextra import addon_settings, global_settings, import_language, read_addon_xml
 
 GLOBAL_SETTINGS = global_settings()
@@ -28,7 +32,8 @@ class Addon:
         for entry in PO:
             if entry.msgctxt == '#%s' % msgctxt:
                 return entry.msgstr or entry.msgid
-        return 'vtmtest'
+        print('ERROR: Unable to translate #{msgctxt}')
+        return '<Untranslated>'
 
     def getSetting(self, key):
         ''' A working implementation for the xbmcaddon Addon class getSetting() method '''
@@ -40,7 +45,6 @@ class Addon:
 
     def setSetting(self, key, value):
         ''' A stub implementation for the xbmcaddon Addon class setSetting() method '''
-        import json
         if self.id in ADDON_SETTINGS:
             ADDON_SETTINGS[self.id][key] = value
         else:
