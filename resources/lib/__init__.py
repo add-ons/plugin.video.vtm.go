@@ -55,3 +55,48 @@ YOUTUBE = [
         kids=False,
     ),
 ]
+
+CHANNELS = [
+    dict(
+        label='VTM',
+        studio='VTM',
+        key='vtm',
+        kids=False,
+    ),
+    dict(
+        label='Q2',
+        studio='Q2',
+        key='q2',
+        kids=False,
+    ),
+    dict(
+        label='Vitaya',
+        studio='Vitaya',
+        key='vitaya',
+        kids=False,
+    ),
+    dict(
+        label='CAZ',
+        studio='CAZ',
+        key='caz',
+        kids=False,
+    ),
+    dict(
+        label='VTM KIDS',
+        studio='VTM KIDS',
+        key='vtm-kids',
+        kids=True,
+    ),
+    dict(
+        label='VTM KIDS Jr',
+        studio='VTM KIDS Jr',
+        key='vtm-kids-jr',
+        kids=True,
+    ),
+    dict(
+        label='QMusic',
+        studio='QMusic',
+        key='qmusic',
+        kids=False,
+    ),
+]

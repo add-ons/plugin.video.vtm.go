@@ -68,6 +68,17 @@ class TestRouter(unittest.TestCase):
         plugin.run(['plugin://plugin.video.vtm.go/search', '0', ''])
         self.assertEqual(addon.url_for(plugin.show_search), 'plugin://plugin.video.vtm.go/search')
 
+    # TV Guide menu: '/tvguide'
+    def test_tvguide_menu(self):
+        plugin.run(['plugin://plugin.video.vtm.go/tvguide', '0', ''])
+        self.assertEqual(addon.url_for(plugin.show_tvguide), 'plugin://plugin.video.vtm.go/tvguide')
+
+        plugin.run(['plugin://plugin.video.vtm.go/tvguide/vtm', '0', ''])
+        self.assertEqual(addon.url_for(plugin.show_tvguide, channel='vtm'), 'plugin://plugin.video.vtm.go/tvguide/vtm')
+
+        # plugin.run(['plugin://plugin.video.vtm.go/tvguide/vtm/2019-01-01', '0', ''])
+        self.assertEqual(addon.url_for(plugin.show_tvguide_detail, channel='vtm', date='2019-01-01'), 'plugin://plugin.video.vtm.go/tvguide/vtm/2019-01-01')
+
 
 if __name__ == '__main__':
     unittest.main()
