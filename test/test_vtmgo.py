@@ -10,7 +10,7 @@ import unittest
 
 from xbmcaddon import Addon
 
-from resources.lib import kodilogging, vtmgo, vtmgoauth, vtmgostream
+from resources.lib import kodilogging, vtmgo, vtmgoepg, vtmgoauth, vtmgostream
 
 ADDON = Addon()
 kodilogging.config()
@@ -24,6 +24,7 @@ class TestVtmGo(unittest.TestCase):
 
         self._token = None
         self._vtmgo = vtmgo.VtmGo()
+        self._vtmgoepg = vtmgoepg.VtmGoEpg()
 
         try:
             with open('test/credentials.json') as f:
@@ -98,6 +99,10 @@ class TestVtmGo(unittest.TestCase):
         info = self._vtmgostream.get_stream('channels', 'd8659669-b964-414c-aa9c-e31d8d15696b')
         self.assertTrue(info)
         print(info)
+
+    def test_get_epg(self):
+        epg = self._vtmgoepg.get_epg()
+        print(epg)
 
 
 if __name__ == '__main__':

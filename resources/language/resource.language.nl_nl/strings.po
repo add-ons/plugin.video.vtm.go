@@ -46,7 +46,7 @@ msgid "YouTube"
 msgstr ""
 
 msgctxt "#30008"
-msgid "Watch YouTube content'"
+msgid "Watch YouTube content"
 msgstr ""
 
 msgctxt "#30009"
@@ -65,6 +65,13 @@ msgctxt "#30012"
 msgid "Go to the Kids Zone"
 msgstr ""
 
+msgctxt "#30013"
+msgid "TV Guide"
+msgstr ""
+
+msgctxt "#30014"
+msgid "Browse the TV Guide"
+msgstr ""
 
 ### CODE
 msgctxt "#30200"
