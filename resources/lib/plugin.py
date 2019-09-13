@@ -22,26 +22,27 @@ plugin = routing.Plugin()
 def show_index():
     kids = _get_kids_mode()
 
+    listing = []
     listitem = ListItem(localize(30001), offscreen=True)  # A-Z
     listitem.setArt({'icon': 'DefaultMovieTitle.png'})
     listitem.setInfo('video', {
         'plot': localize(30002) + ('\n\n' + localize(30201) if kids else ''),
     })
-    xbmcplugin.addDirectoryItem(plugin.handle, plugin.url_for(show_catalog, category='all', kids=kids), listitem, True)
+    listing.append((plugin.url_for(show_catalog, category='all', kids=kids), listitem, True))
 
     listitem = ListItem(localize(30003), offscreen=True)  # Catalogue
     listitem.setArt({'icon': 'DefaultGenre.png'})
     listitem.setInfo('video', {
         'plot': localize(30004) + ('\n\n' + localize(30201) if kids else ''),
     })
-    xbmcplugin.addDirectoryItem(plugin.handle, plugin.url_for(show_catalog, kids=kids), listitem, True)
+    listing.append((plugin.url_for(show_catalog, kids=kids), listitem, True))
 
     listitem = ListItem(localize(30005), offscreen=True)  # Live TV
     listitem.setArt({'icon': 'DefaultAddonPVRClient.png'})
     listitem.setInfo('video', {
         'plot': localize(30006) + ('\n\n' + localize(30201) if kids else ''),
     })
-    xbmcplugin.addDirectoryItem(plugin.handle, plugin.url_for(show_livetv, kids=kids), listitem, True)
+    listing.append((plugin.url_for(show_livetv, kids=kids), listitem, True))
 
     # Only provide YouTube option when plugin.video.youtube is available
     if get_cond_visibility('System.HasAddon(plugin.video.youtube)') != 0:
@@ -50,14 +51,14 @@ def show_index():
         listitem.setInfo('video', {
             'plot': localize(30008) + ('\n\n' + localize(30201) if kids else ''),
         })
-        xbmcplugin.addDirectoryItem(plugin.handle, plugin.url_for(show_youtube, kids=kids), listitem, True)
+        listing.append((plugin.url_for(show_youtube, kids=kids), listitem, True))
 
     listitem = ListItem(localize(30009), offscreen=True)  # Search
     listitem.setArt({'icon': 'DefaultAddonsSearch.png'})
     listitem.setInfo('video', {
         'plot': localize(30010) + ('\n\n' + localize(30201) if kids else ''),
     })
-    xbmcplugin.addDirectoryItem(plugin.handle, plugin.url_for(show_search, kids=kids), listitem, True)
+    listing.append((plugin.url_for(show_search, kids=kids), listitem, True))
 
     if get_setting_as_bool('kids_mode_switching') and not kids:
         listitem = ListItem(localize(30011), offscreen=True)  # Kids Zone
@@ -65,10 +66,12 @@ def show_index():
         listitem.setInfo('video', {
             'plot': localize(30012),
         })
-        xbmcplugin.addDirectoryItem(plugin.handle, plugin.url_for(show_index, kids=True), listitem, True)
+        listing.append((plugin.url_for(show_index, kids=True), listitem, True))
 
     xbmcplugin.addSortMethod(plugin.handle, xbmcplugin.SORT_METHOD_UNSORTED)
-    xbmcplugin.endOfDirectory(plugin.handle)
+    xbmcplugin.setPluginCategory(plugin.handle, category='VTM GO')
+    ok = xbmcplugin.addDirectoryItems(plugin.handle, listing, len(listing))
+    xbmcplugin.endOfDirectory(plugin.handle, ok, cacheToDisc=True)
 
 
 @plugin.route('/check-credentials')
@@ -96,6 +99,7 @@ def show_livetv():
         notification(message=str(ex))
         raise
 
+    listing = []
     for channel in channels:
         listitem = ListItem(channel.name, offscreen=True)
 
@@ -126,18 +130,22 @@ def show_livetv():
         })
         listitem.setProperty('IsPlayable', 'true')
 
-        xbmcplugin.addDirectoryItem(plugin.handle, plugin.url_for(play_livetv, channel=channel.id) + '?.pvr', listitem)
+        listing.append((plugin.url_for(play_livetv, channel=channel.id) + '?.pvr', listitem, False))
 
     # Sort live channels by default like in VTM GO.
     xbmcplugin.addSortMethod(plugin.handle, xbmcplugin.SORT_METHOD_UNSORTED)
     xbmcplugin.addSortMethod(plugin.handle, xbmcplugin.SORT_METHOD_LABEL)
-    xbmcplugin.endOfDirectory(plugin.handle)
+    xbmcplugin.setPluginCategory(plugin.handle, category='VTM GO / Live TV')
+    ok = xbmcplugin.addDirectoryItems(plugin.handle, listing, len(listing))
+    xbmcplugin.endOfDirectory(plugin.handle, ok, cacheToDisc=True)
 
 
 @plugin.route('/catalog')
 @plugin.route('/catalog/<category>')
 def show_catalog(category=None):
     kids = _get_kids_mode()
+
+    listing = []
     if category is None:
         # Show all categories
         try:
@@ -152,11 +160,12 @@ def show_catalog(category=None):
             listitem.setInfo('video', {
                 'plot': '[B]{category}[/B]'.format(category=cat.title),
             })
-            xbmcplugin.addDirectoryItem(plugin.handle, plugin.url_for(show_catalog, category=cat.id, kids=kids), listitem, True)
+            listing.append((plugin.url_for(show_catalog, category=cat.id, kids=kids), listitem, True))
 
         # Sort categories by default like in VTM GO.
         xbmcplugin.addSortMethod(plugin.handle, xbmcplugin.SORT_METHOD_UNSORTED)
         xbmcplugin.addSortMethod(plugin.handle, xbmcplugin.SORT_METHOD_LABEL)
+        xbmcplugin.setPluginCategory(plugin.handle, category='VTM GO / Catalogue')
 
     else:
         # Show the items of a category
@@ -181,10 +190,10 @@ def show_catalog(category=None):
             listitem.setProperty('IsPlayable', 'true')
 
             if item.type == Content.CONTENT_TYPE_MOVIE:
-                xbmcplugin.addDirectoryItem(plugin.handle, plugin.url_for(play_movie, movie=item.id), listitem)
+                listing.append((plugin.url_for(play_movie, movie=item.id), listitem, False))
 
             elif item.type == Content.CONTENT_TYPE_PROGRAM:
-                xbmcplugin.addDirectoryItem(plugin.handle, plugin.url_for(show_program, program=item.id, kids=kids), listitem, True)
+                listing.append((plugin.url_for(show_program, program=item.id, kids=kids), listitem, True))
 
         if category == 'films':
             xbmcplugin.setContent(plugin.handle, 'movies')
@@ -194,8 +203,10 @@ def show_catalog(category=None):
         # Sort items by label, but don't put folders at the top.
         # Used for A-Z listing or when movies and episodes are mixed.
         xbmcplugin.addSortMethod(plugin.handle, xbmcplugin.SORT_METHOD_LABEL_IGNORE_FOLDERS)
+        xbmcplugin.setPluginCategory(plugin.handle, category=category.title())
 
-    xbmcplugin.endOfDirectory(plugin.handle)
+    ok = xbmcplugin.addDirectoryItems(plugin.handle, listing, len(listing))
+    xbmcplugin.endOfDirectory(plugin.handle, ok, cacheToDisc=True)
 
 
 @plugin.route('/movie/<movie>')
@@ -244,6 +255,8 @@ def show_program(program, season=None):
 
     seasons = program_obj.seasons.values()
 
+    listing = []
+
     # If more than one season and no season provided, give a season-overview
     if season is None and len(seasons) > 1:
 
@@ -261,7 +274,7 @@ def show_program(program, season=None):
                 'plot': _format_plot(program_obj),
                 'set': program_obj.name,
             })
-            xbmcplugin.addDirectoryItem(plugin.handle, plugin.url_for(show_program, program=program, season='all', kids=kids), listitem, True)
+            listing.append((plugin.url_for(show_program, program=program, season='all', kids=kids), listitem, True))
 
         for s in program_obj.seasons.values():
             listitem = ListItem(localize(30205, season=s.number), offscreen=True)  # Season X
@@ -277,12 +290,14 @@ def show_program(program, season=None):
                 'set': program_obj.name,
                 'season': season,
             })
-            xbmcplugin.addDirectoryItem(plugin.handle, plugin.url_for(show_program, program=program, season=s.number), listitem, True)
+            listing.append((plugin.url_for(show_program, program=program, season=s.number), listitem, True))
         xbmcplugin.setContent(plugin.handle, 'tvshows')
 
         # Sort by label. Some programs return seasons unordered.
         xbmcplugin.addSortMethod(plugin.handle, xbmcplugin.SORT_METHOD_LABEL)
-        xbmcplugin.endOfDirectory(plugin.handle)
+        xbmcplugin.setPluginCategory(plugin.handle, category=program.title())
+        ok = xbmcplugin.addDirectoryItems(plugin.handle, listing, len(listing))
+        xbmcplugin.endOfDirectory(plugin.handle, ok, cacheToDisc=True)
         return
 
     if season != 'all' and season is not None:
@@ -314,7 +329,7 @@ def show_program(program, season=None):
                 'duration': episode.duration,
             })
             listitem.setProperty('IsPlayable', 'true')
-            xbmcplugin.addDirectoryItem(plugin.handle, plugin.url_for(play_episode, episode=episode.id), listitem)
+            listing.append((plugin.url_for(play_episode, episode=episode.id), listitem, False))
 
     xbmcplugin.setContent(plugin.handle, 'episodes')
 
@@ -323,12 +338,17 @@ def show_program(program, season=None):
     xbmcplugin.addSortMethod(plugin.handle, xbmcplugin.SORT_METHOD_LABEL)
     xbmcplugin.addSortMethod(plugin.handle, xbmcplugin.SORT_METHOD_DURATION)
     xbmcplugin.addSortMethod(plugin.handle, xbmcplugin.SORT_METHOD_UNSORTED)
-    xbmcplugin.endOfDirectory(plugin.handle)
+    xbmcplugin.setPluginCategory(plugin.handle, category=program.title())
+    ok = xbmcplugin.addDirectoryItems(plugin.handle, listing, len(listing))
+    xbmcplugin.endOfDirectory(plugin.handle, ok, cacheToDisc=True)
 
 
 @plugin.route('/youtube')
 def show_youtube():
     kids = _get_kids_mode()
+
+    listing = []
+
     from . import YOUTUBE
     for entry in YOUTUBE:
         # Skip non-kids channels when we are in kids mode.
@@ -360,12 +380,14 @@ def show_youtube():
             'fanart': fanart,
             'thumb': thumb,
         })
-        xbmcplugin.addDirectoryItem(plugin.handle, entry.get('path'), listitem, True)
+        listing.append((entry.get('path'), listitem, True))
 
     # Sort by default like in our dict.
     xbmcplugin.addSortMethod(plugin.handle, xbmcplugin.SORT_METHOD_UNSORTED)
     xbmcplugin.addSortMethod(plugin.handle, xbmcplugin.SORT_METHOD_LABEL)
-    xbmcplugin.endOfDirectory(plugin.handle)
+    xbmcplugin.setPluginCategory(plugin.handle, category='VTM GO / YouTube')
+    ok = xbmcplugin.addDirectoryItems(plugin.handle, listing, len(listing))
+    xbmcplugin.endOfDirectory(plugin.handle, ok, cacheToDisc=True)
 
 
 @plugin.route('/search')
@@ -388,6 +410,7 @@ def show_search():
         raise
 
     # Display results
+    listing = []
     for item in items:
         listitem = ListItem(item.title, offscreen=True)
 
@@ -395,20 +418,22 @@ def show_search():
             listitem.setInfo('video', {
                 'mediatype': 'movie',
             })
-            xbmcplugin.addDirectoryItem(plugin.handle, plugin.url_for(play_movie, movie=item.id), listitem)
+            listing.append((plugin.url_for(play_movie, movie=item.id), listitem, False))
 
         elif item.type == Content.CONTENT_TYPE_PROGRAM:
             listitem.setInfo('video', {
                 'mediatype': None,  # This shows a folder icon
             })
-            xbmcplugin.addDirectoryItem(plugin.handle, plugin.url_for(show_program, program=item.id, kids=kids), listitem, True)
+            listing.append((plugin.url_for(show_program, program=item.id, kids=kids), listitem, True))
 
     xbmcplugin.setContent(plugin.handle, 'tvshows')
 
     # Sort like we get our results back.
     xbmcplugin.addSortMethod(plugin.handle, xbmcplugin.SORT_METHOD_UNSORTED)
     xbmcplugin.addSortMethod(plugin.handle, xbmcplugin.SORT_METHOD_LABEL_IGNORE_FOLDERS)
-    xbmcplugin.endOfDirectory(plugin.handle)
+    xbmcplugin.setPluginCategory(plugin.handle, category='VTM GO / Search')
+    ok = xbmcplugin.addDirectoryItems(plugin.handle, listing, len(listing))
+    xbmcplugin.endOfDirectory(plugin.handle, ok, cacheToDisc=True)
 
 
 @plugin.route('/play/livetv/<channel>')
