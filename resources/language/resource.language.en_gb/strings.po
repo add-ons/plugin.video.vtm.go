@@ -164,6 +164,10 @@ msgctxt "#30707"
 msgid "Unhandled videoType {type}"
 msgstr ""
 
+msgctxt "#30708"
+msgid "Please restart Kodi."
+msgstr ""
+
 
 ### SETTINGS
 msgctxt "#30800"

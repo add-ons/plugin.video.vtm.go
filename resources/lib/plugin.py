@@ -197,7 +197,7 @@ def show_tvguide(channel=None):
 
             listitem = ListItem(entry.get('label'), offscreen=True)
             listitem.setInfo('video', {
-                'plot': localize(30206, label=entry),
+                'plot': localize(30206, label=entry.get('label')),
                 'studio': entry.get('studio'),
                 'mediatype': 'video',
             })
@@ -517,7 +517,7 @@ def show_youtube():
 
         listitem = ListItem(entry.get('label'), offscreen=True)
         listitem.setInfo('video', {
-            'plot': localize(30206, label=entry),
+            'plot': localize(30206, label=entry.get('label')),
             'studio': entry.get('studio'),
             'mediatype': 'video',
         })
@@ -582,7 +582,7 @@ def show_search():
     # Sort like we get our results back.
     xbmcplugin.addSortMethod(plugin.handle, xbmcplugin.SORT_METHOD_UNSORTED)
     xbmcplugin.addSortMethod(plugin.handle, xbmcplugin.SORT_METHOD_LABEL_IGNORE_FOLDERS)
-    xbmcplugin.setPluginCategory(plugin.handle, category='VTM KIDS / Search' if kids else 'VTM GO / Search')
+    xbmcplugin.setPluginCategory(plugin.handle, category=('VTM KIDS / Search: {query}' if kids else 'VTM GO / Search: {query}').format(query=query))
     ok = xbmcplugin.addDirectoryItems(plugin.handle, listing, len(listing))
     xbmcplugin.endOfDirectory(plugin.handle, ok, cacheToDisc=True)
 
@@ -708,7 +708,7 @@ def _stream(strtype, strid):
     try:
         from inputstreamhelper import Helper
     except ImportError:
-        show_ok_dialog(message=localize(30215))  # Please reboot Kodi
+        show_ok_dialog(message=localize(30708))  # Please reboot Kodi
         return
     is_helper = Helper('mpd', drm='com.widevine.alpha')
     if is_helper.check_inputstream():

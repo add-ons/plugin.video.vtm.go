@@ -9,7 +9,7 @@
     </category>
     <category label="30820"> <!-- Interface -->
         <setting label="30821" type="lsep"/> <!-- Features -->
-        <setting label="30823" help="30824" type="bool" id="use_kids_zone" default="false"/>
+        <setting label="30823" help="30824" type="bool" id="use_kids_zone" default="true"/>
         <setting label="30825" help="30826" type="bool" id="force_kids_zone" default="false" enable="eq(-1,true)" subsetting="true"/>
     </category>
     <category label="30860"> <!-- Playback -->
