@@ -30,14 +30,15 @@ def from_unicode(text, encoding='utf-8'):
 
 def has_socks():
     ''' Test if socks is installed, and remember this information '''
-    if not hasattr(has_socks, 'installed'):
-        try:
-            import socks  # noqa: F401; pylint: disable=unused-variable,unused-import
-            has_socks.installed = True
-        except ImportError:
-            has_socks.installed = False
-            return None  # Detect if this is the first run
-    return has_socks.installed
+    if hasattr(has_socks, 'installed'):
+        return has_socks.installed
+    try:
+        import socks  # noqa: F401; pylint: disable=unused-variable,unused-import
+        has_socks.installed = True
+        return True
+    except ImportError:
+        has_socks.installed = False
+        return None  # Detect if this is the first run
 
 
 def notification(heading=ADDON.getAddonInfo('name'), message='', time=5000, icon=ADDON.getAddonInfo('icon'), sound=True):
@@ -105,7 +106,10 @@ def get_proxies():
     if usehttpproxy is False:
         return None
 
-    httpproxytype = get_global_setting('network.httpproxytype')
+    try:
+        httpproxytype = int(get_global_setting('network.httpproxytype'))
+    except ValueError:
+        httpproxytype = 0
 
     socks_supported = has_socks()
     if httpproxytype != 0 and not socks_supported:

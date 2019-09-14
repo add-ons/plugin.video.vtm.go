@@ -27,11 +27,11 @@ class TestVtmGo(unittest.TestCase):
         self._vtmgoepg = vtmgoepg.VtmGoEpg()
 
         try:
-            with open('test/credentials.json') as f:
+            with open('test/userdata/credentials.json') as f:
                 self._SETTINGS = json.load(f)
             self._vtmgoauth = vtmgoauth.VtmGoAuth(self._SETTINGS['username'], self._SETTINGS['password'])
         except Exception as e:
-            print("Error using 'test/credentials.json' : %s" % e, file=sys.stderr)
+            print("Error using 'test/userdata/credentials.json' : %s" % e, file=sys.stderr)
             self._vtmgoauth = None
             self._SETTINGS = None
 
