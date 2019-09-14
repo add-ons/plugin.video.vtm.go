@@ -8,13 +8,10 @@ import json
 import logging
 import unittest
 
-from xbmcaddon import Addon
+from resources.lib import vtmgo, vtmgoepg, vtmgoauth, vtmgostream
+from resources.lib.kodilogging import getLogger
 
-from resources.lib import kodilogging, vtmgo, vtmgoepg, vtmgoauth, vtmgostream
-
-ADDON = Addon()
-kodilogging.config()
-logger = logging.getLogger(ADDON.getAddonInfo('id'))
+logger = getLogger('TestVtmGo')
 
 
 class TestVtmGo(unittest.TestCase):

@@ -6,7 +6,6 @@ import routing
 
 import xbmcplugin
 from xbmc import Keyboard
-from xbmcaddon import Addon
 from xbmcgui import Dialog, ListItem
 
 from resources.lib.kodiutils import (get_cond_visibility, get_max_bandwidth, get_setting,
@@ -15,7 +14,6 @@ from resources.lib.kodiutils import (get_cond_visibility, get_max_bandwidth, get
 from resources.lib.vtmgo import Content, VtmGo
 from resources.lib.vtmgostream import VtmGoStream
 
-ADDON = Addon()
 plugin = routing.Plugin()
 
 
