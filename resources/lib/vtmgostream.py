@@ -4,19 +4,17 @@ from __future__ import absolute_import, division, unicode_literals
 
 import json
 import random
-from logging import getLogger
 try:  # Python 3
     from urllib.parse import urlencode, quote
 except ImportError:  # Python 2
     from urllib import urlencode, quote
 
 import requests
-from xbmcaddon import Addon
 
 from resources.lib.kodiutils import localize, proxies, show_ok_dialog
+from resources.lib.kodilogging import getLogger
 
-ADDON = Addon()
-logger = getLogger(ADDON.getAddonInfo('id'))
+logger = getLogger('VtmGoStream')
 
 
 class ResolvedStream:
