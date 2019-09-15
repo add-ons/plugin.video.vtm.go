@@ -4,6 +4,7 @@ from __future__ import absolute_import, division, unicode_literals
 import xbmc
 from xbmcaddon import Addon
 from xbmcgui import Dialog
+from xbmcvfs import delete, exists, File, listdir, mkdir, rmdir
 
 ADDON = Addon()
 
@@ -98,6 +99,41 @@ def get_max_bandwidth():
     if global_max_bandwidth != 0:
         return global_max_bandwidth
     return 0
+
+
+def get_profile_path():
+    ''' Get profile path '''
+    return xbmc.translatePath(ADDON.getAddonInfo('profile'))
+
+
+def path_exists(path):
+    ''' Check if the path exists (using xbmcvfs) '''
+    return exists(path)
+
+
+def list_dir(path):
+    ''' Lists content of a directory (using xbmcvfs) '''
+    return listdir(path)
+
+
+def make_dir(path):
+    ''' Make a directory (using xbmcvfs) '''
+    return mkdir(path)
+
+
+def remove_dir(path):
+    ''' Remove a directory (using xbmcvfs) '''
+    return rmdir(path)
+
+
+def delete_file(path):
+    ''' Delete a file (using xbmcvfs) '''
+    return delete(path)
+
+
+def open_file(path, mode=None):
+    ''' Open a file (using xbmcvfs) '''
+    return File(path, mode)
 
 
 def get_proxies():
