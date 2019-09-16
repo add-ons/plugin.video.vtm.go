@@ -101,6 +101,12 @@ class TestVtmGo(unittest.TestCase):
         epg = self._vtmgoepg.get_epg()
         print(epg)
 
+    def test_get_stream_with_subtitles(self):
+        # 13 Geboden - Episode 2
+        info = self._vtmgostream.get_stream('episodes', '2fafb247-0368-46d4-bdcf-fb209420e715')
+        self.assertTrue(info)
+        print(info)
+
 
 if __name__ == '__main__':
     unittest.main()

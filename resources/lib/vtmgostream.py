@@ -9,9 +9,10 @@ try:  # Python 3
 except ImportError:  # Python 2
     from urllib import urlencode, quote
 
+from datetime import timedelta
 import requests
 
-from resources.lib.kodiutils import localize, proxies, show_ok_dialog
+from resources.lib.kodiutils import delete_file, get_profile_path, from_unicode, list_dir, localize, make_dir, open_file, path_exists, proxies, show_ok_dialog
 from resources.lib.kodilogging import getLogger
 
 logger = getLogger('VtmGoStream')
@@ -69,7 +70,8 @@ class VtmGoStream:
         license_url = anvato_stream_info['published_urls'][0]['license_url']
 
         # Get MPEG DASH manifest url
-        url = self._download_manifest(url)
+        json_manifest = self._download_manifest(url)
+        url = json_manifest.get('master_m3u8')
 
         # Follow Location tag redirection because InputStream Adaptive doesn't support this yet
         # https://github.com/peak3d/inputstream.adaptive/issues/286
@@ -77,6 +79,10 @@ class VtmGoStream:
 
         # Extract subtitle info from our stream_info.
         subtitle_info = self._extract_subtitles_from_stream_info(stream_info)
+
+        # Delay subtitles taking into account advertisements breaks
+        if subtitle_info:
+            subtitle_info = self._delay_subtitles(subtitle_info, json_manifest)
 
         if stream_type == 'episodes':
             # TV episode
@@ -147,14 +153,65 @@ class VtmGoStream:
         raise Exception(localize(30706))  # No stream found that we can handle
 
     def _extract_subtitles_from_stream_info(self, stream_info):
-        subtitles = []
-        try:
-            for subtitle in stream_info['video']['subtitles']:
-                subtitles.append(subtitle['url'])
-        except KeyError:
-            pass
-
+        subtitles = list()
+        if stream_info.get('video').get('subtitles'):
+            for subtitle in stream_info.get('video').get('subtitles'):
+                subtitles.append(subtitle.get('url'))
+                logger.info('Found subtitle url %s', subtitle.get('url'))
         return subtitles
+
+    def _delay_webvtt_timing(self, match, ad_breaks):
+        sub_timings = list()
+        for ts in match.groups():
+            h, m, s, f = (int(x) for x in [ts[:-10], ts[-9:-7], ts[-6:-4], ts[-3:]])
+            sub_timings.append(timedelta(hours=h, minutes=m, seconds=s, milliseconds=f))
+        for ad_break in ad_breaks:
+            # time format: seconds.fraction or seconds
+            ad_break_start = timedelta(milliseconds=ad_break.get('start') * 1000)
+            ad_break_duration = timedelta(milliseconds=ad_break.get('duration') * 1000)
+            if ad_break_start < sub_timings[0]:
+                for i, item in enumerate(sub_timings):
+                    sub_timings[i] += ad_break_duration
+        for i, item in enumerate(sub_timings):
+            h, s_remainder = divmod(item.seconds, 3600)
+            m, s = divmod(s_remainder, 60)
+            f = item.microseconds // 1000
+            sub_timings[i] = '%02d:%02d:%02d,%03d' % (h, m, s, f)
+        delayed_webvtt_timing = '\n{} --> {} '.format(sub_timings[0], sub_timings[1])
+        return delayed_webvtt_timing
+
+    def _delay_subtitles(self, subtitles, json_manifest):
+        import re
+        temp_dir = get_profile_path() + 'temp/'
+        if not path_exists(temp_dir):
+            make_dir(temp_dir)
+        else:
+            dirs, files = list_dir(temp_dir)  # pylint: disable=unused-variable
+            if files:
+                for item in files:
+                    file_path = temp_dir + item
+                    if item.endswith('.vtt'):
+                        delete_file(file_path)
+        ad_breaks = list()
+        delayed_subtitles = list()
+        webvtt_timing_regex = re.compile(r'\n(\d{2}:\d{2}:\d{2}\.\d{3}) --> (\d{2}:\d{2}:\d{2}\.\d{3})\s')
+
+        # Get advertising breaks info from json manifest
+        cues = json_manifest.get('interstitials').get('cues')
+        for cue in cues:
+            ad_breaks.append(
+                dict(start=cue.get('start'), duration=cue.get('break_duration'))
+            )
+
+        for subtitle in subtitles:
+            output_file = temp_dir + '/' + subtitle.split('/')[-1].split('.')[0] + '.nl-NL.' + subtitle.split('.')[-1]
+            webvtt_content = requests.get(subtitle).text
+            webvtt_content = webvtt_timing_regex.sub(lambda match: self._delay_webvtt_timing(match, ad_breaks), webvtt_content)
+            webvtt_output = open_file(output_file, 'w')
+            webvtt_output.write(from_unicode(webvtt_content))
+            webvtt_output.close()
+            delayed_subtitles.append(output_file)
+        return delayed_subtitles
 
     def _anvato_get_anvacks(self, access_key):
         url = 'https://access-prod.apis.anvato.net/anvacks/{key}'.format(key=access_key)
@@ -278,12 +335,12 @@ class VtmGoStream:
             decoded = json.loads(download)
             if decoded.get('master_m3u8'):
                 logger.debug('Followed redirection from %s to %s', url, decoded.get('master_m3u8'))
-                return decoded.get('master_m3u8')
+                return decoded
         except Exception:
             logger.error('No manifest url found %s', url)
 
         # Fallback to the url like we have it
-        return url
+        return dict(master_m3u8=url)
 
     def _redirect_manifest(self, url):
         import re
