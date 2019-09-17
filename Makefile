@@ -26,7 +26,7 @@ package: zip
 
 test: sanity unit run
 
-sanity: tox pylint
+sanity: tox pylint check-translations
 
 tox:
 	@echo -e "$(white)=$(blue) Starting sanity tox test$(reset)"
@@ -36,9 +36,13 @@ pylint:
 	@echo -e "$(white)=$(blue) Starting sanity pylint test$(reset)"
 	pylint *.py resources/lib/ test/
 
+check-translations:
+	@echo -e "$(white)=$(blue) Checking translations$(reset)"
+	msgcmp resources/language/resource.language.nl_nl/strings.po resources/language/resource.language.en_gb/strings.po
+
 addon: clean
 	@echo -e "$(white)=$(blue) Starting sanity addon tests$(reset)"
-	odi-addon-checker . --branch=leia
+	kodi-addon-checker . --branch=leia
 
 unit:
 	@echo -e "$(white)=$(blue) Starting unit tests$(reset)"
