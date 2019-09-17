@@ -103,6 +103,7 @@ class TestRouter(unittest.TestCase):
         self.assertEqual(addon.url_for(plugin.show_tvguide_detail, channel='vtm', date='2019-01-01'), 'plugin://plugin.video.vtm.go/tvguide/vtm/2019-01-01')
 
     # Play Live TV: '/play/livetv/<channel>'
+    @unittest.skipIf(os.environ.get('TRAVIS') == 'true', 'Skipping this test on Travis CI.')
     def test_play_livetv(self):
         plugin.run(['plugin://plugin.video.vtm.go/play/livetv/ea826456-6b19-4612-8969-864d1c818347?.pvr', '0', ''])
         self.assertEqual(
