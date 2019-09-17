@@ -130,7 +130,7 @@ class VtmGoStream:
                                      },
                                      headers={
                                          'x-api-key': self._VTM_API_KEY,
-                                         'Popcorn-SDK-Version': '1',
+                                         'Popcorn-SDK-Version': '2',
                                          'User-Agent': 'Dalvik/2.1.0 (Linux; U; Android 6.0.1; Nexus 5 Build/M4B30Z)',
                                      },
                                      proxies=proxies)
@@ -146,10 +146,12 @@ class VtmGoStream:
 
     def _extract_anvato_stream_from_stream_info(self, stream_info):
         # Loop over available streams, and return the one from anvato
-        for stream in stream_info['video']['streams']:
-            if stream['type'] == 'anvato':
-                return stream['anvato']
-
+        if stream_info.get('video'):
+            for stream in stream_info.get('video').get('streams'):
+                if stream.get('type') == 'anvato':
+                    return stream.get('anvato')
+        elif stream_info.get('code'):
+            logger.error('VTM GO Videoplayer service API error: %s', stream_info.get('type'))
         raise Exception(localize(30706))  # No stream found that we can handle
 
     def _extract_subtitles_from_stream_info(self, stream_info):

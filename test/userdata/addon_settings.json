@@ -6,7 +6,8 @@
     "script.module.inputstreamhelper": {
         "disabled": "false",
         "last_update": "",
-        "version": ""
+        "version": "",
+        "update_frequency": "14"
     },
     "plugin.video.vtm.go": {
         "_comment": "do-not-add-email-and-password-here",
