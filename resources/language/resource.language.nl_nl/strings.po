@@ -168,10 +168,6 @@ msgctxt "#30708"
 msgid "Please restart Kodi."
 msgstr "Gelieve Kodi te herstarten."
 
-msgctxt "#30708"
-msgid "Please restart Kodi."
-msgstr ""
-
 
 ### SETTINGS
 msgctxt "#30800"
