@@ -11,7 +11,7 @@ from resources.lib.kodiutils import (get_cond_visibility, get_max_bandwidth, get
                                      get_setting_as_bool, get_global_setting, localize,
                                      notification, show_ok_dialog, show_settings)
 from resources.lib.vtmgo import Content, VtmGo
-from resources.lib.vtmgoepg import VtmGoEpg, EpgBroadcast
+from resources.lib.vtmgoepg import VtmGoEpg
 from resources.lib.vtmgostream import VtmGoStream
 
 plugin = routing.Plugin()
@@ -211,7 +211,6 @@ def show_tvguide(channel=None):
         xbmcplugin.addSortMethod(plugin.handle, xbmcplugin.SORT_METHOD_LABEL)
 
     else:
-        from .vtmgoepg import VtmGoEpg
         for day in VtmGoEpg.get_dates():
             listitem = ListItem(day.get('title'), offscreen=True)
             listitem.setInfo('video', {
@@ -232,7 +231,6 @@ def show_tvguide(channel=None):
 @plugin.route('/tvguide/<channel>/<date>')
 def show_tvguide_detail(channel=None, date=None):
     try:
-        from .vtmgoepg import VtmGoEpg
         _vtmGoEpg = VtmGoEpg()
         epg = _vtmGoEpg.get_epg(date=date)
     except Exception as ex:
