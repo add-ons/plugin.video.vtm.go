@@ -221,8 +221,6 @@ def show_tvguide(channel=None):
         # Sort like we add it.
         xbmcplugin.addSortMethod(plugin.handle, xbmcplugin.SORT_METHOD_UNSORTED)
 
-        xbmcplugin.setContent(plugin.handle, 'files')
-
     xbmcplugin.setPluginCategory(plugin.handle, category='VTM KIDS / TV Guide' if kids else 'VTM GO / TV Guide')
     ok = xbmcplugin.addDirectoryItems(plugin.handle, listing, len(listing))
     xbmcplugin.endOfDirectory(plugin.handle, ok, cacheToDisc=True)
@@ -266,7 +264,7 @@ def show_tvguide_detail(channel=None, date=None):
 
     xbmcplugin.addSortMethod(plugin.handle, xbmcplugin.SORT_METHOD_UNSORTED)
     xbmcplugin.addSortMethod(plugin.handle, xbmcplugin.SORT_METHOD_LABEL)
-    xbmcplugin.setPluginCategory(plugin.handle, category='VTM GO / TV Guide')
+    xbmcplugin.setPluginCategory(plugin.handle, category=date)
     ok = xbmcplugin.addDirectoryItems(plugin.handle, listing, len(listing))
     xbmcplugin.endOfDirectory(plugin.handle, ok, cacheToDisc=False)
 
