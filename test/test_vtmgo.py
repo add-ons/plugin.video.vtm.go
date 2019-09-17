@@ -1,15 +1,18 @@
 # -*- coding: utf-8 -*-
 
-# pylint: disable=missing-docstring
+# pylint: disable=invalid-name,missing-docstring
 
 from __future__ import absolute_import, division, print_function, unicode_literals
 import json
+import sys
 import unittest
 
 from resources.lib import vtmgo, vtmgoauth, vtmgostream
-from resources.lib.kodilogging import getLogger
+from resources.lib.kodilogging import get_logger
 
-logger = getLogger('TestVtmGo')
+xbmcaddon = __import__('xbmcaddon')
+
+logger = get_logger('TestVtmGo')
 
 
 class TestVtmGo(unittest.TestCase):
@@ -21,12 +24,11 @@ class TestVtmGo(unittest.TestCase):
         self._vtmgo = vtmgo.VtmGo()
         self._vtmgostream = vtmgostream.VtmGoStream()
 
-        try:
-            with open('test/userdata/credentials.json') as f:
-                self._SETTINGS = json.load(f)
-            self._vtmgoauth = vtmgoauth.VtmGoAuth(self._SETTINGS['username'], self._SETTINGS['password'])
-        except Exception as e:
-            logger.warning("Could not use credentials.json: %s", e)
+        addon_settings = xbmcaddon.ADDON_SETTINGS.get('plugin.video.vtm.go')
+        if addon_settings.get('username') and addon_settings.get('password'):
+            self._vtmgoauth = vtmgoauth.VtmGoAuth(addon_settings.get('username'), addon_settings.get('password'))
+        else:
+            print("No credentials", file=sys.stderr)
             self._vtmgoauth = None
             self._SETTINGS = None
 

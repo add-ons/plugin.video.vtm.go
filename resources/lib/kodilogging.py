@@ -7,14 +7,14 @@ from xbmc import log, LOGDEBUG, LOGERROR, LOGFATAL, LOGINFO, LOGNOTICE, LOGWARNI
 from xbmcaddon import Addon
 from resources.lib.kodiutils import from_unicode, get_global_setting, get_setting, to_unicode
 
-log_levels = {
+LOG_LEVELS = {
     'Debug': logging.DEBUG,
     'Verbose': logging.INFO,
     'Info': logging.WARNING,
     'Quiet': logging.CRITICAL
 }
 
-xbmc_log_levels = {
+XBMC_LOG_LEVELS = {
     logging.NOTSET: LOGDEBUG,  # 0
     logging.DEBUG: LOGDEBUG,  # 0
     logging.INFO: LOGINFO,  # 1
@@ -34,7 +34,7 @@ class KodiLogHandler(logging.StreamHandler):
         self._debug_logging = get_global_setting('debug.showloginfo')  # Returns a boolean
 
     def emit(self, record):
-        log_level = xbmc_log_levels.get(record.levelno)
+        log_level = XBMC_LOG_LEVELS.get(record.levelno)
         if not self._debug_logging and log_level < LOGNOTICE:
             # If Debug Logging is disabled, Kodi filters everything below LOGNOTICE out.
             log_level = LOGNOTICE
@@ -44,8 +44,8 @@ class KodiLogHandler(logging.StreamHandler):
         pass
 
 
-def getLogger(name=None):
+def get_logger(name=None):
     logger = logging.getLogger(name)
     logger.addHandler(KodiLogHandler())
-    logger.setLevel(log_levels.get(get_setting('max_log_level', 'Info'), logging.NOTSET))
+    logger.setLevel(LOG_LEVELS.get(get_setting('max_log_level', 'Info'), logging.NOTSET))
     return logger

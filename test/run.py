@@ -9,11 +9,11 @@ import os
 import sys
 
 # Add current working directory to import paths
-cwd = os.path.abspath(os.path.join(os.path.dirname(os.path.realpath(os.path.realpath(__file__))), os.pardir))
-sys.path.insert(0, cwd)
-print(cwd)
+CWD = os.path.abspath(os.path.join(os.path.dirname(os.path.realpath(os.path.realpath(__file__))), os.pardir))
+sys.path.insert(0, CWD)
 from resources.lib import plugin  # noqa: E402  pylint: disable=wrong-import-position
 
+# pylint: disable=invalid-name
 xbmc = __import__('xbmc')
 xbmcaddon = __import__('xbmcaddon')
 xbmcgui = __import__('xbmcgui')

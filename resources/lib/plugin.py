@@ -14,7 +14,7 @@ from resources.lib.vtmgo import Content, VtmGo
 from resources.lib.vtmgoepg import VtmGoEpg
 from resources.lib.vtmgostream import VtmGoStream
 
-plugin = routing.Plugin()
+plugin = routing.Plugin()  # pylint: disable=invalid-name
 
 
 @plugin.route('/kids')
@@ -86,8 +86,8 @@ def show_index():
 
     xbmcplugin.addSortMethod(plugin.handle, xbmcplugin.SORT_METHOD_UNSORTED)
     xbmcplugin.setPluginCategory(plugin.handle, category='VTM KIDS' if kids else 'VTM GO')
-    ok = xbmcplugin.addDirectoryItems(plugin.handle, listing, len(listing))
-    xbmcplugin.endOfDirectory(plugin.handle, ok, cacheToDisc=True)
+    succeeded = xbmcplugin.addDirectoryItems(plugin.handle, listing, len(listing))
+    xbmcplugin.endOfDirectory(plugin.handle, succeeded, cacheToDisc=True)
 
 
 @plugin.route('/check-credentials')
@@ -114,8 +114,8 @@ def show_kids_livetv():
 def show_livetv():
     kids = _get_kids_mode()
     try:
-        _vtmGo = VtmGo(kids=kids)
-        channels = _vtmGo.get_live()
+        _vtmgo = VtmGo(kids=kids)
+        channels = _vtmgo.get_live()
     except Exception as ex:
         notification(message=str(ex))
         raise
@@ -157,8 +157,8 @@ def show_livetv():
     xbmcplugin.addSortMethod(plugin.handle, xbmcplugin.SORT_METHOD_UNSORTED)
     xbmcplugin.addSortMethod(plugin.handle, xbmcplugin.SORT_METHOD_LABEL)
     xbmcplugin.setPluginCategory(plugin.handle, category='VTM KIDS / Live TV' if kids else 'VTM GO / Live TV')
-    ok = xbmcplugin.addDirectoryItems(plugin.handle, listing, len(listing))
-    xbmcplugin.endOfDirectory(plugin.handle, ok, cacheToDisc=True)
+    succeeded = xbmcplugin.addDirectoryItems(plugin.handle, listing, len(listing))
+    xbmcplugin.endOfDirectory(plugin.handle, succeeded, cacheToDisc=True)
 
 
 @plugin.route('/kids/tvguide')
@@ -210,8 +210,8 @@ def show_tvguide():
     xbmcplugin.addSortMethod(plugin.handle, xbmcplugin.SORT_METHOD_LABEL)
 
     xbmcplugin.setPluginCategory(plugin.handle, category='VTM KIDS / TV Guide' if kids else 'VTM GO / TV Guide')
-    ok = xbmcplugin.addDirectoryItems(plugin.handle, listing, len(listing))
-    xbmcplugin.endOfDirectory(plugin.handle, ok, cacheToDisc=True)
+    succeeded = xbmcplugin.addDirectoryItems(plugin.handle, listing, len(listing))
+    xbmcplugin.endOfDirectory(plugin.handle, succeeded, cacheToDisc=True)
 
 
 @plugin.route('/tvguide/<channel>')
@@ -239,15 +239,15 @@ def show_tvguide_channel(channel):
     xbmcplugin.addSortMethod(plugin.handle, xbmcplugin.SORT_METHOD_UNSORTED)
 
     xbmcplugin.setPluginCategory(plugin.handle, category='TV Guide')
-    ok = xbmcplugin.addDirectoryItems(plugin.handle, listing, len(listing))
-    xbmcplugin.endOfDirectory(plugin.handle, ok, cacheToDisc=True)
+    succeeded = xbmcplugin.addDirectoryItems(plugin.handle, listing, len(listing))
+    xbmcplugin.endOfDirectory(plugin.handle, succeeded, cacheToDisc=True)
 
 
 @plugin.route('/tvguide/<channel>/<date>')
 def show_tvguide_detail(channel=None, date=None):
     try:
-        _vtmGoEpg = VtmGoEpg()
-        epg = _vtmGoEpg.get_epg(date=date)
+        _vtmgo_epg = VtmGoEpg()
+        epg = _vtmgo_epg.get_epg(date=date)
     except Exception as ex:
         notification(message=str(ex))
         raise
@@ -282,8 +282,8 @@ def show_tvguide_detail(channel=None, date=None):
     xbmcplugin.addSortMethod(plugin.handle, xbmcplugin.SORT_METHOD_UNSORTED)
     xbmcplugin.addSortMethod(plugin.handle, xbmcplugin.SORT_METHOD_LABEL)
     xbmcplugin.setPluginCategory(plugin.handle, category=date)
-    ok = xbmcplugin.addDirectoryItems(plugin.handle, listing, len(listing))
-    xbmcplugin.endOfDirectory(plugin.handle, ok, cacheToDisc=False)
+    succeeded = xbmcplugin.addDirectoryItems(plugin.handle, listing, len(listing))
+    xbmcplugin.endOfDirectory(plugin.handle, succeeded, cacheToDisc=False)
 
 
 @plugin.route('/kids/catalog')
@@ -302,8 +302,8 @@ def show_catalog(category=None):
     if category is None:
         # Show all categories
         try:
-            _vtmGo = VtmGo(kids=kids)
-            categories = _vtmGo.get_categories()
+            _vtmgo = VtmGo(kids=kids)
+            categories = _vtmgo.get_categories()
         except Exception as ex:
             notification(message=str(ex))
             raise
@@ -323,8 +323,8 @@ def show_catalog(category=None):
     else:
         # Show the items of a category
         try:
-            _vtmGo = VtmGo(kids=kids)
-            items = _vtmGo.get_items(category)
+            _vtmgo = VtmGo(kids=kids)
+            items = _vtmgo.get_items(category)
         except Exception as ex:
             notification(message=str(ex))
             raise
@@ -358,16 +358,16 @@ def show_catalog(category=None):
         xbmcplugin.addSortMethod(plugin.handle, xbmcplugin.SORT_METHOD_LABEL_IGNORE_FOLDERS)
         xbmcplugin.setPluginCategory(plugin.handle, category=category.title())
 
-    ok = xbmcplugin.addDirectoryItems(plugin.handle, listing, len(listing))
-    xbmcplugin.endOfDirectory(plugin.handle, ok, cacheToDisc=True)
+    succeeded = xbmcplugin.addDirectoryItems(plugin.handle, listing, len(listing))
+    xbmcplugin.endOfDirectory(plugin.handle, succeeded, cacheToDisc=True)
 
 
 @plugin.route('/movie/<movie>')
 def show_movie(movie):
     kids = _get_kids_mode()
     try:
-        _vtmGo = VtmGo(kids=kids)
-        movie_obj = _vtmGo.get_movie(movie)
+        _vtmgo = VtmGo(kids=kids)
+        movie_obj = _vtmgo.get_movie(movie)
     except Exception as ex:
         notification(message=str(ex))
         raise
@@ -400,8 +400,8 @@ def show_movie(movie):
 def show_program(program, season=None):
     kids = _get_kids_mode()
     try:
-        _vtmGo = VtmGo(kids=kids)
-        program_obj = _vtmGo.get_program(program)
+        _vtmgo = VtmGo(kids=kids)
+        program_obj = _vtmgo.get_program(program)
     except Exception as ex:
         notification(message=str(ex))
         raise
@@ -429,36 +429,36 @@ def show_program(program, season=None):
             })
             listing.append((plugin.url_for(show_program, program=program, season='all'), listitem, True))
 
-        for s in program_obj.seasons.values():
-            listitem = ListItem(localize(30205, season=s.number), offscreen=True)  # Season X
+        for item in program_obj.seasons.values():
+            listitem = ListItem(localize(30205, season=item.number), offscreen=True)  # Season X
             listitem.setArt({
-                'thumb': s.cover,
+                'thumb': item.cover,
                 'fanart': program_obj.cover,
             })
             listitem.setInfo('video', {
                 'tvshowtitle': program_obj.name,
-                'title': 'Season %d' % s.number,
+                'title': 'Season %d' % item.number,
                 'subtitle': program_obj.description,
                 'plot': _format_plot(program_obj),
                 'set': program_obj.name,
                 'season': season,
             })
-            listing.append((plugin.url_for(show_program, program=program, season=s.number), listitem, True))
+            listing.append((plugin.url_for(show_program, program=program, season=item.number), listitem, True))
         xbmcplugin.setContent(plugin.handle, 'tvshows')
 
         # Sort by label. Some programs return seasons unordered.
         xbmcplugin.addSortMethod(plugin.handle, xbmcplugin.SORT_METHOD_LABEL)
         xbmcplugin.setPluginCategory(plugin.handle, category=program_obj.name)
-        ok = xbmcplugin.addDirectoryItems(plugin.handle, listing, len(listing))
-        xbmcplugin.endOfDirectory(plugin.handle, ok, cacheToDisc=True)
+        succeeded = xbmcplugin.addDirectoryItems(plugin.handle, listing, len(listing))
+        xbmcplugin.endOfDirectory(plugin.handle, succeeded, cacheToDisc=True)
         return
 
     if season != 'all' and season is not None:
         # Use the season that was selected
         seasons = [program_obj.seasons[int(season)]]
 
-    for s in seasons:
-        for episode in s.episodes.values():
+    for item in seasons:
+        for episode in item.episodes.values():
             listitem = ListItem(episode.name, offscreen=True)
             listitem.setArt({
                 'banner': program_obj.cover,
@@ -492,8 +492,8 @@ def show_program(program, season=None):
     xbmcplugin.addSortMethod(plugin.handle, xbmcplugin.SORT_METHOD_DURATION)
     xbmcplugin.addSortMethod(plugin.handle, xbmcplugin.SORT_METHOD_UNSORTED)
     xbmcplugin.setPluginCategory(plugin.handle, category=program_obj.name)
-    ok = xbmcplugin.addDirectoryItems(plugin.handle, listing, len(listing))
-    xbmcplugin.endOfDirectory(plugin.handle, ok, cacheToDisc=True)
+    succeeded = xbmcplugin.addDirectoryItems(plugin.handle, listing, len(listing))
+    xbmcplugin.endOfDirectory(plugin.handle, succeeded, cacheToDisc=True)
 
 
 @plugin.route('/kids/youtube')
@@ -544,8 +544,8 @@ def show_youtube():
     xbmcplugin.addSortMethod(plugin.handle, xbmcplugin.SORT_METHOD_UNSORTED)
     xbmcplugin.addSortMethod(plugin.handle, xbmcplugin.SORT_METHOD_LABEL)
     xbmcplugin.setPluginCategory(plugin.handle, category='VTM KIDS / YouTube' if kids else 'VTM GO / YouTube')
-    ok = xbmcplugin.addDirectoryItems(plugin.handle, listing, len(listing))
-    xbmcplugin.endOfDirectory(plugin.handle, ok, cacheToDisc=True)
+    succeeded = xbmcplugin.addDirectoryItems(plugin.handle, listing, len(listing))
+    xbmcplugin.endOfDirectory(plugin.handle, succeeded, cacheToDisc=True)
 
 
 @plugin.route('/kids/search')
@@ -566,8 +566,8 @@ def show_search():
 
     try:
         # Do search
-        _vtmGo = VtmGo(kids=kids)
-        items = _vtmGo.do_search(query)
+        _vtmgo = VtmGo(kids=kids)
+        items = _vtmgo.do_search(query)
     except Exception as ex:
         notification(message=str(ex))
         raise
@@ -595,14 +595,14 @@ def show_search():
     xbmcplugin.addSortMethod(plugin.handle, xbmcplugin.SORT_METHOD_UNSORTED)
     xbmcplugin.addSortMethod(plugin.handle, xbmcplugin.SORT_METHOD_LABEL_IGNORE_FOLDERS)
     xbmcplugin.setPluginCategory(plugin.handle, category=('VTM KIDS / Search: {query}' if kids else 'VTM GO / Search: {query}').format(query=query))
-    ok = xbmcplugin.addDirectoryItems(plugin.handle, listing, len(listing))
-    xbmcplugin.endOfDirectory(plugin.handle, ok, cacheToDisc=True)
+    succeeded = xbmcplugin.addDirectoryItems(plugin.handle, listing, len(listing))
+    xbmcplugin.endOfDirectory(plugin.handle, succeeded, cacheToDisc=True)
 
 
 @plugin.route('/play/epg/<channel>/<program_type>/<epg_id>')
 def play_epg(channel, program_type, epg_id):
-    _vtmGoEpg = VtmGoEpg()
-    details = _vtmGoEpg.get_details(channel=channel, program_type=program_type, epg_id=epg_id)
+    _vtmgo_epg = VtmGoEpg()
+    details = _vtmgo_epg.get_details(channel=channel, program_type=program_type, epg_id=epg_id)
     _stream(details.playable_type, details.playable_uuid)
 
 
@@ -627,9 +627,9 @@ def _format_plot(obj):
     # Add program name to plot
     if hasattr(obj, 'name') or (hasattr(obj, 'legal') and obj.legal):
         if hasattr(obj, 'name'):
-            plot += '[B]{name}[/B] '.format(name=obj.name)
+            plot += '[B]{name}[/B]'.format(name=obj.name)
         if hasattr(obj, 'legal') and obj.legal:
-            plot += '[COLOR gray]'
+            plot += '  [COLOR gray]'
             for icon in obj.legal:
                 plot += '[%s]' % icon
             plot += '[/COLOR]'

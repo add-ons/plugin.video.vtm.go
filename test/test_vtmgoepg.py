@@ -1,15 +1,15 @@
 # -*- coding: utf-8 -*-
 
-# pylint: disable=missing-docstring
+# pylint: disable=invalid-name,missing-docstring
 
 from __future__ import absolute_import, division, print_function, unicode_literals
 
 import unittest
 
 from resources.lib import vtmgoepg
-from resources.lib.kodilogging import getLogger
+from resources.lib.kodilogging import get_logger
 
-logger = getLogger('TestVtmGoEpg')
+logger = get_logger('TestVtmGoEpg')
 
 
 class TestVtmGoEpg(unittest.TestCase):

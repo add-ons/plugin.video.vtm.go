@@ -23,7 +23,7 @@ class LiveChannel:
         :type logo: basestring
         :type epg: List[LiveChannelEpg]
         """
-        self.id = channel_id
+        self.id = channel_id  # pylint: disable=invalid-name
         self.name = name
         self.logo = logo
         self.epg = epg
@@ -57,7 +57,7 @@ class Category:
         :type category_id: string
         :type title: string
         """
-        self.id = category_id
+        self.id = category_id  # pylint: disable=invalid-name
         self.title = title
 
     def __repr__(self):
@@ -78,7 +78,7 @@ class Content:
         :type video_type: basestring
         :type geoblocked: boolean
         """
-        self.id = video_id
+        self.id = video_id  # pylint: disable=invalid-name
         self.title = title
         self.description = description if description else ''
         self.cover = cover
@@ -94,7 +94,7 @@ class Content:
 class Movie:
     def __init__(self, movie_id=None, name=None, description=None, year=None, cover=None, duration=None, remaining=None, geoblocked=None,
                  channel=None, legal=None, aired=None):
-        self.id = movie_id
+        self.id = movie_id  # pylint: disable=invalid-name
         self.name = name
         self.description = description if description else ''
         self.year = year
@@ -121,7 +121,7 @@ class Program:
         :type cover: basestring
         :type seasons: List[Season]
         """
-        self.id = program_id
+        self.id = program_id  # pylint: disable=invalid-name
         self.name = name
         self.description = description if description else ''
         self.cover = cover
@@ -158,7 +158,7 @@ class Episode:
     def __init__(self, episode_id=None, number=None, season=None, name=None, description=None, cover=None, duration=None, remaining=None, geoblocked=None,
                  channel=None, legal=None, aired=None):
         import re
-        self.id = episode_id
+        self.id = episode_id  # pylint: disable=invalid-name
         self.number = int(number)
         self.season = int(season)
         self.name = re.compile('^%d. ' % number).sub('', name)  # Strip episode from name

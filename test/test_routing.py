@@ -1,12 +1,14 @@
 # -*- coding: utf-8 -*-
 # GNU General Public License v3.0 (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 
-# pylint: disable=missing-docstring
+# pylint: disable=invalid-name,missing-docstring
 
 from __future__ import absolute_import, division, print_function, unicode_literals
 
+from datetime import datetime
 import os
 import unittest
+import dateutil.tz
 from resources.lib import plugin
 
 xbmc = __import__('xbmc')
@@ -16,6 +18,7 @@ xbmcplugin = __import__('xbmcplugin')
 xbmcvfs = __import__('xbmcvfs')
 
 addon = plugin.plugin
+now = datetime.now(dateutil.tz.tzlocal())
 
 
 class TestRouter(unittest.TestCase):
@@ -65,12 +68,12 @@ class TestRouter(unittest.TestCase):
     def test_catalog_category_menu(self):
         plugin.run(['plugin://plugin.video.vtm.go/catalog/films', '0', ''])
         self.assertEqual(addon.url_for(plugin.show_catalog, category='films'), 'plugin://plugin.video.vtm.go/catalog/films')
-        plugin.run(['plugin://plugin.video.vtm.go/kids/catalog/films', '0', ''])
-        self.assertEqual(addon.url_for(plugin.show_kids_catalog, category='films'), 'plugin://plugin.video.vtm.go/kids/catalog/films')
         plugin.run(['plugin://plugin.video.vtm.go/catalog/kids', '0', ''])
         self.assertEqual(addon.url_for(plugin.show_catalog, category='kids'), 'plugin://plugin.video.vtm.go/catalog/kids')
         plugin.run(['plugin://plugin.video.vtm.go/catalog/nieuws-actua', '0', ''])
         self.assertEqual(addon.url_for(plugin.show_catalog, category='nieuws-actua'), 'plugin://plugin.video.vtm.go/catalog/nieuws-actua')
+        plugin.run(['plugin://plugin.video.vtm.go/kids/catalog/series', '0', ''])
+        self.assertEqual(addon.url_for(plugin.show_kids_catalog, category='series'), 'plugin://plugin.video.vtm.go/kids/catalog/series')
 
     # Movie menu: '/movie/<movie>'
     def test_movies(self):
@@ -103,6 +106,9 @@ class TestRouter(unittest.TestCase):
         self.assertEqual(addon.url_for(plugin.show_tvguide_channel, channel='vtm'), 'plugin://plugin.video.vtm.go/tvguide/vtm')
         plugin.run(['plugin://plugin.video.vtm.go/tvguide/vtm/today', '0', ''])
         self.assertEqual(addon.url_for(plugin.show_tvguide_detail, channel='vtm', date='today'), 'plugin://plugin.video.vtm.go/tvguide/vtm/today')
+        today = now.strftime('%Y-%m-%d')
+        plugin.run(['plugin://plugin.video.vtm.go/tvguide/vtm/{date}'.format(date=today), '0', ''])
+        self.assertEqual(addon.url_for(plugin.show_tvguide_detail, channel='vtm', date=today), 'plugin://plugin.video.vtm.go/tvguide/vtm/{date}'.format(date=today))
 
     # Play Live TV: '/play/livetv/<channel>'
     @unittest.skipIf(os.environ.get('TRAVIS') == 'true', 'Skipping this test on Travis CI.')

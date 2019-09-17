@@ -3,6 +3,8 @@
 # GNU General Public License v3.0 (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 ''' This file implements the Kodi xbmcaddon module, either using stubs or alternative functionality '''
 
+# pylint: disable=invalid-name
+
 from __future__ import absolute_import, division, print_function, unicode_literals
 import json
 from xbmc import getLocalizedString
@@ -24,8 +26,10 @@ class Addon:
 
     def getAddonInfo(self, key):
         ''' A working implementation for the xbmcaddon Addon class getAddonInfo() method '''
-        STUB_INFO = dict(id=self.id, name=self.id, version='2.3.4', type='kodi.inputstream', profile='special://userdata')
-        return ADDON_INFO.get(self.id, STUB_INFO).get(key)
+        stub_info = dict(id=self.id, name=self.id, version='2.3.4', type='kodi.inputstream', profile='special://userdata', path='special://userdata')
+        # Add stub_info values to ADD_INFO when missing (e.g. path and profile)
+        addon_info = dict(ADDON_INFO, **stub_info)
+        return addon_info.get(self.id, stub_info).get(key)
 
     @staticmethod
     def getLocalizedString(msgctxt):

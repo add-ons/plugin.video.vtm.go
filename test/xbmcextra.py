@@ -3,6 +3,8 @@
 # GNU General Public License v3.0 (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 ''' Extra functions for testing '''
 
+# pylint: disable=invalid-name
+
 from __future__ import absolute_import, division, print_function, unicode_literals
 import os
 import xml.etree.ElementTree as ET
@@ -115,8 +117,8 @@ def addon_settings():
     except (IOError, OSError) as e:
         if 'VTMGO_USERNAME' in os.environ and 'VTMGO_PASSWORD' in os.environ:
             print('Using credentials from the environment variables VTMGO_USERNAME and VTMGO_PASSWORD')
-            settings['email'] = os.environ.get('VTMGO_USERNAME')
-            settings['password'] = os.environ.get('VTMGO_PASSWORD')
+            settings['plugin.video.vtm.go']['email'] = os.environ.get('VTMGO_USERNAME')
+            settings['plugin.video.vtm.go']['password'] = os.environ.get('VTMGO_PASSWORD')
         else:
             print("Error: Cannot use 'test/userdata/credentials.json' : %s" % e)
     return settings

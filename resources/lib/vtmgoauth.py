@@ -13,7 +13,7 @@ class VtmGoAuth:
 
         self._token = None
         self._name = None
-        self._accountId = None
+        self._account_id = None
 
     def login(self):
         # Create new session object. This keeps the cookies across requests.
@@ -44,11 +44,11 @@ class VtmGoAuth:
 
             raise Exception(localize(30702))  # Unknown error while logging in
 
-        except requests.exceptions.InvalidSchema as e:
+        except requests.exceptions.InvalidSchema as exc:
             # We get back an url like this: vtmgo://callback/oidc?state=yyyyyyyyyyyyyyyyyyyyyy&code=xxxxxxxxxxxxxxxxxxxxxxxxxx-xxxxxxxxxxxxxxxx
             # I found no other way to get this url then by parsing the Exception message. :(
             import re
-            matches = re.search(r"code=([^']+)", str(e))
+            matches = re.search(r"code=([^']+)", str(exc))
             if matches:
                 code = matches.group(1)
             else:
@@ -71,7 +71,7 @@ class VtmGoAuth:
 
         self._token = tokens.get('jsonWebToken')
         self._name = tokens.get('name')
-        self._accountId = tokens.get('accountId')
+        self._account_id = tokens.get('accountId')
 
         return self._token
 

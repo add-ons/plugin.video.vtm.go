@@ -179,7 +179,7 @@ def get_proxies():
     return dict(http=proxy_address, https=proxy_address)
 
 
-proxies = get_proxies()
+proxies = get_proxies()  # pylint: disable=invalid-name
 
 
 def get_cond_visibility(condition):

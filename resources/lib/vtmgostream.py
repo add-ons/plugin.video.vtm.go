@@ -13,9 +13,9 @@ from datetime import timedelta
 import requests
 
 from resources.lib.kodiutils import delete_file, get_profile_path, from_unicode, list_dir, localize, make_dir, open_file, path_exists, proxies, show_ok_dialog
-from resources.lib.kodilogging import getLogger
+from resources.lib.kodilogging import get_logger
 
-logger = getLogger('VtmGoStream')
+logger = get_logger('VtmGoStream')  # pylint: disable=invalid-name
 
 
 class ResolvedStream:
@@ -164,9 +164,9 @@ class VtmGoStream:
 
     def _delay_webvtt_timing(self, match, ad_breaks):
         sub_timings = list()
-        for ts in match.groups():
-            h, m, s, f = (int(x) for x in [ts[:-10], ts[-9:-7], ts[-6:-4], ts[-3:]])
-            sub_timings.append(timedelta(hours=h, minutes=m, seconds=s, milliseconds=f))
+        for timestamp in match.groups():
+            hours, mins, secs, msecs = (int(x) for x in [timestamp[:-10], timestamp[-9:-7], timestamp[-6:-4], timestamp[-3:]])
+            sub_timings.append(timedelta(hours=hours, minutes=mins, seconds=secs, milliseconds=msecs))
         for ad_break in ad_breaks:
             # time format: seconds.fraction or seconds
             ad_break_start = timedelta(milliseconds=ad_break.get('start') * 1000)
@@ -174,11 +174,11 @@ class VtmGoStream:
             if ad_break_start < sub_timings[0]:
                 for i, item in enumerate(sub_timings):
                     sub_timings[i] += ad_break_duration
-        for i, item in enumerate(sub_timings):
-            h, s_remainder = divmod(item.seconds, 3600)
-            m, s = divmod(s_remainder, 60)
-            f = item.microseconds // 1000
-            sub_timings[i] = '%02d:%02d:%02d,%03d' % (h, m, s, f)
+        for idx, item in enumerate(sub_timings):
+            hours, secs_remainder = divmod(item.seconds, 3600)
+            mins, secs = divmod(secs_remainder, 60)
+            msecs = item.microseconds // 1000
+            sub_timings[idx] = '%02d:%02d:%02d,%03d' % (hours, mins, secs, msecs)
         delayed_webvtt_timing = '\n{} --> {} '.format(sub_timings[0], sub_timings[1])
         return delayed_webvtt_timing
 
@@ -338,7 +338,7 @@ class VtmGoStream:
             if decoded.get('master_m3u8'):
                 logger.debug('Followed redirection from %s to %s', url, decoded.get('master_m3u8'))
                 return decoded
-        except Exception:
+        except Exception:  # pylint: disable=broad-except
             logger.error('No manifest url found %s', url)
 
         # Fallback to the url like we have it
