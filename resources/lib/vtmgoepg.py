@@ -105,7 +105,7 @@ class VtmGoEpg:
             raise Exception('Error %s while fetching EPG details.' % response.status_code)
 
         # Extract data
-        matches = re.search(r'EPG_REDUX_DATA=([^;]+);', response.content)
+        matches = re.search(r'EPG_REDUX_DATA=([^;]+);', response.content.decode('utf-8'))
         if not matches:
             raise Exception('Could not parse EPG details.')
 
