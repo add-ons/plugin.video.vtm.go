@@ -70,7 +70,7 @@ msgid "TV guide"
 msgstr "Tv-gids"
 
 msgctxt "#30014"
-msgid "Browse the TV guide"
+msgid "Browse the TV Guide"
 msgstr "Doorblader de tv-gids"
 
 ### CODE
@@ -167,10 +167,6 @@ msgstr "Niet-ondersteunde videoType {type}"
 msgctxt "#30708"
 msgid "Please restart Kodi."
 msgstr "Gelieve Kodi te herstarten."
-
-msgctxt "#30708"
-msgid "Please restart Kodi."
-msgstr ""
 
 
 ### SETTINGS
