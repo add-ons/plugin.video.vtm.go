@@ -3,7 +3,6 @@
 from __future__ import absolute_import, division, unicode_literals
 
 import routing
-
 import xbmcplugin
 from xbmc import Keyboard
 from xbmcgui import Dialog, ListItem
@@ -12,6 +11,7 @@ from resources.lib.kodiutils import (get_cond_visibility, get_max_bandwidth, get
                                      get_setting_as_bool, get_global_setting, localize,
                                      notification, show_ok_dialog, show_settings)
 from resources.lib.vtmgo import Content, VtmGo
+from resources.lib.vtmgoepg import VtmGoEpg, EpgBroadcast
 from resources.lib.vtmgostream import VtmGoStream
 
 plugin = routing.Plugin()
@@ -195,7 +195,7 @@ def show_tvguide(channel=None):
 
             listitem = ListItem(entry.get('label'), offscreen=True)
             listitem.setInfo('video', {
-                'plot': localize(30206, label=entry.get('label')),
+                'plot': localize(30215, channel=entry.get('label')),
                 'studio': entry.get('studio'),
                 'mediatype': 'video',
             })
@@ -240,28 +240,29 @@ def show_tvguide_detail(channel=None, date=None):
         raise
 
     # The epg contains the data for all channels. We only need the data of the requested channel.
-    channel = epg.get(channel)
+    epg_json = epg.get(channel)
 
     listing = []
-    for broadcast in channel.broadcasts:
+    for broadcast in epg_json.broadcasts:  # type: EpgBroadcast
         title = '{time} - {title}'.format(
             time=broadcast.time.strftime('%H:%M'),
             title=broadcast.title
         )
 
         listitem = ListItem(title, offscreen=True)
-        listitem.setInfo('video', {
-            'title': title,
-            'plot': broadcast.description,
-            'mediatype': broadcast.mediatype,
-            'duration': broadcast.duration,
-        })
         listitem.setArt({
             'thumb': broadcast.image,
         })
+        listitem.setInfo('video', {
+            'title': title,
+            'plot': broadcast.description,
+            'duration': broadcast.duration,
+        })
+        listitem.addStreamInfo('video', {
+            'duration': broadcast.duration,
+        })
         listitem.setProperty('IsPlayable', 'true')
-
-        listing.append(('#', listitem, False))
+        listing.append((plugin.url_for(play_epg, channel=channel, program_type=broadcast.playable_type, epg_id=broadcast.uuid), listitem, False))
 
     xbmcplugin.setContent(plugin.handle, 'episodes')
 
@@ -585,6 +586,13 @@ def show_search():
     xbmcplugin.endOfDirectory(plugin.handle, ok, cacheToDisc=True)
 
 
+@plugin.route('/play/epg/<channel>/<program_type>/<epg_id>')
+def play_epg(channel, program_type, epg_id):
+    _vtmGoEpg = VtmGoEpg()
+    details = _vtmGoEpg.get_details(channel=channel, program_type=program_type, epg_id=epg_id)
+    _stream(details.playable_type, details.playable_uuid)
+
+
 @plugin.route('/play/livetv/<channel>')
 def play_livetv(channel):
     _stream('channels', channel)
@@ -702,6 +710,9 @@ def _stream(strtype, strid):
     listitem.setContentLookup(False)
 
     if strtype == 'channels':
+        # For live channels, we need to keep on updating the manifest
+        # This might not be needed, and could be done with the Location-tag updates if inputstream.adaptive supports it
+        # See https://github.com/peak3d/inputstream.adaptive/pull/298#issuecomment-524206935
         listitem.setProperty('inputstream.adaptive.manifest_update_parameter', 'full')
     try:
         from inputstreamhelper import Helper

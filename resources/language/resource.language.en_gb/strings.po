@@ -134,6 +134,10 @@ msgctxt "#30214"
 msgid "[B]Next:[/B] {start} - {end}\n» {title}\n"
 msgstr ""
 
+msgctxt "#30215"
+msgid "Browse the TV-Guide of [B]{channel}[/B]"
+msgstr ""
+
 
 ### ERRORS
 msgctxt "#30701"

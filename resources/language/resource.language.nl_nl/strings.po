@@ -134,6 +134,10 @@ msgctxt "#30214"
 msgid "[B]Next:[/B] {start} - {end}\n» {title}\n"
 msgstr "[B]Straks:[/B] {start} - {end}\n» {title}\n"
 
+msgctxt "#30215"
+msgid "Browse the TV-Guide of [B]{channel}[/B]"
+msgstr "Doorblader de tv-gids van [B]{channel}[/B]"
+
 
 ### ERRORS
 msgctxt "#30701"

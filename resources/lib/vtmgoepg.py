@@ -6,7 +6,10 @@ import json
 from datetime import datetime, timedelta
 
 import dateutil.parser
+import dateutil.tz
 import requests
+
+from resources.lib import kodilogging
 
 
 class EpgChannel:
@@ -17,11 +20,15 @@ class EpgChannel:
         self.logo = logo
         self.broadcasts = broadcasts
 
+    def __repr__(self):
+        return "%r" % self.__dict__
+
 
 class EpgBroadcast:
-    def __init__(self, uuid=None, mediatype=None, title=None, time=None, duration=None, image=None, description=None, live=None, rerun=None, tip=None):
+    def __init__(self, uuid=None, playable_type=None, title=None, time=None, duration=None, image=None, description=None, live=None, rerun=None, tip=None,
+                 program_uuid=None, playable_uuid=None):
         self.uuid = uuid
-        self.mediatype = mediatype
+        self.playable_type = playable_type
         self.title = title
         self.time = time
         self.duration = duration
@@ -31,12 +38,16 @@ class EpgBroadcast:
         self.rerun = rerun
         self.tip = tip
 
+        self.program_uuid = program_uuid
+        self.playable_uuid = playable_uuid
+
     def __repr__(self):
         return "%r" % self.__dict__
 
 
 class VtmGoEpg:
     EPG_URL = 'https://vtm.be/tv-gids/api/v2/broadcasts/{date}'
+    DETAILS_URL = 'https://vtm.be/tv-gids/{channel}/uitzending/{type}/{uuid}'
 
     def __init__(self):
         self._session = requests.session()
@@ -44,12 +55,17 @@ class VtmGoEpg:
     def get_epg(self, date=None):
         # TODO: implement caching
 
+        # Fetch today when no date is specified
         if date is None:
             date = datetime.today().strftime('%Y-%m-%d')
 
-        response = self._session.get(self.EPG_URL.format(date=date))
+        url = self.EPG_URL.format(date=date)
+
+        kodilogging.log('Fetching %s...' % url, kodilogging.LOGDEBUG)
+
+        response = self._session.get(url)
         if response.status_code != 200:
-            raise Exception('Error %s in _get_epg when fetching %s.' % (response.status_code, self.EPG_URL.format(date=date)))
+            raise Exception('Error %s while fetching EPG data.' % response.status_code)
 
         epg = json.loads(response.text)
 
@@ -65,9 +81,41 @@ class VtmGoEpg:
 
         return result
 
+    def get_details(self, channel, program_type, epg_id):
+        import re
+
+        # Do mapping
+        if program_type == 'episodes':
+            url = self.DETAILS_URL.format(channel=channel, type='aflevering', uuid=epg_id)
+        elif program_type == 'movies':
+            url = self.DETAILS_URL.format(channel=channel, type='film', uuid=epg_id)
+        elif program_type == 'oneoffs':
+            url = self.DETAILS_URL.format(channel=channel, type='oneoff', uuid=epg_id)
+        else:
+            raise Exception('Unknown broadcast type %s.' % program_type)
+
+        # Add cookies
+        self._session.cookies.set('pws', 'functional|analytics|content_recommendation|targeted_advertising|social_media')
+        self._session.cookies.set('pwv', '1')
+
+        # Fetch data
+        kodilogging.log('Fetching %s...' % url, kodilogging.LOGDEBUG)
+        response = self._session.get(url, )
+        if response.status_code != 200:
+            raise Exception('Error %s while fetching EPG details.' % response.status_code)
+
+        # Extract data
+        matches = re.search(r'EPG_REDUX_DATA=([^;]+);', response.content)
+        if not matches:
+            raise Exception('Could not parse EPG details.')
+
+        # Parse data
+        data = json.loads(matches.group(1))
+
+        return self._parse_broadcast(data['details'][epg_id])
+
     @staticmethod
     def _parse_broadcast(broadcast_json):
-
         # Sometimes, the duration field is empty, but luckily, we can calculate it.
         duration = broadcast_json.get('duration')
         if duration is None:
@@ -75,15 +123,17 @@ class VtmGoEpg:
 
         return EpgBroadcast(
             uuid=broadcast_json.get('uuid'),
-            mediatype=broadcast_json.get('playableType'),
+            playable_type=broadcast_json.get('playableType'),
+            playable_uuid=broadcast_json.get('playableUuid'),
             title=broadcast_json.get('title'),
-            time=dateutil.parser.parse(broadcast_json.get('fromIso')),
+            time=dateutil.parser.isoparse(broadcast_json.get('fromIso') + 'Z').astimezone(dateutil.tz.gettz('CET')),
             duration=duration,
             image=broadcast_json.get('imageUrl'),
             description=broadcast_json.get('synopsis'),
             live=broadcast_json.get('live'),
             rerun=broadcast_json.get('rerun'),
             tip=broadcast_json.get('tip'),
+            program_uuid=broadcast_json.get('programUuid'),
         )
 
     @staticmethod
