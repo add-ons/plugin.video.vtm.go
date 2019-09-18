@@ -10,6 +10,7 @@ Thumbs.db
 *~
 .cache
 
+.coverage
 .tox/
 test/userdata/addon_settings.json
 test/userdata/credentials.json

@@ -3,12 +3,6 @@
         "DECRYPTERPATH": "special://home/cdm"
     },
     "inputstream.rtmp": {},
-    "script.module.inputstreamhelper": {
-        "disabled": "false",
-        "last_update": "",
-        "version": "",
-        "update_frequency": "14"
-    },
     "plugin.video.vtm.go": {
         "_comment": "do-not-add-email-and-password-here",
         "email": "",
@@ -18,5 +12,11 @@
         "password": "",
         "show_subtitles": "true",
         "use_kids_zone": "true"
+    },
+    "script.module.inputstreamhelper": {
+        "disabled": "false",
+        "last_update": "",
+        "update_frequency": "14",
+        "version": ""
     }
 }

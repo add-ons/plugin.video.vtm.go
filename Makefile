@@ -1,13 +1,12 @@
-ENVS := flake8,py27,py36
+ENVS = py27,py36,py37
 export PYTHONPATH := $(CURDIR):$(CURDIR)/test
-addon_xml = addon.xml
 
 # Collect information to build as sensible package name
-name = $(shell xmllint --xpath 'string(/addon/@id)' $(addon_xml))
-version = $(shell xmllint --xpath 'string(/addon/@version)' $(addon_xml))
+ADDONDIR = $(shell pwd)
+name = $(shell xmllint --xpath 'string(/addon/@id)' addon.xml)
+version = $(shell xmllint --xpath 'string(/addon/@version)' addon.xml)
 git_branch = $(shell git rev-parse --abbrev-ref HEAD)
 git_hash = $(shell git rev-parse --short HEAD)
-
 zip_name = $(name)-$(version)-$(git_branch)-$(git_hash).zip
 include_files = main.py addon.xml LICENSE README.md resources/
 include_paths = $(patsubst %,$(name)/%,$(include_files))
@@ -16,50 +15,53 @@ zip_dir = $(name)/
 
 blue = \e[1;34m
 white = \e[1;37m
-reset = \e[0;39m
+reset = \e[0;39m\n
 
-.PHONY: test
+all: check test build
 
-all: test zip
+check: check-pylint check-tox check-translations
 
-package: zip
+check-pylint:
+	@printf "${blue}>>> Running pylint checks$(reset)"
+	@pylint *.py resources/ resources/lib/ test/
 
-test: sanity unit run
-
-sanity: tox pylint check-translations
-
-tox:
-	@echo -e "$(white)=$(blue) Starting sanity tox test$(reset)"
-	tox -q -e $(ENVS)
-
-pylint:
-	@echo -e "$(white)=$(blue) Starting sanity pylint test$(reset)"
-	pylint *.py resources/lib/ test/
+check-tox:
+	@printf "${blue}>>> Running tox checks$(reset)"
+	@tox -q
 
 check-translations:
-	@echo -e "$(white)=$(blue) Checking translations$(reset)"
-	msgcmp resources/language/resource.language.nl_nl/strings.po resources/language/resource.language.en_gb/strings.po
+	@printf "${blue}>>> Running translation checks$(reset)"
+	@msgcmp resources/language/resource.language.nl_nl/strings.po resources/language/resource.language.en_gb/strings.po
 
-addon: clean
-	@echo -e "$(white)=$(blue) Starting sanity addon tests$(reset)"
-	kodi-addon-checker . --branch=leia
+check-addon: clean
+	@printf "${blue}>>> Running addon checks$(reset)"
+	cd /tmp && kodi-addon-checker $(ADDONDIR) --branch=leia
 
-unit:
-	@echo -e "$(white)=$(blue) Starting unit tests$(reset)"
-	python -m unittest discover
+test: test-unit
 
-run:
-	@echo -e "$(white)=$(blue) Run CLI$(reset)"
-	python test/run.py /
-
-zip: clean
-	@echo -e "$(white)=$(blue) Building new package$(reset)"
-	@rm -f ../$(zip_name)
-	cd ..; zip -r $(zip_name) $(include_paths) -x $(exclude_files)
-	@echo -e "$(white)=$(blue) Successfully wrote package as: $(white)../$(zip_name)$(reset)"
+test-unit:
+	@printf "${blue}>>> Running unit tests$(reset)"
+ifdef TRAVIS_JOB_ID
+		@coverage run -m unittest discover
+else
+		@python -m unittest discover
+endif
 
 clean:
-	find . -name '*.pyc' -type f -delete
-	find . -name '__pycache__' -type d -delete
-	rm -rf .pytest_cache/ .tox/
-	rm -f *.log
+	@find . -name '*.pyc' -type f -delete
+	@find . -name '*.pyo' -type f -delete
+	@find . -name '__pycache__' -type d -delete
+	@rm -rf .pytest_cache/ .tox/ test/cdm test/userdata/temp
+	@rm -f *.log .coverage
+
+build: clean
+	@printf "${blue}>>> Building package$(reset)"
+	@rm -f ../$(zip_name)
+	cd ..; zip -r $(zip_name) $(include_paths) -x $(exclude_files)
+	@echo "Successfully wrote package as: $(white)../$(zip_name)$(reset)"
+
+run:
+	@printf "${blue}>>> Run CLI$(reset)"
+	python test/run.py /
+
+.PHONY: check test
