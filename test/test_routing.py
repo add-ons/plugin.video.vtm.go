@@ -95,14 +95,17 @@ class TestRouter(unittest.TestCase):
 
     # TV Guide menu: '/tvguide'
     def test_tvguide_menu(self):
+        from datetime import date
+        today = date.today().strftime('%Y-%m-%d')
+
         plugin.run(['plugin://plugin.video.vtm.go/tvguide', '0', ''])
         self.assertEqual(addon.url_for(plugin.show_tvguide), 'plugin://plugin.video.vtm.go/tvguide')
         plugin.run(['plugin://plugin.video.vtm.go/kids/tvguide', '0', ''])
         self.assertEqual(addon.url_for(plugin.show_kids_tvguide), 'plugin://plugin.video.vtm.go/kids/tvguide')
         plugin.run(['plugin://plugin.video.vtm.go/tvguide/vtm', '0', ''])
         self.assertEqual(addon.url_for(plugin.show_tvguide_channel, channel='vtm'), 'plugin://plugin.video.vtm.go/tvguide/vtm')
-        # plugin.run(['plugin://plugin.video.vtm.go/tvguide/vtm/2019-01-01', '0', ''])
-        self.assertEqual(addon.url_for(plugin.show_tvguide_detail, channel='vtm', date='2019-01-01'), 'plugin://plugin.video.vtm.go/tvguide/vtm/2019-01-01')
+        plugin.run(['plugin://plugin.video.vtm.go/tvguide/vtm/' + today, '0', ''])
+        self.assertEqual(addon.url_for(plugin.show_tvguide_detail, channel='vtm', date=today), 'plugin://plugin.video.vtm.go/tvguide/vtm/' + today)
 
     # Play Live TV: '/play/livetv/<channel>'
     @unittest.skipIf(os.environ.get('TRAVIS') == 'true', 'Skipping this test on Travis CI.')
