@@ -12,7 +12,7 @@ from resources.lib.kodilogging import get_logger
 
 xbmcaddon = __import__('xbmcaddon')
 
-logger = get_logger('TestVtmGo')
+LOGGER = get_logger('TestVtmGo')
 
 
 class TestVtmGo(unittest.TestCase):

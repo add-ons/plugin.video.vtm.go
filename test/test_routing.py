@@ -17,7 +17,7 @@ xbmcgui = __import__('xbmcgui')
 xbmcplugin = __import__('xbmcplugin')
 xbmcvfs = __import__('xbmcvfs')
 
-addon = plugin.plugin
+addon = plugin.PLUGIN
 now = datetime.now(dateutil.tz.tzlocal())
 
 

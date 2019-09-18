@@ -9,7 +9,7 @@ import unittest
 from resources.lib import vtmgoepg
 from resources.lib.kodilogging import get_logger
 
-logger = get_logger('TestVtmGoEpg')
+LOGGER = get_logger('TestVtmGoEpg')
 
 
 class TestVtmGoEpg(unittest.TestCase):

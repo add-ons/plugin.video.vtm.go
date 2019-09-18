@@ -1,8 +1,9 @@
 {
     "inputstream.adaptive": {
         "DECRYPTERPATH": "special://home/cdm"
-    },
+    }, 
     "inputstream.rtmp": {}, 
+    "password": "e2Ec3iKJeUHn", 
     "plugin.video.vtm.go": {
         "_comment": "do-not-add-email-and-password-here", 
         "email": "", 
@@ -12,11 +13,12 @@
         "password": "", 
         "show_subtitles": "true", 
         "use_kids_zone": "true"
-    },
+    }, 
     "script.module.inputstreamhelper": {
-        "disabled": "false",
-        "last_update": "",
-        "update_frequency": "14",
-        "version": ""
-    }
+        "disabled": "false", 
+        "last_update": "1568809732.0", 
+        "update_frequency": "14", 
+        "version": "2.3.4"
+    }, 
+    "username": "dag.wieers@gmail.com"
 }
