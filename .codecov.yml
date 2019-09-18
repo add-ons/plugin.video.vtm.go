@@ -1,0 +1,2 @@
+ignore:
+  - resources/lib/kodi*.py
