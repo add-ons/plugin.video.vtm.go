@@ -1,13 +1,11 @@
-ENVS := flake8,py27,py36
+ENVS := py27,py37
 export PYTHONPATH := $(CURDIR):$(CURDIR)/test
-addon_xml = addon.xml
 
 # Collect information to build as sensible package name
-name = $(shell xmllint --xpath 'string(/addon/@id)' $(addon_xml))
-version = $(shell xmllint --xpath 'string(/addon/@version)' $(addon_xml))
+name = $(shell xmllint --xpath 'string(/addon/@id)' addon.xml)
+version = $(shell xmllint --xpath 'string(/addon/@version)' addon.xml)
 git_branch = $(shell git rev-parse --abbrev-ref HEAD)
 git_hash = $(shell git rev-parse --short HEAD)
-
 zip_name = $(name)-$(version)-$(git_branch)-$(git_hash).zip
 include_files = main.py addon.xml LICENSE README.md resources/
 include_paths = $(patsubst %,$(name)/%,$(include_files))
@@ -18,48 +16,45 @@ blue = \e[1;34m
 white = \e[1;37m
 reset = \e[0;39m
 
-.PHONY: test
+all: check test build
 
-all: test zip
+check: check-pylint check-tox check-translations
 
-package: zip
+check-pylint:
+	@echo "$(blue)>>> Starting pylint checks$(reset)"
+	@pylint *.py resources/ resources/lib/ test/
 
-test: sanity unit run
-
-sanity: tox pylint check-translations
-
-tox:
-	@echo -e "$(white)=$(blue) Starting sanity tox test$(reset)"
-	tox -q -e $(ENVS)
-
-pylint:
-	@echo -e "$(white)=$(blue) Starting sanity pylint test$(reset)"
-	pylint *.py resources/lib/ test/
+check-tox:
+	@echo "$(blue)>>> Starting tox checks$(reset)"
+	@tox -q -e flake8
+	@tox -q -e $(ENVS)
 
 check-translations:
-	@echo -e "$(white)=$(blue) Checking translations$(reset)"
-	msgcmp resources/language/resource.language.nl_nl/strings.po resources/language/resource.language.en_gb/strings.po
+	@echo "$(blue)>>> Starting translation checks$(reset)"
+	@msgcmp resources/language/resource.language.nl_nl/strings.po resources/language/resource.language.en_gb/strings.po
 
-addon: clean
-	@echo -e "$(white)=$(blue) Starting sanity addon tests$(reset)"
-	kodi-addon-checker . --branch=leia
+check-addon: # disabled by default
+	@echo "$(blue)>>> Starting addon checks$(reset)"
+	@kodi-addon-checker . --branch=leia
 
-unit:
-	@echo -e "$(white)=$(blue) Starting unit tests$(reset)"
-	python -m unittest discover
+test:
+	@echo "$(white)=$(blue) Starting tests$(reset)"
+	@python -m unittest discover
+
+clean:
+	@find . -name '*.pyc' -type f -delete
+	@find . -name '__pycache__' -type d -delete
+	@rm -rf .pytest_cache/ .tox/
+	@rm -f *.log
+
+build: clean
+	@echo -e "$(white)=$(blue) Building package$(reset)"
+	@rm -f ../$(zip_name)
+	cd ..; zip -r $(zip_name) $(include_paths) -x $(exclude_files)
+	@echo -e "$(white)=$(blue) Successfully wrote package as: $(white)../$(zip_name)$(reset)"
 
 run:
 	@echo -e "$(white)=$(blue) Run CLI$(reset)"
 	python test/run.py /
 
-zip: clean
-	@echo -e "$(white)=$(blue) Building new package$(reset)"
-	@rm -f ../$(zip_name)
-	cd ..; zip -r $(zip_name) $(include_paths) -x $(exclude_files)
-	@echo -e "$(white)=$(blue) Successfully wrote package as: $(white)../$(zip_name)$(reset)"
-
-clean:
-	find . -name '*.pyc' -type f -delete
-	find . -name '__pycache__' -type d -delete
-	rm -rf .pytest_cache/ .tox/
-	rm -f *.log
+.PHONY: check test

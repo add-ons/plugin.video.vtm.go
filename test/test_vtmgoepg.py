@@ -44,7 +44,6 @@ class TestVtmGoEpg(unittest.TestCase):
         # Fetch details
         details = self._vtmgoepg.get_details(channel='vtm', program_type=first.playable_type, epg_id=first.uuid)
         self.assertTrue(details)
-        print(details)
 
 
 if __name__ == '__main__':

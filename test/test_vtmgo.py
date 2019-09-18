@@ -3,7 +3,6 @@
 # pylint: disable=missing-docstring
 
 from __future__ import absolute_import, division, print_function, unicode_literals
-import sys
 import json
 import unittest
 
@@ -27,7 +26,7 @@ class TestVtmGo(unittest.TestCase):
                 self._SETTINGS = json.load(f)
             self._vtmgoauth = vtmgoauth.VtmGoAuth(self._SETTINGS['username'], self._SETTINGS['password'])
         except Exception as e:
-            print("Error using 'test/userdata/credentials.json' : %s" % e, file=sys.stderr)
+            logger.warning("Could not use credentials.json: %s" % e)
             self._vtmgoauth = None
             self._SETTINGS = None
 
