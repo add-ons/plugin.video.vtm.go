@@ -38,6 +38,9 @@ class ResolvedStream:
         self.subtitles = subtitles
         self.cookies = cookies
 
+    def __repr__(self):
+        return "%r" % self.__dict__
+
 
 class VtmGoStream:
     _VTM_API_KEY = 'zTxhgTEtb055Ihgw3tN158DZ0wbbaVO86lJJulMl'
