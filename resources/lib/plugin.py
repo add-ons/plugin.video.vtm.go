@@ -256,7 +256,7 @@ def show_tvguide_detail(channel=None, date=None):
     epg_json = epg.get(channel)
 
     listing = []
-    for broadcast in epg_json.broadcasts:  # type: EpgBroadcast
+    for broadcast in epg_json.broadcasts:
         title = '{time} - {title}'.format(
             time=broadcast.time.strftime('%H:%M'),
             title=broadcast.title

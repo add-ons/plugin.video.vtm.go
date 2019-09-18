@@ -1,4 +1,4 @@
-ENVS = flake8,py27,py37
+ENVS = py27,py36,py37
 export PYTHONPATH := $(CURDIR):$(CURDIR)/test
 
 # Collect information to build as sensible package name
@@ -14,34 +14,37 @@ zip_dir = $(name)/
 
 blue = \e[1;34m
 white = \e[1;37m
-reset = \e[0;39m
+reset = \e[0;39m\n
 
 all: check test build
 
 check: check-pylint check-tox check-translations
 
 check-pylint:
-	@echo -e "$(blue)>>> Starting pylint checks$(reset)"
+	@printf "${blue}>>> Running pylint checks$(reset)"
 	@pylint *.py resources/ resources/lib/ test/
 
 check-tox:
-	@echo "$(blue)>>> Starting tox checks$(reset)"
-	@tox -q -e $(ENVS)
+	@printf "${blue}>>> Running tox checks$(reset)"
+	@tox -q
 
 check-translations:
-	@echo "$(blue)>>> Starting translation checks$(reset)"
+	@printf "${blue}>>> Running translation checks$(reset)"
 	@msgcmp resources/language/resource.language.nl_nl/strings.po resources/language/resource.language.en_gb/strings.po
 
-check-addon: # disabled by default
-	@echo "$(blue)>>> Starting addon checks$(reset)"
+check-addon:
+	@printf "${blue}>>> Running addon checks$(reset)"
 	@kodi-addon-checker . --branch=leia
 
 test: test-unit
 
 test-unit:
-	env
-	@echo "$(white)=$(blue) Starting tests$(reset)"
-	@python -m unittest discover
+	@printf "${blue}>>> Running unit tests$(reset)"
+ifdef TRAVIS_JOB_ID
+		@coverage run -m unittest discover
+else
+		@python -m unittest discover
+endif
 
 clean:
 	@find . -name '*.pyc' -type f -delete
@@ -50,13 +53,13 @@ clean:
 	@rm -f *.log
 
 build:
-	@echo -e "$(white)=$(blue) Building package$(reset)"
+	@printf "${blue}>>> Building package$(reset)"
 	@rm -f ../$(zip_name)
 	cd ..; zip -r $(zip_name) $(include_paths) -x $(exclude_files)
-	@echo -e "$(white)=$(blue) Successfully wrote package as: $(white)../$(zip_name)$(reset)"
+	@echo "Successfully wrote package as: $(white)../$(zip_name)$(reset)"
 
 run:
-	@echo -e "$(white)=$(blue) Run CLI$(reset)"
+	@printf "${blue}>>> Run CLI$(reset)"
 	python test/run.py /
 
 .PHONY: check test
