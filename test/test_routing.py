@@ -100,7 +100,7 @@ class TestRouter(unittest.TestCase):
         plugin.run(['plugin://plugin.video.vtm.go/kids/tvguide', '0', ''])
         self.assertEqual(addon.url_for(plugin.show_kids_tvguide), 'plugin://plugin.video.vtm.go/kids/tvguide')
         plugin.run(['plugin://plugin.video.vtm.go/tvguide/vtm', '0', ''])
-        self.assertEqual(addon.url_for(plugin.show_tvguide, channel='vtm'), 'plugin://plugin.video.vtm.go/tvguide/vtm')
+        self.assertEqual(addon.url_for(plugin.show_tvguide_channel, channel='vtm'), 'plugin://plugin.video.vtm.go/tvguide/vtm')
         # plugin.run(['plugin://plugin.video.vtm.go/tvguide/vtm/2019-01-01', '0', ''])
         self.assertEqual(addon.url_for(plugin.show_tvguide_detail, channel='vtm', date='2019-01-01'), 'plugin://plugin.video.vtm.go/tvguide/vtm/2019-01-01')
 
