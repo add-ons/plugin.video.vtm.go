@@ -54,11 +54,15 @@ class VtmGoEpg:
         self._session = requests.session()
 
     def get_epg(self, date=None):
-        # TODO: implement caching
-
-        # Fetch today when no date is specified
         if date is None:
+            # Fetch today when no date is specified
             date = datetime.today().strftime('%Y-%m-%d')
+        elif date == 'yesterday':
+            date = (datetime.today() + timedelta(days=-1)).strftime('%Y-%m-%d')
+        elif date == 'today':
+            date = datetime.today().strftime('%Y-%m-%d')
+        elif date == 'tomorrow':
+            date = (datetime.today() + timedelta(days=1)).strftime('%Y-%m-%d')
 
         url = self.EPG_URL.format(date=date)
 
@@ -150,23 +154,24 @@ class VtmGoEpg:
 
             if i == -1:
                 title = '%s, %s' % (localize(30301), day.strftime(xbmc.getRegion('datelong')))  # Yesterday
-                # date = 'yesterday'
+                date = 'yesterday'
                 highlight = False
             elif i == 0:
                 title = '%s, %s' % (localize(30302), day.strftime(xbmc.getRegion('datelong')))  # Today
-                # date = 'today'
+                date = 'today'
                 highlight = True
             elif i == 1:
                 title = '%s, %s' % (localize(30303), day.strftime(xbmc.getRegion('datelong')))  # Tomorrow
-                # date = 'tomorrow'
+                date = 'tomorrow'
                 highlight = False
             else:
                 title = day.strftime(xbmc.getRegion('datelong'))
+                date = day.strftime('%Y-%m-%d')
                 highlight = False
 
             dates.append({
                 'title': title,
-                'date': day.strftime('%Y-%m-%d'),
+                'date': date,
                 'highlight': highlight,
             })
 

@@ -33,12 +33,26 @@ class TestVtmGoEpg(unittest.TestCase):
         # requests_log.propagate = True
 
     def test_get_epg(self):
+        from datetime import date
+
         # Get list of EPG for today
-        epg = self._vtmgoepg.get_epg()
+        epg = self._vtmgoepg.get_epg('today')
         self.assertTrue(epg)
 
-        # Take first broadcast of vtm
-        # TODO: extend test to keep trying next episodes until we have one with a playableUuid
+        # Get list of EPG for tomorrow
+        epg = self._vtmgoepg.get_epg('tomorrow')
+        self.assertTrue(epg)
+
+        # Get list of EPG for yesterday
+        epg = self._vtmgoepg.get_epg('yesterday')
+        self.assertTrue(epg)
+
+        # Get list of EPG for yesterday
+        today = date.today().strftime('%Y-%m-%d')
+        epg = self._vtmgoepg.get_epg(today)
+        self.assertTrue(epg)
+
+        # Take first broadcast of vtm channel
         first = epg['vtm'].broadcasts[0]
 
         # Fetch details
