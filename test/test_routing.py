@@ -5,7 +5,6 @@
 
 from __future__ import absolute_import, division, print_function, unicode_literals
 
-import os
 import unittest
 from resources.lib import plugin
 
@@ -105,7 +104,6 @@ class TestRouter(unittest.TestCase):
         self.assertEqual(addon.url_for(plugin.show_tvguide_detail, channel='vtm', date='today'), 'plugin://plugin.video.vtm.go/tvguide/vtm/today')
 
     # Play Live TV: '/play/livetv/<channel>'
-    @unittest.skipIf(os.environ.get('TRAVIS') == 'true', 'Skipping this test on Travis CI.')
     def test_play_livetv(self):
         plugin.run(['plugin://plugin.video.vtm.go/play/livetv/ea826456-6b19-4612-8969-864d1c818347?.pvr', '0', ''])
         self.assertEqual(
