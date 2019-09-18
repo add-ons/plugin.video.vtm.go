@@ -4,6 +4,7 @@
 
 from __future__ import absolute_import, division, print_function, unicode_literals
 import json
+import os
 import unittest
 
 from resources.lib import vtmgo, vtmgoauth, vtmgostream
@@ -21,14 +22,21 @@ class TestVtmGo(unittest.TestCase):
         self._vtmgo = vtmgo.VtmGo()
         self._vtmgostream = vtmgostream.VtmGoStream()
 
+        # Read credentials from credentials.json
         try:
-            with open('test/userdata/credentials.json') as f:
-                self._SETTINGS = json.load(f)
-            self._vtmgoauth = vtmgoauth.VtmGoAuth(self._SETTINGS['username'], self._SETTINGS['password'])
-        except Exception as e:
-            logger.warning("Could not use credentials.json: %s", e)
+            settings = {}
+            if 'VTMGO_USERNAME' in os.environ and 'VTMGO_PASSWORD' in os.environ:
+                logger.warning('Using credentials from the environment variables VTMGO_USERNAME and VTMGO_PASSWORD')
+                settings['username'] = os.environ.get('VTMGO_USERNAME')
+                settings['password'] = os.environ.get('VTMGO_PASSWORD')
+            else:
+                with open('test/userdata/credentials.json') as f:
+                    settings = json.load(f)
+
+            self._vtmgoauth = vtmgoauth.VtmGoAuth(settings['username'], settings['password'])
+        except Exception as exc:
+            logger.warning("Could not apply credentials: %s", exc)
             self._vtmgoauth = None
-            self._SETTINGS = None
 
         # Enable debug logging for urllib
         # try:
@@ -45,10 +53,13 @@ class TestVtmGo(unittest.TestCase):
         # requests_log.propagate = True
 
     def test_login(self):
-        if self._vtmgoauth is not None:
-            jwt = self._vtmgoauth.login()
-            self.assertTrue(jwt)
-            self._token = jwt
+        if self._vtmgoauth is None:
+            logger.warning('Skipping test_login since we have no credentials available')
+            return
+
+        jwt = self._vtmgoauth.login()
+        self.assertTrue(jwt)
+        self._token = jwt
 
     def test_get_config(self):
         config = self._vtmgo.get_config()
