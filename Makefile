@@ -2,6 +2,7 @@ ENVS = py27,py36,py37
 export PYTHONPATH := $(CURDIR):$(CURDIR)/test
 
 # Collect information to build as sensible package name
+ADDONDIR = $(shell pwd)
 name = $(shell xmllint --xpath 'string(/addon/@id)' addon.xml)
 version = $(shell xmllint --xpath 'string(/addon/@version)' addon.xml)
 git_branch = $(shell git rev-parse --abbrev-ref HEAD)
@@ -32,9 +33,9 @@ check-translations:
 	@printf "${blue}>>> Running translation checks$(reset)"
 	@msgcmp resources/language/resource.language.nl_nl/strings.po resources/language/resource.language.en_gb/strings.po
 
-check-addon:
+check-addon: clean
 	@printf "${blue}>>> Running addon checks$(reset)"
-	@kodi-addon-checker . --branch=leia
+	cd /tmp && kodi-addon-checker $(ADDONDIR) --branch=leia
 
 test: test-unit
 
@@ -48,11 +49,12 @@ endif
 
 clean:
 	@find . -name '*.pyc' -type f -delete
+	@find . -name '*.pyo' -type f -delete
 	@find . -name '__pycache__' -type d -delete
-	@rm -rf .pytest_cache/ .tox/
-	@rm -f *.log
+	@rm -rf .pytest_cache/ .tox/ test/cdm test/userdata/temp
+	@rm -f *.log .coverage
 
-build:
+build: clean
 	@printf "${blue}>>> Building package$(reset)"
 	@rm -f ../$(zip_name)
 	cd ..; zip -r $(zip_name) $(include_paths) -x $(exclude_files)
