@@ -681,27 +681,39 @@ def _stream(strtype, strid):
     if resolved_stream is None:  # If no stream is available (i.e. geo-blocked)
         return
 
+    # Create listitem
+    listitem = ListItem(path=resolved_stream.url, offscreen=True)
+
     # Lookup metadata
     _vtmgo = VtmGo()
     if strtype == 'movies':
         details = _vtmgo.get_movie(strid)
-        description = details.description
+        listitem.setInfo('video', {
+            'tvshowtitle': resolved_stream.program,
+            'title': resolved_stream.title,
+            'duration': resolved_stream.duration,
+            'subtitle': details.description,
+            'plot': details.description,
+            'mediatype': details.mediatype
+        })
     elif strtype == 'episodes':
         details = _vtmgo.get_episode(strid)
-        description = details.description
+        listitem.setInfo('video', {
+            'tvshowtitle': resolved_stream.program,
+            'title': resolved_stream.title,
+            'duration': resolved_stream.duration,
+            'subtitle': details.description,
+            'plot': details.description,
+            'season': details.season,
+            'episode': details.number,
+            'mediatype': details.mediatype
+        })
     else:
-        description = None
+        listitem.setInfo('video', {
+            'title': resolved_stream.title,
+            'tvshowtitle': resolved_stream.program,
+        })
 
-    # Create listitem
-    listitem = ListItem(path=resolved_stream.url, offscreen=True)
-
-    # Add video info
-    listitem.setInfo('video', {
-        'title': resolved_stream.title,
-        'tvshowtitle': resolved_stream.program,
-        'plot': description,
-        'duration': resolved_stream.duration,
-    })
     listitem.addStreamInfo('video', {
         'duration': resolved_stream.duration,
     })
