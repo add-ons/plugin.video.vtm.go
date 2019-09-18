@@ -63,4 +63,3 @@ clean:
 	find . -name '__pycache__' -type d -delete
 	rm -rf .pytest_cache/ .tox/
 	rm -f *.log
-	rm -rf test/userdata/temp

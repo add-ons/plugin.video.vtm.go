@@ -3,7 +3,6 @@
 from __future__ import absolute_import, division, unicode_literals
 
 import routing
-
 import xbmcplugin
 from xbmc import Keyboard
 from xbmcgui import Dialog, ListItem
@@ -12,6 +11,7 @@ from resources.lib.kodiutils import (get_cond_visibility, get_max_bandwidth, get
                                      get_setting_as_bool, get_global_setting, localize,
                                      notification, show_ok_dialog, show_settings)
 from resources.lib.vtmgo import Content, VtmGo
+from resources.lib.vtmgoepg import VtmGoEpg
 from resources.lib.vtmgostream import VtmGoStream
 
 plugin = routing.Plugin()
@@ -167,64 +167,78 @@ def show_kids_tvguide():
 
 
 @plugin.route('/tvguide')
-@plugin.route('/tvguide/<channel>')
-def show_tvguide(channel=None):
+def show_tvguide():
     listing = []
     kids = _get_kids_mode()
-    if channel is None:
-        # Show a list of all channels
-        from . import CHANNELS
-        for entry in CHANNELS:
-            # Skip non-kids channels when we are in kids mode.
-            if kids and entry.get('kids') is False:
-                continue
 
-            # Try to use the white icons for thumbnails (used for icons as well)
-            if get_cond_visibility('System.HasAddon(resource.images.studios.white)') == 1:
-                thumb = 'resource://resource.images.studios.white/{studio}.png'.format(**entry)
-            else:
-                thumb = 'DefaultTags.png'
+    # Show a list of all channels
+    from . import CHANNELS
+    for entry in CHANNELS:
+        # Skip non-kids channels when we are in kids mode.
+        if kids and entry.get('kids') is False:
+            continue
 
-            # Try to use the coloured icons for fanart
-            if get_cond_visibility('System.HasAddon(resource.images.studios.coloured)') == 1:
-                fanart = 'resource://resource.images.studios.coloured/{studio}.png'.format(**entry)
-            elif get_cond_visibility('System.HasAddon(resource.images.studios.white)') == 1:
-                fanart = 'resource://resource.images.studios.white/{studio}.png'.format(**entry)
-            else:
-                fanart = 'DefaultTags.png'
+        # Try to use the white icons for thumbnails (used for icons as well)
+        if get_cond_visibility('System.HasAddon(resource.images.studios.white)') == 1:
+            thumb = 'resource://resource.images.studios.white/{studio}.png'.format(**entry)
+        else:
+            thumb = 'DefaultTags.png'
 
-            listitem = ListItem(entry.get('label'), offscreen=True)
-            listitem.setInfo('video', {
-                'plot': localize(30206, label=entry.get('label')),
-                'studio': entry.get('studio'),
-                'mediatype': 'video',
-            })
-            listitem.setArt({
-                'icon': 'DefaultTags.png',
-                'fanart': fanart,
-                'thumb': thumb,
-            })
-            listing.append((plugin.url_for(show_tvguide, channel=entry.get('key')), listitem, True))
+        # Try to use the coloured icons for fanart
+        if get_cond_visibility('System.HasAddon(resource.images.studios.coloured)') == 1:
+            fanart = 'resource://resource.images.studios.coloured/{studio}.png'.format(**entry)
+        elif get_cond_visibility('System.HasAddon(resource.images.studios.white)') == 1:
+            fanart = 'resource://resource.images.studios.white/{studio}.png'.format(**entry)
+        else:
+            fanart = 'DefaultTags.png'
 
-        # Sort by default like in our dict.
-        xbmcplugin.addSortMethod(plugin.handle, xbmcplugin.SORT_METHOD_UNSORTED)
-        xbmcplugin.addSortMethod(plugin.handle, xbmcplugin.SORT_METHOD_LABEL)
+        listitem = ListItem(entry.get('label'), offscreen=True)
+        listitem.setInfo('video', {
+            'plot': localize(30215, channel=entry.get('label')),
+            'studio': entry.get('studio'),
+            'mediatype': 'video',
+        })
+        listitem.setArt({
+            'icon': 'DefaultTags.png',
+            'fanart': fanart,
+            'thumb': thumb,
+        })
+        listing.append((plugin.url_for(show_tvguide_channel, channel=entry.get('key')), listitem, True))
 
-    else:
-        from .vtmgoepg import VtmGoEpg
-        for day in VtmGoEpg.get_dates():
-            listitem = ListItem(day.get('title'), offscreen=True)
-            listitem.setInfo('video', {
-                'plot': day.get('date'),
-            })
-            listing.append((plugin.url_for(show_tvguide_detail, channel=channel, date=day.get('date')), listitem, True))
-
-        # Sort like we add it.
-        xbmcplugin.addSortMethod(plugin.handle, xbmcplugin.SORT_METHOD_UNSORTED)
-
-        xbmcplugin.setContent(plugin.handle, 'files')
+    # Sort by default like in our dict.
+    xbmcplugin.addSortMethod(plugin.handle, xbmcplugin.SORT_METHOD_UNSORTED)
+    xbmcplugin.addSortMethod(plugin.handle, xbmcplugin.SORT_METHOD_LABEL)
 
     xbmcplugin.setPluginCategory(plugin.handle, category='VTM KIDS / TV Guide' if kids else 'VTM GO / TV Guide')
+    ok = xbmcplugin.addDirectoryItems(plugin.handle, listing, len(listing))
+    xbmcplugin.endOfDirectory(plugin.handle, ok, cacheToDisc=True)
+
+
+@plugin.route('/tvguide/<channel>')
+def show_tvguide_channel(channel):
+    listing = []
+
+    for day in VtmGoEpg.get_dates():
+        if day['highlight']:
+            title = '[B]%s[/B]'
+        else:
+            title = '%s'
+
+        listitem = ListItem(title % day.get('title'), offscreen=True)
+        listitem.setArt({
+            'icon': 'DefaultYear.png',
+        })
+        listitem.setInfo('video', {
+            'plot': day.get('title'),
+        })
+        listing.append((plugin.url_for(show_tvguide_detail, channel=channel, date=day.get('date')), listitem, True))
+
+    xbmcplugin.setContent(plugin.handle, 'files')
+
+    # Sort like we add it.
+    xbmcplugin.addSortMethod(plugin.handle, xbmcplugin.SORT_METHOD_UNSORTED)
+
+    xbmcplugin.setPluginCategory(plugin.handle, category='TV Guide')
     ok = xbmcplugin.addDirectoryItems(plugin.handle, listing, len(listing))
     xbmcplugin.endOfDirectory(plugin.handle, ok, cacheToDisc=True)
 
@@ -232,7 +246,6 @@ def show_tvguide(channel=None):
 @plugin.route('/tvguide/<channel>/<date>')
 def show_tvguide_detail(channel=None, date=None):
     try:
-        from .vtmgoepg import VtmGoEpg
         _vtmGoEpg = VtmGoEpg()
         epg = _vtmGoEpg.get_epg(date=date)
     except Exception as ex:
@@ -240,34 +253,35 @@ def show_tvguide_detail(channel=None, date=None):
         raise
 
     # The epg contains the data for all channels. We only need the data of the requested channel.
-    channel = epg.get(channel)
+    epg_json = epg.get(channel)
 
     listing = []
-    for broadcast in channel.broadcasts:
+    for broadcast in epg_json.broadcasts:  # type: EpgBroadcast
         title = '{time} - {title}'.format(
             time=broadcast.time.strftime('%H:%M'),
             title=broadcast.title
         )
 
         listitem = ListItem(title, offscreen=True)
-        listitem.setInfo('video', {
-            'title': title,
-            'plot': broadcast.description,
-            'mediatype': broadcast.mediatype,
-            'duration': broadcast.duration,
-        })
         listitem.setArt({
             'thumb': broadcast.image,
         })
+        listitem.setInfo('video', {
+            'title': title,
+            'plot': broadcast.description,
+            'duration': broadcast.duration,
+        })
+        listitem.addStreamInfo('video', {
+            'duration': broadcast.duration,
+        })
         listitem.setProperty('IsPlayable', 'true')
-
-        listing.append(('#', listitem, False))
+        listing.append((plugin.url_for(play_epg, channel=channel, program_type=broadcast.playable_type, epg_id=broadcast.uuid), listitem, False))
 
     xbmcplugin.setContent(plugin.handle, 'episodes')
 
     xbmcplugin.addSortMethod(plugin.handle, xbmcplugin.SORT_METHOD_UNSORTED)
     xbmcplugin.addSortMethod(plugin.handle, xbmcplugin.SORT_METHOD_LABEL)
-    xbmcplugin.setPluginCategory(plugin.handle, category='VTM GO / TV Guide')
+    xbmcplugin.setPluginCategory(plugin.handle, category=date)
     ok = xbmcplugin.addDirectoryItems(plugin.handle, listing, len(listing))
     xbmcplugin.endOfDirectory(plugin.handle, ok, cacheToDisc=False)
 
@@ -585,6 +599,13 @@ def show_search():
     xbmcplugin.endOfDirectory(plugin.handle, ok, cacheToDisc=True)
 
 
+@plugin.route('/play/epg/<channel>/<program_type>/<epg_id>')
+def play_epg(channel, program_type, epg_id):
+    _vtmGoEpg = VtmGoEpg()
+    details = _vtmGoEpg.get_details(channel=channel, program_type=program_type, epg_id=epg_id)
+    _stream(details.playable_type, details.playable_uuid)
+
+
 @plugin.route('/play/livetv/<channel>')
 def play_livetv(channel):
     _stream('channels', channel)
@@ -702,6 +723,9 @@ def _stream(strtype, strid):
     listitem.setContentLookup(False)
 
     if strtype == 'channels':
+        # For live channels, we need to keep on updating the manifest
+        # This might not be needed, and could be done with the Location-tag updates if inputstream.adaptive supports it
+        # See https://github.com/peak3d/inputstream.adaptive/pull/298#issuecomment-524206935
         listitem.setProperty('inputstream.adaptive.manifest_update_parameter', 'full')
     try:
         from inputstreamhelper import Helper

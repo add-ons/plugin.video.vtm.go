@@ -73,6 +73,7 @@ msgctxt "#30014"
 msgid "Browse the TV Guide"
 msgstr "Doorblader de tv-gids"
 
+
 ### CODE
 msgctxt "#30200"
 msgid "Using a SOCKS proxy requires the PySocks library (script.module.pysocks) installed."
@@ -133,6 +134,32 @@ msgstr "[COLOR yellow][B]Nu:[/B] {start} - {end}\n» {title}[/COLOR]\n"
 msgctxt "#30214"
 msgid "[B]Next:[/B] {start} - {end}\n» {title}\n"
 msgstr "[B]Straks:[/B] {start} - {end}\n» {title}\n"
+
+msgctxt "#30215"
+msgid "Browse the TV-Guide of [B]{channel}[/B]"
+msgstr "Doorblader de tv-gids van [B]{channel}[/B]"
+
+
+### Dates
+msgctxt "#30300"
+msgid "2 days ago"
+msgstr "Eergisteren"
+
+msgctxt "#30301"
+msgid "Yesterday"
+msgstr "Gisteren"
+
+msgctxt "#30302"
+msgid "Today"
+msgstr "Vandaag"
+
+msgctxt "#30303"
+msgid "Tomorrow"
+msgstr "Morgen"
+
+msgctxt "#30304"
+msgid "In 2 days"
+msgstr "Overmorgen"
 
 
 ### ERRORS

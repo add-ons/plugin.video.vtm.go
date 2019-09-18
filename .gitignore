@@ -13,3 +13,5 @@ Thumbs.db
 .tox/
 test/userdata/addon_settings.json
 test/userdata/credentials.json
+test/userdata/temp
+test/cdm

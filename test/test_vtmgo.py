@@ -5,10 +5,9 @@
 from __future__ import absolute_import, division, print_function, unicode_literals
 import sys
 import json
-import logging
 import unittest
 
-from resources.lib import vtmgo, vtmgoepg, vtmgoauth, vtmgostream
+from resources.lib import vtmgo, vtmgoauth, vtmgostream
 from resources.lib.kodilogging import getLogger
 
 logger = getLogger('TestVtmGo')
@@ -21,7 +20,7 @@ class TestVtmGo(unittest.TestCase):
 
         self._token = None
         self._vtmgo = vtmgo.VtmGo()
-        self._vtmgoepg = vtmgoepg.VtmGoEpg()
+        self._vtmgostream = vtmgostream.VtmGoStream()
 
         try:
             with open('test/userdata/credentials.json') as f:
@@ -32,21 +31,19 @@ class TestVtmGo(unittest.TestCase):
             self._vtmgoauth = None
             self._SETTINGS = None
 
-        self._vtmgostream = vtmgostream.VtmGoStream()
-
         # Enable debug logging for urllib
-        try:
-            import http.client as http_client
-        except ImportError:
-            # Python 2
-            import httplib as http_client
-        http_client.HTTPConnection.debuglevel = 1
-
-        logging.basicConfig()
-        logging.getLogger().setLevel(logging.DEBUG)
-        requests_log = logging.getLogger("requests.packages.urllib3")
-        requests_log.setLevel(logging.DEBUG)
-        requests_log.propagate = True
+        # try:
+        #     import http.client as http_client
+        # except ImportError:
+        #     # Python 2
+        #     import httplib as http_client
+        # http_client.HTTPConnection.debuglevel = 1
+        #
+        # logging.basicConfig()
+        # logging.getLogger().setLevel(logging.DEBUG)
+        # requests_log = logging.getLogger("requests.packages.urllib3")
+        # requests_log.setLevel(logging.DEBUG)
+        # requests_log.propagate = True
 
     def test_login(self):
         if self._vtmgoauth is not None:
@@ -96,10 +93,6 @@ class TestVtmGo(unittest.TestCase):
         info = self._vtmgostream.get_stream('channels', 'd8659669-b964-414c-aa9c-e31d8d15696b')
         self.assertTrue(info)
         print(info)
-
-    def test_get_epg(self):
-        epg = self._vtmgoepg.get_epg()
-        print(epg)
 
     def test_get_stream_with_subtitles(self):
         # 13 Geboden - Episode 2

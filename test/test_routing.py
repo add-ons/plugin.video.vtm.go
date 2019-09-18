@@ -4,6 +4,8 @@
 # pylint: disable=missing-docstring
 
 from __future__ import absolute_import, division, print_function, unicode_literals
+
+import os
 import unittest
 from resources.lib import plugin
 
@@ -98,11 +100,12 @@ class TestRouter(unittest.TestCase):
         plugin.run(['plugin://plugin.video.vtm.go/kids/tvguide', '0', ''])
         self.assertEqual(addon.url_for(plugin.show_kids_tvguide), 'plugin://plugin.video.vtm.go/kids/tvguide')
         plugin.run(['plugin://plugin.video.vtm.go/tvguide/vtm', '0', ''])
-        self.assertEqual(addon.url_for(plugin.show_tvguide, channel='vtm'), 'plugin://plugin.video.vtm.go/tvguide/vtm')
+        self.assertEqual(addon.url_for(plugin.show_tvguide_channel, channel='vtm'), 'plugin://plugin.video.vtm.go/tvguide/vtm')
         # plugin.run(['plugin://plugin.video.vtm.go/tvguide/vtm/2019-01-01', '0', ''])
         self.assertEqual(addon.url_for(plugin.show_tvguide_detail, channel='vtm', date='2019-01-01'), 'plugin://plugin.video.vtm.go/tvguide/vtm/2019-01-01')
 
     # Play Live TV: '/play/livetv/<channel>'
+    @unittest.skipIf(os.environ.get('TRAVIS') == 'true', 'Skipping this test on Travis CI.')
     def test_play_livetv(self):
         plugin.run(['plugin://plugin.video.vtm.go/play/livetv/ea826456-6b19-4612-8969-864d1c818347?.pvr', '0', ''])
         self.assertEqual(
