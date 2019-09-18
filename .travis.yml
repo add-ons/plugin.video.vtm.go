@@ -22,4 +22,4 @@ script:
 - make test
 
 after_success:
-- codecov --gcov-glob resources/lib/kodi*.py
+- codecov
