@@ -39,7 +39,7 @@ check-addon: # disabled by default
 test: test-unit
 
 test-unit:
-    env
+	env
 	@echo "$(white)=$(blue) Starting tests$(reset)"
 	@python -m unittest discover
 
