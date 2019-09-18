@@ -1,4 +1,4 @@
-ENVS := py27,py37
+ENVS = flake8,py27,py37
 export PYTHONPATH := $(CURDIR):$(CURDIR)/test
 
 # Collect information to build as sensible package name
@@ -21,12 +21,11 @@ all: check test build
 check: check-pylint check-tox check-translations
 
 check-pylint:
-	@echo "$(blue)>>> Starting pylint checks$(reset)"
+	@echo -e "$(blue)>>> Starting pylint checks$(reset)"
 	@pylint *.py resources/ resources/lib/ test/
 
 check-tox:
 	@echo "$(blue)>>> Starting tox checks$(reset)"
-	@tox -q -e flake8
 	@tox -q -e $(ENVS)
 
 check-translations:
@@ -37,7 +36,10 @@ check-addon: # disabled by default
 	@echo "$(blue)>>> Starting addon checks$(reset)"
 	@kodi-addon-checker . --branch=leia
 
-test:
+test: test-unit
+
+test-unit:
+    env
 	@echo "$(white)=$(blue) Starting tests$(reset)"
 	@python -m unittest discover
 
@@ -47,7 +49,7 @@ clean:
 	@rm -rf .pytest_cache/ .tox/
 	@rm -f *.log
 
-build: clean
+build:
 	@echo -e "$(white)=$(blue) Building package$(reset)"
 	@rm -f ../$(zip_name)
 	cd ..; zip -r $(zip_name) $(include_paths) -x $(exclude_files)

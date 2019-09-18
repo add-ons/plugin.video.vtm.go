@@ -17,7 +17,7 @@ install:
 script:
 - make check-pylint
 - make check-tox
-- make check-translation
+- make check-translations
 #- make check-addon
 - make test
 
