@@ -5,13 +5,13 @@
     "inputstream.rtmp": {},
     "plugin.video.vtm.go": {
         "_comment": "do-not-add-email-and-password-here",
-        "email": "",
         "force_kids_zone": "false",
         "log_level": "Info",
         "max_bandwidth": 4096,
         "password": "",
         "show_subtitles": "true",
-        "use_kids_zone": "true"
+        "use_kids_zone": "true",
+        "username": ""
     },
     "script.module.inputstreamhelper": {
         "disabled": "false",

@@ -93,7 +93,7 @@ def show_index():
 @plugin.route('/check-credentials')
 def check_credentials():
     from resources.lib.vtmgoauth import VtmGoAuth
-    auth = VtmGoAuth(username=get_setting('email'), password=get_setting('password'))
+    auth = VtmGoAuth(username=get_setting('username'), password=get_setting('password'))
 
     try:
         auth.login()

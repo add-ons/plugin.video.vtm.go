@@ -108,17 +108,6 @@ def addon_settings():
         print("Error: Cannot use 'test/userdata/addon_settings.json' : %s" % e)
         settings = {}
 
-    # Read credentials from credentials.json
-    try:
-        with open('test/userdata/credentials.json') as f:
-            settings.update(json.load(f))
-    except (IOError, OSError) as e:
-        if 'VTMGO_USERNAME' in os.environ and 'VTMGO_PASSWORD' in os.environ:
-            print('Using credentials from the environment variables VTMGO_USERNAME and VTMGO_PASSWORD')
-            settings['email'] = os.environ.get('VTMGO_USERNAME')
-            settings['password'] = os.environ.get('VTMGO_PASSWORD')
-        else:
-            print("Error: Cannot use 'test/userdata/credentials.json' : %s" % e)
     return settings
 
 

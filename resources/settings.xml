@@ -3,7 +3,7 @@
     <setting id="credentials_hash" visible="false"/>
     <category label="30800"> <!-- Credentials -->
         <setting label="30801" type="lsep"/> <!-- VTM GO login -->
-        <setting label="30803" help="30804" type="text" id="email"/>
+        <setting label="30803" help="30804" type="text" id="username"/>
         <setting label="30805" help="30806" type="text" id="password" option="hidden"/>
         <setting label="30807" help="30807" type="action" option="close" action="RunPlugin(plugin://plugin.video.vtm.go/check-credentials)" enable="!eq(-2,) + !eq(-1,)" subsetting="true"/>
     </category>
