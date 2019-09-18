@@ -13,12 +13,12 @@
 The following features are supported:
 * Watch live TV (VTM, Q2, Vitaya, CAZ, VTM Kids, VTM Kids Jr & QMusic)
 * Watch on-demand content (movies and series)
-* Watch YouTube content from some of the Medialaan channels
+* Watch YouTube content from some of the DPG Media channels
 * Browse a TV Guide
 * Search the catalogue
 * Browse the Kids zone
 
 ## Disclaimer
 
-This add-on is not officially commissioned/supported by Medialaan and is provided 'as is' without any warranty of any kind.
-The VTM GO name, VTM GO logo and channel icons are property of Medialaan and are used according to the fair use policy. 
+This add-on is not officially commissioned/supported by DPG Media and is provided 'as is' without any warranty of any kind.
+The VTM GO name, VTM GO logo and channel icons are property of DPG Media and are used according to the fair use policy. 
