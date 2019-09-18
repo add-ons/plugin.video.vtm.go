@@ -49,7 +49,7 @@ YOUTUBE = [
     ),
     dict(
         label='QMusic',
-        studio='QMusic',
+        studio='Q Music',
         # Q-Music: https://www.youtube.com/user/qmusic
         path='plugin://plugin.video.youtube/user/qmusic/',
         kids=False,
@@ -95,7 +95,7 @@ CHANNELS = [
     ),
     dict(
         label='QMusic',
-        studio='QMusic',
+        studio='Q Music',
         key='qmusic',
         kids=False,
     ),

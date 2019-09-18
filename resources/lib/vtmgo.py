@@ -3,6 +3,8 @@
 from __future__ import absolute_import, division, unicode_literals
 import json
 
+from resources.lib import kodilogging
+
 try:  # Python 3
     from urllib.parse import quote
 except ImportError:  # Python 2
@@ -361,6 +363,8 @@ class VtmGo:
         }
         if auth:
             headers['x-dpp-jwt'] = auth
+
+        kodilogging.log('Fetching %s...' % url, kodilogging.LOGDEBUG)
 
         response = requests.session().get('https://api.vtmgo.be' + url, headers=headers, verify=False, proxies=proxies)
 

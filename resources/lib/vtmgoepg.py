@@ -10,6 +10,7 @@ import dateutil.tz
 import requests
 
 from resources.lib import kodilogging
+from resources.lib.kodiutils import localize
 
 
 class EpgChannel:
@@ -138,27 +139,35 @@ class VtmGoEpg:
 
     @staticmethod
     def get_dates():
-        dates = []
+        import xbmc
 
+        dates = []
         today = datetime.today()
 
         # The API provides 2 days in the past and 7 days in the future
         for i in range(-2, 7):
             day = today + timedelta(days=i)
 
-            # TODO: make this pretty
             if i == -1:
-                title = 'Yesterday'
+                title = '%s, %s' % (localize(30301), day.strftime(xbmc.getRegion('datelong')))  # Yesterday
+                # date = 'yesterday'
+                highlight = False
             elif i == 0:
-                title = 'Today'
+                title = '%s, %s' % (localize(30302), day.strftime(xbmc.getRegion('datelong')))  # Today
+                # date = 'today'
+                highlight = True
             elif i == 1:
-                title = 'Tomorrow'
+                title = '%s, %s' % (localize(30303), day.strftime(xbmc.getRegion('datelong')))  # Tomorrow
+                # date = 'tomorrow'
+                highlight = False
             else:
-                title = day.strftime('%Y-%m-%d')
+                title = day.strftime(xbmc.getRegion('datelong'))
+                highlight = False
 
             dates.append({
                 'title': title,
                 'date': day.strftime('%Y-%m-%d'),
+                'highlight': highlight,
             })
 
         return dates

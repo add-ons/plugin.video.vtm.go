@@ -73,6 +73,7 @@ msgctxt "#30014"
 msgid "Browse the TV Guide"
 msgstr ""
 
+
 ### CODE
 msgctxt "#30200"
 msgid "Using a SOCKS proxy requires the PySocks library (script.module.pysocks) installed."
@@ -136,6 +137,28 @@ msgstr ""
 
 msgctxt "#30215"
 msgid "Browse the TV-Guide of [B]{channel}[/B]"
+msgstr ""
+
+
+### Dates
+msgctxt "#30300"
+msgid "2 days ago"
+msgstr ""
+
+msgctxt "#30301"
+msgid "Yesterday"
+msgstr ""
+
+msgctxt "#30302"
+msgid "Today"
+msgstr ""
+
+msgctxt "#30303"
+msgid "Tomorrow"
+msgstr ""
+
+msgctxt "#30304"
+msgid "In 2 days"
 msgstr ""
 
 
