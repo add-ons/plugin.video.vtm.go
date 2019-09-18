@@ -50,6 +50,8 @@ class VtmGoStream:
     def get_stream(self, stream_type, stream_id):
         # We begin with asking vtm about the stream info.
         stream_info = self._get_stream_info(stream_type, stream_id)
+        if stream_info is None:
+            return None  # No stream available (i.e. geo-blocked)
 
         # Extract the anvato stream from our stream_info.
         anvato_info = self._extract_anvato_stream_from_stream_info(stream_info)
@@ -136,6 +138,7 @@ class VtmGoStream:
                                      proxies=proxies)
 
         if response.status_code == 403:
+            logger.error('Error %s in _get_stream_info.', response.status_code)
             show_ok_dialog(heading='HTTP 403 Forbidden', message=localize(30704))  # Geo-blocked
             return None
         if response.status_code != 200:
