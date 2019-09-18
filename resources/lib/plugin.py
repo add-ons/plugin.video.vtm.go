@@ -217,7 +217,6 @@ def show_tvguide():
 @plugin.route('/tvguide/<channel>')
 def show_tvguide_channel(channel):
     listing = []
-    kids = _get_kids_mode()
 
     for day in VtmGoEpg.get_dates():
         if day['highlight']:

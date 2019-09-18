@@ -1,9 +1,8 @@
 # -*- coding: utf-8 -*-
 
 from __future__ import absolute_import, division, unicode_literals
-import json
 
-from resources.lib import kodilogging
+import json
 
 try:  # Python 3
     from urllib.parse import quote
@@ -11,6 +10,7 @@ except ImportError:  # Python 2
     from urllib import quote
 
 import requests
+from resources.lib import kodilogging
 from resources.lib.kodiutils import proxies
 
 
