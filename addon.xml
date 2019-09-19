@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<addon id="plugin.video.vtm.go" name="VTM GO" version="0.1" provider-name="Michaël Arnauts">
+<addon id="plugin.video.vtm.go" name="VTM GO" version="0.9.0" provider-name="Michaël Arnauts">
     <requires>
         <import addon="xbmc.python" version="2.26.0"/>
         <!-- import addon="resource.images.studios.coloured" version="0.0.18" optional="true"/ -->
@@ -27,8 +27,7 @@ The following features are supported:
         <disclaimer lang="en_GB">This add-on is not officially commissioned/supported by DPG Media and is provided 'as is' without any warranty of any kind. The VTM GO name, VTM GO logo and channel icons are property of DPG Media and are used according to the fair use policy.</disclaimer>
         <platform>all</platform>
         <license>GPL-3.0</license>
-        <news>
-v0.1 (30/06/2019)
+        <news>v0.9.0 (19/09/2019)
 First release
         </news>
         <assets>
