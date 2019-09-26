@@ -21,7 +21,7 @@ class LiveChannel:
         :type channel_id: str
         :type name: str
         :type logo: str
-        :type epg: List[LiveChannelEpg]
+        :type epg: list[LiveChannelEpg]
         """
         self.id = channel_id
         self.name = name
@@ -128,7 +128,7 @@ class Program:
         :type name: str
         :type description: str
         :type cover: str
-        :type seasons: List[Season]
+        :type seasons: list[Season]
         :type geoblocked: bool
         :type channel: str
         :type legal: str
@@ -151,7 +151,7 @@ class Season:
     def __init__(self, number=None, episodes=None, cover=None, geoblocked=None, channel=None, legal=None):
         """ Defines a Season.
         :type number: str
-        :type episodes: List[Episode]
+        :type episodes: list[Episode]
         :type cover: str
         :type geoblocked: bool
         :type channel: str
@@ -225,7 +225,7 @@ class VtmGo:
 
     def get_live(self):
         """ Get a list of all the live tv channels.
-        :rtype List[LiveChannel]
+        :rtype list[LiveChannel]
         """
         import dateutil.parser
         response = self._get_url('/%s/live' % self._mode)
@@ -251,7 +251,7 @@ class VtmGo:
 
     def get_categories(self):
         """ Get a list of all the categories.
-        :rtype List[Category]
+        :rtype list[Category]
         """
         response = self._get_url('/%s/catalog/filters' % self._mode)
         info = json.loads(response)
@@ -268,7 +268,7 @@ class VtmGo:
     def get_items(self, category=None):
         """ Get a list of all the items in a category.
         :type category: str
-        :rtype List[Content]
+        :rtype list[Content]
         """
         if category and category != 'all':
             response = self._get_url('/%s/catalog?pageSize=%d&filter=%s' % (self._mode, 1000, quote(category)))
@@ -393,7 +393,7 @@ class VtmGo:
     def do_search(self, search):
         """ Do a search in the full catalogue.
         :type search: str
-        :rtype List[Content]
+        :rtype list[Content]
         """
         response = self._get_url('/%s/autocomplete/?maxItems=50&keywords=%s' % (self._mode, quote(search)))
         results = json.loads(response)

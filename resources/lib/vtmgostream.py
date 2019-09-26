@@ -22,7 +22,7 @@ class ResolvedStream:
         :type duration: str|None
         :type url: str
         :type license_url: str
-        :type subtitles: List[str]
+        :type subtitles: list[str]
         :type cookies: dict
         """
         self.program = program
@@ -172,7 +172,7 @@ class VtmGoStream:
     def _extract_subtitles_from_stream_info(self, stream_info):
         """ Extract a list of the subtitles.
         :type stream_info: dict
-        :rtype list of string
+        :rtype list[str]
         """
         subtitles = list()
         if stream_info.get('video').get('subtitles'):
@@ -184,7 +184,7 @@ class VtmGoStream:
     def _delay_webvtt_timing(self, match, ad_breaks):
         """ Delay the timing of a webvtt subtitle.
         :type match: any
-        :type ad_breaks: List[dict]
+        :type ad_breaks: list[dict]
         :rtype str
         """
         sub_timings = list()
@@ -208,9 +208,9 @@ class VtmGoStream:
 
     def _delay_subtitles(self, subtitles, json_manifest):
         """ Modify the subtitles timings to account for ad breaks.
-        :type subtitles: list of string
+        :type subtitles: list[string]
         :type json_manifest: dict
-        :rtype List[str]
+        :rtype list[str]
         """
         import re
         temp_dir = get_profile_path() + 'temp/'
@@ -421,8 +421,8 @@ class VtmGoStream:
         """ Create a license key string that we need for inputstream.adaptive.
         :type key_url: str
         :type key_type: str
-        :type key_headers: list of str
-        :type key_value: list of str
+        :type key_headers: list[str]
+        :type key_value: list[str]
         :rtype str
         """
         try:  # Python 3

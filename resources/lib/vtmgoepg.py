@@ -21,7 +21,7 @@ class EpgChannel:
         :type key: str
         :type name: str
         :type logo: str
-        :type broadcasts: List[EpgBroadCast]
+        :type broadcasts: list[EpgBroadcast]
         """
         self.uuid = uuid
         self.key = key
@@ -76,10 +76,11 @@ class VtmGoEpg:
         self._session.cookies.set('pws', 'functional|analytics|content_recommendation|targeted_advertising|social_media')
         self._session.cookies.set('pwv', '1')
 
-    def get_epg(self, date=None):
-        """ Load EPG information for the specified date.
+    def get_epg(self, channel, date=None):
+        """ Load EPG information for the specified channel and date.
+        :type channel: str
         :type date: str
-        :rtype: dict[EpgChannel]
+        :rtype: EpgChannel
         """
         if date is None:
             # Fetch today when no date is specified
@@ -94,17 +95,17 @@ class VtmGoEpg:
         response = self._get_url(self.EPG_URL.format(date=date))
         epg = json.loads(response)
 
-        result = {}
-        for channel in epg.get('channels', []):
-            broadcasts = [self._parse_broadcast(broadcast) for broadcast in channel.get('broadcasts', [])]
-            result[channel.get('seoKey')] = EpgChannel(
-                name=channel.get('name'),
-                key=channel.get('seoKey'),
-                logo=channel.get('channelLogoUrl'),
-                broadcasts=broadcasts
-            )
+        # We get an EPG for all channels, but we only return the requested channel.
+        for epg_channel in epg.get('channels', []):
+            if epg_channel.get('seoKey') == channel:
+                return EpgChannel(
+                    name=epg_channel.get('name'),
+                    key=epg_channel.get('seoKey'),
+                    logo=epg_channel.get('channelLogoUrl'),
+                    broadcasts=[self._parse_broadcast(broadcast) for broadcast in epg_channel.get('broadcasts', [])]
+                )
 
-        return result
+        return None
 
     def get_details(self, channel, program_type, epg_id):
         """ Load the EPG details for the specified program.

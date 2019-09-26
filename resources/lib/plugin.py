@@ -11,7 +11,7 @@ from resources.lib.kodiutils import (get_cond_visibility, get_max_bandwidth, get
                                      get_setting_as_bool, get_global_setting, localize,
                                      notification, show_ok_dialog, show_settings)
 from resources.lib.vtmgo import Content, VtmGo
-from resources.lib.vtmgoepg import VtmGoEpg, EpgChannel
+from resources.lib.vtmgoepg import VtmGoEpg
 from resources.lib.vtmgostream import VtmGoStream
 
 plugin = routing.Plugin()
@@ -248,18 +248,20 @@ def show_tvguide_channel(channel):
 
 @plugin.route('/tvguide/<channel>/<date>')
 def show_tvguide_detail(channel=None, date=None):
+    """ Shows the programs of a specific date in the tv guide.
+    :type channel: string
+    :type date: string
+    """
     try:
         _vtmGoEpg = VtmGoEpg()
-        epg = _vtmGoEpg.get_epg(date=date)
+        epg = _vtmGoEpg.get_epg(channel=channel, date=date)
     except Exception as ex:
         notification(message=str(ex))
         raise
 
     # The epg contains the data for all channels. We only need the data of the requested channel.
-    epg_json = epg.get(channel)  # type: EpgChannel
-
     listing = []
-    for broadcast in epg_json.broadcasts:
+    for broadcast in epg.broadcasts:
         title = '{time} - {title}'.format(
             time=broadcast.time.strftime('%H:%M'),
             title=broadcast.title

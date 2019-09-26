@@ -34,24 +34,24 @@ class TestVtmGoEpg(unittest.TestCase):
         from datetime import date
 
         # Get list of EPG for today
-        epg = self._vtmgoepg.get_epg('today')
+        epg = self._vtmgoepg.get_epg(channel='vtm', date='today')
         self.assertTrue(epg)
 
         # Get list of EPG for tomorrow
-        epg = self._vtmgoepg.get_epg('tomorrow')
+        epg = self._vtmgoepg.get_epg(channel='vtm', date='tomorrow')
         self.assertTrue(epg)
 
         # Get list of EPG for yesterday
-        epg = self._vtmgoepg.get_epg('yesterday')
+        epg = self._vtmgoepg.get_epg(channel='vtm', date='yesterday')
         self.assertTrue(epg)
 
         # Get list of EPG for yesterday
         today = date.today().strftime('%Y-%m-%d')
-        epg = self._vtmgoepg.get_epg(today)
+        epg = self._vtmgoepg.get_epg(channel='vtm', date=today)
         self.assertTrue(epg)
 
         # Take first broadcast of vtm channel
-        first = epg['vtm'].broadcasts[0]
+        first = epg.broadcasts[0]
 
         # Fetch details
         details = self._vtmgoepg.get_details(channel='vtm', program_type=first.playable_type, epg_id=first.uuid)
