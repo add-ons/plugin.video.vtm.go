@@ -1,20 +1,28 @@
 # -*- coding: utf-8 -*-
-
 from __future__ import absolute_import, division, unicode_literals
 
 import json
+import logging
 from datetime import datetime, timedelta
 
 import dateutil.parser
 import dateutil.tz
 import requests
 
-from resources.lib import kodilogging
 from resources.lib.kodiutils import localize
+
+logger = logging.getLogger()
 
 
 class EpgChannel:
     def __init__(self, uuid=None, key=None, name=None, logo=None, broadcasts=None):
+        """ Defines an Channel with EPG information.
+        :type uuid: str
+        :type key: str
+        :type name: str
+        :type logo: str
+        :type broadcasts: list[EpgBroadcast]
+        """
         self.uuid = uuid
         self.key = key
         self.name = name
@@ -28,6 +36,20 @@ class EpgChannel:
 class EpgBroadcast:
     def __init__(self, uuid=None, playable_type=None, title=None, time=None, duration=None, image=None, description=None, live=None, rerun=None, tip=None,
                  program_uuid=None, playable_uuid=None):
+        """ Defines an EPG broadcast.
+        :type uuid: str
+        :type playable_type: str
+        :type title: str
+        :type time: str
+        :type duration: int
+        :type image: str
+        :type description: str
+        :type live: str
+        :type rerun: str
+        :type tip: str
+        :type program_uuid: str
+        :type playable_uuid: str
+        """
         self.uuid = uuid
         self.playable_type = playable_type
         self.title = title
@@ -38,7 +60,6 @@ class EpgBroadcast:
         self.live = live
         self.rerun = rerun
         self.tip = tip
-
         self.program_uuid = program_uuid
         self.playable_uuid = playable_uuid
 
@@ -52,8 +73,15 @@ class VtmGoEpg:
 
     def __init__(self):
         self._session = requests.session()
+        self._session.cookies.set('pws', 'functional|analytics|content_recommendation|targeted_advertising|social_media')
+        self._session.cookies.set('pwv', '1')
 
-    def get_epg(self, date=None):
+    def get_epg(self, channel, date=None):
+        """ Load EPG information for the specified channel and date.
+        :type channel: str
+        :type date: str
+        :rtype: EpgChannel
+        """
         if date is None:
             # Fetch today when no date is specified
             date = datetime.today().strftime('%Y-%m-%d')
@@ -64,29 +92,28 @@ class VtmGoEpg:
         elif date == 'tomorrow':
             date = (datetime.today() + timedelta(days=1)).strftime('%Y-%m-%d')
 
-        url = self.EPG_URL.format(date=date)
+        response = self._get_url(self.EPG_URL.format(date=date))
+        epg = json.loads(response)
 
-        kodilogging.log('Fetching %s...' % url, kodilogging.LOGDEBUG)
+        # We get an EPG for all channels, but we only return the requested channel.
+        for epg_channel in epg.get('channels', []):
+            if epg_channel.get('seoKey') == channel:
+                return EpgChannel(
+                    name=epg_channel.get('name'),
+                    key=epg_channel.get('seoKey'),
+                    logo=epg_channel.get('channelLogoUrl'),
+                    broadcasts=[self._parse_broadcast(broadcast) for broadcast in epg_channel.get('broadcasts', [])]
+                )
 
-        response = self._session.get(url)
-        if response.status_code != 200:
-            raise Exception('Error %s while fetching EPG data.' % response.status_code)
-
-        epg = json.loads(response.text)
-
-        result = {}
-        for channel in epg.get('channels', []):
-            broadcasts = [self._parse_broadcast(broadcast) for broadcast in channel.get('broadcasts', [])]
-            result[channel.get('seoKey')] = EpgChannel(
-                name=channel.get('name'),
-                key=channel.get('seoKey'),
-                logo=channel.get('channelLogoUrl'),
-                broadcasts=broadcasts
-            )
-
-        return result
+        return None
 
     def get_details(self, channel, program_type, epg_id):
+        """ Load the EPG details for the specified program.
+        :type channel: str
+        :type program_type: str
+        :type epg_id: str
+        :rtype: EpgBroadcast
+        """
         import re
 
         # Do mapping
@@ -99,28 +126,23 @@ class VtmGoEpg:
         else:
             raise Exception('Unknown broadcast type %s.' % program_type)
 
-        # Add cookies
-        self._session.cookies.set('pws', 'functional|analytics|content_recommendation|targeted_advertising|social_media')
-        self._session.cookies.set('pwv', '1')
-
         # Fetch data
-        kodilogging.log('Fetching %s...' % url, kodilogging.LOGDEBUG)
-        response = self._session.get(url, )
-        if response.status_code != 200:
-            raise Exception('Error %s while fetching EPG details.' % response.status_code)
+        response = self._get_url(url)
 
         # Extract data
-        matches = re.search(r'EPG_REDUX_DATA=([^;]+);', response.content.decode('utf-8'))
+        matches = re.search(r'EPG_REDUX_DATA=([^;]+);', response)
         if not matches:
             raise Exception('Could not parse EPG details.')
-
-        # Parse data
         data = json.loads(matches.group(1))
 
         return self._parse_broadcast(data['details'][epg_id])
 
     @staticmethod
     def _parse_broadcast(broadcast_json):
+        """ Parse the epg data.
+        :type broadcast_json: dict
+        :rtype: EpgBroadcast
+        """
         # Sometimes, the duration field is empty, but luckily, we can calculate it.
         duration = broadcast_json.get('duration')
         if duration is None:
@@ -142,9 +164,10 @@ class VtmGoEpg:
         )
 
     @staticmethod
-    def get_dates():
-        import xbmc
-
+    def get_dates(date_format):
+        """ Return a dict of dates.
+        :rtype: list[dict]
+        """
         dates = []
         today = datetime.today()
 
@@ -153,26 +176,41 @@ class VtmGoEpg:
             day = today + timedelta(days=i)
 
             if i == -1:
-                title = '%s, %s' % (localize(30301), day.strftime(xbmc.getRegion('datelong')))  # Yesterday
-                date = 'yesterday'
-                highlight = False
+                dates.append({
+                    'title': '%s, %s' % (localize(30301), day.strftime(date_format)),  # Yesterday,
+                    'date': 'yesterday',
+                    'highlight': False,
+                })
             elif i == 0:
-                title = '%s, %s' % (localize(30302), day.strftime(xbmc.getRegion('datelong')))  # Today
-                date = 'today'
-                highlight = True
+                dates.append({
+                    'title': '%s, %s' % (localize(30302), day.strftime(date_format)),  # Today
+                    'date': 'today',
+                    'highlight': True,
+                })
             elif i == 1:
-                title = '%s, %s' % (localize(30303), day.strftime(xbmc.getRegion('datelong')))  # Tomorrow
-                date = 'tomorrow'
-                highlight = False
+                dates.append({
+                    'title': '%s, %s' % (localize(30303), day.strftime(date_format)),  # Tomorrow
+                    'date': 'tomorrow',
+                    'highlight': False,
+                })
             else:
-                title = day.strftime(xbmc.getRegion('datelong'))
-                date = day.strftime('%Y-%m-%d')
-                highlight = False
-
-            dates.append({
-                'title': title,
-                'date': date,
-                'highlight': highlight,
-            })
+                dates.append({
+                    'title': day.strftime(date_format),
+                    'date': day.strftime('%Y-%m-%d'),
+                    'highlight': False,
+                })
 
         return dates
+
+    def _get_url(self, url):
+        """ Makes a GET request for the specified URL.
+        :type url: str
+        :rtype str
+        """
+        logging.debug('Fetching %s...', url)
+        response = self._session.get(url, verify=False)
+
+        if response.status_code != 200:
+            raise Exception('Error %s.' % response.status_code)
+
+        return response.text

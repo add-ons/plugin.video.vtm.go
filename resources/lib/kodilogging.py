@@ -44,7 +44,7 @@ class KodiLogHandler(logging.StreamHandler):
         pass
 
 
-def getLogger(name=None):
+def get_logger(name=None):
     logger = logging.getLogger(name)
     logger.addHandler(KodiLogHandler())
     logger.setLevel(log_levels.get(get_setting('max_log_level', 'Info'), logging.NOTSET))

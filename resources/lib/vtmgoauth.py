@@ -1,13 +1,23 @@
 # -*- coding: utf-8 -*-
-
 from __future__ import absolute_import, division, unicode_literals
+
+import json
+import logging
 import random
+
 import requests
+
 from resources.lib.kodiutils import localize, proxies
+
+logger = logging.getLogger()
 
 
 class VtmGoAuth:
     def __init__(self, username, password):
+        """
+        :type username: str
+        :type password: str
+        """
         self._username = username
         self._password = password
 
@@ -16,6 +26,9 @@ class VtmGoAuth:
         self._accountId = None
 
     def login(self):
+        """ Executes a login and returns the JSON Web Token.
+        :rtype str
+        """
         # Create new session object. This keeps the cookies across requests.
         session = requests.sessions.session()
 
@@ -66,7 +79,6 @@ class VtmGoAuth:
             'x-persgroep-os-version': '23',
             'User-Agent': 'VTMGO/6.5.0 (be.vmma.vtm.zenderapp; build:11019; Android 23) okhttp/3.12.1'
         })
-        import json
         tokens = json.loads(response.text)
 
         self._token = tokens.get('jsonWebToken')
@@ -75,6 +87,11 @@ class VtmGoAuth:
 
         return self._token
 
-    def _generate_random_id(self, length=32):
+    @staticmethod
+    def _generate_random_id(length=32):
+        """ Generate a random id of the specified length.
+        :type length: int
+        :rtype str
+        """
         letters = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'
         return ''.join(random.choice(letters) for i in range(length))
