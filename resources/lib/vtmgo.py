@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
-
 from __future__ import absolute_import, division, unicode_literals
 
 import json
+import logging
 
 try:  # Python 3
     from urllib.parse import quote
@@ -10,17 +10,17 @@ except ImportError:  # Python 2
     from urllib import quote
 
 import requests
-from resources.lib import kodilogging
 from resources.lib.kodiutils import proxies
+
+logger = logging.getLogger()
 
 
 class LiveChannel:
     def __init__(self, channel_id=None, name=None, logo=None, epg=None):
-        """
-        Defines a TV channel that can be streamed live.
-        :type id: basestring
-        :type name: basestring
-        :type logo: basestring
+        """ Defines a tv channel that can be streamed live.
+        :type channel_id: str
+        :type name: str
+        :type logo: str
         :type epg: List[LiveChannelEpg]
         """
         self.id = channel_id
@@ -36,9 +36,8 @@ class LiveChannel:
 
 class LiveChannelEpg:
     def __init__(self, title=None, start=None, end=None):
-        """
-        Defines a Program that is broadcasted on a live TV Channel.
-        :type title: string
+        """ Defines a program that is broadcast on a live tv channel.
+        :type title: str
         :type start: datetime.datetime
         :type end: datetime.datetime
         """
@@ -52,10 +51,9 @@ class LiveChannelEpg:
 
 class Category:
     def __init__(self, category_id=None, title=None):
-        """
-        Defines a Category from the Catalogue.
-        :type category_id: string
-        :type title: string
+        """ Defines a category from the catalogue.
+        :type category_id: str
+        :type title: str
         """
         self.id = category_id
         self.title = title
@@ -69,14 +67,13 @@ class Content:
     CONTENT_TYPE_PROGRAM = 'PROGRAM'
 
     def __init__(self, video_id=None, title=None, description=None, cover=None, video_type=None, geoblocked=None):
-        """
-        Defines a Category from the Catalogue.
-        :type video_id: basestring
-        :type title: basestring
-        :type description: basestring
-        :type cover: basestring
-        :type video_type: basestring
-        :type geoblocked: boolean
+        """ Defines an item from the catalogue.
+        :type video_id: str
+        :type title: str
+        :type description: str
+        :type cover: str
+        :type video_type: str
+        :type geoblocked: bool
         """
         self.id = video_id
         self.title = title
@@ -94,6 +91,19 @@ class Content:
 class Movie:
     def __init__(self, movie_id=None, name=None, description=None, year=None, cover=None, duration=None, remaining=None, geoblocked=None,
                  channel=None, legal=None, aired=None):
+        """ Defines a Movie.
+        :type movie_id: str
+        :type name: str
+        :type description: str
+        :type year: int
+        :type cover: str
+        :type duration: int
+        :type remaining: str
+        :type geoblocked: bool
+        :type channel: str
+        :type legal: str
+        :type aired: str
+        """
         self.id = movie_id
         self.name = name
         self.description = description if description else ''
@@ -113,13 +123,15 @@ class Movie:
 
 class Program:
     def __init__(self, program_id=None, name=None, description=None, cover=None, seasons=None, geoblocked=None, channel=None, legal=None):
-        """
-        Defines a Program.
-        :type program_id: basestring
-        :type name: basestring
-        :type description: basestring
-        :type cover: basestring
+        """ Defines a Program.
+        :type program_id: str
+        :type name: str
+        :type description: str
+        :type cover: str
         :type seasons: List[Season]
+        :type geoblocked: bool
+        :type channel: str
+        :type legal: str
         """
         self.id = program_id
         self.name = name
@@ -137,11 +149,13 @@ class Program:
 
 class Season:
     def __init__(self, number=None, episodes=None, cover=None, geoblocked=None, channel=None, legal=None):
-        """
-
-        :type number: basestring
+        """ Defines a Season.
+        :type number: str
         :type episodes: List[Episode]
-        :type cover: basestring
+        :type cover: str
+        :type geoblocked: bool
+        :type channel: str
+        :type legal: str
         """
         self.number = int(number)
         self.episodes = episodes
@@ -157,6 +171,20 @@ class Season:
 class Episode:
     def __init__(self, episode_id=None, number=None, season=None, name=None, description=None, cover=None, duration=None, remaining=None, geoblocked=None,
                  channel=None, legal=None, aired=None):
+        """ Defines an Episode.
+        :type episode_id: str
+        :type number: int
+        :type season: str
+        :type name: str
+        :type description: str
+        :type cover: str
+        :type duration: int
+        :type remaining: int
+        :type geoblocked: bool
+        :type channel: str
+        :type legal: str
+        :type aired: str
+        """
         import re
         self.id = episode_id
         self.number = int(number)
@@ -182,18 +210,23 @@ class VtmGo:
         self._mode = 'vtmgo-kids' if kids else 'vtmgo'
 
     def get_config(self):
-        ''' Not sure if we need this '''
+        """ Returns the config for the app. """
+        # This is currently not used
         response = self._get_url('/config')
         info = json.loads(response)
         return info
 
     def get_main(self):
-        ''' Not sure if we need this '''
+        """ Returns the config for the dashboard. """
+        # This is currently not used
         response = self._get_url('/%s/main' % self._mode)
         info = json.loads(response)
         return info
 
     def get_live(self):
+        """ Get a list of all the live tv channels.
+        :rtype List[LiveChannel]
+        """
         import dateutil.parser
         response = self._get_url('/%s/live' % self._mode)
         info = json.loads(response)
@@ -217,6 +250,9 @@ class VtmGo:
         return channels
 
     def get_categories(self):
+        """ Get a list of all the categories.
+        :rtype List[Category]
+        """
         response = self._get_url('/%s/catalog/filters' % self._mode)
         info = json.loads(response)
 
@@ -230,10 +266,14 @@ class VtmGo:
         return categories
 
     def get_items(self, category=None):
+        """ Get a list of all the items in a category.
+        :type category: str
+        :rtype List[Content]
+        """
         if category and category != 'all':
             response = self._get_url('/%s/catalog?pageSize=%d&filter=%s' % (self._mode, 1000, quote(category)))
         else:
-            response = self._get_url('/%s/catalog?pageSize=1000' % self._mode)
+            response = self._get_url('/%s/catalog?pageSize=%d' % (self._mode, 1000))
         info = json.loads(response)
 
         items = []
@@ -249,6 +289,10 @@ class VtmGo:
         return items
 
     def get_movie(self, movie_id):
+        """ Get the details of the specified movie.
+        :type movie_id: str
+        :rtype Movie
+        """
         response = self._get_url('/%s/movies/%s' % (self._mode, movie_id))
         info = json.loads(response)
         movie = info.get('movie', {})
@@ -274,6 +318,10 @@ class VtmGo:
         )
 
     def get_program(self, program_id):
+        """ Get the details of the specified program.
+        :type program_id: str
+        :rtype Program
+        """
         response = self._get_url('/%s/programs/%s' % (self._mode, program_id))
         info = json.loads(response)
         program = info.get('program', {})
@@ -306,7 +354,7 @@ class VtmGo:
 
             seasons[item_season.get('index')] = Season(
                 number=item_season.get('index'),
-                episodes=episodes,
+                episodes=episodes.values(),
                 cover=item_season.get('episodes', [{}])[0].get('bigPhotoUrl') if episodes else program.get('bigPhotoUrl'),
                 geoblocked=program.get('geoBlocked'),
                 channel=channel,
@@ -319,12 +367,16 @@ class VtmGo:
             description=program.get('description'),
             cover=program.get('bigPhotoUrl'),
             geoblocked=program.get('geoBlocked'),
-            seasons=seasons,
+            seasons=seasons.values(),
             channel=channel,
             legal=program.get('legalIcons'),
         )
 
     def get_episode(self, episode_id):
+        """ Get the details of the specified episode.
+        :type episode_id: str
+        :rtype Episode
+        """
         response = self._get_url('/%s/episodes/%s' % (self._mode, episode_id))
         info = json.loads(response)
         episode = info.get('episode', {})
@@ -339,6 +391,10 @@ class VtmGo:
         )
 
     def do_search(self, search):
+        """ Do a search in the full catalogue.
+        :type search: str
+        :rtype List[Content]
+        """
         response = self._get_url('/%s/autocomplete/?maxItems=50&keywords=%s' % (self._mode, quote(search)))
         results = json.loads(response)
 
@@ -353,8 +409,12 @@ class VtmGo:
         return items
 
     def _get_url(self, url, auth=None):
+        """ Makes a GET request for the specified URL.
+        :type url: str
+        :type auth: str
+        :rtype str
+        """
         headers = {
-            # ':authority': 'api.vtmgo.be',
             'x-app-version': '5',
             'x-persgroep-mobile-app': 'true',
             'x-persgroep-os': 'android',
@@ -364,7 +424,7 @@ class VtmGo:
         if auth:
             headers['x-dpp-jwt'] = auth
 
-        kodilogging.log('Fetching %s...' % url, kodilogging.LOGDEBUG)
+        logging.debug('Fetching %s...', url)
 
         response = requests.session().get('https://api.vtmgo.be' + url, headers=headers, verify=False, proxies=proxies)
 

@@ -1,16 +1,14 @@
 # -*- coding: utf-8 -*-
 
-# pylint: disable=missing-docstring
-
 from __future__ import absolute_import, division, print_function, unicode_literals
 import json
+import logging
 import os
 import unittest
 
 from resources.lib import vtmgo, vtmgoauth, vtmgostream
-from resources.lib.kodilogging import getLogger
 
-logger = getLogger('TestVtmGo')
+logger = logging.getLogger()
 
 
 class TestVtmGo(unittest.TestCase):

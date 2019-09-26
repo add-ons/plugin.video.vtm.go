@@ -3,31 +3,26 @@
 from __future__ import absolute_import, division, unicode_literals
 
 import json
+import logging
 import random
-try:  # Python 3
-    from urllib.parse import urlencode, quote
-except ImportError:  # Python 2
-    from urllib import urlencode, quote
-
 from datetime import timedelta
+
 import requests
 
 from resources.lib.kodiutils import delete_file, get_profile_path, from_unicode, list_dir, localize, make_dir, open_file, path_exists, proxies, show_ok_dialog
-from resources.lib.kodilogging import getLogger
 
-logger = getLogger('VtmGoStream')
+logger = logging.getLogger()
 
 
 class ResolvedStream:
     def __init__(self, program=None, title=None, duration=None, url=None, license_url=None, subtitles=None, cookies=None):
-        """
-        Object to hold details of a stream that we can play.
-        :type program: string
-        :type title: string
-        :type duration: string
-        :type url: string
-        :type license_url: string
-        :type subtitles: List
+        """ Defines a stream that we can play.
+        :type program: str|None
+        :type title: str
+        :type duration: str|None
+        :type url: str
+        :type license_url: str
+        :type subtitles: List[str]
         :type cookies: dict
         """
         self.program = program
@@ -51,6 +46,11 @@ class VtmGoStream:
         self._session = requests.session()
 
     def get_stream(self, stream_type, stream_id):
+        """ Return a ResolvedStream based on the stream type and id.
+        :type stream_type: str
+        :type stream_id: str
+        :rtype ResolvedStream
+        """
         # We begin with asking vtm about the stream info.
         stream_info = self._get_stream_info(stream_type, stream_id)
         if stream_info is None:
@@ -74,18 +74,18 @@ class VtmGoStream:
         url = anvato_stream_info['published_urls'][0]['embed_url']
         license_url = anvato_stream_info['published_urls'][0]['license_url']
 
-        # Get MPEG DASH manifest url
+        # Get MPEG DASH manifest url.
         json_manifest = self._download_manifest(url)
         url = json_manifest.get('master_m3u8')
 
-        # Follow Location tag redirection because InputStream Adaptive doesn't support this yet
+        # Follow Location tag redirection because InputStream Adaptive doesn't support this yet.
         # https://github.com/peak3d/inputstream.adaptive/issues/286
         url = self._redirect_manifest(url)
 
         # Extract subtitle info from our stream_info.
         subtitle_info = self._extract_subtitles_from_stream_info(stream_info)
 
-        # Delay subtitles taking into account advertisements breaks
+        # Delay subtitles taking into account advertisements breaks.
         if subtitle_info:
             subtitle_info = self._delay_subtitles(subtitle_info, json_manifest)
 
@@ -126,6 +126,11 @@ class VtmGoStream:
         raise Exception(localize(30707, type=stream_type))  # Unhandled videoType
 
     def _get_stream_info(self, strtype, stream_id):
+        """ Get the stream info for the specified stream.
+        :type strtype: str
+        :type stream_id: str
+        :rtype: dict
+        """
         url = 'https://videoplayer-service.api.persgroep.cloud/config/%s/%s' % (strtype, stream_id)
         logger.debug('Getting stream info from %s', url)
         response = self._session.get(url,
@@ -151,6 +156,10 @@ class VtmGoStream:
         return info
 
     def _extract_anvato_stream_from_stream_info(self, stream_info):
+        """ Extract the anvato stream details.
+        :type stream_info: dict
+        :rtype dict
+        """
         # Loop over available streams, and return the one from anvato
         if stream_info.get('video'):
             for stream in stream_info.get('video').get('streams'):
@@ -161,6 +170,10 @@ class VtmGoStream:
         raise Exception(localize(30706))  # No stream found that we can handle
 
     def _extract_subtitles_from_stream_info(self, stream_info):
+        """ Extract a list of the subtitles.
+        :type stream_info: dict
+        :rtype list of string
+        """
         subtitles = list()
         if stream_info.get('video').get('subtitles'):
             for subtitle in stream_info.get('video').get('subtitles'):
@@ -169,6 +182,11 @@ class VtmGoStream:
         return subtitles
 
     def _delay_webvtt_timing(self, match, ad_breaks):
+        """ Delay the timing of a webvtt subtitle.
+        :type match: any
+        :type ad_breaks: List[dict]
+        :rtype str
+        """
         sub_timings = list()
         for ts in match.groups():
             h, m, s, f = (int(x) for x in [ts[:-10], ts[-9:-7], ts[-6:-4], ts[-3:]])
@@ -189,6 +207,11 @@ class VtmGoStream:
         return delayed_webvtt_timing
 
     def _delay_subtitles(self, subtitles, json_manifest):
+        """ Modify the subtitles timings to account for ad breaks.
+        :type subtitles: list of string
+        :type json_manifest: dict
+        :rtype List[str]
+        """
         import re
         temp_dir = get_profile_path() + 'temp/'
         if not path_exists(temp_dir):
@@ -222,6 +245,10 @@ class VtmGoStream:
         return delayed_subtitles
 
     def _anvato_get_anvacks(self, access_key):
+        """ Get the anvacks from anvato. (not needed)
+        :type access_key: string
+        :rtype dict
+        """
         url = 'https://access-prod.apis.anvato.net/anvacks/{key}'.format(key=access_key)
         logger.debug('Getting anvacks from %s', url)
         response = self._session.get(url,
@@ -240,6 +267,10 @@ class VtmGoStream:
         return info
 
     def _anvato_get_server_time(self, access_key):
+        """ Get the server time from anvato. (not needed)
+        :type access_key: string
+        :rtype dict
+        """
         url = 'https://tkx.apis.anvato.net/rest/v2/server_time'
         logger.debug('Getting servertime from %s with access_key %s', url, access_key)
         response = self._session.get(url,
@@ -258,6 +289,11 @@ class VtmGoStream:
         return info
 
     def _anvato_get_stream_info(self, anvato_info, stream_info):
+        """ Get the stream info from anvato.
+        :type anvato_info: dict
+        :type stream_info: dict
+        :rtype dict
+        """
         url = 'https://tkx.apis.anvato.net/rest/v2/mcp/video/{video}'.format(**anvato_info)
         logger.debug('Getting stream info from %s with access_key %s and token %s', url, anvato_info['accessKey'], anvato_info['token'])
 
@@ -321,11 +357,20 @@ class VtmGoStream:
         info = json.loads(matches.group(1))
         return info
 
-    def _generate_random_id(self, length=32):
+    @staticmethod
+    def _generate_random_id(length=32):
+        """ Generate a random id.
+        :type length: int
+        :rtype str
+        """
         letters = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'
         return ''.join(random.choice(letters) for i in range(length))
 
     def _download_text(self, url):
+        """ Download a file as text.
+        :type url: str
+        :rtype str
+        """
         logger.debug('Downloading text from %s', url)
         response = self._session.get(url,
                                      headers={
@@ -338,6 +383,10 @@ class VtmGoStream:
         return response.text
 
     def _download_manifest(self, url):
+        """ Download the MPEG DASH manifest.
+        :type url: str
+        :rtype dict
+        """
         download = self._download_text(url)
         try:
             decoded = json.loads(download)
@@ -351,6 +400,10 @@ class VtmGoStream:
         return dict(master_m3u8=url)
 
     def _redirect_manifest(self, url):
+        """ Follow the Location tag if it is found.
+        :type url: str
+        :rtype str
+        """
         import re
         # Follow when a <Location>url</Location> tag is found.
         # https://github.com/peak3d/inputstream.adaptive/issues/286
@@ -363,7 +416,20 @@ class VtmGoStream:
         # Fallback to the url like we have it
         return url
 
-    def create_license_key(self, key_url, key_type='R', key_headers=None, key_value=None):
+    @staticmethod
+    def create_license_key(key_url, key_type='R', key_headers=None, key_value=None):
+        """ Create a license key string that we need for inputstream.adaptive.
+        :type key_url: str
+        :type key_type: str
+        :type key_headers: list of str
+        :type key_value: list of str
+        :rtype str
+        """
+        try:  # Python 3
+            from urllib.parse import urlencode, quote
+        except ImportError:  # Python 2
+            from urllib import urlencode, quote
+
         header = ''
         if key_headers:
             header = urlencode(key_headers)

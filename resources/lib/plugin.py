@@ -1,20 +1,21 @@
 # -*- coding: utf-8 -*-
-
 from __future__ import absolute_import, division, unicode_literals
 
 import routing
 import xbmcplugin
-from xbmc import Keyboard
+from xbmc import Keyboard, getRegion
 from xbmcgui import Dialog, ListItem
 
+from resources.lib import kodilogging
 from resources.lib.kodiutils import (get_cond_visibility, get_max_bandwidth, get_setting,
                                      get_setting_as_bool, get_global_setting, localize,
                                      notification, show_ok_dialog, show_settings)
 from resources.lib.vtmgo import Content, VtmGo
-from resources.lib.vtmgoepg import VtmGoEpg
+from resources.lib.vtmgoepg import VtmGoEpg, EpgChannel
 from resources.lib.vtmgostream import VtmGoStream
 
 plugin = routing.Plugin()
+logger = kodilogging.get_logger()
 
 
 @plugin.route('/kids')
@@ -218,13 +219,15 @@ def show_tvguide():
 def show_tvguide_channel(channel):
     listing = []
 
-    for day in VtmGoEpg.get_dates():
-        if day['highlight']:
-            title = '[B]%s[/B]'
-        else:
-            title = '%s'
+    date_format = getRegion('datelong')
 
-        listitem = ListItem(title % day.get('title'), offscreen=True)
+    for day in VtmGoEpg.get_dates(date_format):
+        if day.get('highlight'):
+            title = '[B]%s[/B]' % day.get('title')
+        else:
+            title = day.get('title')
+
+        listitem = ListItem(title, offscreen=True)
         listitem.setArt({
             'icon': 'DefaultYear.png',
         })
@@ -253,7 +256,7 @@ def show_tvguide_detail(channel=None, date=None):
         raise
 
     # The epg contains the data for all channels. We only need the data of the requested channel.
-    epg_json = epg.get(channel)
+    epg_json = epg.get(channel)  # type: EpgChannel
 
     listing = []
     for broadcast in epg_json.broadcasts:
@@ -406,7 +409,7 @@ def show_program(program, season=None):
         notification(message=str(ex))
         raise
 
-    seasons = program_obj.seasons.values()
+    seasons = program_obj.seasons
 
     listing = []
 
@@ -429,7 +432,7 @@ def show_program(program, season=None):
             })
             listing.append((plugin.url_for(show_program, program=program, season='all'), listitem, True))
 
-        for s in program_obj.seasons.values():
+        for s in program_obj.seasons:
             listitem = ListItem(localize(30205, season=s.number), offscreen=True)  # Season X
             listitem.setArt({
                 'thumb': s.cover,
@@ -458,7 +461,7 @@ def show_program(program, season=None):
         seasons = [program_obj.seasons[int(season)]]
 
     for s in seasons:
-        for episode in s.episodes.values():
+        for episode in s.episodes:
             listitem = ListItem(episode.name, offscreen=True)
             listitem.setArt({
                 'banner': program_obj.cover,

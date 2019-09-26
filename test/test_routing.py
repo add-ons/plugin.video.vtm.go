@@ -1,11 +1,8 @@
 # -*- coding: utf-8 -*-
-# GNU General Public License v3.0 (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
-
-# pylint: disable=missing-docstring
-
 from __future__ import absolute_import, division, print_function, unicode_literals
 
 import unittest
+
 from resources.lib import plugin
 
 xbmc = __import__('xbmc')
@@ -28,9 +25,9 @@ class TestRouter(unittest.TestCase):
         self.assertEqual(addon.url_for(plugin.show_kids_index), 'plugin://plugin.video.vtm.go/kids')
 
     # Check credentials: '/check-credentials'
-#    def test_check_credentials(self):
-#        plugin.run(['plugin://plugin.video.vtm.go/check-credentials', '0', ''])
-#        self.assertEqual(addon.url_for(plugin.check_credentials), 'plugin://plugin.video.vtm.go/check-credentials')
+    #    def test_check_credentials(self):
+    #        plugin.run(['plugin://plugin.video.vtm.go/check-credentials', '0', ''])
+    #        self.assertEqual(addon.url_for(plugin.check_credentials), 'plugin://plugin.video.vtm.go/check-credentials')
 
     # Live TV menu: '/livetv'
     def test_livetv_menu(self):
