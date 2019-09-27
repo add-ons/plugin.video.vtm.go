@@ -60,13 +60,13 @@ class TestRouter(unittest.TestCase):
     # Catalogue menu: '/catalog/<category>'
     def test_catalog_category_menu(self):
         plugin.run(['plugin://plugin.video.vtm.go/catalog/films', '0', ''])
-        self.assertEqual(addon.url_for(plugin.show_catalog, category='films'), 'plugin://plugin.video.vtm.go/catalog/films')
+        self.assertEqual(addon.url_for(plugin.show_catalog_category, category='films'), 'plugin://plugin.video.vtm.go/catalog/films')
         plugin.run(['plugin://plugin.video.vtm.go/kids/catalog/films', '0', ''])
-        self.assertEqual(addon.url_for(plugin.show_kids_catalog, category='films'), 'plugin://plugin.video.vtm.go/kids/catalog/films')
+        self.assertEqual(addon.url_for(plugin.show_kids_catalog_category, category='films'), 'plugin://plugin.video.vtm.go/kids/catalog/films')
         plugin.run(['plugin://plugin.video.vtm.go/catalog/kids', '0', ''])
-        self.assertEqual(addon.url_for(plugin.show_catalog, category='kids'), 'plugin://plugin.video.vtm.go/catalog/kids')
+        self.assertEqual(addon.url_for(plugin.show_catalog_category, category='kids'), 'plugin://plugin.video.vtm.go/catalog/kids')
         plugin.run(['plugin://plugin.video.vtm.go/catalog/nieuws-actua', '0', ''])
-        self.assertEqual(addon.url_for(plugin.show_catalog, category='nieuws-actua'), 'plugin://plugin.video.vtm.go/catalog/nieuws-actua')
+        self.assertEqual(addon.url_for(plugin.show_catalog_category, category='nieuws-actua'), 'plugin://plugin.video.vtm.go/catalog/nieuws-actua')
 
     # Movie menu: '/movie/<movie>'
     def test_movies(self):
