@@ -106,6 +106,11 @@ def get_profile_path():
     return xbmc.translatePath(ADDON.getAddonInfo('profile'))
 
 
+def get_addon_path():
+    ''' Get profile path '''
+    return xbmc.translatePath(ADDON.getAddonInfo('path'))
+
+
 def path_exists(path):
     ''' Check if the path exists (using xbmcvfs) '''
     return exists(path)

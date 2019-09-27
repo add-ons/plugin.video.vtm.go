@@ -21,4 +21,4 @@ The following features are supported:
 ## Disclaimer
 
 This add-on is not officially commissioned/supported by DPG Media and is provided 'as is' without any warranty of any kind.
-The VTM GO name, VTM GO logo and channel icons are property of DPG Media and are used according to the fair use policy. 
+The VTM GO name, VTM GO logo, channel names and icons are property of DPG Media and are used according to the fair use policy. 

@@ -2,8 +2,6 @@
 <addon id="plugin.video.vtm.go" name="VTM GO" version="0.9.0" provider-name="Michaël Arnauts">
     <requires>
         <import addon="xbmc.python" version="2.26.0"/>
-        <!-- import addon="resource.images.studios.coloured" version="0.0.18" optional="true"/ -->
-        <!-- import addon="resource.images.studios.white" version="0.0.22" optional="true"/ -->
         <import addon="script.module.dateutil" version="2.6.0"/>
         <import addon="script.module.pysocks" version="1.6.8" optional="true"/>
         <import addon="script.module.requests" version="2.22.0"/>
