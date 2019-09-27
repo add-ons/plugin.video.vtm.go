@@ -68,13 +68,6 @@ class TestRouter(unittest.TestCase):
         plugin.run(['plugin://plugin.video.vtm.go/catalog/nieuws-actua', '0', ''])
         self.assertEqual(addon.url_for(plugin.show_catalog_category, category='nieuws-actua'), 'plugin://plugin.video.vtm.go/catalog/nieuws-actua')
 
-    # Movie menu: '/movie/<movie>'
-    def test_movies(self):
-        plugin.run(['plugin://plugin.video.vtm.go/movie/d1850498-941d-48cc-a558-37aaf37f4525', '0', ''])
-        self.assertEqual(
-            addon.url_for(plugin.show_movie, movie='d1850498-941d-48cc-a558-37aaf37f4525'),
-            'plugin://plugin.video.vtm.go/movie/d1850498-941d-48cc-a558-37aaf37f4525')
-
     # YouTube menu: '/youtube'
     def test_youtube_menu(self):
         plugin.run(['plugin://plugin.video.vtm.go/youtube', '0', ''])
