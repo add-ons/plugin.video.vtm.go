@@ -390,6 +390,7 @@ def show_movie(movie):
         'year': movie_obj.year,
         'mediatype': movie_obj.mediatype,
         'aired': movie_obj.aired,
+        'mpaa': ', '.join(movie_obj.legal) if hasattr(movie_obj, 'legal') and movie_obj.legal else localize(30216),
     })
     listitem.addStreamInfo('video', {
         'duration': movie_obj.duration,
@@ -431,6 +432,7 @@ def show_program(program, season=None):
                 'subtitle': program_obj.description,
                 'plot': _format_plot(program_obj),
                 'set': program_obj.name,
+                'mpaa': ', '.join(program_obj.legal) if hasattr(program_obj, 'legal') and program_obj.legal else localize(30216),
             })
             listing.append((plugin.url_for(show_program, program=program, season='all'), listitem, True))
 
@@ -447,6 +449,7 @@ def show_program(program, season=None):
                 'plot': _format_plot(program_obj),
                 'set': program_obj.name,
                 'season': season,
+                'mpaa': ', '.join(program_obj.legal) if hasattr(program_obj, 'legal') and program_obj.legal else localize(30216),
             })
             listing.append((plugin.url_for(show_program, program=program, season=s.number), listitem, True))
         xbmcplugin.setContent(plugin.handle, 'tvshows')
@@ -482,6 +485,7 @@ def show_program(program, season=None):
                 'set': program_obj.name,
                 'studio': episode.channel,
                 'aired': episode.aired,
+                'mpaa': ', '.join(episode.legal) if hasattr(episode, 'legal') and episode.legal else localize(30216),
             })
             listitem.addStreamInfo('video', {
                 'duration': episode.duration,
@@ -632,9 +636,9 @@ def _format_plot(obj):
     # Add program name to plot
     if hasattr(obj, 'name') or (hasattr(obj, 'legal') and obj.legal):
         if hasattr(obj, 'name'):
-            plot += '[B]{name}[/B] '.format(name=obj.name)
+            plot += '[B]{name}[/B]'.format(name=obj.name)
         if hasattr(obj, 'legal') and obj.legal:
-            plot += '[COLOR gray]'
+            plot += '  [COLOR gray]'
             for icon in obj.legal:
                 plot += '[%s]' % icon
             plot += '[/COLOR]'
