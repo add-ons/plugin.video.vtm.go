@@ -139,6 +139,10 @@ msgctxt "#30215"
 msgid "Browse the TV-Guide of [B]{channel}[/B]"
 msgstr "Doorblader de tv-gids van [B]{channel}[/B]"
 
+msgctxt "#30216"
+msgid "All ages"
+msgstr "Alle leeftijden"
+
 
 ### Dates
 msgctxt "#30300"
