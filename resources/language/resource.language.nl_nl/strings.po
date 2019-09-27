@@ -128,8 +128,8 @@ msgid "[COLOR blue][B]{days} more days[/B] remaining[/COLOR]\n"
 msgstr "[COLOR blue]Nog [B]{days} dagen[/B] beschikbaar[/COLOR]\n"
 
 msgctxt "#30213"
-msgid "[COLOR yellow][B]Now:[/B] {start} - {end}\n» {title}[/COLOR]\n"
-msgstr "[COLOR yellow][B]Nu:[/B] {start} - {end}\n» {title}[/COLOR]\n"
+msgid "[B]Now: {start} - {end}\n» {title}[/B]\n"
+msgstr "[B]Nu: {start} - {end}\n» {title}[/B]\n"
 
 msgctxt "#30214"
 msgid "[B]Next:[/B] {start} - {end}\n» {title}\n"

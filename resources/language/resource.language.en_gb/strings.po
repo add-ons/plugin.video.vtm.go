@@ -128,7 +128,7 @@ msgid "[COLOR blue][B]{days} more days[/B] remaining[/COLOR]\n"
 msgstr ""
 
 msgctxt "#30213"
-msgid "[COLOR yellow][B]Now:[/B] {start} - {end}\n» {title}[/COLOR]\n"
+msgid "[B]Now: {start} - {end}\n» {title}[/B]\n"
 msgstr ""
 
 msgctxt "#30214"

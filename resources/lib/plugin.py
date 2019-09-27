@@ -9,7 +9,7 @@ from xbmcgui import Dialog, ListItem
 from resources.lib import kodilogging
 from resources.lib.kodiutils import (get_cond_visibility, get_max_bandwidth, get_setting,
                                      get_setting_as_bool, get_global_setting, localize,
-                                     notification, show_ok_dialog, show_settings)
+                                     notification, show_ok_dialog, show_settings, get_addon_path)
 from resources.lib.vtmgo import Content, VtmGo
 from resources.lib.vtmgoepg import VtmGoEpg
 from resources.lib.vtmgostream import VtmGoStream
@@ -113,6 +113,8 @@ def show_kids_livetv():
 
 @plugin.route('/livetv')
 def show_livetv():
+    from . import CHANNEL_MAPPING
+
     kids = _get_kids_mode()
     try:
         _vtmGo = VtmGo(kids=kids)
@@ -125,30 +127,24 @@ def show_livetv():
     for channel in channels:
         listitem = ListItem(channel.name, offscreen=True)
 
-        # Try to use the white icons for thumbnails (used for icons as well)
-        if get_cond_visibility('System.HasAddon(resource.images.studios.white)') == 1:
-            thumb = 'resource://resource.images.studios.white/{studio}.png'.format(studio=channel.name)
+        if CHANNEL_MAPPING.get(channel.name):
+            # Lookup the high resolution logo based on the channel name
+            icon = '{path}/resources/logos/{logo}-white.png'.format(path=get_addon_path(), logo=CHANNEL_MAPPING.get(channel.name))
+            fanart = '{path}/resources/logos/{logo}.png'.format(path=get_addon_path(), logo=CHANNEL_MAPPING.get(channel.name))
         else:
-            thumb = channel.logo
-
-        # Try to use the coloured icons for fanart
-        if get_cond_visibility('System.HasAddon(resource.images.studios.coloured)') == 1:
-            fanart = 'resource://resource.images.studios.coloured/{studio}.png'.format(studio=channel.name)
-        elif get_cond_visibility('System.HasAddon(resource.images.studios.white)') == 1:
-            fanart = 'resource://resource.images.studios.white/{studio}.png'.format(studio=channel.name)
-        else:
+            # Fallback to the default (lower resolution) logo
+            icon = channel.logo
             fanart = channel.logo
 
         listitem.setInfo('video', {
             'plot': _format_plot(channel),
             'playcount': 0,
-            'studio': channel.name,
             'mediatype': channel.mediatype,
         })
         listitem.setArt({
-            'icon': channel.logo,
+            'icon': icon,
+            'thumb': icon,
             'fanart': fanart,
-            'thumb': thumb,
         })
         listitem.setProperty('IsPlayable', 'true')
 
@@ -169,40 +165,29 @@ def show_kids_tvguide():
 
 @plugin.route('/tvguide')
 def show_tvguide():
-    listing = []
+    from . import CHANNELS
+
     kids = _get_kids_mode()
 
-    # Show a list of all channels
-    from . import CHANNELS
+    listing = []
     for entry in CHANNELS:
         # Skip non-kids channels when we are in kids mode.
         if kids and entry.get('kids') is False:
             continue
 
-        # Try to use the white icons for thumbnails (used for icons as well)
-        if get_cond_visibility('System.HasAddon(resource.images.studios.white)') == 1:
-            thumb = 'resource://resource.images.studios.white/{studio}.png'.format(**entry)
-        else:
-            thumb = 'DefaultTags.png'
-
-        # Try to use the coloured icons for fanart
-        if get_cond_visibility('System.HasAddon(resource.images.studios.coloured)') == 1:
-            fanart = 'resource://resource.images.studios.coloured/{studio}.png'.format(**entry)
-        elif get_cond_visibility('System.HasAddon(resource.images.studios.white)') == 1:
-            fanart = 'resource://resource.images.studios.white/{studio}.png'.format(**entry)
-        else:
-            fanart = 'DefaultTags.png'
+        # Lookup the high resolution logo based on the channel name
+        icon = '{path}/resources/logos/{logo}-white.png'.format(path=get_addon_path(), logo=entry.get('logo'))
+        fanart = '{path}/resources/logos/{logo}.png'.format(path=get_addon_path(), logo=entry.get('logo'))
 
         listitem = ListItem(entry.get('label'), offscreen=True)
         listitem.setInfo('video', {
             'plot': localize(30215, channel=entry.get('label')),
-            'studio': entry.get('studio'),
             'mediatype': 'video',
         })
         listitem.setArt({
-            'icon': 'DefaultTags.png',
+            'icon': icon,
+            'thumb': icon,
             'fanart': fanart,
-            'thumb': thumb,
         })
         listing.append((plugin.url_for(show_tvguide_channel, channel=entry.get('key')), listitem, True))
 
@@ -522,19 +507,9 @@ def show_youtube():
         if kids and entry.get('kids') is False:
             continue
 
-        # Try to use the white icons for thumbnails (used for icons as well)
-        if get_cond_visibility('System.HasAddon(resource.images.studios.white)') == 1:
-            thumb = 'resource://resource.images.studios.white/{studio}.png'.format(**entry)
-        else:
-            thumb = 'DefaultTags.png'
-
-        # Try to use the coloured icons for fanart
-        if get_cond_visibility('System.HasAddon(resource.images.studios.coloured)') == 1:
-            fanart = 'resource://resource.images.studios.coloured/{studio}.png'.format(**entry)
-        elif get_cond_visibility('System.HasAddon(resource.images.studios.white)') == 1:
-            fanart = 'resource://resource.images.studios.white/{studio}.png'.format(**entry)
-        else:
-            fanart = 'DefaultTags.png'
+        # Lookup the high resolution logo based on the channel name
+        icon = '{path}/resources/logos/{logo}-white.png'.format(path=get_addon_path(), logo=entry.get('logo'))
+        fanart = '{path}/resources/logos/{logo}.png'.format(path=get_addon_path(), logo=entry.get('logo'))
 
         listitem = ListItem(entry.get('label'), offscreen=True)
         listitem.setInfo('video', {
@@ -543,9 +518,9 @@ def show_youtube():
             'mediatype': 'video',
         })
         listitem.setArt({
-            'icon': 'DefaultTags.png',
+            'icon': icon,
             'fanart': fanart,
-            'thumb': thumb,
+            'thumb': icon,
         })
         listing.append((entry.get('path'), listitem, True))
 

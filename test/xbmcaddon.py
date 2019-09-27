@@ -3,15 +3,14 @@
 # GNU General Public License v3.0 (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 ''' This file implements the Kodi xbmcaddon module, either using stubs or alternative functionality '''
 
+# pylint: disable=invalid-name
+
 from __future__ import absolute_import, division, print_function, unicode_literals
-import json
 from xbmc import getLocalizedString
-from xbmcextra import addon_settings, global_settings, import_language, read_addon_xml
+from xbmcextra import ADDON_INFO, ADDON_ID, addon_settings, global_settings, import_language
 
 GLOBAL_SETTINGS = global_settings()
 ADDON_SETTINGS = addon_settings()
-ADDON_INFO = read_addon_xml('addon.xml')
-ADDON_ID = next(iter(ADDON_INFO.values())).get('id')
 PO = import_language(language=GLOBAL_SETTINGS.get('locale.language'))
 
 
@@ -24,8 +23,10 @@ class Addon:
 
     def getAddonInfo(self, key):
         ''' A working implementation for the xbmcaddon Addon class getAddonInfo() method '''
-        STUB_INFO = dict(id=self.id, name=self.id, version='2.3.4', type='kodi.inputstream', profile='special://userdata')
-        return ADDON_INFO.get(self.id, STUB_INFO).get(key)
+        stub_info = dict(id=self.id, name=self.id, version='2.3.4', type='kodi.inputstream', profile='special://userdata', path='special://userdata')
+        # Add stub_info values to ADDON_INFO when missing (e.g. path and profile)
+        addon_info = dict(stub_info, **ADDON_INFO)
+        return addon_info.get(self.id, stub_info).get(key)
 
     @staticmethod
     def getLocalizedString(msgctxt):
@@ -34,7 +35,7 @@ class Addon:
 
     def getSetting(self, key):
         ''' A working implementation for the xbmcaddon Addon class getSetting() method '''
-        return ADDON_SETTINGS.get(self.id, ADDON_SETTINGS).get(key, '')
+        return ADDON_SETTINGS.get(self.id, {}).get(key, '')
 
     @staticmethod
     def openSettings():
@@ -42,9 +43,9 @@ class Addon:
 
     def setSetting(self, key, value):
         ''' A stub implementation for the xbmcaddon Addon class setSetting() method '''
-        if ADDON_SETTINGS.get(self.id):
-            ADDON_SETTINGS[self.id][key] = value
-        else:
-            ADDON_SETTINGS[key] = value
-        with open('test/userdata/addon_settings.json', 'w') as fd:
-            json.dump(ADDON_SETTINGS, fd, sort_keys=True, indent=4)
+        if not ADDON_SETTINGS.get(self.id):
+            ADDON_SETTINGS[self.id] = dict()
+        ADDON_SETTINGS[self.id][key] = value
+        # NOTE: Disable actual writing as it is no longer needed for testing
+        # with open('test/userdata/addon_settings.json', 'w') as fd:
+        #     json.dump(filtered_settings, fd, sort_keys=True, indent=4)

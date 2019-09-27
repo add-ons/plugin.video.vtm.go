@@ -3,11 +3,10 @@
 # GNU General Public License v3.0 (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 ''' This file implements the Kodi xbmc module, either using stubs or alternative functionality '''
 
-# pylint: disable=unused-argument
+# pylint: disable=invalid-name,no-self-use,unused-argument
 
 from __future__ import absolute_import, division, print_function, unicode_literals
 
-import sys
 import os
 import json
 import time
@@ -49,7 +48,7 @@ class Keyboard:
 
     def getText(self):
         ''' A stub implementation for the xbmc Keyboard class getText() method '''
-        return 'de'
+        return 'test'
 
 
 class Monitor:
@@ -97,7 +96,15 @@ def executeJSONRPC(jsonrpccommand):
     if command.get('method') == 'Settings.GetSettingValue':
         key = command.get('params').get('setting')
         return json.dumps(dict(id=1, jsonrpc='2.0', result=dict(value=GLOBAL_SETTINGS.get(key))))
-    print("Error in executeJSONRPC, method '{method}' is not implemented".format(**command), file=sys.stderr)
+    if command.get('method') == 'Addons.GetAddonDetails':
+        if command.get('params', {}).get('addonid') == 'script.module.inputstreamhelper':
+            return json.dumps(dict(id=1, jsonrpc='2.0', result=dict(addon=dict(enabled='true', version='0.3.5'))))
+        return json.dumps(dict(id=1, jsonrpc='2.0', result=dict(addon=dict(enabled='true', version='1.2.3'))))
+    if command.get('method') == 'Textures.GetTextures':
+        return json.dumps(dict(id=1, jsonrpc='2.0', result=dict(textures=[dict(cachedurl="", imagehash="", lasthashcheck="", textureid=4837, url="")])))
+    if command.get('method') == 'Textures.RemoveTexture':
+        return json.dumps(dict(id=1, jsonrpc='2.0', result="OK"))
+    log("executeJSONRPC does not implement method '{method}'".format(**command), 'Error')
     return json.dumps(dict(error=dict(code=-1, message='Not implemented'), id=1, jsonrpc='2.0'))
 
 
@@ -118,7 +125,8 @@ def getLocalizedString(msgctxt):
     for entry in PO:
         if entry.msgctxt == '#%s' % msgctxt:
             return entry.msgstr or entry.msgid
-    log('Unable to translate #{msgctxt}'.format(msgctxt=msgctxt), LOGERROR)
+    if int(msgctxt) >= 30000:
+        log('Unable to translate #{msgctxt}'.format(msgctxt=msgctxt), LOGERROR)
     return '<Untranslated>'
 
 
@@ -153,6 +161,8 @@ def translatePath(path):
     ''' A stub implementation of the xbmc translatePath() function '''
     if path.startswith('special://home'):
         return path.replace('special://home', os.path.join(os.getcwd(), 'test/'))
+    if path.startswith('special://masterprofile'):
+        return path.replace('special://masterprofile', os.path.join(os.getcwd(), 'test/userdata/'))
     if path.startswith('special://profile'):
         return path.replace('special://profile', os.path.join(os.getcwd(), 'test/userdata/'))
     if path.startswith('special://userdata'):

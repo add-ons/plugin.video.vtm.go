@@ -3,9 +3,13 @@
 # GNU General Public License v3.0 (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 ''' Extra functions for testing '''
 
+# pylint: disable=invalid-name
+
 from __future__ import absolute_import, division, print_function, unicode_literals
+
 import os
 import xml.etree.ElementTree as ET
+
 import polib
 
 
@@ -33,14 +37,14 @@ def uri_to_path(uri):
     ''' Shorten a plugin URI to just the path '''
     if uri is None:
         return None
-    return ' \033[33m→ \033[34m%s\033[39;0m' % uri.replace('plugin://plugin.video.vtm.go', '')
+    return ' \033[33m→ \033[34m%s\033[39;0m' % uri.replace('plugin://' + ADDON_ID, '')
 
 
 def read_addon_xml(path):
     ''' Parse the addon.xml and return an info dictionary '''
     info = dict(
-        path='./',   # '/storage/.kodi/addons/plugin.video.vtm.go',
-        profile=os.path.join(os.getcwd(), 'test/userdata/'),  # 'special://profile/addon_data/plugin.video.vtm.go/',
+        path='./',  # '/storage/.kodi/addons/plugin.video.vrt.nu',
+        profile='special://userdata',  # 'special://profile/addon_data/plugin.video.vrt.nu/',
         type='xbmc.python.pluginsource',
     )
 
@@ -114,3 +118,7 @@ def addon_settings():
 def import_language(language):
     ''' Process the language.po file '''
     return polib.pofile('resources/language/{language}/strings.po'.format(language=language))
+
+
+ADDON_INFO = read_addon_xml('addon.xml')
+ADDON_ID = next(iter(ADDON_INFO.values())).get('id')
