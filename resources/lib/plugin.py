@@ -4,7 +4,7 @@ from __future__ import absolute_import, division, unicode_literals
 import routing
 import xbmcplugin
 from xbmc import Keyboard, getRegion
-from xbmcgui import Dialog, ListItem
+from xbmcgui import ListItem
 
 from resources.lib import kodilogging
 from resources.lib.kodiutils import (get_cond_visibility, get_max_bandwidth, get_setting,
@@ -362,40 +362,6 @@ def show_catalog_category(category):
 
     ok = xbmcplugin.addDirectoryItems(plugin.handle, listing, len(listing))
     xbmcplugin.endOfDirectory(plugin.handle, ok)
-
-
-@plugin.route('/movie/<movie>')
-def show_movie(movie):
-    kids = _get_kids_mode()
-    try:
-        _vtmGo = VtmGo(kids=kids)
-        movie_obj = _vtmGo.get_movie(movie)
-    except Exception as ex:
-        notification(message=str(ex))
-        raise
-
-    listitem = ListItem(movie_obj.name, offscreen=True)
-    listitem.setPath(plugin.url_for(play_movie, movie=movie))
-    listitem.setArt({
-        'thumb': movie_obj.cover,
-        'fanart': movie_obj.cover,
-    })
-    listitem.setInfo('video', {
-        'title': movie_obj.name,
-        'plot': _format_plot(movie_obj),
-        'duration': movie_obj.duration,
-        'year': movie_obj.year,
-        'mediatype': movie_obj.mediatype,
-        'aired': movie_obj.aired,
-        'mpaa': ', '.join(movie_obj.legal) if hasattr(movie_obj, 'legal') and movie_obj.legal else localize(30216),
-    })
-    listitem.addStreamInfo('video', {
-        'duration': movie_obj.duration,
-    })
-    listitem.setProperty('IsPlayable', 'true')
-    listitem.setContentLookup(False)
-
-    Dialog().info(listitem)
 
 
 @plugin.route('/program/<program>')
