@@ -91,4 +91,4 @@ def setResolvedUrl(handle, succeeded, listitem):
         response = urlopen(request)
         log('Stream playing successfully: %s' % response.code, 'Info')
     except HTTPError as exc:
-        log('Playing stream returned: %s' % exc, 'Fatal')
+        log('Playing stream returned: %s' % exc, 'Error')
