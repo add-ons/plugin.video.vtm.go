@@ -31,5 +31,6 @@ First release
         <assets>
             <icon>resources/icon.png</icon>
         </assets>
+        <reuselanguageinvoker>true</reuselanguageinvoker>
     </extension>
 </addon>
