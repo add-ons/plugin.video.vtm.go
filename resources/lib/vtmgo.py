@@ -4,31 +4,33 @@ from __future__ import absolute_import, division, unicode_literals
 import json
 import logging
 
+import requests
+
+from resources.lib import UnavailableException
+from resources.lib.kodiutils import proxies
+
 try:  # Python 3
     from urllib.parse import quote
 except ImportError:  # Python 2
     from urllib import quote
 
-import requests
-from resources.lib.kodiutils import proxies
-
 logger = logging.getLogger()
 
 
 class LiveChannel:
-    def __init__(self, channel_id=None, name=None, logo=None, epg=None):
+    def __init__(self, channel_id=None, name=None, logo=None, epg=None, geoblocked=False):
         """ Defines a tv channel that can be streamed live.
         :type channel_id: str
         :type name: str
         :type logo: str
         :type epg: list[LiveChannelEpg]
+        :type geoblocked: bool
         """
-        self.id = channel_id
+        self.channel_id = channel_id
         self.name = name
         self.logo = logo
         self.epg = epg
-        self.geoblocked = True
-        self.mediatype = 'video'
+        self.geoblocked = geoblocked
 
     def __repr__(self):
         return "%r" % self.__dict__
@@ -55,7 +57,7 @@ class Category:
         :type category_id: str
         :type title: str
         """
-        self.id = category_id
+        self.category_id = category_id
         self.title = title
 
     def __repr__(self):
@@ -66,23 +68,21 @@ class Content:
     CONTENT_TYPE_MOVIE = 'MOVIE'
     CONTENT_TYPE_PROGRAM = 'PROGRAM'
 
-    def __init__(self, video_id=None, title=None, description=None, cover=None, video_type=None, geoblocked=None):
+    def __init__(self, content_id=None, title=None, description=None, cover=None, video_type=None, geoblocked=None):
         """ Defines an item from the catalogue.
-        :type video_id: str
+        :type content_id: str
         :type title: str
         :type description: str
         :type cover: str
         :type video_type: str
         :type geoblocked: bool
         """
-        self.id = video_id
+        self.content_id = content_id
         self.title = title
         self.description = description if description else ''
         self.cover = cover
-        self.type = video_type
+        self.video_type = video_type
         self.geoblocked = geoblocked
-        # If it is a TV show we return None to get a folder icon
-        self.mediatype = 'movie' if video_type == self.CONTENT_TYPE_MOVIE else None
 
     def __repr__(self):
         return "%r" % self.__dict__
@@ -104,7 +104,7 @@ class Movie:
         :type legal: str
         :type aired: str
         """
-        self.id = movie_id
+        self.movie_id = movie_id
         self.name = name
         self.description = description if description else ''
         self.year = year
@@ -115,7 +115,6 @@ class Movie:
         self.channel = channel
         self.legal = legal
         self.aired = aired
-        self.mediatype = 'movie'
 
     def __repr__(self):
         return "%r" % self.__dict__
@@ -128,12 +127,12 @@ class Program:
         :type name: str
         :type description: str
         :type cover: str
-        :type seasons: list[Season]
+        :type seasons: dict[int, Season]
         :type geoblocked: bool
         :type channel: str
         :type legal: str
         """
-        self.id = program_id
+        self.program_id = program_id
         self.name = name
         self.description = description if description else ''
         self.cover = cover
@@ -141,7 +140,6 @@ class Program:
         self.geoblocked = geoblocked
         self.channel = channel
         self.legal = legal
-        self.mediatype = 'tvshow'
 
     def __repr__(self):
         return "%r" % self.__dict__
@@ -151,7 +149,7 @@ class Season:
     def __init__(self, number=None, episodes=None, cover=None, geoblocked=None, channel=None, legal=None):
         """ Defines a Season.
         :type number: str
-        :type episodes: list[Episode]
+        :type episodes: dict[int, Episode]
         :type cover: str
         :type geoblocked: bool
         :type channel: str
@@ -186,7 +184,7 @@ class Episode:
         :type aired: str
         """
         import re
-        self.id = episode_id
+        self.episode_id = episode_id
         self.number = int(number)
         self.season = int(season)
         self.name = re.compile('^%d. ' % number).sub('', name)  # Strip episode from name
@@ -198,7 +196,6 @@ class Episode:
         self.channel = channel
         self.legal = legal
         self.aired = aired
-        self.mediatype = 'episode'
 
     def __repr__(self):
         return "%r" % self.__dict__
@@ -279,7 +276,7 @@ class VtmGo:
         items = []
         for item in info.get('pagedTeasers', {}).get('content', []):
             items.append(Content(
-                video_id=item.get('target', {}).get('id'),
+                content_id=item.get('target', {}).get('id'),
                 title=item.get('title'),
                 cover=item.get('imageUrl'),
                 video_type=item.get('target', {}).get('type'),
@@ -354,7 +351,7 @@ class VtmGo:
 
             seasons[item_season.get('index')] = Season(
                 number=item_season.get('index'),
-                episodes=episodes.values(),
+                episodes=episodes,
                 cover=item_season.get('episodes', [{}])[0].get('bigPhotoUrl') if episodes else program.get('bigPhotoUrl'),
                 geoblocked=program.get('geoBlocked'),
                 channel=channel,
@@ -367,7 +364,7 @@ class VtmGo:
             description=program.get('description'),
             cover=program.get('bigPhotoUrl'),
             geoblocked=program.get('geoBlocked'),
-            seasons=seasons.values(),
+            seasons=seasons,
             channel=channel,
             legal=program.get('legalIcons'),
         )
@@ -401,7 +398,7 @@ class VtmGo:
         items = []
         for item in results.get('suggestions', []):
             items.append(Content(
-                video_id=item.get('id'),
+                content_id=item.get('id'),
                 title=item.get('name'),
                 video_type=item.get('type'),
             ))
@@ -427,6 +424,9 @@ class VtmGo:
         logging.debug('Fetching %s...', url)
 
         response = requests.session().get('https://api.vtmgo.be' + url, headers=headers, verify=False, proxies=proxies)
+
+        if response.status_code == 404:
+            raise UnavailableException()
 
         if response.status_code != 200:
             raise Exception('Error %s.' % response.status_code)

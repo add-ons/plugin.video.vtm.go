@@ -9,7 +9,8 @@ from datetime import timedelta
 
 import requests
 
-from resources.lib.kodiutils import delete_file, get_profile_path, from_unicode, list_dir, localize, make_dir, open_file, path_exists, proxies, show_ok_dialog
+from resources.lib import GeoblockedException, UnavailableException
+from resources.lib.kodiutils import delete_file, get_profile_path, from_unicode, list_dir, localize, make_dir, open_file, path_exists, proxies
 
 logger = logging.getLogger()
 
@@ -53,8 +54,6 @@ class VtmGoStream:
         """
         # We begin with asking vtm about the stream info.
         stream_info = self._get_stream_info(stream_type, stream_id)
-        if stream_info is None:
-            return None  # No stream available (i.e. geo-blocked)
 
         # Extract the anvato stream from our stream_info.
         anvato_info = self._extract_anvato_stream_from_stream_info(stream_info)
@@ -67,8 +66,6 @@ class VtmGoStream:
 
         # Send a request for the stream info.
         anvato_stream_info = self._anvato_get_stream_info(anvato_info=anvato_info, stream_info=stream_info)
-        if anvato_stream_info is None:
-            return None  # No stream available (i.e. geo-blocked)
 
         # Get published urls.
         url = anvato_stream_info['published_urls'][0]['embed_url']
@@ -100,6 +97,7 @@ class VtmGoStream:
                 license_url=license_url,
                 cookies=self._session.cookies.get_dict()
             )
+
         if stream_type == 'movies':
             # Movie
             return ResolvedStream(
@@ -111,6 +109,7 @@ class VtmGoStream:
                 license_url=license_url,
                 cookies=self._session.cookies.get_dict()
             )
+
         if stream_type == 'channels':
             # Live TV
             return ResolvedStream(
@@ -144,13 +143,20 @@ class VtmGoStream:
                                          'User-Agent': 'Dalvik/2.1.0 (Linux; U; Android 6.0.1; Nexus 5 Build/M4B30Z)',
                                      },
                                      proxies=proxies)
+        logger.debug(response.text)
 
         if response.status_code == 403:
-            logger.error('Error %s in _get_stream_info.', response.status_code)
-            show_ok_dialog(heading='HTTP 403 Forbidden', message=localize(30704))  # Geo-blocked
-            return None
+            error = json.loads(response.text)
+            if error['type'] == 'videoPlaybackGeoblocked':
+                raise GeoblockedException()
+            if error['type'] == 'serviceError':
+                raise UnavailableException()
+
+        if response.status_code == 404:
+            raise UnavailableException()
+
         if response.status_code != 200:
-            raise Exception('Error %s in _get_stream_info.' % response.status_code)
+            raise UnavailableException()
 
         info = json.loads(response.text)
         return info
@@ -306,7 +312,7 @@ class VtmGoStream:
                                                       "ml_dmp_userid": "",  # TODO: fill in
                                                       "ml_gdprconsent": "",
                                                       "ml_apple_advertising_id": "",
-                                                      "ml_google_advertising_id": ""
+                                                      "ml_google_advertising_id": "",
                                                   },
                                                   "network_id": stream_info['video']['ads']['freewheel']['networkId'],
                                                   "profile_id": stream_info['video']['ads']['freewheel']['profileId'],
@@ -319,7 +325,7 @@ class VtmGoStream:
                                               "anvstk2": anvato_info['token']
                                           },
                                           "content": {
-                                              "mcp_video_id": anvato_info['video']
+                                              "mcp_video_id": anvato_info['video'],
                                           },
                                           "sdkver": "5.0.39",
                                           "user": {
@@ -331,7 +337,7 @@ class VtmGoStream:
                                                   "short_token": ""
                                               },
                                               "device": "android",
-                                              "device_id": "b93616a0-4204-4872-a1cc-999999999999"  # TODO: randomize
+                                              "device_id": "",
                                           },
                                           "version": "3.0"
                                       },
@@ -344,9 +350,8 @@ class VtmGoStream:
                                           'X-Anvato-User-Agent': self._ANVATO_USER_AGENT,
                                           'User-Agent': self._ANVATO_USER_AGENT,
                                       })
-        if response.status_code == 403:
-            show_ok_dialog(heading='HTTP 403 Forbidden', message=localize(30704))  # Geo-blocked error
-            return None
+        logger.debug(response.text)
+
         if response.status_code != 200:
             raise Exception('Error %s.' % response.status_code)
 
@@ -421,8 +426,8 @@ class VtmGoStream:
         """ Create a license key string that we need for inputstream.adaptive.
         :type key_url: str
         :type key_type: str
-        :type key_headers: list[str]
-        :type key_value: list[str]
+        :type key_headers: dict[str, str]
+        :type key_value: dict[str, str]
         :rtype str
         """
         try:  # Python 3

@@ -6,7 +6,7 @@ import xbmcplugin
 from xbmc import Keyboard, getRegion
 from xbmcgui import ListItem
 
-from resources.lib import kodilogging
+from resources.lib import kodilogging, GeoblockedException, UnavailableException
 from resources.lib.kodiutils import (get_cond_visibility, get_max_bandwidth, get_setting,
                                      get_setting_as_bool, get_global_setting, localize,
                                      notification, show_ok_dialog, show_settings, get_addon_path)
@@ -140,7 +140,7 @@ def show_livetv():
         listitem.setInfo('video', {
             'plot': _format_plot(channel),
             'playcount': 0,
-            'mediatype': channel.mediatype,
+            'mediatype': 'video',
         })
         listitem.setArt({
             'icon': icon,
@@ -149,7 +149,7 @@ def show_livetv():
         })
         listitem.setProperty('IsPlayable', 'true')
 
-        listing.append((plugin.url_for(play_livetv, channel=channel.id) + '?.pvr', listitem, False))
+        listing.append((plugin.url_for(play, category='channels', item=channel.channel_id) + '?.pvr', listitem, False))
 
     # Sort live channels by default like in VTM GO.
     xbmcplugin.addSortMethod(plugin.handle, xbmcplugin.SORT_METHOD_UNSORTED)
@@ -209,7 +209,7 @@ def show_tvguide_channel(channel):
 
     for day in VtmGoEpg.get_dates(date_format):
         if day.get('highlight'):
-            title = '[B]%s[/B]' % day.get('title')
+            title = '[B]{title}[/B]'.format(title=day.get('title'))
         else:
             title = day.get('title')
 
@@ -300,7 +300,7 @@ def show_catalog():
         listitem.setInfo('video', {
             'plot': '[B]{category}[/B]'.format(category=cat.title),
         })
-        listing.append((plugin.url_for(show_kids_catalog_category if kids else show_catalog_category, category=cat.id), listitem, True))
+        listing.append((plugin.url_for(show_kids_catalog_category if kids else show_catalog_category, category=cat.category_id), listitem, True))
 
     xbmcplugin.setContent(plugin.handle, 'files')
 
@@ -340,15 +340,16 @@ def show_catalog_category(category):
         listitem.setInfo('video', {
             'title': item.title,
             'plot': item.description,
-            'mediatype': item.mediatype,
+            # If it is a TV show we return None to get a folder icon
+            'mediatype': 'movie' if item.video_type == Content.CONTENT_TYPE_MOVIE else None,
         })
         listitem.setProperty('IsPlayable', 'true')
 
-        if item.type == Content.CONTENT_TYPE_MOVIE:
-            listing.append((plugin.url_for(play_movie, movie=item.id), listitem, False))
+        if item.video_type == Content.CONTENT_TYPE_MOVIE:
+            listing.append((plugin.url_for(play, category='movies', item=item.content_id), listitem, False))
 
-        elif item.type == Content.CONTENT_TYPE_PROGRAM:
-            listing.append((plugin.url_for(show_program, program=item.id), listitem, True))
+        elif item.video_type == Content.CONTENT_TYPE_PROGRAM:
+            listing.append((plugin.url_for(show_program, program=item.content_id), listitem, True))
 
     if category == 'films':
         xbmcplugin.setContent(plugin.handle, 'movies')
@@ -365,8 +366,7 @@ def show_catalog_category(category):
 
 
 @plugin.route('/program/<program>')
-@plugin.route('/program/<program>/<season>')
-def show_program(program, season=None):
+def show_program(program):
     """ Show a program from the catalog. """
     kids = _get_kids_mode()
     try:
@@ -376,61 +376,70 @@ def show_program(program, season=None):
         notification(message=str(ex))
         raise
 
-    seasons = program_obj.seasons
+    listing = []
+
+    # Add an '* All seasons' entry when configured in Kodi
+    if get_global_setting('videolibrary.showallitems') is True:
+        listitem = ListItem('* %s' % localize(30204), offscreen=True)  # * All seasons
+        listitem.setArt({
+            'thumb': program_obj.cover,
+            'fanart': program_obj.cover,
+        })
+        listitem.setInfo('video', {
+            'tvshowtitle': program_obj.name,
+            'title': localize(30204),  # All seasons
+            'tagline': program_obj.description,
+            'set': program_obj.name,
+            'mpaa': ', '.join(program_obj.legal) if hasattr(program_obj, 'legal') and program_obj.legal else localize(30216),
+        })
+        listing.append((plugin.url_for(show_program_season, program=program, season='all'), listitem, True))
+
+    for s in program_obj.seasons.values():
+        listitem = ListItem(localize(30205, season=s.number), offscreen=True)  # Season X
+        listitem.setArt({
+            'thumb': s.cover,
+            'fanart': program_obj.cover,
+        })
+        listitem.setInfo('video', {
+            'tvshowtitle': program_obj.name,
+            'title': localize(30205, season=s.number),
+            'tagline': program_obj.description,
+            'set': program_obj.name,
+            'season': s.number,
+            'mpaa': ', '.join(program_obj.legal) if hasattr(program_obj, 'legal') and program_obj.legal else localize(30216),
+        })
+        listing.append((plugin.url_for(show_program_season, program=program, season=s.number), listitem, True))
+    xbmcplugin.setContent(plugin.handle, 'tvshows')
+
+    # Sort by label. Some programs return seasons unordered.
+    xbmcplugin.addSortMethod(plugin.handle, xbmcplugin.SORT_METHOD_LABEL)
+    xbmcplugin.setPluginCategory(plugin.handle, category=program_obj.name)
+    ok = xbmcplugin.addDirectoryItems(plugin.handle, listing, len(listing))
+    xbmcplugin.endOfDirectory(plugin.handle, ok)
+
+
+@plugin.route('/program/<program>/<season>')
+def show_program_season(program, season):
+    """ Show a program from the catalog. """
+    kids = _get_kids_mode()
+    try:
+        _vtmGo = VtmGo(kids=kids)
+        program_obj = _vtmGo.get_program(program)
+    except Exception as ex:
+        notification(message=str(ex))
+        raise
 
     listing = []
 
-    # If more than one season and no season provided, give a season-overview
-    if season is None and len(seasons) > 1:
-
-        # Add an '* All seasons' entry when configured in Kodi
-        if get_global_setting('videolibrary.showallitems') is True:
-            listitem = ListItem(localize(30204), offscreen=True)  # * All seasons
-            listitem.setArt({
-                'thumb': program_obj.cover,
-                'fanart': program_obj.cover,
-            })
-            listitem.setInfo('video', {
-                'tvshowtitle': program_obj.name,
-                'title': 'All seasons',
-                'subtitle': program_obj.description,
-                'plot': _format_plot(program_obj),
-                'set': program_obj.name,
-                'mpaa': ', '.join(program_obj.legal) if hasattr(program_obj, 'legal') and program_obj.legal else localize(30216),
-            })
-            listing.append((plugin.url_for(show_program, program=program, season='all'), listitem, True))
-
-        for s in program_obj.seasons:
-            listitem = ListItem(localize(30205, season=s.number), offscreen=True)  # Season X
-            listitem.setArt({
-                'thumb': s.cover,
-                'fanart': program_obj.cover,
-            })
-            listitem.setInfo('video', {
-                'tvshowtitle': program_obj.name,
-                'title': 'Season %d' % s.number,
-                'subtitle': program_obj.description,
-                'plot': _format_plot(program_obj),
-                'set': program_obj.name,
-                'season': season,
-                'mpaa': ', '.join(program_obj.legal) if hasattr(program_obj, 'legal') and program_obj.legal else localize(30216),
-            })
-            listing.append((plugin.url_for(show_program, program=program, season=s.number), listitem, True))
-        xbmcplugin.setContent(plugin.handle, 'tvshows')
-
-        # Sort by label. Some programs return seasons unordered.
-        xbmcplugin.addSortMethod(plugin.handle, xbmcplugin.SORT_METHOD_LABEL)
-        xbmcplugin.setPluginCategory(plugin.handle, category=program_obj.name)
-        ok = xbmcplugin.addDirectoryItems(plugin.handle, listing, len(listing))
-        xbmcplugin.endOfDirectory(plugin.handle, ok)
-        return
-
-    if season != 'all' and season is not None:
-        # Use the season that was selected
+    if season == 'all':
+        # Show all seasons
+        seasons = program_obj.seasons.values()
+    else:
+        # Show the season that was selected
         seasons = [program_obj.seasons[int(season)]]
 
     for s in seasons:
-        for episode in s.episodes:
+        for episode in s.episodes.values():
             listitem = ListItem(episode.name, offscreen=True)
             listitem.setArt({
                 'banner': program_obj.cover,
@@ -440,12 +449,12 @@ def show_program(program, season=None):
             listitem.setInfo('video', {
                 'tvshowtitle': program_obj.name,
                 'title': episode.name,
-                'subtitle': program_obj.description,
+                'tagline': program_obj.description,
                 'plot': _format_plot(episode),
                 'duration': episode.duration,
                 'season': episode.season,
                 'episode': episode.number,
-                'mediatype': episode.mediatype,
+                'mediatype': 'episode',
                 'set': program_obj.name,
                 'studio': episode.channel,
                 'aired': episode.aired,
@@ -455,7 +464,7 @@ def show_program(program, season=None):
                 'duration': episode.duration,
             })
             listitem.setProperty('IsPlayable', 'true')
-            listing.append((plugin.url_for(play_episode, episode=episode.id), listitem, False))
+            listing.append((plugin.url_for(play, category='episodes', item=episode.episode_id), listitem, False))
 
     xbmcplugin.setContent(plugin.handle, 'episodes')
 
@@ -522,7 +531,7 @@ def show_search():
     kids = _get_kids_mode()
 
     # Ask for query
-    keyboard = Keyboard('', 'Search')
+    keyboard = Keyboard('', localize(30009))
     keyboard.doModal()
     if not keyboard.isConfirmed():
         return
@@ -541,17 +550,17 @@ def show_search():
     for item in items:
         listitem = ListItem(item.title, offscreen=True)
 
-        if item.type == Content.CONTENT_TYPE_MOVIE:
+        if item.video_type == Content.CONTENT_TYPE_MOVIE:
             listitem.setInfo('video', {
                 'mediatype': 'movie',
             })
-            listing.append((plugin.url_for(play_movie, movie=item.id), listitem, False))
+            listing.append((plugin.url_for(play, category='movies', item=item.content_id), listitem, False))
 
-        elif item.type == Content.CONTENT_TYPE_PROGRAM:
+        elif item.video_type == Content.CONTENT_TYPE_PROGRAM:
             listitem.setInfo('video', {
                 'mediatype': None,  # This shows a folder icon
             })
-            listing.append((plugin.url_for(show_program, program=item.id), listitem, True))
+            listing.append((plugin.url_for(show_program, program=item.content_id), listitem, True))
 
     xbmcplugin.setContent(plugin.handle, 'tvshows')
 
@@ -567,22 +576,112 @@ def show_search():
 def play_epg(channel, program_type, epg_id):
     _vtmGoEpg = VtmGoEpg()
     details = _vtmGoEpg.get_details(channel=channel, program_type=program_type, epg_id=epg_id)
-    _stream(details.playable_type, details.playable_uuid)
+    play(details.playable_type, details.playable_uuid)
 
 
-@plugin.route('/play/livetv/<channel>')
-def play_livetv(channel):
-    _stream('channels', channel)
+@plugin.route('/play/<category>/<item>')
+def play(category, item):
+    """ Play the requested item. Uses setResolvedUrl(). """
+    _vtmgostream = VtmGoStream()
 
+    try:
+        # Get url
+        resolved_stream = _vtmgostream.get_stream(category, item)
 
-@plugin.route('/play/movie/<movie>')
-def play_movie(movie):
-    _stream('movies', movie)
+    except GeoblockedException:
+        show_ok_dialog(heading=localize(30709), message=localize(30710))  # Geo-blocked
+        return
 
+    except UnavailableException:
+        show_ok_dialog(heading=localize(30711), message=localize(30712))  # Unavailable
+        return
 
-@plugin.route('/play/episode/<episode>')
-def play_episode(episode):
-    _stream('episodes', episode)
+    # Create listitem
+    listitem = ListItem(path=resolved_stream.url, offscreen=True)
+
+    # Lookup metadata
+    try:
+        if category == 'movies':
+            listitem.setInfo('video', {
+                'tvshowtitle': resolved_stream.program,
+                'title': resolved_stream.title,
+                'duration': resolved_stream.duration,
+                'mediatype': 'movie',
+            })
+
+            details = VtmGo().get_movie(item)
+            listitem.setInfo('video', {
+                'tagline': details.description,
+                'plot': details.description,
+            })
+        elif category == 'episodes':
+            listitem.setInfo('video', {
+                'tvshowtitle': resolved_stream.program,
+                'title': resolved_stream.title,
+                'duration': resolved_stream.duration,
+                'mediatype': 'episode',
+            })
+
+            details = VtmGo().get_episode(item)
+            listitem.setInfo('video', {
+                'tagline': details.description,
+                'plot': details.description,
+                'season': details.season,
+                'episode': details.number,
+            })
+        elif category == 'channels':
+            listitem.setInfo('video', {
+                'title': resolved_stream.title,
+                'tvshowtitle': resolved_stream.program,
+                'mediatype': 'video'
+            })
+
+            # For live channels, we need to keep on updating the manifest
+            # This might not be needed, and could be done with the Location-tag updates if inputstream.adaptive supports it
+            # See https://github.com/peak3d/inputstream.adaptive/pull/298#issuecomment-524206935
+            listitem.setProperty('inputstream.adaptive.manifest_update_parameter', 'full')
+        else:
+            raise Exception('Unknown category %s' % category)
+
+    except GeoblockedException:
+        show_ok_dialog(heading=localize(30709), message=localize(30710))  # Geo-blocked
+        return
+    except UnavailableException:
+        # We continue without details.
+        # This seems to make it possible to play some programs what don't have metadata.
+        pass
+
+    listitem.addStreamInfo('video', {
+        'duration': resolved_stream.duration,
+    })
+
+    # Add subtitle info
+    subtitles_visible = get_setting('showsubtitles', 'true') == 'true'
+    if subtitles_visible and resolved_stream.subtitles:
+        listitem.setSubtitles(resolved_stream.subtitles)
+        listitem.addStreamInfo('subtitle', {
+            'language': 'nl',
+        })
+
+    listitem.setProperty('IsPlayable', 'true')
+    listitem.setProperty('network.bandwidth', str(get_max_bandwidth() * 1000))
+    listitem.setProperty('inputstream.adaptive.max_bandwidth', str(get_max_bandwidth() * 1000))
+    listitem.setProperty('inputstreamaddon', 'inputstream.adaptive')
+    listitem.setProperty('inputstream.adaptive.manifest_type', 'mpd')
+    listitem.setMimeType('application/dash+xml')
+    listitem.setContentLookup(False)
+
+    try:
+        from inputstreamhelper import Helper
+    except ImportError:
+        show_ok_dialog(message=localize(30708))  # Please reboot Kodi
+        return
+
+    is_helper = Helper('mpd', drm='com.widevine.alpha')
+    if is_helper.check_inputstream():
+        listitem.setProperty('inputstream.adaptive.license_type', 'com.widevine.alpha')
+        listitem.setProperty('inputstream.adaptive.license_key', _vtmgostream.create_license_key(resolved_stream.license_url))
+        xbmcplugin.setResolvedUrl(plugin.handle, True, listitem)
 
 
 def _format_plot(obj):
@@ -636,87 +735,6 @@ def _format_plot(obj):
                              title=obj.epg[1].title)
 
     return plot
-
-
-def _stream(strtype, strid):
-    # Get url
-    _vtmgostream = VtmGoStream()
-    resolved_stream = _vtmgostream.get_stream(strtype, strid)
-    if resolved_stream is None:  # If no stream is available (i.e. geo-blocked)
-        return
-
-    # Create listitem
-    listitem = ListItem(path=resolved_stream.url, offscreen=True)
-
-    # Lookup metadata
-    _vtmgo = VtmGo()
-    if strtype == 'movies':
-        details = _vtmgo.get_movie(strid)
-        listitem.setInfo('video', {
-            'tvshowtitle': resolved_stream.program,
-            'title': resolved_stream.title,
-            'duration': resolved_stream.duration,
-            'subtitle': details.description,
-            'plot': details.description,
-            'mediatype': details.mediatype
-        })
-    elif strtype == 'episodes':
-        details = _vtmgo.get_episode(strid)
-        listitem.setInfo('video', {
-            'tvshowtitle': resolved_stream.program,
-            'title': resolved_stream.title,
-            'duration': resolved_stream.duration,
-            'subtitle': details.description,
-            'plot': details.description,
-            'season': details.season,
-            'episode': details.number,
-            'mediatype': details.mediatype
-        })
-    else:
-        listitem.setInfo('video', {
-            'title': resolved_stream.title,
-            'tvshowtitle': resolved_stream.program,
-        })
-
-    listitem.addStreamInfo('video', {
-        'duration': resolved_stream.duration,
-    })
-
-    # Add subtitle info
-    subtitles_visible = get_setting('showsubtitles', 'true') == 'true'
-    if subtitles_visible and resolved_stream.subtitles:
-        listitem.setSubtitles(resolved_stream.subtitles)
-        listitem.addStreamInfo('subtitle', {
-            'language': 'nl',
-        })
-
-    listitem.setProperty('IsPlayable', 'true')
-    listitem.setProperty('network.bandwidth', str(get_max_bandwidth() * 1000))
-    listitem.setProperty('inputstream.adaptive.max_bandwidth', str(get_max_bandwidth() * 1000))
-    listitem.setProperty('inputstreamaddon', 'inputstream.adaptive')
-    listitem.setProperty('inputstream.adaptive.manifest_type', 'mpd')
-    listitem.setMimeType('application/dash+xml')
-    listitem.setContentLookup(False)
-
-    if strtype == 'channels':
-        # For live channels, we need to keep on updating the manifest
-        # This might not be needed, and could be done with the Location-tag updates if inputstream.adaptive supports it
-        # See https://github.com/peak3d/inputstream.adaptive/pull/298#issuecomment-524206935
-        listitem.setProperty('inputstream.adaptive.manifest_update_parameter', 'full')
-    try:
-        from inputstreamhelper import Helper
-    except ImportError:
-        show_ok_dialog(message=localize(30708))  # Please reboot Kodi
-        return
-    is_helper = Helper('mpd', drm='com.widevine.alpha')
-    if is_helper.check_inputstream():
-        listitem.setProperty('inputstream.adaptive.license_type', 'com.widevine.alpha')
-        listitem.setProperty('inputstream.adaptive.license_key',
-                             _vtmgostream.create_license_key(resolved_stream.license_url, key_headers={
-                                 'User-Agent': 'ANVSDK Android/5.0.39 (Linux; Android 6.0.1; Nexus 5)',
-                             }))
-
-        xbmcplugin.setResolvedUrl(plugin.handle, True, listitem)
 
 
 def _get_kids_mode():
