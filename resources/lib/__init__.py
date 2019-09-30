@@ -108,3 +108,11 @@ CHANNELS = [
         kids=False,
     ),
 ]
+
+
+class GeoblockedException(Exception):
+    pass
+
+
+class UnavailableException(Exception):
+    pass

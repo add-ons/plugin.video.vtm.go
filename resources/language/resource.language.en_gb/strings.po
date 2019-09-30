@@ -92,7 +92,7 @@ msgid "Your credentials are not valid!"
 msgstr ""
 
 msgctxt "#30204"
-msgid "* All seasons"
+msgid "All seasons"
 msgstr ""
 
 msgctxt "#30205"
@@ -197,6 +197,22 @@ msgstr ""
 
 msgctxt "#30708"
 msgid "Please restart Kodi."
+msgstr ""
+
+msgctxt "#30709"
+msgid "Geo-blocked video"
+msgstr ""
+
+msgctxt "#30710"
+msgid "This video is geo-blocked and can't be played from your location."
+msgstr ""
+
+msgctxt "#30711"
+msgid "Unavailable video"
+msgstr ""
+
+msgctxt "#30712"
+msgid "The video is unavailable and can't be played right now."
 msgstr ""
 
 

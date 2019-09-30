@@ -47,7 +47,7 @@ class TestRouter(unittest.TestCase):
     def test_program_season_menu(self):
         plugin.run(['plugin://plugin.video.vtm.go/program/e892cf10-5100-42ce-8d59-6b5c03cc2b96/all', '0', ''])
         self.assertEqual(
-            addon.url_for(plugin.show_program, program='e892cf10-5100-42ce-8d59-6b5c03cc2b96', season='all'),
+            addon.url_for(plugin.show_program_season, program='e892cf10-5100-42ce-8d59-6b5c03cc2b96', season='all'),
             'plugin://plugin.video.vtm.go/program/e892cf10-5100-42ce-8d59-6b5c03cc2b96/all')
 
     # Catalogue menu: '/catalog'
@@ -95,24 +95,24 @@ class TestRouter(unittest.TestCase):
 
     # Play Live TV: '/play/livetv/<channel>'
     def test_play_livetv(self):
-        plugin.run(['plugin://plugin.video.vtm.go/play/livetv/ea826456-6b19-4612-8969-864d1c818347?.pvr', '0', ''])
+        plugin.run(['plugin://plugin.video.vtm.go/play/channels/ea826456-6b19-4612-8969-864d1c818347?.pvr', '0', ''])
         self.assertEqual(
-            addon.url_for(plugin.play_livetv, channel='ea826456-6b19-4612-8969-864d1c818347?.pvr'),
-            'plugin://plugin.video.vtm.go/play/livetv/ea826456-6b19-4612-8969-864d1c818347?.pvr')
+            addon.url_for(plugin.play, category='channels', item='ea826456-6b19-4612-8969-864d1c818347?.pvr'),
+            'plugin://plugin.video.vtm.go/play/channels/ea826456-6b19-4612-8969-864d1c818347?.pvr')
 
     # Play Movie: '/play/movie/<movie>'
     def test_play_movie(self):
-        plugin.run(['plugin://plugin.video.vtm.go/play/movie/d1850498-941d-48cc-a558-37aaf37f4525', '0', ''])
+        plugin.run(['plugin://plugin.video.vtm.go/play/movies/d1850498-941d-48cc-a558-37aaf37f4525', '0', ''])
         self.assertEqual(
-            addon.url_for(plugin.play_movie, movie='d1850498-941d-48cc-a558-37aaf37f4525'),
-            'plugin://plugin.video.vtm.go/play/movie/d1850498-941d-48cc-a558-37aaf37f4525')
+            addon.url_for(plugin.play, category='movies', item='d1850498-941d-48cc-a558-37aaf37f4525'),
+            'plugin://plugin.video.vtm.go/play/movies/d1850498-941d-48cc-a558-37aaf37f4525')
 
     # Play Episode: '/play/episode/<episode>'
     def test_play_episode(self):
-        plugin.run(['plugin://plugin.video.vtm.go/play/episode/ae0fa98d-6ed5-4f4a-8581-a051ed3bb755', '0', ''])
+        plugin.run(['plugin://plugin.video.vtm.go/play/episodes/ae0fa98d-6ed5-4f4a-8581-a051ed3bb755', '0', ''])
         self.assertEqual(
-            addon.url_for(plugin.play_episode, episode='ae0fa98d-6ed5-4f4a-8581-a051ed3bb755'),
-            'plugin://plugin.video.vtm.go/play/episode/ae0fa98d-6ed5-4f4a-8581-a051ed3bb755')
+            addon.url_for(plugin.play, category='episodes', item='ae0fa98d-6ed5-4f4a-8581-a051ed3bb755'),
+            'plugin://plugin.video.vtm.go/play/episodes/ae0fa98d-6ed5-4f4a-8581-a051ed3bb755')
 
 
 if __name__ == '__main__':
