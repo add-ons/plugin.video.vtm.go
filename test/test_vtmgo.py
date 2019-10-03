@@ -54,7 +54,7 @@ class TestVtmGo(unittest.TestCase):
         # requests_log.setLevel(logging.DEBUG)
         # requests_log.propagate = True
 
-    def setUp(self) -> None:
+    def setUp(self):
         # Don't warn that we don't close our HTTPS connections, this is on purpose.
         warnings.simplefilter("ignore", ResourceWarning)
 
