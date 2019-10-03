@@ -73,10 +73,10 @@ def show_index():
     route_recommendations = show_kids_recommendations if kids else show_recommendations
     listing.append((plugin.url_for(route_recommendations), listitem, True))
 
-    listitem = ListItem(localize(30016), offscreen=True)  # My List
+    listitem = ListItem(localize(30017), offscreen=True)  # My List
     listitem.setArt({'icon': 'DefaultMusicPlaylist.png'})
     listitem.setInfo('video', {
-        'plot': localize(30017),
+        'plot': localize(30018),
     })
     route_mylist = show_kids_mylist if kids else show_mylist
     listing.append((plugin.url_for(route_mylist), listitem, True))
