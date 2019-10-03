@@ -73,6 +73,14 @@ msgctxt "#30014"
 msgid "Browse the TV Guide"
 msgstr "Doorblader de tv-gids"
 
+msgctxt "#30015"
+msgid "Recommendations"
+msgstr "Aanbevelingen"
+
+msgctxt "#30016"
+msgid "Show the VTM GO recommendations"
+msgstr "Bekijk de VTM GO aanbevelingen"
+
 
 ### CODE
 msgctxt "#30200"

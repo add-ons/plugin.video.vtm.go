@@ -73,6 +73,14 @@ msgctxt "#30014"
 msgid "Browse the TV Guide"
 msgstr ""
 
+msgctxt "#30015"
+msgid "Recommendations"
+msgstr ""
+
+msgctxt "#30016"
+msgid "Show the VTM GO recommendations"
+msgstr ""
+
 
 ### CODE
 msgctxt "#30200"

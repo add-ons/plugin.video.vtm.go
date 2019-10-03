@@ -52,13 +52,15 @@ class LiveChannelEpg:
 
 
 class Category:
-    def __init__(self, category_id=None, title=None):
+    def __init__(self, category_id=None, title=None, content=None):
         """ Defines a category from the catalogue.
         :type category_id: str
         :type title: str
+        :type content: list[Content]
         """
         self.category_id = category_id
         self.title = title
+        self.content = content
 
     def __repr__(self):
         return "%r" % self.__dict__
@@ -213,12 +215,32 @@ class VtmGo:
         info = json.loads(response)
         return info
 
-    def get_main(self):
+    def get_recommendations(self):
         """ Returns the config for the dashboard. """
-        # This is currently not used
         response = self._get_url('/%s/main' % self._mode)
-        info = json.loads(response)
-        return info
+        results = json.loads(response)
+
+        categories = []
+        for cat in results.get('rows', []):
+            if cat.get('rowType') in ['SWIMLANE_DEFAULT']:
+                items = []
+
+                for item in cat.get('teasers'):
+                    items.append(Content(
+                        content_id=item.get('target', {}).get('id'),
+                        video_type=item.get('target', {}).get('type'),
+                        title=item.get('title'),
+                        geoblocked=item.get('geoBlocked'),
+                        cover=item.get('imageUrl'),
+                    ))
+
+                categories.append(Category(
+                    category_id=cat.get('id'),
+                    title=cat.get('title'),
+                    content=items,
+                ))
+
+        return categories
 
     def get_live(self):
         """ Get a list of all the live tv channels.
@@ -392,7 +414,7 @@ class VtmGo:
         :type search: str
         :rtype list[Content]
         """
-        response = self._get_url('/%s/autocomplete/?maxItems=50&keywords=%s' % (self._mode, quote(search)))
+        response = self._get_url('/%s/autocomplete/?maxItems=%d&keywords=%s' % (self._mode, 50, quote(search)))
         results = json.loads(response)
 
         items = []
