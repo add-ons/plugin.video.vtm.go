@@ -2,15 +2,14 @@
 
 from __future__ import absolute_import, division, print_function, unicode_literals
 
-import logging
 import unittest
 import warnings
 
 from urllib3.exceptions import InsecureRequestWarning
 
-from resources.lib import vtmgoepg
+from resources.lib import vtmgoepg, kodilogging
 
-logger = logging.getLogger()
+logger = kodilogging.get_logger('TestVtmGoEpg')
 
 
 class TestVtmGoEpg(unittest.TestCase):
@@ -33,9 +32,9 @@ class TestVtmGoEpg(unittest.TestCase):
         # requests_log.setLevel(logging.DEBUG)
         # requests_log.propagate = True
 
-    def setUp(self) -> None:
+    def setUp(self):
         # Don't warn that we don't close our HTTPS connections, this is on purpose.
-        warnings.simplefilter("ignore", ResourceWarning)
+        # warnings.simplefilter("ignore", ResourceWarning)
 
         # Don't warn that we are not verifying the certificates of VTM GO API.
         warnings.simplefilter("ignore", InsecureRequestWarning)

@@ -2,19 +2,19 @@
 from __future__ import absolute_import, division, unicode_literals
 
 import json
-import logging
 
 import requests
 
-from resources.lib import UnavailableException
+from resources.lib import UnavailableException, kodilogging
 from resources.lib.kodiutils import proxies
+from resources.lib.vtmgoauth import VtmGoAuth
 
 try:  # Python 3
     from urllib.parse import quote
 except ImportError:  # Python 2
     from urllib import quote
 
-logger = logging.getLogger()
+logger = kodilogging.get_logger('VtmGo')
 
 
 class LiveChannel:
@@ -207,6 +207,7 @@ class VtmGo:
     def __init__(self, kids=False):
         # This can be vtmgo or vtmgo-kids
         self._mode = 'vtmgo-kids' if kids else 'vtmgo'
+        self._auth = VtmGoAuth()
 
     def get_config(self):
         """ Returns the config for the app. """
@@ -427,10 +428,9 @@ class VtmGo:
 
         return items
 
-    def _get_url(self, url, auth=None):
+    def _get_url(self, url):
         """ Makes a GET request for the specified URL.
         :type url: str
-        :type auth: str
         :rtype str
         """
         headers = {
@@ -440,10 +440,12 @@ class VtmGo:
             'x-persgroep-os-version': '23',
             'User-Agent': 'VTMGO/6.5.0 (be.vmma.vtm.zenderapp; build:11019; Android 23) okhttp/3.12.1'
         }
-        if auth:
-            headers['x-dpp-jwt'] = auth
 
-        logging.debug('Fetching %s...', url)
+        token = self._auth.get_token()
+        if token:
+            headers['x-dpp-jwt'] = token
+
+        logger.debug('Fetching %s...', url)
 
         response = requests.session().get('https://api.vtmgo.be' + url, headers=headers, verify=False, proxies=proxies)
 

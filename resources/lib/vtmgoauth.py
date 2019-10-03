@@ -1,31 +1,89 @@
 # -*- coding: utf-8 -*-
 from __future__ import absolute_import, division, unicode_literals
 
+import hashlib
 import json
-import logging
 import random
 
 import requests
 
+from resources.lib import kodiutils, kodilogging
 from resources.lib.kodiutils import localize, proxies
 
-logger = logging.getLogger()
+logger = kodilogging.get_logger('VtmGoAuth')
+
+
+class InvalidLoginException(Exception):
+    pass
 
 
 class VtmGoAuth:
-    def __init__(self, username, password):
-        """
-        :type username: str
-        :type password: str
-        """
-        self._username = username
-        self._password = password
+    username = None
+    password = None
+    hash = None
 
+    def __init__(self):
         self._token = None
         self._name = None
         self._accountId = None
 
-    def login(self):
+        # Calculate new hash
+        calc = hashlib.md5((self.username + self.password).encode('utf-8')).hexdigest()
+
+        # Clear tokens when hash is different
+        if self.hash and self.hash != calc:
+            self.clear_token()
+            self.hash = None
+
+        # Store new hash
+        if not self.hash:
+            kodiutils.set_setting('credentials_hash', calc)
+
+    def clear_token(self):
+        """ Remove the cached JWT. """
+        logger.debug('Clearing token cache')
+        self._token = None
+        path = kodiutils.get_profile_path() + 'token.json'
+        if kodiutils.path_exists(path):
+            kodiutils.delete_file(path)
+
+    def get_token(self):
+        """ Return a JWT that can be used to authenticate the user.
+        :rtype str
+        """
+
+        # Don't return a token when we have no password or username.
+        if not self.username or not self.password:
+            logger.info('Skipping since we have no username or password')
+            return None
+
+        # Return if we already have the token in memory.
+        if self._token:
+            logger.debug('Returning token from memory')
+            return self._token
+
+        # Try to load from cache
+        path = kodiutils.get_profile_path() + 'token.json'
+        if kodiutils.path_exists(path):
+            logger.debug('Returning token from cache')
+            f = kodiutils.open_file(path, 'r')
+            self._token = f.read()
+            f.close()
+
+            if self._token:
+                return self._token
+
+        # Authenticate with VTM GO and store the token
+        self._token = self._login()
+        logger.debug('Returning token from vtm go')
+
+        f = kodiutils.open_file(path, 'w')
+        f.write(self._token)
+        f.close()
+
+        return self._token
+
+    def _login(self):
         """ Executes a login and returns the JSON Web Token.
         :rtype str
         """
@@ -47,13 +105,13 @@ class VtmGoAuth:
         # Now, send the login details. We will be redirected to vtmgo:// when we succeed. We then can extract an authorizationCode that we need to continue.
         try:
             response = session.post('https://login2.vtm.be/login/emailfirst/password?client_id=vtm-go-android', data={
-                'userName': self._username,
-                'password': self._password,
+                'userName': self.username,
+                'password': self.password,
                 'jsEnabled': 'true',
             })
 
             if 'Wachtwoord is niet correct' in response.text:
-                raise Exception(localize(30701))  # Invalid login details
+                raise InvalidLoginException()
 
             raise Exception(localize(30702))  # Unknown error while logging in
 

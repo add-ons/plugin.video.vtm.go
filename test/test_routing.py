@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from __future__ import absolute_import, division, print_function, unicode_literals
 
+import logging
 import unittest
 import warnings
 
@@ -16,12 +17,14 @@ xbmcvfs = __import__('xbmcvfs')
 
 addon = plugin.plugin
 
+logger = logging.getLogger('TestRouting')
 
-class TestRouter(unittest.TestCase):
 
-    def setUp(self) -> None:
+class TestRouting(unittest.TestCase):
+
+    def setUp(self):
         # Don't warn that we don't close our HTTPS connections, this is on purpose.
-        warnings.simplefilter("ignore", ResourceWarning)
+        # warnings.simplefilter("ignore", ResourceWarning)
 
         # Don't warn that we are not verifying the certificates of VTM GO API.
         warnings.simplefilter("ignore", InsecureRequestWarning)
@@ -109,8 +112,9 @@ class TestRouter(unittest.TestCase):
         self.assertEqual(addon.url_for(plugin.show_recommendations), 'plugin://plugin.video.vtm.go/recommendations')
         plugin.run(['plugin://plugin.video.vtm.go/kids/recommendations', '0', ''])
         self.assertEqual(addon.url_for(plugin.show_kids_recommendations), 'plugin://plugin.video.vtm.go/kids/recommendations')
-        plugin.run(['plugin://plugin.video.vtm.go/recommendations/1', '0', ''])
-        self.assertEqual(addon.url_for(plugin.show_recommendations_category, category='1'), 'plugin://plugin.video.vtm.go/recommendations/1')
+        plugin.run(['plugin://plugin.video.vtm.go/recommendations/775de6ef-003d-4571-8a6e-8433be0ef379', '0', ''])
+        self.assertEqual(addon.url_for(plugin.show_recommendations_category, category='775de6ef-003d-4571-8a6e-8433be0ef379'),
+                         'plugin://plugin.video.vtm.go/recommendations/775de6ef-003d-4571-8a6e-8433be0ef379')
 
     # Play Live TV: '/play/livetv/<channel>'
     def test_play_livetv(self):

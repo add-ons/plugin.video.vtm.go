@@ -3,16 +3,15 @@
 from __future__ import absolute_import, division, unicode_literals
 
 import json
-import logging
 import random
 from datetime import timedelta
 
 import requests
 
-from resources.lib import GeoblockedException, UnavailableException
+from resources.lib import GeoblockedException, UnavailableException, kodilogging
 from resources.lib.kodiutils import delete_file, get_profile_path, from_unicode, list_dir, localize, make_dir, open_file, path_exists, proxies
 
-logger = logging.getLogger()
+logger = kodilogging.get_logger('VtmGoStream')
 
 
 class ResolvedStream:

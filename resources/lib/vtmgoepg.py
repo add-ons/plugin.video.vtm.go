@@ -2,16 +2,16 @@
 from __future__ import absolute_import, division, unicode_literals
 
 import json
-import logging
 from datetime import datetime, timedelta
 
 import dateutil.parser
 import dateutil.tz
 import requests
 
+from resources.lib import kodilogging
 from resources.lib.kodiutils import localize
 
-logger = logging.getLogger()
+logger = kodilogging.get_logger('VtmGoEpg')
 
 
 class EpgChannel:
@@ -207,7 +207,7 @@ class VtmGoEpg:
         :type url: str
         :rtype str
         """
-        logging.debug('Fetching %s...', url)
+        logger.debug('Fetching %s...', url)
         response = self._session.get(url, verify=False)
 
         if response.status_code != 200:

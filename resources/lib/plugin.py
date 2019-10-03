@@ -11,11 +11,16 @@ from resources.lib.kodiutils import (get_cond_visibility, get_max_bandwidth, get
                                      get_setting_as_bool, get_global_setting, localize,
                                      notification, show_ok_dialog, show_settings, get_addon_path)
 from resources.lib.vtmgo import Content, VtmGo
+from resources.lib.vtmgoauth import VtmGoAuth, InvalidLoginException
 from resources.lib.vtmgoepg import VtmGoEpg
 from resources.lib.vtmgostream import VtmGoStream
 
 plugin = routing.Plugin()
-logger = kodilogging.get_logger()
+logger = kodilogging.get_logger('plugin')
+
+VtmGoAuth.username = get_setting('username')
+VtmGoAuth.password = get_setting('password')
+VtmGoAuth.hash = get_setting('credentials_hash')
 
 
 @plugin.route('/kids')
@@ -102,13 +107,13 @@ def show_index():
 
 @plugin.route('/check-credentials')
 def check_credentials():
-    from resources.lib.vtmgoauth import VtmGoAuth
-    auth = VtmGoAuth(username=get_setting('username'), password=get_setting('password'))
-
     try:
-        auth.login()
+        auth = VtmGoAuth()
+        auth.clear_token()
+        auth.get_token()
         show_ok_dialog(message=localize(30202))  # Credentials are correct!
-    except Exception:  # FIXME: This ought to be more specific
+
+    except InvalidLoginException:
         show_ok_dialog(message=localize(30203))  # Your credentials are not valid!
         raise
 
@@ -308,7 +313,8 @@ def show_recommendations():
         listitem.setInfo('video', {
             'plot': '[B]{category}[/B]'.format(category=cat.title),
         })
-        listing.append((plugin.url_for(show_kids_recommendations_category if kids else show_recommendations_category, category=cat.category_id), listitem, True))
+        listing.append(
+            (plugin.url_for(show_kids_recommendations_category if kids else show_recommendations_category, category=cat.category_id), listitem, True))
 
     xbmcplugin.setContent(plugin.handle, 'files')
 
