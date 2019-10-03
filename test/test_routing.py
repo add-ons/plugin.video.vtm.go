@@ -93,6 +93,15 @@ class TestRouter(unittest.TestCase):
         plugin.run(['plugin://plugin.video.vtm.go/tvguide/vtm/today', '0', ''])
         self.assertEqual(addon.url_for(plugin.show_tvguide_detail, channel='vtm', date='today'), 'plugin://plugin.video.vtm.go/tvguide/vtm/today')
 
+    # Recommendations menu: '/recommendations'
+    def test_recommendations_menu(self):
+        plugin.run(['plugin://plugin.video.vtm.go/recommendations', '0', ''])
+        self.assertEqual(addon.url_for(plugin.show_recommendations), 'plugin://plugin.video.vtm.go/recommendations')
+        plugin.run(['plugin://plugin.video.vtm.go/kids/recommendations', '0', ''])
+        self.assertEqual(addon.url_for(plugin.show_kids_recommendations), 'plugin://plugin.video.vtm.go/kids/recommendations')
+        plugin.run(['plugin://plugin.video.vtm.go/recommendations/1', '0', ''])
+        self.assertEqual(addon.url_for(plugin.show_recommendations_category, category='1'), 'plugin://plugin.video.vtm.go/recommendations/1')
+
     # Play Live TV: '/play/livetv/<channel>'
     def test_play_livetv(self):
         plugin.run(['plugin://plugin.video.vtm.go/play/channels/ea826456-6b19-4612-8969-864d1c818347?.pvr', '0', ''])

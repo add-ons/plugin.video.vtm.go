@@ -64,9 +64,9 @@ class TestVtmGo(unittest.TestCase):
         self.assertTrue(config)
         # print(config)
 
-    def test_get_main(self):
-        main = self._vtmgo.get_main()
-        self.assertTrue(main)
+    def test_get_recommendations(self):
+        recommendations = self._vtmgo.get_recommendations()
+        self.assertTrue(recommendations)
         # print(main)
 
     def test_get_categories(self):
