@@ -3,16 +3,15 @@
 from __future__ import absolute_import, division, print_function, unicode_literals
 
 import json
-import logging
 import os
 import unittest
 import warnings
 
 from urllib3.exceptions import InsecureRequestWarning
 
-from resources.lib import vtmgo, vtmgoauth, vtmgostream
+from resources.lib import vtmgo, vtmgoauth, vtmgostream, kodilogging
 
-logger = logging.getLogger()
+logger = kodilogging.get_logger('TestVtmGo')
 
 
 class TestVtmGo(unittest.TestCase):
@@ -20,7 +19,6 @@ class TestVtmGo(unittest.TestCase):
     def __init__(self, *args, **kwargs):
         super(TestVtmGo, self).__init__(*args, **kwargs)
 
-        self._token = None
         self._vtmgo = vtmgo.VtmGo()
         self._vtmgostream = vtmgostream.VtmGoStream()
 
@@ -35,7 +33,9 @@ class TestVtmGo(unittest.TestCase):
                 with open('test/userdata/credentials.json') as f:
                     settings = json.load(f)
 
-            self._vtmgoauth = vtmgoauth.VtmGoAuth(settings['username'], settings['password'])
+            vtmgoauth.VtmGoAuth.username = settings['username']
+            vtmgoauth.VtmGoAuth.password = settings['password']
+            self._vtmgoauth = vtmgoauth.VtmGoAuth()
         except Exception as exc:
             logger.warning("Could not apply credentials: %s", exc)
             self._vtmgoauth = None
@@ -66,9 +66,8 @@ class TestVtmGo(unittest.TestCase):
             logger.warning('Skipping test_login since we have no credentials available')
             return
 
-        jwt = self._vtmgoauth.login()
-        self.assertTrue(jwt)
-        self._token = jwt
+        token = self._vtmgoauth.get_token()
+        self.assertTrue(token)
 
     def test_get_config(self):
         config = self._vtmgo.get_config()

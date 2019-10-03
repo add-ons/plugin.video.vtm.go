@@ -2,15 +2,14 @@
 
 from __future__ import absolute_import, division, print_function, unicode_literals
 
-import logging
 import unittest
 import warnings
 
 from urllib3.exceptions import InsecureRequestWarning
 
-from resources.lib import vtmgoepg
+from resources.lib import vtmgoepg, kodilogging
 
-logger = logging.getLogger()
+logger = kodilogging.get_logger('TestVtmGoEpg')
 
 
 class TestVtmGoEpg(unittest.TestCase):
