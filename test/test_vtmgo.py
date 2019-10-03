@@ -56,7 +56,7 @@ class TestVtmGo(unittest.TestCase):
 
     def setUp(self):
         # Don't warn that we don't close our HTTPS connections, this is on purpose.
-        warnings.simplefilter("ignore", ResourceWarning)
+        # warnings.simplefilter("ignore", ResourceWarning)
 
         # Don't warn that we are not verifying the certificates of VTM GO API.
         warnings.simplefilter("ignore", InsecureRequestWarning)
