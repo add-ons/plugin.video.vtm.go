@@ -70,13 +70,14 @@ class Content:
     CONTENT_TYPE_MOVIE = 'MOVIE'
     CONTENT_TYPE_PROGRAM = 'PROGRAM'
 
-    def __init__(self, content_id=None, title=None, description=None, cover=None, video_type=None, geoblocked=None):
+    def __init__(self, content_id=None, title=None, description=None, cover=None, video_type=None, my_list=False, geoblocked=None):
         """ Defines an item from the catalogue.
         :type content_id: str
         :type title: str
         :type description: str
         :type cover: str
         :type video_type: str
+        :type my_list: bool
         :type geoblocked: bool
         """
         self.content_id = content_id
@@ -84,6 +85,7 @@ class Content:
         self.description = description if description else ''
         self.cover = cover
         self.video_type = video_type
+        self.my_list = my_list
         self.geoblocked = geoblocked
 
     def __repr__(self):
@@ -219,10 +221,10 @@ class VtmGo:
     def get_recommendations(self):
         """ Returns the config for the dashboard. """
         response = self._get_url('/%s/main' % self._mode)
-        results = json.loads(response)
+        recommendations = json.loads(response)
 
         categories = []
-        for cat in results.get('rows', []):
+        for cat in recommendations.get('rows', []):
             if cat.get('rowType') in ['SWIMLANE_DEFAULT']:
                 items = []
 
@@ -242,6 +244,36 @@ class VtmGo:
                 ))
 
         return categories
+
+    def get_mylist(self):
+        """ Returns the contents of My List """
+        response = self._get_url('/%s/main/swimlane/my-list' % self._mode)
+
+        # My list can be empty
+        if not response:
+            return []
+
+        result = json.loads(response)
+
+        items = []
+        for item in result.get('teasers'):
+            items.append(Content(
+                content_id=item.get('target', {}).get('id'),
+                video_type=item.get('target', {}).get('type'),
+                title=item.get('title'),
+                geoblocked=item.get('geoBlocked'),
+                cover=item.get('imageUrl'),
+            ))
+
+        return items
+
+    def add_mylist(self, video_type, content_id):
+        """ Add an item to My List """
+        self._put_url('/%s/userData/myList/{type}/{id}'.format(type=video_type, id=content_id))
+
+    def del_mylist(self, video_type, content_id):
+        """ Delete an item from My List """
+        self._delete_url('/%s/userData/myList/{type}/{id}'.format(type=video_type, id=content_id))
 
     def get_live(self):
         """ Get a list of all the live tv channels.
@@ -452,7 +484,65 @@ class VtmGo:
         if response.status_code == 404:
             raise UnavailableException()
 
-        if response.status_code != 200:
+        if response.status_code not in [200, 204]:
+            raise Exception('Error %s.' % response.status_code)
+
+        return response.text
+
+    def _put_url(self, url):
+        """ Makes a PUT request for the specified URL.
+        :type url: str
+        :rtype str
+        """
+        headers = {
+            'x-app-version': '5',
+            'x-persgroep-mobile-app': 'true',
+            'x-persgroep-os': 'android',
+            'x-persgroep-os-version': '23',
+            'User-Agent': 'VTMGO/6.5.0 (be.vmma.vtm.zenderapp; build:11019; Android 23) okhttp/3.12.1'
+        }
+
+        token = self._auth.get_token()
+        if token:
+            headers['x-dpp-jwt'] = token
+
+        logger.debug('Putting %s...', url)
+
+        response = requests.session().put('https://api.vtmgo.be' + url, headers=headers, verify=False, proxies=proxies)
+
+        if response.status_code == 404:
+            raise UnavailableException()
+
+        if response.status_code not in [200, 204]:
+            raise Exception('Error %s.' % response.status_code)
+
+        return response.text
+
+    def _delete_url(self, url):
+        """ Makes a DELETE request for the specified URL.
+        :type url: str
+        :rtype str
+        """
+        headers = {
+            'x-app-version': '5',
+            'x-persgroep-mobile-app': 'true',
+            'x-persgroep-os': 'android',
+            'x-persgroep-os-version': '23',
+            'User-Agent': 'VTMGO/6.5.0 (be.vmma.vtm.zenderapp; build:11019; Android 23) okhttp/3.12.1'
+        }
+
+        token = self._auth.get_token()
+        if token:
+            headers['x-dpp-jwt'] = token
+
+        logger.debug('Fetching %s...', url)
+
+        response = requests.session().delete('https://api.vtmgo.be' + url, headers=headers, verify=False, proxies=proxies)
+
+        if response.status_code == 404:
+            raise UnavailableException()
+
+        if response.status_code not in [200, 204]:
             raise Exception('Error %s.' % response.status_code)
 
         return response.text

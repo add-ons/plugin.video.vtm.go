@@ -1,13 +1,15 @@
 # -*- coding: utf-8 -*-
 from __future__ import absolute_import, division, print_function, unicode_literals
 
+import json
 import logging
+import os
 import unittest
 import warnings
 
 from urllib3.exceptions import InsecureRequestWarning
 
-from resources.lib import plugin
+from resources.lib import plugin, vtmgoauth
 
 xbmc = __import__('xbmc')
 xbmcaddon = __import__('xbmcaddon')
@@ -21,6 +23,23 @@ logger = logging.getLogger('TestRouting')
 
 
 class TestRouting(unittest.TestCase):
+
+    def __init__(self, *args, **kwargs):
+        super(TestRouting, self).__init__(*args, **kwargs)
+
+        # Read credentials from credentials.json
+        settings = {}
+        if 'VTMGO_USERNAME' in os.environ and 'VTMGO_PASSWORD' in os.environ:
+            logger.warning('Using credentials from the environment variables VTMGO_USERNAME and VTMGO_PASSWORD')
+            settings['username'] = os.environ.get('VTMGO_USERNAME')
+            settings['password'] = os.environ.get('VTMGO_PASSWORD')
+        else:
+            with open('test/userdata/credentials.json') as f:
+                settings = json.load(f)
+
+        if settings['username'] and settings['password']:
+            vtmgoauth.VtmGoAuth.username = settings['username']
+            vtmgoauth.VtmGoAuth.password = settings['password']
 
     def setUp(self):
         # Don't warn that we don't close our HTTPS connections, this is on purpose.
@@ -115,6 +134,13 @@ class TestRouting(unittest.TestCase):
         plugin.run(['plugin://plugin.video.vtm.go/recommendations/775de6ef-003d-4571-8a6e-8433be0ef379', '0', ''])
         self.assertEqual(addon.url_for(plugin.show_recommendations_category, category='775de6ef-003d-4571-8a6e-8433be0ef379'),
                          'plugin://plugin.video.vtm.go/recommendations/775de6ef-003d-4571-8a6e-8433be0ef379')
+
+    # My List menu: '/mylist'
+    def test_mylist_menu(self):
+        plugin.run(['plugin://plugin.video.vtm.go/mylist', '0', ''])
+        self.assertEqual(addon.url_for(plugin.show_mylist), 'plugin://plugin.video.vtm.go/mylist')
+        plugin.run(['plugin://plugin.video.vtm.go/kids/mylist', '0', ''])
+        self.assertEqual(addon.url_for(plugin.show_kids_mylist), 'plugin://plugin.video.vtm.go/kids/mylist')
 
     # Play Live TV: '/play/livetv/<channel>'
     def test_play_livetv(self):

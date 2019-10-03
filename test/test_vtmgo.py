@@ -19,40 +19,24 @@ class TestVtmGo(unittest.TestCase):
     def __init__(self, *args, **kwargs):
         super(TestVtmGo, self).__init__(*args, **kwargs)
 
-        self._vtmgo = vtmgo.VtmGo()
-        self._vtmgostream = vtmgostream.VtmGoStream()
-
         # Read credentials from credentials.json
-        try:
-            settings = {}
-            if 'VTMGO_USERNAME' in os.environ and 'VTMGO_PASSWORD' in os.environ:
-                logger.warning('Using credentials from the environment variables VTMGO_USERNAME and VTMGO_PASSWORD')
-                settings['username'] = os.environ.get('VTMGO_USERNAME')
-                settings['password'] = os.environ.get('VTMGO_PASSWORD')
-            else:
-                with open('test/userdata/credentials.json') as f:
-                    settings = json.load(f)
+        settings = {}
+        if 'VTMGO_USERNAME' in os.environ and 'VTMGO_PASSWORD' in os.environ:
+            logger.warning('Using credentials from the environment variables VTMGO_USERNAME and VTMGO_PASSWORD')
+            settings['username'] = os.environ.get('VTMGO_USERNAME')
+            settings['password'] = os.environ.get('VTMGO_PASSWORD')
+        else:
+            with open('test/userdata/credentials.json') as f:
+                settings = json.load(f)
 
+        if settings['username'] and settings['password']:
             vtmgoauth.VtmGoAuth.username = settings['username']
             vtmgoauth.VtmGoAuth.password = settings['password']
-            self._vtmgoauth = vtmgoauth.VtmGoAuth()
-        except Exception as exc:
-            logger.warning("Could not apply credentials: %s", exc)
-            self._vtmgoauth = None
 
-        # Enable debug logging for urllib
-        # try:
-        #     import http.client as http_client
-        # except ImportError:
-        #     # Python 2
-        #     import httplib as http_client
-        # http_client.HTTPConnection.debuglevel = 1
-        #
-        # logging.basicConfig()
-        # logging.getLogger().setLevel(logging.DEBUG)
-        # requests_log = logging.getLogger("requests.packages.urllib3")
-        # requests_log.setLevel(logging.DEBUG)
-        # requests_log.propagate = True
+        self._vtmgoauth = vtmgoauth.VtmGoAuth()
+        self._vtmgo = vtmgo.VtmGo()
+        self._vtmgo_kids = vtmgo.VtmGo(kids=True)
+        self._vtmgostream = vtmgostream.VtmGoStream()
 
     def setUp(self):
         # Don't warn that we don't close our HTTPS connections, this is on purpose.
@@ -62,10 +46,6 @@ class TestVtmGo(unittest.TestCase):
         warnings.simplefilter("ignore", InsecureRequestWarning)
 
     def test_login(self):
-        if self._vtmgoauth is None:
-            logger.warning('Skipping test_login since we have no credentials available')
-            return
-
         token = self._vtmgoauth.get_token()
         self.assertTrue(token)
 
@@ -78,6 +58,15 @@ class TestVtmGo(unittest.TestCase):
         recommendations = self._vtmgo.get_recommendations()
         self.assertTrue(recommendations)
         # print(main)
+
+    def test_get_mylist(self):
+        mylist = self._vtmgo.get_mylist()
+        self.assertIsInstance(mylist, list)
+        # print(mylist)
+
+        mylist = self._vtmgo_kids.get_mylist()
+        self.assertIsInstance(mylist, list)
+        # print(mylist)
 
     def test_get_categories(self):
         categories = self._vtmgo.get_categories()
