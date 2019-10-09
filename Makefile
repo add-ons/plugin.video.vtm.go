@@ -23,7 +23,7 @@ check: check-pylint check-tox check-translations
 
 check-pylint:
 	@printf "${blue}>>> Running pylint checks$(reset)"
-	@pylint *.py resources/ resources/lib/ test/
+	@pylint *.py resources/ test/
 
 check-tox:
 	@printf "${blue}>>> Running tox checks$(reset)"
