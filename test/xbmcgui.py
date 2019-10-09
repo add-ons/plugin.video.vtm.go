@@ -151,6 +151,11 @@ class ListItem:
         return
 
     @staticmethod
+    def setIsFolder(isFolder):
+        ''' A stub implementation for the xbmcgui ListItem class setIsFolder() method '''
+        return
+
+    @staticmethod
     def setMimeType(mimetype):
         ''' A stub implementation for the xbmcgui ListItem class setMimeType() method '''
         return
@@ -162,6 +167,11 @@ class ListItem:
     @staticmethod
     def setProperty(key, value):
         ''' A stub implementation for the xbmcgui ListItem class setProperty() method '''
+        return
+
+    @staticmethod
+    def setProperties(dictionary):
+        ''' A stub implementation for the xbmcgui ListItem class setProperties() method '''
         return
 
     @staticmethod

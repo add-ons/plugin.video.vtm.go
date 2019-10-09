@@ -24,7 +24,7 @@ SORT_METHODS = dict(
     episode=xbmcplugin.SORT_METHOD_EPISODE,
     # genre=xbmcplugin.SORT_METHOD_GENRE,
     # label=xbmcplugin.SORT_METHOD_LABEL_IGNORE_THE,
-    label=xbmcplugin.SORT_METHOD_LABEL,
+    label=xbmcplugin.SORT_METHOD_LABEL_IGNORE_FOLDERS,
     # none=xbmcplugin.SORT_METHOD_UNSORTED,
     # FIXME: We would like to be able to sort by unprefixed title (ignore date/episode prefix)
     # title=xbmcplugin.SORT_METHOD_TITLE_IGNORE_THE,
@@ -163,23 +163,22 @@ class KodiWrapper:
         self._addon_fanart = to_unicode(self._addon.getAddonInfo('fanart'))
         self._debug_logging = self.get_global_setting('debug.showloginfo')  # Returns a boolean
         self._max_log_level = LOG_LEVELS.get(self.get_setting('max_log_level', 'Debug'), 3)
-        self._usemenucaching = self.get_setting('usemenucaching', 'true') == 'true'
         self._cache_path = self.get_userdata_path() + 'cache/'
-        self._tokens_path = self.get_userdata_path() + 'tokens/'
         self._system_locale_works = None
+        self._name = 'VTM GO'
 
     def url_for(self, name, *args, **kwargs):
         ''' Wrapper for routing.url_for() to lookup by name '''
         return self.plugin.url_for(self.addon[name], *args, **kwargs)
 
-    def show_listing(self, list_items, category=None, sort='unsorted', ascending=True, content=None, cache=None):
+    def show_listing(self, list_items, category=None, sort='unsorted', content=None, cache=None):
         ''' Show a virtual directory in Kodi '''
         from xbmcgui import ListItem
 
         xbmcplugin.setPluginFanart(handle=self._handle, image=from_unicode(self._addon_fanart))
 
         if cache is None:
-            cache = self._usemenucaching
+            cache = True
 
         if content:
             # content is one of: files, songs, artists, albums, movies, tvshows, episodes, musicvideos
@@ -189,36 +188,24 @@ class KodiWrapper:
         category_label = ''
         if category:
             if not content:
-                category_label = 'VRT NU / '
+                category_label = self._name + ' / '
             if isinstance(category, int):
                 category_label += self.localize(category)
             else:
                 category_label += category
         elif not content:
-            category_label = 'VRT NU'
+            category_label = self._name
         xbmcplugin.setPluginCategory(handle=self._handle, category=category_label)
 
-        # FIXME: Since there is no way to influence descending order, we force it here
-        if not ascending:
-            sort = 'unsorted'
-
-        # NOTE: When showing tvshow listings and 'showoneoff' was set, force 'unsorted'
-        if self.get_setting('showoneoff', 'true') == 'true' and sort == 'label' and content == 'tvshows':
-            sort = 'unsorted'
+        # # NOTE: When showing tvshow listings and 'showoneoff' was set, force 'unsorted'
+        # if self.get_setting('showoneoff', 'true') == 'true' and sort == 'label' and content == 'tvshows':
+        #     sort = 'unsorted'
 
         # Add all sort methods to GUI (start with preferred)
         xbmcplugin.addSortMethod(handle=self._handle, sortMethod=SORT_METHODS[sort])
         for key in sorted(SORT_METHODS):
             if key != sort:
                 xbmcplugin.addSortMethod(handle=self._handle, sortMethod=SORT_METHODS[key])
-
-        # FIXME: This does not appear to be working, we have to order it ourselves
-        #        xbmcplugin.setProperty(handle=self._handle, key='sort.ascending', value='true' if ascending else 'false')
-        #        if ascending:
-        #            xbmcplugin.setProperty(handle=self._handle, key='sort.order', value=str(SORT_METHODS[sort]))
-        #        else:
-        #            # NOTE: When descending, use unsorted
-        #            xbmcplugin.setProperty(handle=self._handle, key='sort.order', value=str(SORT_METHODS['unsorted']))
 
         listing = []
         for title_item in list_items:
@@ -232,15 +219,10 @@ class KodiWrapper:
             list_item = ListItem(label=title_item.title)
 
             if title_item.prop_dict:
-                # FIXME: The setProperties method is new in Kodi18, so we cannot use it just yet.
-                # list_item.setProperties(values=title_item.prop_dict)
-                for key, value in title_item.prop_dict.items():
-                    list_item.setProperty(key=key, value=str(value))
-            list_item.setProperty(key='IsInternetStream', value='true' if is_playable else 'false')
+                list_item.setProperties(title_item.prop_dict)
             list_item.setProperty(key='IsPlayable', value='true' if is_playable else 'false')
 
-            # FIXME: The setIsFolder method is new in Kodi18, so we cannot use it just yet.
-            # list_item.setIsFolder(is_folder)
+            list_item.setIsFolder(is_folder)
 
             if title_item.art_dict:
                 list_item.setArt(dict(fanart=self._addon_fanart))
@@ -497,10 +479,6 @@ class KodiWrapper:
     def get_addon_path(self):
         ''' Return the profile's addon path '''
         return to_unicode(xbmc.translatePath(self._addon.getAddonInfo('path')))
-
-    def get_tokens_path(self):
-        ''' Return the userdata tokens path '''
-        return self._tokens_path
 
     def get_addon_info(self, key):
         ''' Return addon information '''

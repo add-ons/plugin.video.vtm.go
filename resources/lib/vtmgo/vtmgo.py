@@ -275,7 +275,7 @@ class VtmGo:
         """ Delete an item from My List """
         self._delete_url('/%s/userData/myList/%s/%s' % (self._mode, video_type, content_id))
 
-    def get_live(self):
+    def get_live_channels(self):
         """ Get a list of all the live tv channels.
         :rtype list[LiveChannel]
         """

@@ -79,7 +79,7 @@ class TestVtmGo(unittest.TestCase):
         # print(items)
 
     def test_get_live(self):
-        items = self._vtmgo.get_live()
+        items = self._vtmgo.get_live_channels()
         self.assertTrue(items)
         # print(items)
 
