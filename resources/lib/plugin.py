@@ -73,6 +73,14 @@ def show_index():
     route_recommendations = show_kids_recommendations if kids else show_recommendations
     listing.append((plugin.url_for(route_recommendations), listitem, True))
 
+    listitem = ListItem(localize(30017), offscreen=True)  # My List
+    listitem.setArt({'icon': 'DefaultMusicPlaylist.png'})
+    listitem.setInfo('video', {
+        'plot': localize(30018),
+    })
+    route_mylist = show_kids_mylist if kids else show_mylist
+    listing.append((plugin.url_for(route_mylist), listitem, True))
+
     # Only provide YouTube option when plugin.video.youtube is available
     if get_cond_visibility('System.HasAddon(plugin.video.youtube)') != 0:
         listitem = ListItem(localize(30007), offscreen=True)  # YouTube
@@ -371,14 +379,60 @@ def show_recommendations_category(category):
                     })
                     listing.append((plugin.url_for(show_program, program=item.content_id), listitem, True))
 
-            xbmcplugin.setContent(plugin.handle, 'tvshows')
-
     xbmcplugin.setContent(plugin.handle, 'files')
 
     # Sort categories by default like in VTM GO.
     xbmcplugin.addSortMethod(plugin.handle, xbmcplugin.SORT_METHOD_UNSORTED)
     xbmcplugin.addSortMethod(plugin.handle, xbmcplugin.SORT_METHOD_LABEL)
     xbmcplugin.setPluginCategory(plugin.handle, category=_breadcrumb(localize(30015), title))
+
+    ok = xbmcplugin.addDirectoryItems(plugin.handle, listing, len(listing))
+    xbmcplugin.endOfDirectory(plugin.handle, ok)
+
+
+@plugin.route('/kids/mylist')
+def show_kids_mylist():
+    show_mylist()
+
+
+@plugin.route('/mylist')
+def show_mylist():
+    """ Show the items in My List. """
+    kids = _get_kids_mode()
+
+    listing = []
+    try:
+        _vtmGo = VtmGo(kids=kids)
+        mylist = _vtmGo.get_mylist()
+    except Exception as ex:
+        notification(message=str(ex))
+        raise
+
+    for item in mylist:
+        listitem = ListItem(item.title, offscreen=True)
+        listitem.setArt({
+            'thumb': item.cover,
+        })
+
+        if item.video_type == Content.CONTENT_TYPE_MOVIE:
+            listitem.setInfo('video', {
+                'mediatype': 'movie',
+            })
+            listitem.setProperty('IsPlayable', 'true')
+            listing.append((plugin.url_for(play, category='movies', item=item.content_id), listitem, False))
+
+        elif item.video_type == Content.CONTENT_TYPE_PROGRAM:
+            listitem.setInfo('video', {
+                'mediatype': None,  # This shows a folder icon
+            })
+            listing.append((plugin.url_for(show_program, program=item.content_id), listitem, True))
+
+    xbmcplugin.setContent(plugin.handle, 'files')
+
+    # Sort categories by default like in VTM GO.
+    xbmcplugin.addSortMethod(plugin.handle, xbmcplugin.SORT_METHOD_UNSORTED)
+    xbmcplugin.addSortMethod(plugin.handle, xbmcplugin.SORT_METHOD_LABEL)
+    xbmcplugin.setPluginCategory(plugin.handle, category=_breadcrumb(localize(30017)))
 
     ok = xbmcplugin.addDirectoryItems(plugin.handle, listing, len(listing))
     xbmcplugin.endOfDirectory(plugin.handle, ok)

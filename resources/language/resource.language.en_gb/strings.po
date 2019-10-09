@@ -81,6 +81,14 @@ msgctxt "#30016"
 msgid "Show the VTM GO recommendations"
 msgstr ""
 
+msgctxt "#30017"
+msgid "My List"
+msgstr ""
+
+msgctxt "#30018"
+msgid "Show your personal favourites"
+msgstr ""
+
 
 ### CODE
 msgctxt "#30200"

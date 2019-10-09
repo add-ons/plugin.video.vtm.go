@@ -18,8 +18,8 @@ class InvalidLoginException(Exception):
 
 
 class VtmGoAuth:
-    username = None
-    password = None
+    username = ''
+    password = ''
     hash = None
 
     def __init__(self):
