@@ -114,12 +114,13 @@ class VtmGoEpg:
         :rtype: EpgBroadcast
         """
         # Parse to a real datetime
-        timestamp = dateutil.parser.isoparse(timestamp).astimezone(dateutil.tz.gettz('CET'))
+        timestamp = dateutil.parser.parse(timestamp)
 
         # Load guide info for this date
         _vtmGoEpg = VtmGoEpg()
         epg = _vtmGoEpg.get_epg(channel=channel, date=timestamp.strftime('%Y-%m-%d'))
 
+        # Find a matching broadcast
         for broadcast in epg.broadcasts:
             if broadcast.time >= timestamp < (broadcast.time + timedelta(seconds=broadcast.duration)):
                 return broadcast
