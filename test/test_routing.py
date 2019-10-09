@@ -2,14 +2,13 @@
 from __future__ import absolute_import, division, print_function, unicode_literals
 
 import json
-import logging
 import os
 import unittest
 import warnings
 
 from urllib3.exceptions import InsecureRequestWarning
 
-from resources.lib import plugin, vtmgoauth
+from resources.lib import plugin, vtmgoauth, kodilogging
 
 xbmc = __import__('xbmc')
 xbmcaddon = __import__('xbmcaddon')
@@ -19,7 +18,7 @@ xbmcvfs = __import__('xbmcvfs')
 
 addon = plugin.plugin
 
-logger = logging.getLogger('TestRouting')
+logger = kodilogging.get_logger('TestRouting')
 
 
 class TestRouting(unittest.TestCase):
