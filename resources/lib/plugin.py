@@ -418,7 +418,8 @@ def show_mylist():
         listitem.addContextMenuItems([
             (
                 localize(30051),  # Remove from My List
-                'XBMC.Container.Update(%s)' % plugin.url_for(mylist_del, video_type=item.video_type, content_id=item.content_id)
+                'XBMC.Container.Update(%s)' % plugin.url_for(mylist_del if not kids else kids_mylist_del, video_type=item.video_type,
+                                                             content_id=item.content_id)
             )
         ])
 
@@ -446,11 +447,21 @@ def show_mylist():
     xbmcplugin.endOfDirectory(plugin.handle, ok)
 
 
+@plugin.route('/kids/mylist/add/<video_type>/<content_id>')
+def kids_mylist_add(video_type, content_id):
+    mylist_add(video_type, content_id)
+
+
 @plugin.route('/mylist/add/<video_type>/<content_id>')
 def mylist_add(video_type, content_id):
     kids = _get_kids_mode()
     _vtmGo = VtmGo(kids=kids)
     _vtmGo.add_mylist(video_type, content_id)
+
+
+@plugin.route('/kids/mylist/del/<video_type>/<content_id>')
+def kids_mylist_del(video_type, content_id):
+    mylist_del(video_type, content_id)
 
 
 @plugin.route('/mylist/del/<video_type>/<content_id>')
@@ -533,7 +544,8 @@ def show_catalog_category(category):
         listitem.addContextMenuItems([
             (
                 localize(30050),  # Add to My List
-                'XBMC.Container.Update(%s)' % plugin.url_for(mylist_add, video_type=item.video_type, content_id=item.content_id)
+                'XBMC.Container.Update(%s)' % plugin.url_for(mylist_add if not kids else kids_mylist_add, video_type=item.video_type,
+                                                             content_id=item.content_id)
             )
         ])
 
