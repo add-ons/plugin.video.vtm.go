@@ -13,10 +13,11 @@
 The following features are supported:
 * Watch live TV (VTM, Q2, Vitaya, CAZ, VTM Kids, VTM Kids Jr & QMusic)
 * Watch on-demand content (movies and series)
-* Watch YouTube content from some of the DPG Media channels
+* Browse the VTM GO recommendations and "My List"
 * Browse a TV Guide
 * Search the catalogue
 * Browse the Kids zone
+* Watch YouTube content from some of the DPG Media channels
 
 ## Disclaimer
 
