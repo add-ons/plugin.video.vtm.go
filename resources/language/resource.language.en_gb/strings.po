@@ -242,6 +242,10 @@ msgctxt "#30712"
 msgid "The video is unavailable and can't be played right now."
 msgstr ""
 
+msgctxt "#30713"
+msgid "The requested video was not found in the guide."
+msgstr ""
+
 
 ### SETTINGS
 msgctxt "#30800"

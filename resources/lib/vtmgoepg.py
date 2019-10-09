@@ -40,7 +40,7 @@ class EpgBroadcast:
         :type uuid: str
         :type playable_type: str
         :type title: str
-        :type time: str
+        :type time: datetime
         :type duration: int
         :type image: str
         :type description: str
@@ -104,6 +104,25 @@ class VtmGoEpg:
                     logo=epg_channel.get('channelLogoUrl'),
                     broadcasts=[self._parse_broadcast(broadcast) for broadcast in epg_channel.get('broadcasts', [])]
                 )
+
+        return None
+
+    def get_broadcast(self, channel, timestamp):
+        """ Load EPG information for the specified channel and date.
+        :type channel: str
+        :type timestamp: str
+        :rtype: EpgBroadcast
+        """
+        # Parse to a real datetime
+        timestamp = dateutil.parser.isoparse(timestamp).astimezone(dateutil.tz.gettz('CET'))
+
+        # Load guide info for this date
+        _vtmGoEpg = VtmGoEpg()
+        epg = _vtmGoEpg.get_epg(channel=channel, date=timestamp.strftime('%Y-%m-%d'))
+
+        for broadcast in epg.broadcasts:
+            if broadcast.time >= timestamp < (broadcast.time + timedelta(seconds=broadcast.duration)):
+                return broadcast
 
         return None
 
