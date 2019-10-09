@@ -110,6 +110,8 @@ class TestRouting(unittest.TestCase):
     def test_search_menu(self):
         plugin.run(['plugin://plugin.video.vtm.go/search', '0', ''])
         self.assertEqual(addon.url_for(plugin.show_search), 'plugin://plugin.video.vtm.go/search')
+        plugin.run(['plugin://plugin.video.vtm.go/search/nieuws', '0', ''])
+        self.assertEqual(addon.url_for(plugin.show_search, query='nieuws'), 'plugin://plugin.video.vtm.go/search/nieuws')
         plugin.run(['plugin://plugin.video.vtm.go/kids/search', '0', ''])
         self.assertEqual(addon.url_for(plugin.show_kids_search), 'plugin://plugin.video.vtm.go/kids/search')
 

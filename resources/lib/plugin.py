@@ -726,20 +726,23 @@ def show_youtube():
 
 
 @plugin.route('/kids/search')
-def show_kids_search():
-    show_search()
+@plugin.route('/kids/search/<query>')
+def show_kids_search(query=None):
+    show_search(query)
 
 
 @plugin.route('/search')
-def show_search():
+@plugin.route('/search/<query>')
+def show_search(query=None):
     kids = _get_kids_mode()
 
     # Ask for query
-    keyboard = Keyboard('', localize(30009))
-    keyboard.doModal()
-    if not keyboard.isConfirmed():
-        return
-    query = keyboard.getText()
+    if not query:
+        keyboard = Keyboard('', localize(30009))
+        keyboard.doModal()
+        if not keyboard.isConfirmed():
+            return
+        query = keyboard.getText()
 
     try:
         # Do search
