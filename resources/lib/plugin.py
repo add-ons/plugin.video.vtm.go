@@ -10,10 +10,10 @@ from resources.lib import kodilogging, GeoblockedException, UnavailableException
 from resources.lib.kodiutils import (get_cond_visibility, get_max_bandwidth, get_setting,
                                      get_setting_as_bool, get_global_setting, localize,
                                      notification, show_ok_dialog, show_settings, get_addon_path)
-from resources.lib.vtmgo import Content, VtmGo
-from resources.lib.vtmgoauth import VtmGoAuth, InvalidLoginException
-from resources.lib.vtmgoepg import VtmGoEpg
-from resources.lib.vtmgostream import VtmGoStream
+from resources.lib.vtmgo.vtmgo import Content, VtmGo
+from resources.lib.vtmgo.vtmgoauth import VtmGoAuth, InvalidLoginException
+from resources.lib.vtmgo.vtmgoepg import VtmGoEpg
+from resources.lib.vtmgo.vtmgostream import VtmGoStream
 
 plugin = routing.Plugin()
 logger = kodilogging.get_logger('plugin')

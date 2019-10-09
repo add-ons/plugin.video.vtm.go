@@ -9,7 +9,8 @@ import warnings
 
 from urllib3.exceptions import InsecureRequestWarning
 
-from resources.lib import vtmgo, vtmgoauth, vtmgostream, kodilogging
+from resources.lib import kodilogging
+from resources.lib.vtmgo import vtmgo, vtmgostream, vtmgoauth
 
 logger = kodilogging.get_logger('TestVtmGo')
 

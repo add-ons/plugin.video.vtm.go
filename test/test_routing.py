@@ -8,7 +8,8 @@ import warnings
 
 from urllib3.exceptions import InsecureRequestWarning
 
-from resources.lib import plugin, vtmgoauth, kodilogging
+from resources.lib import plugin, kodilogging
+from resources.lib.vtmgo import vtmgoauth
 
 xbmc = __import__('xbmc')
 xbmcaddon = __import__('xbmcaddon')

@@ -7,7 +7,7 @@ import requests
 
 from resources.lib import UnavailableException, kodilogging
 from resources.lib.kodiutils import proxies
-from resources.lib.vtmgoauth import VtmGoAuth
+from resources.lib.vtmgo.vtmgoauth import VtmGoAuth
 
 try:  # Python 3
     from urllib.parse import quote
