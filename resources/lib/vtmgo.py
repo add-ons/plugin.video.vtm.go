@@ -269,11 +269,11 @@ class VtmGo:
 
     def add_mylist(self, video_type, content_id):
         """ Add an item to My List """
-        self._put_url('/%s/userData/myList/{type}/{id}'.format(type=video_type, id=content_id))
+        self._put_url('/%s/userData/myList/%s/%s' % (self._mode, video_type, content_id))
 
     def del_mylist(self, video_type, content_id):
         """ Delete an item from My List """
-        self._delete_url('/%s/userData/myList/{type}/{id}'.format(type=video_type, id=content_id))
+        self._delete_url('/%s/userData/myList/%s/%s' % (self._mode, video_type, content_id))
 
     def get_live(self):
         """ Get a list of all the live tv channels.

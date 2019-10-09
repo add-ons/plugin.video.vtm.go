@@ -90,6 +90,17 @@ msgid "Show your personal favourites"
 msgstr ""
 
 
+### CONTEXT MENU
+
+msgctxt "#30050"
+msgid "Add to My List"
+msgstr ""
+
+msgctxt "#30051"
+msgid "Remove from My List"
+msgstr ""
+
+
 ### CODE
 msgctxt "#30200"
 msgid "Using a SOCKS proxy requires the PySocks library (script.module.pysocks) installed."

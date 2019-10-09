@@ -74,7 +74,7 @@ def show_index():
     listing.append((plugin.url_for(route_recommendations), listitem, True))
 
     listitem = ListItem(localize(30017), offscreen=True)  # My List
-    listitem.setArt({'icon': 'DefaultMusicPlaylist.png'})
+    listitem.setArt({'icon': 'DefaultPlaylist.png'})
     listitem.setInfo('video', {
         'plot': localize(30018),
     })
@@ -414,6 +414,14 @@ def show_mylist():
             'thumb': item.cover,
         })
 
+        # Add "Remove from My List" here
+        listitem.addContextMenuItems([
+            (
+                localize(30051),  # Remove from My List
+                'XBMC.Container.Update(%s)' % plugin.url_for(mylist_del, video_type=item.video_type, content_id=item.content_id)
+            )
+        ])
+
         if item.video_type == Content.CONTENT_TYPE_MOVIE:
             listitem.setInfo('video', {
                 'mediatype': 'movie',
@@ -436,6 +444,20 @@ def show_mylist():
 
     ok = xbmcplugin.addDirectoryItems(plugin.handle, listing, len(listing))
     xbmcplugin.endOfDirectory(plugin.handle, ok)
+
+
+@plugin.route('/mylist/add/<video_type>/<content_id>')
+def mylist_add(video_type, content_id):
+    kids = _get_kids_mode()
+    _vtmGo = VtmGo(kids=kids)
+    _vtmGo.add_mylist(video_type, content_id)
+
+
+@plugin.route('/mylist/del/<video_type>/<content_id>')
+def mylist_del(video_type, content_id):
+    kids = _get_kids_mode()
+    _vtmGo = VtmGo(kids=kids)
+    _vtmGo.del_mylist(video_type, content_id)
 
 
 @plugin.route('/kids/catalog')
@@ -505,6 +527,15 @@ def show_catalog_category(category):
             'mediatype': 'movie' if item.video_type == Content.CONTENT_TYPE_MOVIE else None,
         })
         listitem.setProperty('IsPlayable', 'true')
+
+        # Add "Add to My List" here
+        # We don't know if it is already on My List, so we can't give an option to remove here.
+        listitem.addContextMenuItems([
+            (
+                localize(30050),  # Add to My List
+                'XBMC.Container.Update(%s)' % plugin.url_for(mylist_add, video_type=item.video_type, content_id=item.content_id)
+            )
+        ])
 
         if item.video_type == Content.CONTENT_TYPE_MOVIE:
             listing.append((plugin.url_for(play, category='movies', item=item.content_id), listitem, False))
