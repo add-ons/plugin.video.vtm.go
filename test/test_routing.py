@@ -164,6 +164,16 @@ class TestRouting(unittest.TestCase):
             addon.url_for(plugin.play, category='episodes', item='ae0fa98d-6ed5-4f4a-8581-a051ed3bb755'),
             'plugin://plugin.video.vtm.go/play/episodes/ae0fa98d-6ed5-4f4a-8581-a051ed3bb755')
 
+    # Play from EPG: '/play/epg/<channel>/<datetime>'
+    def test_play_epg(self):
+        import dateutil
+        import datetime
+        timestamp = datetime.datetime.now(dateutil.tz.tzlocal())
+        plugin.run(['plugin://plugin.video.vtm.go/play/epg/vtm/' + timestamp.isoformat(), '0', ''])
+        self.assertEqual(
+            addon.url_for(plugin.play_epg_datetime, channel='vtm', timestamp=timestamp.isoformat()),
+            'plugin://plugin.video.vtm.go/play/epg/vtm/' + timestamp.isoformat())
+
 
 if __name__ == '__main__':
     unittest.main()

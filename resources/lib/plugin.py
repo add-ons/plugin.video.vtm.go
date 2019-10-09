@@ -135,6 +135,7 @@ def show_kids_livetv():
 
 @plugin.route('/livetv')
 def show_livetv():
+    """ Shows the channels that can play live TV. """
     from . import CHANNEL_MAPPING
 
     kids = _get_kids_mode()
@@ -187,6 +188,7 @@ def show_kids_tvguide():
 
 @plugin.route('/tvguide')
 def show_tvguide():
+    """ Shows the channels from the TV guide. """
     from . import CHANNELS
 
     kids = _get_kids_mode()
@@ -224,6 +226,9 @@ def show_tvguide():
 
 @plugin.route('/tvguide/<channel>')
 def show_tvguide_channel(channel):
+    """ Shows the dates in the tv guide.
+    :type channel: string
+    """
     listing = []
 
     date_format = getRegion('datelong')
@@ -454,6 +459,7 @@ def kids_mylist_add(video_type, content_id):
 
 @plugin.route('/mylist/add/<video_type>/<content_id>')
 def mylist_add(video_type, content_id):
+    """ Add an item to My List. """
     kids = _get_kids_mode()
     _vtmGo = VtmGo(kids=kids)
     _vtmGo.add_mylist(video_type, content_id)
@@ -466,6 +472,7 @@ def kids_mylist_del(video_type, content_id):
 
 @plugin.route('/mylist/del/<video_type>/<content_id>')
 def mylist_del(video_type, content_id):
+    """ Remove an item from My List. """
     kids = _get_kids_mode()
     _vtmGo = VtmGo(kids=kids)
     _vtmGo.del_mylist(video_type, content_id)
@@ -689,6 +696,7 @@ def show_kids_youtube():
 
 @plugin.route('/youtube')
 def show_youtube():
+    """ Shows the Youtube channel overview. """
     kids = _get_kids_mode()
 
     listing = []
@@ -734,6 +742,7 @@ def show_kids_search(query=None):
 @plugin.route('/search')
 @plugin.route('/search/<query>')
 def show_search(query=None):
+    """ Shows the search dialog. """
     kids = _get_kids_mode()
 
     # Ask for query
@@ -780,10 +789,27 @@ def show_search(query=None):
     xbmcplugin.endOfDirectory(plugin.handle, ok)
 
 
+@plugin.route('/play/epg/<channel>/<timestamp>')
+def play_epg_datetime(channel, timestamp):
+    """ Play a program based on the channel and the timestamp when it was aired. """
+    _vtmGoEpg = VtmGoEpg()
+    broadcast = _vtmGoEpg.get_broadcast(channel, timestamp)
+    if not broadcast:
+        show_ok_dialog(heading=localize(30711), message=localize(30713))  # The requested video was not found in the guide.
+        return
+
+    play_epg(channel, broadcast.playable_type, broadcast.uuid)
+
+
 @plugin.route('/play/epg/<channel>/<program_type>/<epg_id>')
 def play_epg(channel, program_type, epg_id):
+    """ Play a program based on the channel and information from the EPG. """
     _vtmGoEpg = VtmGoEpg()
     details = _vtmGoEpg.get_details(channel=channel, program_type=program_type, epg_id=epg_id)
+    if not details:
+        show_ok_dialog(heading=localize(30711), message=localize(30713))  # The requested video was not found in the guide.
+        return
+
     play(details.playable_type, details.playable_uuid)
 
 
