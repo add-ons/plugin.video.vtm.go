@@ -437,7 +437,7 @@ class KodiWrapper:
             import string
             message = string.Formatter().vformat(message, (), SafeDict(**kwargs))
         message = '[{addon}] {message}'.format(addon=self._addon_id, message=message)
-        xbmc.log(msg=message, level=log_level)
+        xbmc.log(msg=from_unicode(message), level=log_level)
 
     def kids_mode(self):
         """ Returns if kids zone is active """

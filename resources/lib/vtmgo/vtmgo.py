@@ -487,7 +487,7 @@ class VtmGo:
 
         response = requests.session().get('https://api.vtmgo.be' + url, headers=headers, verify=False, proxies=self._proxies)
 
-        self._kodi.log('Got response: {response}', LOG_DEBUG, response=to_unicode(response.text))
+        self._kodi.log('Got response: {response}', LOG_DEBUG, response=response.text)
 
         if response.status_code == 404:
             raise UnavailableException()
@@ -518,7 +518,7 @@ class VtmGo:
 
         response = requests.session().put('https://api.vtmgo.be' + url, headers=headers, verify=False, proxies=self._proxies)
 
-        self._kodi.log('Got response: {response}', LOG_DEBUG, response=to_unicode(response.text))
+        self._kodi.log('Got response: {response}', LOG_DEBUG, response=response.text)
 
         if response.status_code == 404:
             raise UnavailableException()
@@ -549,7 +549,7 @@ class VtmGo:
 
         response = requests.session().delete('https://api.vtmgo.be' + url, headers=headers, verify=False, proxies=self._proxies)
 
-        self._kodi.log('Got response: {response}', LOG_DEBUG, response=to_unicode(response.text))
+        self._kodi.log('Got response: {response}', LOG_DEBUG, response=response.text)
 
         if response.status_code == 404:
             raise UnavailableException()

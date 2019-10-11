@@ -46,6 +46,19 @@ GLOBAL_SETTINGS = global_settings()
 PO = import_language(language=GLOBAL_SETTINGS.get('locale.language'))
 
 
+def to_unicode(text, encoding='utf-8'):
+    """ Force text to unicode """
+    return text.decode(encoding) if isinstance(text, bytes) else text
+
+
+def from_unicode(text, encoding='utf-8'):
+    """ Force unicode to text """
+    import sys
+    if sys.version_info.major == 2 and isinstance(text, unicode):  # noqa: F821; pylint: disable=undefined-variable
+        return text.encode(encoding)
+    return text
+
+
 class Keyboard:
     ''' A stub implementation of the xbmc Keyboard class '''
 
@@ -153,13 +166,13 @@ def getRegion(key):
 def log(msg, level=LOGINFO):
     ''' A reimplementation of the xbmc log() function '''
     if level in (LOGERROR, LOGFATAL):
-        print('\033[31;1m%s: \033[32;0m%s\033[0;39m' % (LOG_MAPPING.get(level), msg))
+        print('\033[31;1m%s: \033[32;0m%s\033[0;39m' % (LOG_MAPPING.get(level), to_unicode(msg)))
         if level == LOGFATAL:
             raise Exception(msg)
     elif level in (LOGWARNING, LOGNOTICE):
-        print('\033[33;1m%s: \033[32;0m%s\033[0;39m' % (LOG_MAPPING.get(level), msg))
+        print('\033[33;1m%s: \033[32;0m%s\033[0;39m' % (LOG_MAPPING.get(level), to_unicode(msg)))
     else:
-        print('\033[32;1m%s: \033[32;0m%s\033[0;39m' % (LOG_MAPPING.get(level), msg))
+        print('\033[32;1m%s: \033[32;0m%s\033[0;39m' % (LOG_MAPPING.get(level), to_unicode(msg)))
 
 
 def setContent(self, content):
