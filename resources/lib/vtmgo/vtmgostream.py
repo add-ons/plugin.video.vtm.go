@@ -9,7 +9,7 @@ from datetime import timedelta
 import requests
 
 from resources.lib import GeoblockedException, UnavailableException
-from resources.lib.kodiwrapper import from_unicode, LOG_DEBUG, LOG_ERROR, KodiWrapper  # pylint: disable=unused-import
+from resources.lib.kodiwrapper import from_unicode, LOG_DEBUG, LOG_ERROR, KodiWrapper, to_unicode  # pylint: disable=unused-import
 
 
 class ResolvedStream:
@@ -142,7 +142,7 @@ class VtmGoStream:
                                          'User-Agent': 'Dalvik/2.1.0 (Linux; U; Android 6.0.1; Nexus 5 Build/M4B30Z)',
                                      },
                                      proxies=self._kodi.get_proxies())
-        self._kodi.log(response.text, LOG_DEBUG)
+        self._kodi.log(to_unicode(response.text), LOG_DEBUG)
 
         if response.status_code == 403:
             error = json.loads(response.text)
@@ -349,7 +349,7 @@ class VtmGoStream:
                                           'X-Anvato-User-Agent': self._ANVATO_USER_AGENT,
                                           'User-Agent': self._ANVATO_USER_AGENT,
                                       })
-        self._kodi.log(response.text, LOG_DEBUG)
+        self._kodi.log(to_unicode(response.text), LOG_DEBUG)
 
         if response.status_code != 200:
             raise Exception('Error %s.' % response.status_code)

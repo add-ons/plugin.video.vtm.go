@@ -208,7 +208,7 @@ class KodiWrapper:
         if self.get_setting_as_bool('showsubtitles'):
             while not xbmc.Player().isPlaying() and not xbmc.Monitor().abortRequested():
                 xbmc.sleep(100)
-            xbmc.Player().showSubtitles(False)
+            xbmc.Player().showSubtitles(True)
 
     def get_search_string(self, heading='', message=''):
         """ Ask the user for a search string """
@@ -437,7 +437,7 @@ class KodiWrapper:
             import string
             message = string.Formatter().vformat(message, (), SafeDict(**kwargs))
         message = '[{addon}] {message}'.format(addon=self._addon_id, message=message)
-        xbmc.log(msg=from_unicode(message), level=log_level)
+        xbmc.log(msg=message, level=log_level)
 
     def kids_mode(self):
         """ Returns if kids zone is active """

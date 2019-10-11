@@ -6,7 +6,7 @@ import json
 import requests
 
 from resources.lib import UnavailableException
-from resources.lib.kodiwrapper import LOG_DEBUG, KodiWrapper  # pylint: disable=unused-import
+from resources.lib.kodiwrapper import LOG_DEBUG, KodiWrapper, to_unicode  # pylint: disable=unused-import
 from resources.lib.vtmgo.vtmgoauth import VtmGoAuth
 
 try:  # Python 3
@@ -487,7 +487,7 @@ class VtmGo:
 
         response = requests.session().get('https://api.vtmgo.be' + url, headers=headers, verify=False, proxies=self._proxies)
 
-        self._kodi.log('Got response: {response}', LOG_DEBUG, response=response.text)
+        self._kodi.log('Got response: {response}', LOG_DEBUG, response=to_unicode(response.text))
 
         if response.status_code == 404:
             raise UnavailableException()
@@ -518,7 +518,7 @@ class VtmGo:
 
         response = requests.session().put('https://api.vtmgo.be' + url, headers=headers, verify=False, proxies=self._proxies)
 
-        self._kodi.log('Got response: {response}', LOG_DEBUG, response=response.text)
+        self._kodi.log('Got response: {response}', LOG_DEBUG, response=to_unicode(response.text))
 
         if response.status_code == 404:
             raise UnavailableException()
@@ -549,7 +549,7 @@ class VtmGo:
 
         response = requests.session().delete('https://api.vtmgo.be' + url, headers=headers, verify=False, proxies=self._proxies)
 
-        self._kodi.log('Got response: {response}', LOG_DEBUG, response=response.text)
+        self._kodi.log('Got response: {response}', LOG_DEBUG, response=to_unicode(response.text))
 
         if response.status_code == 404:
             raise UnavailableException()
