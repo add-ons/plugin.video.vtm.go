@@ -954,7 +954,7 @@ def _format_plot(obj):
         elif obj.remaining / 30.5 > 3:
             plot += kodi.localize(30211, months=int(obj.remaining / 30.5))  # X months remaining
         else:
-            plot += kodi.localize(20112, days=obj.remaining)  # X days remaining
+            plot += kodi.localize(30212, days=obj.remaining)  # X days remaining
 
     if plot:
         plot += '\n'
