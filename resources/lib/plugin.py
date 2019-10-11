@@ -36,6 +36,8 @@ def show_index():
                   ),
                   info_dict=dict(
                       plot=kodi.localize(30002),
+
+
                   )),
         TitleItem(title=kodi.localize(30003),  # Catalogue
                   path=routing.url_for(show_catalog if not kids else show_kids_catalog),
@@ -175,6 +177,7 @@ def show_livetv():
                           'mediatype': 'video',
                       },
                       stream_dict={
+                          'codec': 'h264',
                           'height': 1080,
                           'width': 1920,
                       },
@@ -280,6 +283,7 @@ def show_tvguide_detail(channel=None, date=None):
                       },
                       stream_dict={
                           'duration': broadcast.duration,
+                          'codec': 'h264',
                           'height': 1080,
                           'width': 1920,
                       },
@@ -355,6 +359,7 @@ def show_recommendations_category(category):
                                   'mediatype': 'movie',
                               },
                               stream_dict={
+                                  'codec': 'h264',
                                   'height': 1080,
                                   'width': 1920,
                               },
@@ -420,6 +425,7 @@ def show_mylist():
                               'mediatype': 'movie',
                           },
                           stream_dict={
+                              'codec': 'h264',
                               'height': 1080,
                               'width': 1920,
                           },
@@ -542,6 +548,7 @@ def show_catalog_category(category):
                               'mediatype': 'movie',
                           },
                           stream_dict={
+                              'codec': 'h264',
                               'height': 1080,
                               'width': 1920,
                           },
@@ -659,10 +666,12 @@ def show_program_season(program, season):
                               'set': program_obj.name,
                               'studio': episode.channel,
                               'aired': episode.aired,
+                              'overlay': 2,
                               'mpaa': ', '.join(episode.legal) if hasattr(episode, 'legal') and episode.legal else kodi.localize(30216),
                           },
                           stream_dict={
                               'duration': episode.duration,
+                              'codec': 'h264',
                               'height': 1080,
                               'width': 1920,
                           },
@@ -699,13 +708,12 @@ def show_youtube():
                       path=entry.get('path'),
                       art_dict={
                           'icon': icon,
-                          'fanart': fanart,
                           'thumb': icon,
+                          'fanart': fanart,
                       },
                       info_dict={
                           'plot': kodi.localize(30206, label=entry.get('label')),
                           'studio': entry.get('studio'),
-                          'mediatype': 'video',
                       })
         )
 
@@ -768,6 +776,7 @@ def show_search(query=None):
                               'mediatype': 'movie',
                           },
                           stream_dict={
+                              'codec': 'h264',
                               'height': 1080,
                               'width': 1920,
                           },
@@ -848,7 +857,7 @@ def play(category, item):
     info_dict = {
         'tvshowtitle': resolved_stream.program,
         'title': resolved_stream.title,
-        'duration': resolved_stream.duration,  # TODO: check if this can be None for live tv
+        'duration': resolved_stream.duration,
     }
 
     prop_dict = {}
@@ -901,30 +910,19 @@ def play(category, item):
         # This seems to make it possible to play some programs what don't have metadata.
         pass
 
-    # Add subtitle info
-    if kodi.get_setting_as_bool('showsubtitles') and resolved_stream.subtitles:
-        subtitles = resolved_stream.subtitles
-        stream_dict.update({
-            'subtitle': {
-                'language': 'nl',
-            }
-        })
-    else:
-        subtitles = None
-
     # Play this item
     kodi.play(
         TitleItem(
             title=resolved_stream.title,
             path=resolved_stream.url,
+            subtitles_path=resolved_stream.subtitles,
             art_dict={},
             info_dict=info_dict,
             prop_dict=prop_dict,
             stream_dict=stream_dict,
             is_playable=True,
         ),
-        license_key=_vtmgostream.create_license_key(resolved_stream.license_url),
-        subtitles=subtitles)
+        license_key=_vtmgostream.create_license_key(resolved_stream.license_url))
 
 
 def _format_plot(obj):

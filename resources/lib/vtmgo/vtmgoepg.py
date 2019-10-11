@@ -8,7 +8,7 @@ import dateutil.parser
 import dateutil.tz
 import requests
 
-from resources.lib.kodiwrapper import LOG_DEBUG, KodiWrapper  # pylint: disable=unused-import
+from resources.lib.kodiwrapper import LOG_DEBUG, KodiWrapper, LOG_ERROR  # pylint: disable=unused-import
 
 
 class EpgChannel:
@@ -150,8 +150,12 @@ class VtmGoEpg:
         # Extract data
         matches = re.search(r'EPG_REDUX_DATA=([^;]+);', response)
         if not matches:
+            self._kodi.log('Got response: {response}', LOG_ERROR, response=response)
             raise Exception('Could not parse EPG details.')
+
         data = json.loads(matches.group(1))
+
+        self._kodi.log('Got EPG data: {data}', LOG_DEBUG, data=data)
 
         return self._parse_broadcast(data['details'][epg_id])
 

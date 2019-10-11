@@ -57,7 +57,7 @@ class VtmGoStream:
         # Extract the anvato stream from our stream_info.
         anvato_info = self._extract_anvato_stream_from_stream_info(stream_info)
 
-        # Ask the anvacks to know where we have to send our requests. (I hardcoded this for now)
+        # Ask the anvacks to know where we have to send our requests. (This is hardcoded for now)
         # anv_acks = self._anvato_get_anvacks(anvato_info.get('accessKey'))
 
         # Get the server time. (We don't seem to need this)

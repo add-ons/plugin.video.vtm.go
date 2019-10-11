@@ -1,8 +1,4 @@
 # -*- coding: utf-8 -*-
-# GNU General Public License v3.0 (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
-''' All functionality that requires Kodi imports '''
-
-# pylint: disable=too-many-function-args
 
 from __future__ import absolute_import, division, unicode_literals
 
@@ -13,16 +9,9 @@ import xbmcplugin
 from xbmcaddon import Addon
 
 SORT_METHODS = dict(
-    # date=xbmcplugin.SORT_METHOD_DATE,
-    dateadded=xbmcplugin.SORT_METHOD_DATEADDED,
-    duration=xbmcplugin.SORT_METHOD_DURATION,
-    episode=xbmcplugin.SORT_METHOD_EPISODE,
-    # genre=xbmcplugin.SORT_METHOD_GENRE,
-    # label=xbmcplugin.SORT_METHOD_LABEL_IGNORE_THE,
     label=xbmcplugin.SORT_METHOD_LABEL_IGNORE_FOLDERS,
-    # none=xbmcplugin.SORT_METHOD_UNSORTED,
-    # FIXME: We would like to be able to sort by unprefixed title (ignore date/episode prefix)
-    # title=xbmcplugin.SORT_METHOD_TITLE_IGNORE_THE,
+    episode=xbmcplugin.SORT_METHOD_EPISODE,
+    duration=xbmcplugin.SORT_METHOD_DURATION,
     unsorted=xbmcplugin.SORT_METHOD_UNSORTED,
 )
 
@@ -33,18 +22,13 @@ LOG_WARNING = xbmc.LOGWARNING
 LOG_ERROR = xbmc.LOGERROR
 
 
-# LOG_SEVERE = xbmc.LOGSEVERE
-# LOG_FATAL = xbmc.LOGFATAL
-# LOG_NONE = xbmc.LOGNONE
-
-
 def to_unicode(text, encoding='utf-8'):
-    ''' Force text to unicode '''
+    """ Force text to unicode """
     return text.decode(encoding) if isinstance(text, bytes) else text
 
 
 def from_unicode(text, encoding='utf-8'):
-    ''' Force unicode to text '''
+    """ Force unicode to text """
     import sys
     if sys.version_info.major == 2 and isinstance(text, unicode):  # noqa: F821; pylint: disable=undefined-variable
         return text.encode(encoding)
@@ -52,7 +36,7 @@ def from_unicode(text, encoding='utf-8'):
 
 
 def has_socks():
-    ''' Test if socks is installed, and remember this information '''
+    """ Test if socks is installed, and remember this information """
     if hasattr(has_socks, 'installed'):
         return has_socks.installed
     try:
@@ -65,18 +49,29 @@ def has_socks():
 
 
 class SafeDict(dict):
-    ''' A safe dictionary implementation that does not break down on missing keys '''
+    """ A safe dictionary implementation that does not break down on missing keys """
 
     def __missing__(self, key):
-        ''' Replace missing keys with the original placeholder '''
+        """ Replace missing keys with the original placeholder """
         return '{' + key + '}'
 
 
 class TitleItem:
-    ''' This helper object holds all information to be used with Kodi xbmc's ListItem object '''
+    """ This helper object holds all information to be used with Kodi xbmc's ListItem object """
 
-    def __init__(self, title, path=None, art_dict=None, info_dict=None, prop_dict=None, stream_dict=None, context_menu=None, is_playable=False):
-        ''' The constructor for the TitleItem class '''
+    def __init__(self, title, path=None, art_dict=None, info_dict=None, prop_dict=None, stream_dict=None, context_menu=None, subtitles_path=None,
+                 is_playable=False):
+        """ The constructor for the TitleItem class
+        :type title: str
+        :type path: str
+        :type art_dict: dict
+        :type info_dict: dict
+        :type prop_dict: dict
+        :type stream_dict: dict
+        :type context_menu: list[tuple[str, str]]
+        :type subtitles_path: list[str]
+        :type is_playable: bool
+        """
         self.title = title
         self.path = path
         self.art_dict = art_dict
@@ -84,6 +79,7 @@ class TitleItem:
         self.stream_dict = stream_dict
         self.prop_dict = prop_dict
         self.context_menu = context_menu
+        self.subtitles_path = subtitles_path
         self.is_playable = is_playable
 
     def __repr__(self):
@@ -91,10 +87,10 @@ class TitleItem:
 
 
 class KodiWrapper:
-    ''' A wrapper around all Kodi functionality '''
+    """ A wrapper around all Kodi functionality """
 
     def __init__(self, routing=None):
-        ''' Initialize the Kodi wrapper '''
+        """ Initialize the Kodi wrapper """
         self.routing = None
         if routing:
             self.routing = routing
@@ -108,7 +104,7 @@ class KodiWrapper:
         self._debug_logging = self.get_setting_as_bool('debug_logging')
 
     def show_listing(self, title_items, category=None, sort='unsorted', content=None, cache=True):
-        ''' Show a virtual directory in Kodi '''
+        """ Show a virtual directory in Kodi """
         if content:
             # content is one of: files, songs, artists, albums, movies, tvshows, episodes, musicvideos, videos, images, games
             xbmcplugin.setContent(self._handle, content=content)
@@ -150,7 +146,7 @@ class KodiWrapper:
         xbmcplugin.endOfDirectory(self._handle, succeeded, cacheToDisc=cache)
 
     def _generate_listitem(self, title_item):
-        ''' Generate a ListItem from a TitleItem '''
+        """ Generate a ListItem from a TitleItem """
         from xbmcgui import ListItem
 
         # Three options:
@@ -184,8 +180,11 @@ class KodiWrapper:
 
         return list_item
 
-    def play(self, title_item, license_key=None, subtitles=None):
-        ''' Play the passed TitleItem. '''
+    def play(self, title_item, license_key=None):
+        """ Play the passed TitleItem.
+        :type title_item: TitleItem
+        :type license_key: string
+        """
         play_item = self._generate_listitem(title_item)
         play_item.setProperty('inputstreamaddon', 'inputstream.adaptive')
         play_item.setProperty('inputstream.adaptive.max_bandwidth', str(self.get_max_bandwidth() * 1000))
@@ -198,15 +197,20 @@ class KodiWrapper:
             play_item.setProperty('inputstream.adaptive.license_type', 'com.widevine.alpha')
             play_item.setProperty('inputstream.adaptive.license_key', license_key)
 
-        if subtitles:
-            play_item.setSubtitles(subtitles)
+        if title_item.subtitles_path:
+            play_item.setSubtitles(title_item.subtitles_path)
 
         # To support video playback directly from RunPlugin() we need to use xbmc.Player().play instead of
         # setResolvedUrl that only works with PlayMedia() or with internal playable menu items
         xbmcplugin.setResolvedUrl(self._handle, True, listitem=play_item)
 
+        if self.get_setting_as_bool('showsubtitles'):
+            while not xbmc.Player().isPlaying() and not xbmc.Monitor().abortRequested():
+                xbmc.sleep(100)
+            xbmc.Player().showSubtitles(False)
+
     def get_search_string(self, heading='', message=''):
-        ''' Ask the user for a search string '''
+        """ Ask the user for a search string """
         search_string = None
         keyboard = xbmc.Keyboard(message, heading)
         keyboard.doModal()
@@ -215,28 +219,28 @@ class KodiWrapper:
         return search_string
 
     def show_ok_dialog(self, heading='', message=''):
-        ''' Show Kodi's OK dialog '''
+        """ Show Kodi's OK dialog """
         from xbmcgui import Dialog
         if not heading:
             heading = self._addon.getAddonInfo('name')
         return Dialog().ok(heading=heading, line1=message)
 
     def show_notification(self, heading='', message='', icon='info', time=4000):
-        ''' Show a Kodi notification '''
+        """ Show a Kodi notification """
         from xbmcgui import Dialog
         if not heading:
             heading = self._addon.getAddonInfo('name')
         Dialog().notification(heading=heading, message=message, icon=icon, time=time)
 
     def show_multiselect(self, heading='', options=None, autoclose=0, preselect=None, use_details=False):
-        ''' Show a Kodi multi-select dialog '''
+        """ Show a Kodi multi-select dialog """
         from xbmcgui import Dialog
         if not heading:
             heading = self._addon.getAddonInfo('name')
         return Dialog().multiselect(heading=heading, options=options, autoclose=autoclose, preselect=preselect, useDetails=use_details)
 
     def set_locale(self):
-        ''' Load the proper locale for date strings '''
+        """ Load the proper locale for date strings """
         import locale
         locale_lang = self.get_global_setting('locale.language').split('.')[-1]
         try:
@@ -250,7 +254,7 @@ class KodiWrapper:
             return False
 
     def localize(self, string_id, **kwargs):
-        ''' Return the translated string from the .po language files, optionally translating variables '''
+        """ Return the translated string from the .po language files, optionally translating variables """
         if kwargs:
             import string
             return string.Formatter().vformat(self._addon.getLocalizedString(string_id), (), SafeDict(**kwargs))
@@ -258,7 +262,7 @@ class KodiWrapper:
         return self._addon.getLocalizedString(string_id)
 
     def get_setting(self, setting_id, default=None):
-        ''' Get an add-on setting '''
+        """ Get an add-on setting """
         value = to_unicode(self._addon.getSetting(setting_id))
         if value == '' and default is not None:
             return default
@@ -268,22 +272,22 @@ class KodiWrapper:
         return self.get_setting(setting).lower() == "true"
 
     def set_setting(self, setting_id, setting_value):
-        ''' Set an add-on setting '''
+        """ Set an add-on setting """
         return self._addon.setSetting(setting_id, setting_value)
 
     def open_settings(self):
-        ''' Open the add-in settings window, shows Credentials '''
+        """ Open the add-in settings window, shows Credentials """
         self._addon.openSettings()
 
     @staticmethod
     def get_global_setting(setting):
-        ''' Get a Kodi setting '''
+        """ Get a Kodi setting """
         import json
         json_result = xbmc.executeJSONRPC('{"jsonrpc": "2.0", "method": "Settings.GetSettingValue", "params": {"setting": "%s"}, "id": 1}' % setting)
         return json.loads(json_result).get('result', dict()).get('value')
 
     def get_max_bandwidth(self):
-        ''' Get the max bandwidth based on Kodi and add-on settings '''
+        """ Get the max bandwidth based on Kodi and add-on settings """
         vrtnu_max_bandwidth = int(self.get_setting('max_bandwidth', '0'))
         global_max_bandwidth = int(self.get_global_setting('network.bandwidth'))
         if vrtnu_max_bandwidth != 0 and global_max_bandwidth != 0:
@@ -295,7 +299,7 @@ class KodiWrapper:
         return 0
 
     def get_proxies(self):
-        ''' Return a usable proxies dictionary from Kodi proxy settings '''
+        """ Return a usable proxies dictionary from Kodi proxy settings """
         usehttpproxy = self.get_global_setting('network.usehttpproxy')
         if usehttpproxy is not True:
             return None
@@ -338,70 +342,70 @@ class KodiWrapper:
 
     @staticmethod
     def get_cond_visibility(condition):
-        ''' Test a condition in XBMC '''
+        """ Test a condition in XBMC """
         return xbmc.getCondVisibility(condition)
 
     def has_inputstream_adaptive(self):
-        ''' Whether InputStream Adaptive is installed and enabled in add-on settings '''
+        """ Whether InputStream Adaptive is installed and enabled in add-on settings """
         return self.get_setting('useinputstreamadaptive', 'true') == 'true' and xbmc.getCondVisibility('System.HasAddon(inputstream.adaptive)') == 1
 
     def credentials_filled_in(self):
-        ''' Whether the add-on has credentials filled in '''
+        """ Whether the add-on has credentials filled in """
         return bool(self.get_setting('username') and self.get_setting('password'))
 
     @staticmethod
     def kodi_version():
-        ''' Returns major Kodi version '''
+        """ Returns major Kodi version """
         return int(xbmc.getInfoLabel('System.BuildVersion').split('.')[0])
 
     def can_play_drm(self):
-        ''' Whether this Kodi can do DRM using InputStream Adaptive '''
+        """ Whether this Kodi can do DRM using InputStream Adaptive """
         return self.get_setting('usedrm', 'true') == 'true' and self.get_setting('useinputstreamadaptive', 'true') == 'true' and self.supports_drm()
 
     def supports_drm(self):
-        ''' Whether this Kodi version supports DRM decryption using InputStream Adaptive '''
+        """ Whether this Kodi version supports DRM decryption using InputStream Adaptive """
         return self.kodi_version() > 17
 
     def get_userdata_path(self):
-        ''' Return the profile's userdata path '''
+        """ Return the profile's userdata path """
         return to_unicode(xbmc.translatePath(self._addon.getAddonInfo('profile')))
 
     def get_addon_path(self):
-        ''' Return the profile's addon path '''
+        """ Return the profile's addon path """
         return to_unicode(xbmc.translatePath(self._addon.getAddonInfo('path')))
 
     def get_addon_info(self, key):
-        ''' Return addon information '''
+        """ Return addon information """
         return self._addon.getAddonInfo(key)
 
     @staticmethod
     def listdir(path):
-        ''' Return all files in a directory (using xbmcvfs)'''
+        """ Return all files in a directory (using xbmcvfs)"""
         from xbmcvfs import listdir
         return listdir(path)
 
     def mkdir(self, path):
-        ''' Create a directory (using xbmcvfs) '''
+        """ Create a directory (using xbmcvfs) """
         from xbmcvfs import mkdir
         self.log("Create directory '{path}'.", LOG_DEBUG, path=path)
         return mkdir(path)
 
     def mkdirs(self, path):
-        ''' Create directory including parents (using xbmcvfs) '''
+        """ Create directory including parents (using xbmcvfs) """
         from xbmcvfs import mkdirs
         self.log("Recursively create directory '{path}'.", LOG_DEBUG, path=path)
         return mkdirs(path)
 
     @staticmethod
     def check_if_path_exists(path):
-        ''' Whether the path exists (using xbmcvfs)'''
+        """ Whether the path exists (using xbmcvfs)"""
         from xbmcvfs import exists
         return exists(path)
 
     @staticmethod
     @contextmanager
     def open_file(path, flags='r'):
-        ''' Open a file (using xbmcvfs) '''
+        """ Open a file (using xbmcvfs) """
         from xbmcvfs import File
         fdesc = File(path, flags)
         yield fdesc
@@ -409,22 +413,22 @@ class KodiWrapper:
 
     @staticmethod
     def stat_file(path):
-        ''' Return information about a file (using xbmcvfs) '''
+        """ Return information about a file (using xbmcvfs) """
         from xbmcvfs import Stat
         return Stat(path)
 
     def delete_file(self, path):
-        ''' Remove a file (using xbmcvfs) '''
+        """ Remove a file (using xbmcvfs) """
         from xbmcvfs import delete
         self.log("Delete file '{path}'.", LOG_DEBUG, path=path)
         return delete(path)
 
     def end_of_directory(self):
-        ''' Close a virtual directory, required to avoid a waiting Kodi '''
+        """ Close a virtual directory, required to avoid a waiting Kodi """
         xbmcplugin.endOfDirectory(handle=self._handle, succeeded=False, updateListing=False, cacheToDisc=False)
 
     def log(self, message, log_level=LOG_INFO, **kwargs):
-        ''' Log info messages to Kodi '''
+        """ Log info messages to Kodi """
         if not self._global_debug_logging and self._debug_logging and log_level in [LOG_DEBUG, LOG_INFO]:
             # If Debug Logging is not enabled, Kodi filters everything up to NOTICE out
             log_level = LOG_NOTICE
@@ -435,7 +439,7 @@ class KodiWrapper:
         xbmc.log(msg=from_unicode(message), level=log_level)
 
     def kids_mode(self):
-        ''' Returns if kids zone is active '''
+        """ Returns if kids zone is active """
         if self.get_setting_as_bool('force_kids_zone'):
             return True
 

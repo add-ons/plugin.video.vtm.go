@@ -217,6 +217,8 @@ class VtmGo:
         # This is currently not used
         response = self._get_url('/config')
         info = json.loads(response)
+
+        # This contains a player.updateIntervalSeconds that could be used to notify VTM GO about the playing progress
         return info
 
     def get_recommendations(self):
@@ -348,6 +350,7 @@ class VtmGo:
         """
         response = self._get_url('/%s/movies/%s' % (self._mode, movie_id))
         info = json.loads(response)
+
         movie = info.get('movie', {})
         channel_url = movie.get('channelLogoUrl')
         if channel_url:
@@ -377,6 +380,7 @@ class VtmGo:
         """
         response = self._get_url('/%s/programs/%s' % (self._mode, program_id))
         info = json.loads(response)
+
         program = info.get('program', {})
         channel_url = program.get('channelLogoUrl')
         if channel_url:
@@ -432,6 +436,7 @@ class VtmGo:
         """
         response = self._get_url('/%s/episodes/%s' % (self._mode, episode_id))
         info = json.loads(response)
+
         episode = info.get('episode', {})
 
         return Episode(
@@ -482,6 +487,8 @@ class VtmGo:
 
         response = requests.session().get('https://api.vtmgo.be' + url, headers=headers, verify=False, proxies=self._proxies)
 
+        self._kodi.log('Got response: {response}', LOG_DEBUG, response=response.text)
+
         if response.status_code == 404:
             raise UnavailableException()
 
@@ -511,6 +518,8 @@ class VtmGo:
 
         response = requests.session().put('https://api.vtmgo.be' + url, headers=headers, verify=False, proxies=self._proxies)
 
+        self._kodi.log('Got response: {response}', LOG_DEBUG, response=response.text)
+
         if response.status_code == 404:
             raise UnavailableException()
 
@@ -539,6 +548,8 @@ class VtmGo:
         self._kodi.log('Sending DELETE {url}...', LOG_DEBUG, url=url)
 
         response = requests.session().delete('https://api.vtmgo.be' + url, headers=headers, verify=False, proxies=self._proxies)
+
+        self._kodi.log('Got response: {response}', LOG_DEBUG, response=response.text)
 
         if response.status_code == 404:
             raise UnavailableException()
