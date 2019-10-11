@@ -414,7 +414,7 @@ class VtmGoStream:
         download = self._download_text(url)
         matches = re.search(r"<Location>([^<]+)</Location>", download)
         if matches:
-            self._kodi.log('Followed redirection from {from_url} to {to_url}', url_from=url, url_to=matches.group(1))
+            self._kodi.log('Followed redirection from {url_from} to {url_to}', url_from=url, url_to=matches.group(1))
             return matches.group(1)
 
         # Fallback to the url like we have it
