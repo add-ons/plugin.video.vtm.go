@@ -7,18 +7,31 @@
 
 from __future__ import absolute_import, division, print_function, unicode_literals
 
-import os
 import json
+import os
 import time
+
 from xbmcextra import global_settings, import_language
 
-LOGFATAL = 'Fatal'
-LOGERROR = 'Error'
-LOGWARNING = 'Warning'
-LOGNOTICE = 'Notice'
-LOGINFO = 'Info'
-LOGDEBUG = 'Debug'
-LOGNONE = ''
+LOGDEBUG = 0
+LOGERROR = 4
+LOGFATAL = 6
+LOGINFO = 1
+LOGNONE = 7
+LOGNOTICE = 2
+LOGSEVERE = 5
+LOGWARNING = 3
+
+LOG_MAPPING = {
+    LOGDEBUG: 'Debug',
+    LOGERROR: 'Error',
+    LOGFATAL: 'Fatal',
+    LOGINFO: 'Info',
+    LOGNONE: 'None',
+    LOGNOTICE: 'Notice',
+    LOGSEVERE: 'Severe',
+    LOGWARNING: 'Warning',
+}
 
 INFO_LABELS = {
     'System.BuildVersion': '18.2',
@@ -53,6 +66,7 @@ class Keyboard:
 
 class Monitor:
     ''' A stub implementation of the xbmc Monitor class '''
+
     def __init__(self, line='', heading=''):
         ''' A stub constructor for the xbmc Monitor class '''
 
@@ -67,6 +81,7 @@ class Monitor:
 
 class Player:
     ''' A stub implementation of the xbmc Player class '''
+
     def __init__(self):
         self._count = 0
 
@@ -137,14 +152,14 @@ def getRegion(key):
 
 def log(msg, level=LOGINFO):
     ''' A reimplementation of the xbmc log() function '''
-    if level in ('Error', 'Fatal'):
-        print('\033[31;1m%s: \033[32;0m%s\033[0;39m' % (level, msg))
-        if level == 'Fatal':
+    if level in (LOGERROR, LOGFATAL):
+        print('\033[31;1m%s: \033[32;0m%s\033[0;39m' % (LOG_MAPPING.get(level), msg.decode('utf-8')))
+        if level == LOGFATAL:
             raise Exception(msg)
-    elif level in ('Warning', 'Notice'):
-        print('\033[33;1m%s: \033[32;0m%s\033[0;39m' % (level, msg))
+    elif level in (LOGWARNING, LOGNOTICE):
+        print('\033[33;1m%s: \033[32;0m%s\033[0;39m' % (LOG_MAPPING.get(level), msg.decode('utf-8')))
     else:
-        print('\033[32;1m%s: \033[32;0m%s\033[0;39m' % (level, msg))
+        print('\033[32;1m%s: \033[32;0m%s\033[0;39m' % (LOG_MAPPING.get(level), msg.decode('utf-8')))
 
 
 def setContent(self, content):

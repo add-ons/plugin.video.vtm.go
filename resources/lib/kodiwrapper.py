@@ -20,6 +20,7 @@ LOG_INFO = xbmc.LOGINFO
 LOG_NOTICE = xbmc.LOGNOTICE
 LOG_WARNING = xbmc.LOGWARNING
 LOG_ERROR = xbmc.LOGERROR
+LOG_FATAL = xbmc.LOGFATAL
 
 
 def to_unicode(text, encoding='utf-8'):
