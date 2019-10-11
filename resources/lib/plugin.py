@@ -2,8 +2,6 @@
 from __future__ import absolute_import, division, unicode_literals
 
 import routing
-import xbmcplugin
-from xbmc import getRegion
 
 from resources.lib import GeoblockedException, UnavailableException
 from resources.lib.kodiwrapper import KodiWrapper, TitleItem
@@ -230,7 +228,8 @@ def show_tvguide_channel(channel):
     :type channel: string
     """
     listing = []
-    for day in VtmGoEpg(kodi).get_dates(getRegion('datelong')):
+
+    for day in VtmGoEpg(kodi).get_dates('%A %d %B %Y'):
         if day.get('highlight'):
             title = '[B]{title}[/B]'.format(title=day.get('title'))
         else:
@@ -617,8 +616,7 @@ def show_program(program):
         )
 
     # Sort by label. Some programs return seasons unordered.
-    kodi.show_listing(listing, 30003, content='episodes', sort='label')
-    xbmcplugin.setContent(routing.handle, 'tvshows')
+    kodi.show_listing(listing, 30003, content='tvshows', sort='label')
 
 
 @routing.route('/program/<program>/<season>')
