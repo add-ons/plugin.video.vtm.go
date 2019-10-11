@@ -329,5 +329,5 @@ msgid "Logging"
 msgstr ""
 
 msgctxt "#30891"
-msgid "Log level"
-msgstr ""
+msgid "Enable debug logging"
+msgstr "Activeer debug logging"

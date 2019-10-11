@@ -5,16 +5,14 @@ import json
 
 import requests
 
-from resources.lib import UnavailableException, kodilogging
-from resources.lib.kodiutils import proxies
+from resources.lib import UnavailableException
+from resources.lib.kodiwrapper import LOG_DEBUG, KodiWrapper  # pylint: disable=unused-import
 from resources.lib.vtmgo.vtmgoauth import VtmGoAuth
 
 try:  # Python 3
     from urllib.parse import quote
 except ImportError:  # Python 2
     from urllib import quote
-
-logger = kodilogging.get_logger('VtmGo')
 
 
 class LiveChannel:
@@ -206,10 +204,13 @@ class Episode:
 
 
 class VtmGo:
-    def __init__(self, kids=False):
+    def __init__(self, kodi):
+        self._kodi = kodi  # type: KodiWrapper
+        self._proxies = kodi.get_proxies()
+        self._auth = VtmGoAuth(kodi)
+
         # This can be vtmgo or vtmgo-kids
-        self._mode = 'vtmgo-kids' if kids else 'vtmgo'
-        self._auth = VtmGoAuth()
+        self._mode = 'vtmgo-kids' if self._kodi.kids_mode() else 'vtmgo'
 
     def get_config(self):
         """ Returns the config for the app. """
@@ -477,9 +478,9 @@ class VtmGo:
         if token:
             headers['x-dpp-jwt'] = token
 
-        logger.debug('Fetching %s...', url)
+        self._kodi.log('Sending GET {url}...', LOG_DEBUG, url=url)
 
-        response = requests.session().get('https://api.vtmgo.be' + url, headers=headers, verify=False, proxies=proxies)
+        response = requests.session().get('https://api.vtmgo.be' + url, headers=headers, verify=False, proxies=self._proxies)
 
         if response.status_code == 404:
             raise UnavailableException()
@@ -506,9 +507,9 @@ class VtmGo:
         if token:
             headers['x-dpp-jwt'] = token
 
-        logger.debug('Putting %s...', url)
+        self._kodi.log('Sending PUT {url}...', LOG_DEBUG, url=url)
 
-        response = requests.session().put('https://api.vtmgo.be' + url, headers=headers, verify=False, proxies=proxies)
+        response = requests.session().put('https://api.vtmgo.be' + url, headers=headers, verify=False, proxies=self._proxies)
 
         if response.status_code == 404:
             raise UnavailableException()
@@ -535,9 +536,9 @@ class VtmGo:
         if token:
             headers['x-dpp-jwt'] = token
 
-        logger.debug('Fetching %s...', url)
+        self._kodi.log('Sending DELETE {url}...', LOG_DEBUG, url=url)
 
-        response = requests.session().delete('https://api.vtmgo.be' + url, headers=headers, verify=False, proxies=proxies)
+        response = requests.session().delete('https://api.vtmgo.be' + url, headers=headers, verify=False, proxies=self._proxies)
 
         if response.status_code == 404:
             raise UnavailableException()

@@ -3,38 +3,36 @@ from __future__ import absolute_import, division, unicode_literals
 
 import routing
 import xbmcplugin
-from xbmc import Keyboard, getRegion
-from xbmcgui import ListItem
+from xbmc import getRegion
 
-from resources.lib import kodilogging, GeoblockedException, UnavailableException
+from resources.lib import GeoblockedException, UnavailableException
 from resources.lib.kodiwrapper import KodiWrapper, TitleItem
 from resources.lib.vtmgo.vtmgo import Content, VtmGo
 from resources.lib.vtmgo.vtmgoauth import VtmGoAuth, InvalidLoginException
 from resources.lib.vtmgo.vtmgoepg import VtmGoEpg
 from resources.lib.vtmgo.vtmgostream import VtmGoStream
 
-plugin = routing.Plugin()
-kodi = KodiWrapper(globals())
-logger = kodilogging.get_logger('plugin')
+routing = routing.Plugin()
+kodi = KodiWrapper(routing=routing)
 
 VtmGoAuth.username = kodi.get_setting('username')
 VtmGoAuth.password = kodi.get_setting('password')
 VtmGoAuth.hash = kodi.get_setting('credentials_hash')
 
 
-@plugin.route('/kids')
+@routing.route('/kids')
 def show_kids_index():
     show_index()
 
 
-@plugin.route('/')
+@routing.route('/')
 def show_index():
-    kids = _get_kids_mode()
+    kids = kodi.kids_mode()
 
     listing = []
     listing.extend([
         TitleItem(title=kodi.localize(30001),  # A-Z
-                  path=plugin.url_for(show_catalog_category if not kids else show_kids_catalog_category, category='all'),
+                  path=routing.url_for(show_catalog_category if not kids else show_kids_catalog_category, category='all'),
                   art_dict=dict(
                       icon='DefaultMovieTitle.png'
                   ),
@@ -42,7 +40,7 @@ def show_index():
                       plot=kodi.localize(30002),
                   )),
         TitleItem(title=kodi.localize(30003),  # Catalogue
-                  path=plugin.url_for(show_catalog if not kids else show_kids_catalog),
+                  path=routing.url_for(show_catalog if not kids else show_kids_catalog),
                   art_dict=dict(
                       icon='DefaultGenre.png'
                   ),
@@ -50,7 +48,7 @@ def show_index():
                       plot=kodi.localize(30004),
                   )),
         TitleItem(title=kodi.localize(30005),  # Live TV
-                  path=plugin.url_for(show_livetv if not kids else show_kids_livetv),
+                  path=routing.url_for(show_livetv if not kids else show_kids_livetv),
                   art_dict=dict(
                       icon='DefaultAddonPVRClient.png'
                   ),
@@ -58,7 +56,7 @@ def show_index():
                       plot=kodi.localize(30006),
                   )),
         TitleItem(title=kodi.localize(30013),  # TV Guide
-                  path=plugin.url_for(show_tvguide if not kids else show_kids_tvguide),
+                  path=routing.url_for(show_tvguide if not kids else show_kids_tvguide),
                   art_dict={
                       'icon': 'DefaultAddonTvInfo.png'
                   },
@@ -66,7 +64,7 @@ def show_index():
                       'plot': kodi.localize(30014),
                   }),
         TitleItem(title=kodi.localize(30015),  # Recommendations
-                  path=plugin.url_for(show_recommendations if not kids else show_kids_recommendations),
+                  path=routing.url_for(show_recommendations if not kids else show_kids_recommendations),
                   art_dict={
                       'icon': 'DefaultFavourites.png'
                   },
@@ -74,7 +72,7 @@ def show_index():
                       'plot': kodi.localize(30016),
                   }),
         TitleItem(title=kodi.localize(30017),  # My List
-                  path=plugin.url_for(show_mylist if not kids else show_kids_mylist),
+                  path=routing.url_for(show_mylist if not kids else show_kids_mylist),
                   art_dict={
                       'icon': 'DefaultPlaylist.png'
                   },
@@ -87,7 +85,7 @@ def show_index():
     if kodi.get_cond_visibility('System.HasAddon(plugin.video.youtube)') != 0:
         listing.append(
             TitleItem(title=kodi.localize(30007),  # YouTube
-                      path=plugin.url_for(show_youtube if not kids else show_kids_youtube),
+                      path=routing.url_for(show_youtube if not kids else show_kids_youtube),
                       art_dict=dict(
                           icon='DefaultTags.png'
                       ),
@@ -98,7 +96,7 @@ def show_index():
 
     listing.extend([
         TitleItem(title=kodi.localize(30009),  # Search
-                  path=plugin.url_for(show_search if not kids else show_kids_search),
+                  path=routing.url_for(show_search if not kids else show_kids_search),
                   art_dict=dict(
                       icon='DefaultAddonsSearch.png'
                   ),
@@ -107,10 +105,10 @@ def show_index():
                   )),
     ])
 
-    if kodi.get_setting_as_bool('use_kids_zone') and not kids:
+    if not kids:
         listing.append(
             TitleItem(title=kodi.localize(30011),  # Kids Zone
-                      path=plugin.url_for(show_kids_index),
+                      path=routing.url_for(show_kids_index),
                       art_dict=dict(
                           icon='DefaultUser.png'
                       ),
@@ -122,10 +120,10 @@ def show_index():
     kodi.show_listing(listing)
 
 
-@plugin.route('/check-credentials')
+@routing.route('/check-credentials')
 def check_credentials():
     try:
-        auth = VtmGoAuth()
+        auth = VtmGoAuth(kodi)
         auth.clear_token()
         auth.get_token()
         kodi.show_ok_dialog(message=kodi.localize(30202))  # Credentials are correct!
@@ -137,18 +135,16 @@ def check_credentials():
     kodi.open_settings()
 
 
-@plugin.route('/kids/livetv')
+@routing.route('/kids/livetv')
 def show_kids_livetv():
     show_livetv()
 
 
-@plugin.route('/livetv')
+@routing.route('/livetv')
 def show_livetv():
     """ Shows the channels that can play live TV. """
-    kids = _get_kids_mode()
-
     try:
-        _vtmGo = VtmGo(kids=kids)
+        _vtmGo = VtmGo(kodi)
         channels = _vtmGo.get_live_channels()
     except Exception as ex:
         kodi.show_notification(message=str(ex))
@@ -169,7 +165,7 @@ def show_livetv():
 
         listing.append(
             TitleItem(title=channel.name,
-                      path=plugin.url_for(play, category='channels', item=channel.channel_id) + '?.pvr',
+                      path=routing.url_for(play, category='channels', item=channel.channel_id) + '?.pvr',
                       art_dict={
                           'icon': icon,
                           'thumb': icon,
@@ -190,15 +186,15 @@ def show_livetv():
     kodi.show_listing(listing, 30005)
 
 
-@plugin.route('/kids/tvguide')
+@routing.route('/kids/tvguide')
 def show_kids_tvguide():
     show_tvguide()
 
 
-@plugin.route('/tvguide')
+@routing.route('/tvguide')
 def show_tvguide():
     """ Shows the channels from the TV guide. """
-    kids = _get_kids_mode()
+    kids = kodi.kids_mode()
 
     from . import CHANNELS
 
@@ -214,7 +210,7 @@ def show_tvguide():
 
         listing.append(
             TitleItem(title=entry.get('label'),
-                      path=plugin.url_for(show_tvguide_channel, channel=entry.get('key')),
+                      path=routing.url_for(show_tvguide_channel, channel=entry.get('key')),
                       art_dict={
                           'icon': icon,
                           'thumb': icon,
@@ -228,13 +224,13 @@ def show_tvguide():
     kodi.show_listing(listing, 30013)
 
 
-@plugin.route('/tvguide/<channel>')
+@routing.route('/tvguide/<channel>')
 def show_tvguide_channel(channel):
     """ Shows the dates in the tv guide.
     :type channel: string
     """
     listing = []
-    for day in VtmGoEpg.get_dates(getRegion('datelong')):
+    for day in VtmGoEpg(kodi).get_dates(getRegion('datelong')):
         if day.get('highlight'):
             title = '[B]{title}[/B]'.format(title=day.get('title'))
         else:
@@ -242,7 +238,7 @@ def show_tvguide_channel(channel):
 
         listing.append(
             TitleItem(title=title,
-                      path=plugin.url_for(show_tvguide_detail, channel=channel, date=day.get('date')),
+                      path=routing.url_for(show_tvguide_detail, channel=channel, date=day.get('date')),
                       art_dict={
                           'icon': 'DefaultYear.png',
                       })
@@ -251,14 +247,14 @@ def show_tvguide_channel(channel):
     kodi.show_listing(listing, 30013, content='files')
 
 
-@plugin.route('/tvguide/<channel>/<date>')
+@routing.route('/tvguide/<channel>/<date>')
 def show_tvguide_detail(channel=None, date=None):
     """ Shows the programs of a specific date in the tv guide.
     :type channel: string
     :type date: string
     """
     try:
-        _vtmGoEpg = VtmGoEpg()
+        _vtmGoEpg = VtmGoEpg(kodi)
         epg = _vtmGoEpg.get_epg(channel=channel, date=date)
     except Exception as ex:
         kodi.show_notification(message=str(ex))
@@ -272,7 +268,7 @@ def show_tvguide_detail(channel=None, date=None):
         )
         listing.append(
             TitleItem(title=title,
-                      path=plugin.url_for(play_epg, channel=channel, program_type=broadcast.playable_type, epg_id=broadcast.uuid),
+                      path=routing.url_for(play_epg, channel=channel, program_type=broadcast.playable_type, epg_id=broadcast.uuid),
                       art_dict={
                           'icon': broadcast.image,
                           'thumb': broadcast.image,
@@ -285,6 +281,8 @@ def show_tvguide_detail(channel=None, date=None):
                       },
                       stream_dict={
                           'duration': broadcast.duration,
+                          'height': 1080,
+                          'width': 1920,
                       },
                       is_playable=True)
         )
@@ -292,18 +290,18 @@ def show_tvguide_detail(channel=None, date=None):
     kodi.show_listing(listing, 30013, content='videos')
 
 
-@plugin.route('/kids/recommendations')
+@routing.route('/kids/recommendations')
 def show_kids_recommendations():
     show_recommendations()
 
 
-@plugin.route('/recommendations')
+@routing.route('/recommendations')
 def show_recommendations():
     """ Show the recommendations. """
-    kids = _get_kids_mode()
+    kids = kodi.kids_mode()
 
     try:
-        _vtmGo = VtmGo(kids=kids)
+        _vtmGo = VtmGo(kodi)
         recommendations = _vtmGo.get_recommendations()
     except Exception as ex:
         kodi.show_notification(message=str(ex))
@@ -313,7 +311,7 @@ def show_recommendations():
     for cat in recommendations:
         listing.append(
             TitleItem(title=cat.title,
-                      path=plugin.url_for(show_kids_recommendations_category if kids else show_recommendations_category, category=cat.category_id),
+                      path=routing.url_for(show_kids_recommendations_category if kids else show_recommendations_category, category=cat.category_id),
                       info_dict={
                           'plot': '[B]{category}[/B]'.format(category=cat.title),
                       })
@@ -323,18 +321,16 @@ def show_recommendations():
     kodi.show_listing(listing, 30015, content='files')
 
 
-@plugin.route('/kids/recommendations/<category>')
+@routing.route('/kids/recommendations/<category>')
 def show_kids_recommendations_category(category):
     show_recommendations_category(category)
 
 
-@plugin.route('/recommendations/<category>')
+@routing.route('/recommendations/<category>')
 def show_recommendations_category(category):
     """ Show the items in a recommendations category. """
-    kids = _get_kids_mode()
-
     try:
-        _vtmGo = VtmGo(kids=kids)
+        _vtmGo = VtmGo(kodi)
         recommendations = _vtmGo.get_recommendations()
     except Exception as ex:
         kodi.show_notification(message=str(ex))
@@ -350,7 +346,7 @@ def show_recommendations_category(category):
             if item.video_type == Content.CONTENT_TYPE_MOVIE:
                 listing.append(
                     TitleItem(title=item.title,
-                              path=plugin.url_for(play, category='movies', item=item.content_id),
+                              path=routing.url_for(play, category='movies', item=item.content_id),
                               art_dict={
                                   'icon': item.cover,
                                   'thumb': item.cover,
@@ -359,13 +355,17 @@ def show_recommendations_category(category):
                                   'plot': item.title,
                                   'mediatype': 'movie',
                               },
+                              stream_dict={
+                                  'height': 1080,
+                                  'width': 1920,
+                              },
                               is_playable=True)
                 )
 
             elif item.video_type == Content.CONTENT_TYPE_PROGRAM:
                 listing.append(
                     TitleItem(title=item.title,
-                              path=plugin.url_for(show_program, program=item.content_id),
+                              path=routing.url_for(show_program, program=item.content_id),
                               art_dict={
                                   'icon': item.cover,
                                   'thumb': item.cover,
@@ -379,18 +379,18 @@ def show_recommendations_category(category):
     kodi.show_listing(listing, 30015, content='files')
 
 
-@plugin.route('/kids/mylist')
+@routing.route('/kids/mylist')
 def show_kids_mylist():
     show_mylist()
 
 
-@plugin.route('/mylist')
+@routing.route('/mylist')
 def show_mylist():
     """ Show the items in My List. """
-    kids = _get_kids_mode()
+    kids = kodi.kids_mode()
 
     try:
-        _vtmGo = VtmGo(kids=kids)
+        _vtmGo = VtmGo(kodi)
         mylist = _vtmGo.get_mylist()
     except Exception as ex:
         kodi.show_notification(message=str(ex))
@@ -406,15 +406,15 @@ def show_mylist():
         context_menu = [(
             kodi.localize(30051),  # Remove from My List
             'XBMC.Container.Update(%s)' %
-            plugin.url_for(mylist_del if not kids else kids_mylist_del,
-                           video_type=item.video_type,
-                           content_id=item.content_id)
+            routing.url_for(mylist_del if not kids else kids_mylist_del,
+                            video_type=item.video_type,
+                            content_id=item.content_id)
         )]
 
         if item.video_type == Content.CONTENT_TYPE_MOVIE:
             listing.append(
                 TitleItem(title=item.title,
-                          path=plugin.url_for(play, category='movies', item=item.content_id),
+                          path=routing.url_for(play, category='movies', item=item.content_id),
                           art_dict=art_dict,
                           info_dict={
                               'plot': item.title,
@@ -431,11 +431,11 @@ def show_mylist():
         elif item.video_type == Content.CONTENT_TYPE_PROGRAM:
             listing.append(
                 TitleItem(title=item.title,
-                          path=plugin.url_for(show_program, program=item.content_id),
+                          path=routing.url_for(show_program, program=item.content_id),
                           art_dict=art_dict,
                           info_dict={
                               'plot': item.title,
-                              'mediatype': 'tvshow',
+                              'mediatype': None,
                           },
                           context_menu=context_menu)
             )
@@ -444,44 +444,42 @@ def show_mylist():
     kodi.show_listing(listing, 30017, content='files')
 
 
-@plugin.route('/kids/mylist/add/<video_type>/<content_id>')
+@routing.route('/kids/mylist/add/<video_type>/<content_id>')
 def kids_mylist_add(video_type, content_id):
     mylist_add(video_type, content_id)
 
 
-@plugin.route('/mylist/add/<video_type>/<content_id>')
+@routing.route('/mylist/add/<video_type>/<content_id>')
 def mylist_add(video_type, content_id):
     """ Add an item to My List. """
-    kids = _get_kids_mode()
-    _vtmGo = VtmGo(kids=kids)
+    _vtmGo = VtmGo(kodi)
     _vtmGo.add_mylist(video_type, content_id)
 
 
-@plugin.route('/kids/mylist/del/<video_type>/<content_id>')
+@routing.route('/kids/mylist/del/<video_type>/<content_id>')
 def kids_mylist_del(video_type, content_id):
     mylist_del(video_type, content_id)
 
 
-@plugin.route('/mylist/del/<video_type>/<content_id>')
+@routing.route('/mylist/del/<video_type>/<content_id>')
 def mylist_del(video_type, content_id):
     """ Remove an item from My List. """
-    kids = _get_kids_mode()
-    _vtmGo = VtmGo(kids=kids)
+    _vtmGo = VtmGo(kodi)
     _vtmGo.del_mylist(video_type, content_id)
 
 
-@plugin.route('/kids/catalog')
+@routing.route('/kids/catalog')
 def show_kids_catalog():
     show_catalog()
 
 
-@plugin.route('/catalog')
+@routing.route('/catalog')
 def show_catalog():
     """ Show the catalog. """
-    kids = _get_kids_mode()
+    kids = kodi.kids_mode()
 
     try:
-        _vtmGo = VtmGo(kids=kids)
+        _vtmGo = VtmGo(kodi)
         categories = _vtmGo.get_categories()
     except Exception as ex:
         kodi.show_notification(message=str(ex))
@@ -491,7 +489,7 @@ def show_catalog():
     for cat in categories:
         listing.append(
             TitleItem(title=cat.title,
-                      path=plugin.url_for(show_kids_catalog_category if kids else show_catalog_category, category=cat.category_id),
+                      path=routing.url_for(show_kids_catalog_category if kids else show_catalog_category, category=cat.category_id),
                       info_dict={
                           'plot': '[B]{category}[/B]'.format(category=cat.title),
                       })
@@ -501,18 +499,18 @@ def show_catalog():
     kodi.show_listing(listing, 30003, content='files')
 
 
-@plugin.route('/kids/catalog/<category>')
+@routing.route('/kids/catalog/<category>')
 def show_kids_catalog_category(category):
     show_catalog_category(category)
 
 
-@plugin.route('/catalog/<category>')
+@routing.route('/catalog/<category>')
 def show_catalog_category(category):
     """ Show a category in the catalog. """
-    kids = _get_kids_mode()
+    kids = kodi.kids_mode()
 
     try:
-        _vtmGo = VtmGo(kids=kids)
+        _vtmGo = VtmGo(kodi)
         items = _vtmGo.get_items(category)
     except Exception as ex:
         kodi.show_notification(message=str(ex))
@@ -529,15 +527,15 @@ def show_catalog_category(category):
         # We don't know if it is already on My List, so we can't give an option to remove here.
         context_menu = [(
             kodi.localize(30050),  # Add to My List
-            'XBMC.Container.Update(%s)' % plugin.url_for(mylist_add if not kids else kids_mylist_add,
-                                                         video_type=item.video_type,
-                                                         content_id=item.content_id)
+            'XBMC.Container.Update(%s)' % routing.url_for(mylist_add if not kids else kids_mylist_add,
+                                                          video_type=item.video_type,
+                                                          content_id=item.content_id)
         )]
 
         if item.video_type == Content.CONTENT_TYPE_MOVIE:
             listing.append(
                 TitleItem(title=item.title,
-                          path=plugin.url_for(play, category='movies', item=item.content_id),
+                          path=routing.url_for(play, category='movies', item=item.content_id),
                           art_dict=art_dict,
                           info_dict={
                               'title': item.title,
@@ -555,16 +553,12 @@ def show_catalog_category(category):
         elif item.video_type == Content.CONTENT_TYPE_PROGRAM:
             listing.append(
                 TitleItem(title=item.title,
-                          path=plugin.url_for(show_program, program=item.content_id),
+                          path=routing.url_for(show_program, program=item.content_id),
                           art_dict=art_dict,
                           info_dict={
                               'title': item.title,
                               'plot': item.description,
                               'mediatype': None,
-                          },
-                          stream_dict={
-                              'height': 1080,
-                              'width': 1920,
                           },
                           context_menu=context_menu)
             )
@@ -574,12 +568,11 @@ def show_catalog_category(category):
     kodi.show_listing(listing, 30003, content='movies' if category == 'films' else 'tvshows', sort='label')
 
 
-@plugin.route('/program/<program>')
+@routing.route('/program/<program>')
 def show_program(program):
     """ Show a program from the catalog. """
-    kids = _get_kids_mode()
     try:
-        _vtmGo = VtmGo(kids=kids)
+        _vtmGo = VtmGo(kodi)
         program_obj = _vtmGo.get_program(program)
     except Exception as ex:
         kodi.show_notification(message=str(ex))
@@ -591,7 +584,7 @@ def show_program(program):
     if kodi.get_global_setting('videolibrary.showallitems') is True:
         listing.append(
             TitleItem(title='* %s' % kodi.localize(30204),  # * All seasons
-                      path=plugin.url_for(show_program_season, program=program, season='all'),
+                      path=routing.url_for(show_program_season, program=program, season='all'),
                       art_dict={
                           'thumb': program_obj.cover,
                           'fanart': program_obj.cover,
@@ -605,10 +598,11 @@ def show_program(program):
                       })
         )
 
+    # Add the seasons
     for s in program_obj.seasons.values():
         listing.append(
             TitleItem(title=kodi.localize(30205, season=s.number),  # Season X
-                      path=plugin.url_for(show_program_season, program=program, season=s.number),
+                      path=routing.url_for(show_program_season, program=program, season=s.number),
                       art_dict={
                           'thumb': s.cover,
                           'fanart': program_obj.cover,
@@ -623,17 +617,15 @@ def show_program(program):
         )
 
     # Sort by label. Some programs return seasons unordered.
-    kodi.show_listing(listing, 30003, content='tvshows', sort='label')
-    xbmcplugin.setContent(plugin.handle, 'tvshows')
+    kodi.show_listing(listing, 30003, content='episodes', sort='label')
+    xbmcplugin.setContent(routing.handle, 'tvshows')
 
 
-@plugin.route('/program/<program>/<season>')
+@routing.route('/program/<program>/<season>')
 def show_program_season(program, season):
     """ Show a program from the catalog. """
-    kids = _get_kids_mode()
-
     try:
-        _vtmGo = VtmGo(kids=kids)
+        _vtmGo = VtmGo(kodi)
         program_obj = _vtmGo.get_program(program)
     except Exception as ex:
         kodi.show_notification(message=str(ex))
@@ -649,56 +641,51 @@ def show_program_season(program, season):
     listing = []
     for s in seasons:
         for episode in s.episodes.values():
-            listitem = ListItem(episode.name, offscreen=True)
-            listitem.setArt({
-                'banner': program_obj.cover,
-                'fanart': program_obj.cover,
-                'thumb': episode.cover,
-            })
-            listitem.setInfo('video', {
-                'tvshowtitle': program_obj.name,
-                'title': episode.name,
-                'tagline': program_obj.description,
-                'plot': _format_plot(episode),
-                'duration': episode.duration,
-                'season': episode.season,
-                'episode': episode.number,
-                'mediatype': 'episode',
-                'set': program_obj.name,
-                'studio': episode.channel,
-                'aired': episode.aired,
-                'mpaa': ', '.join(episode.legal) if hasattr(episode, 'legal') and episode.legal else kodi.localize(30216),
-            })
-            listitem.addStreamInfo('video', {
-                'duration': episode.duration,
-            })
-            listitem.setProperty('IsPlayable', 'true')
-            listing.append((plugin.url_for(play, category='episodes', item=episode.episode_id), listitem, False))
-
-    xbmcplugin.setContent(plugin.handle, 'episodes')
+            listing.append(
+                TitleItem(title=episode.name,
+                          path=routing.url_for(play, category='episodes', item=episode.episode_id),
+                          art_dict={
+                              'banner': program_obj.cover,
+                              'fanart': program_obj.cover,
+                              'thumb': episode.cover,
+                          },
+                          info_dict={
+                              'tvshowtitle': program_obj.name,
+                              'title': episode.name,
+                              'tagline': program_obj.description,
+                              'plot': _format_plot(episode),
+                              'duration': episode.duration,
+                              'season': episode.season,
+                              'episode': episode.number,
+                              'mediatype': 'episode',
+                              'set': program_obj.name,
+                              'studio': episode.channel,
+                              'aired': episode.aired,
+                              'mpaa': ', '.join(episode.legal) if hasattr(episode, 'legal') and episode.legal else kodi.localize(30216),
+                          },
+                          stream_dict={
+                              'duration': episode.duration,
+                              'height': 1080,
+                              'width': 1920,
+                          },
+                          is_playable=True)
+            )
 
     # Sort by episode number by default. Takes seasons into account.
-    xbmcplugin.addSortMethod(plugin.handle, xbmcplugin.SORT_METHOD_EPISODE)
-    xbmcplugin.addSortMethod(plugin.handle, xbmcplugin.SORT_METHOD_LABEL)
-    xbmcplugin.addSortMethod(plugin.handle, xbmcplugin.SORT_METHOD_DURATION)
-    xbmcplugin.addSortMethod(plugin.handle, xbmcplugin.SORT_METHOD_UNSORTED)
-    xbmcplugin.setPluginCategory(plugin.handle, category=program_obj.name)
-    ok = xbmcplugin.addDirectoryItems(plugin.handle, listing, len(listing))
-    xbmcplugin.endOfDirectory(plugin.handle, ok)
+    kodi.show_listing(listing, 30003, content='episodes', sort='episode')
 
 
-@plugin.route('/kids/youtube')
+@routing.route('/kids/youtube')
 def show_kids_youtube():
     show_youtube()
 
 
-@plugin.route('/youtube')
+@routing.route('/youtube')
 def show_youtube():
     """ Shows the Youtube channel overview. """
-    kids = _get_kids_mode()
+    kids = kodi.kids_mode()
 
     listing = []
-
     from resources.lib import YOUTUBE
     for entry in YOUTUBE:
         # Skip non-kids channels when we are in kids mode.
@@ -709,51 +696,47 @@ def show_youtube():
         icon = '{path}/resources/logos/{logo}-white.png'.format(path=kodi.get_addon_path(), logo=entry.get('logo'))
         fanart = '{path}/resources/logos/{logo}.png'.format(path=kodi.get_addon_path(), logo=entry.get('logo'))
 
-        listitem = ListItem(entry.get('label'), offscreen=True)
-        listitem.setInfo('video', {
-            'plot': kodi.localize(30206, label=entry.get('label')),
-            'studio': entry.get('studio'),
-            'mediatype': 'video',
-        })
-        listitem.setArt({
-            'icon': icon,
-            'fanart': fanart,
-            'thumb': icon,
-        })
-        listing.append((entry.get('path'), listitem, True))
+        listing.append(
+            TitleItem(title=entry.get('label'),
+                      path=entry.get('path'),
+                      art_dict={
+                          'icon': icon,
+                          'fanart': fanart,
+                          'thumb': icon,
+                      },
+                      info_dict={
+                          'plot': kodi.localize(30206, label=entry.get('label')),
+                          'studio': entry.get('studio'),
+                          'mediatype': 'video',
+                      })
+        )
 
     # Sort by default like in our dict.
-    xbmcplugin.addSortMethod(plugin.handle, xbmcplugin.SORT_METHOD_UNSORTED)
-    xbmcplugin.addSortMethod(plugin.handle, xbmcplugin.SORT_METHOD_LABEL)
-    xbmcplugin.setPluginCategory(plugin.handle, category=_breadcrumb(kodi.localize(30007), title=True))
-
-    ok = xbmcplugin.addDirectoryItems(plugin.handle, listing, len(listing))
-    xbmcplugin.endOfDirectory(plugin.handle, ok)
+    kodi.show_listing(listing, 30007)
 
 
-@plugin.route('/kids/search')
-@plugin.route('/kids/search/<query>')
+@routing.route('/kids/search')
+@routing.route('/kids/search/<query>')
 def show_kids_search(query=None):
     show_search(query)
 
 
-@plugin.route('/search')
-@plugin.route('/search/<query>')
+@routing.route('/search')
+@routing.route('/search/<query>')
 def show_search(query=None):
     """ Shows the search dialog. """
-    kids = _get_kids_mode()
+    kids = kodi.kids_mode()
 
-    # Ask for query
     if not query:
-        keyboard = Keyboard('', kodi.localize(30009))
-        keyboard.doModal()
-        if not keyboard.isConfirmed():
+        # Ask for query
+        query = kodi.get_search_string(heading=kodi.localize(30009))
+        if not query:
+            kodi.end_of_directory()
             return
-        query = keyboard.getText()
 
+    # Do search
     try:
-        # Do search
-        _vtmGo = VtmGo(kids=kids)
+        _vtmGo = VtmGo(kodi)
         items = _vtmGo.do_search(query)
     except Exception as ex:
         kodi.show_notification(message=str(ex))
@@ -762,35 +745,59 @@ def show_search(query=None):
     # Display results
     listing = []
     for item in items:
-        listitem = ListItem(item.title, offscreen=True)
+        art_dict = {
+            'thumb': item.cover,
+            'fanart': item.cover,
+        }
+
+        # Add "Add to My List" here
+        # We don't know if it is already on My List, so we can't give an option to remove here.
+        context_menu = [(
+            kodi.localize(30050),  # Add to My List
+            'XBMC.Container.Update(%s)' % routing.url_for(mylist_add if not kids else kids_mylist_add,
+                                                          video_type=item.video_type,
+                                                          content_id=item.content_id)
+        )]
 
         if item.video_type == Content.CONTENT_TYPE_MOVIE:
-            listitem.setInfo('video', {
-                'mediatype': 'movie',
-            })
-            listitem.setProperty('IsPlayable', 'true')
-            listing.append((plugin.url_for(play, category='movies', item=item.content_id), listitem, False))
+            listing.append(
+                TitleItem(title=item.title,
+                          path=routing.url_for(play, category='movies', item=item.content_id),
+                          art_dict=art_dict,
+                          info_dict={
+                              'title': item.title,
+                              'plot': item.description,
+                              'mediatype': 'movie',
+                          },
+                          stream_dict={
+                              'height': 1080,
+                              'width': 1920,
+                          },
+                          context_menu=context_menu,
+                          is_playable=True)
+            )
 
         elif item.video_type == Content.CONTENT_TYPE_PROGRAM:
-            listitem.setInfo('video', {
-                'mediatype': 'tvshow',
-            })
-            listing.append((plugin.url_for(show_program, program=item.content_id), listitem, True))
-
-    xbmcplugin.setContent(plugin.handle, 'tvshows')
+            listing.append(
+                TitleItem(title=item.title,
+                          path=routing.url_for(show_program, program=item.content_id),
+                          art_dict=art_dict,
+                          info_dict={
+                              'title': item.title,
+                              'plot': item.description,
+                              'mediatype': None,
+                          },
+                          context_menu=context_menu)
+            )
 
     # Sort like we get our results back.
-    xbmcplugin.addSortMethod(plugin.handle, xbmcplugin.SORT_METHOD_UNSORTED)
-    xbmcplugin.addSortMethod(plugin.handle, xbmcplugin.SORT_METHOD_LABEL_IGNORE_FOLDERS)
-    xbmcplugin.setPluginCategory(plugin.handle, category=_breadcrumb('Search: {query}').format(query=query))
-    ok = xbmcplugin.addDirectoryItems(plugin.handle, listing, len(listing))
-    xbmcplugin.endOfDirectory(plugin.handle, ok)
+    kodi.show_listing(listing, 30009)
 
 
-@plugin.route('/play/epg/<channel>/<timestamp>')
+@routing.route('/play/epg/<channel>/<timestamp>')
 def play_epg_datetime(channel, timestamp):
     """ Play a program based on the channel and the timestamp when it was aired. """
-    _vtmGoEpg = VtmGoEpg()
+    _vtmGoEpg = VtmGoEpg(kodi)
     broadcast = _vtmGoEpg.get_broadcast(channel, timestamp)
     if not broadcast:
         kodi.show_ok_dialog(heading=kodi.localize(30711), message=kodi.localize(30713))  # The requested video was not found in the guide.
@@ -799,10 +806,10 @@ def play_epg_datetime(channel, timestamp):
     play_epg(channel, broadcast.playable_type, broadcast.uuid)
 
 
-@plugin.route('/play/epg/<channel>/<program_type>/<epg_id>')
+@routing.route('/play/epg/<channel>/<program_type>/<epg_id>')
 def play_epg(channel, program_type, epg_id):
     """ Play a program based on the channel and information from the EPG. """
-    _vtmGoEpg = VtmGoEpg()
+    _vtmGoEpg = VtmGoEpg(kodi)
     details = _vtmGoEpg.get_details(channel=channel, program_type=program_type, epg_id=epg_id)
     if not details:
         kodi.show_ok_dialog(heading=kodi.localize(30711), message=kodi.localize(30713))  # The requested video was not found in the guide.
@@ -811,13 +818,25 @@ def play_epg(channel, program_type, epg_id):
     play(details.playable_type, details.playable_uuid)
 
 
-@plugin.route('/play/<category>/<item>')
+@routing.route('/play/<category>/<item>')
 def play(category, item):
     """ Play the requested item. Uses setResolvedUrl(). """
-    _vtmgostream = VtmGoStream()
+    _vtmgostream = VtmGoStream(kodi)
 
+    # Check if inputstreamhelper is correctly installed
     try:
-        # Get url
+        from inputstreamhelper import Helper
+        is_helper = Helper('mpd', drm='com.widevine.alpha')
+        if not is_helper.check_inputstream():
+            # inputstreamhelper has already shown an error
+            return
+
+    except ImportError:
+        kodi.show_ok_dialog(message=kodi.localize(30708))  # Please reboot Kodi
+        return
+
+    # Get stream information
+    try:
         resolved_stream = _vtmgostream.get_stream(category, item)
 
     except GeoblockedException:
@@ -828,93 +847,86 @@ def play(category, item):
         kodi.show_ok_dialog(heading=kodi.localize(30711), message=kodi.localize(30712))  # Unavailable
         return
 
-    # Create listitem
-    listitem = ListItem(path=resolved_stream.url, offscreen=True)
+    info_dict = {
+        'tvshowtitle': resolved_stream.program,
+        'title': resolved_stream.title,
+        'duration': resolved_stream.duration,  # TODO: check if this can be None for live tv
+    }
+
+    prop_dict = {}
+
+    stream_dict = {
+        'duration': resolved_stream.duration,
+    }
 
     # Lookup metadata
     try:
         if category == 'movies':
-            listitem.setInfo('video', {
-                'tvshowtitle': resolved_stream.program,
-                'title': resolved_stream.title,
-                'duration': resolved_stream.duration,
-                'mediatype': 'movie',
-            })
+            info_dict.update({'mediatype': 'movie'})
 
-            details = VtmGo().get_movie(item)
-            listitem.setInfo('video', {
-                'tagline': details.description,
+            # Get details
+            details = VtmGo(kodi).get_movie(item)
+            info_dict.update({
                 'plot': details.description,
             })
-        elif category == 'episodes':
-            listitem.setInfo('video', {
-                'tvshowtitle': resolved_stream.program,
-                'title': resolved_stream.title,
-                'duration': resolved_stream.duration,
-                'mediatype': 'episode',
-            })
 
-            details = VtmGo().get_episode(item)
-            listitem.setInfo('video', {
-                'tagline': details.description,
+        elif category == 'episodes':
+            info_dict.update({'mediatype': 'episode'})
+
+            # Get details
+            details = VtmGo(kodi).get_episode(item)
+            info_dict.update({
                 'plot': details.description,
                 'season': details.season,
                 'episode': details.number,
             })
+
         elif category == 'channels':
-            listitem.setInfo('video', {
-                'title': resolved_stream.title,
-                'tvshowtitle': resolved_stream.program,
-                'mediatype': 'video'
-            })
+            info_dict.update({'mediatype': 'video'})
 
             # For live channels, we need to keep on updating the manifest
             # This might not be needed, and could be done with the Location-tag updates if inputstream.adaptive supports it
             # See https://github.com/peak3d/inputstream.adaptive/pull/298#issuecomment-524206935
-            listitem.setProperty('inputstream.adaptive.manifest_update_parameter', 'full')
+            prop_dict.update({
+                'inputstream.adaptive.manifest_update_parameter': 'full',
+            })
+
         else:
             raise Exception('Unknown category %s' % category)
 
     except GeoblockedException:
         kodi.show_ok_dialog(heading=kodi.localize(30709), message=kodi.localize(30710))  # Geo-blocked
         return
+
     except UnavailableException:
         # We continue without details.
         # This seems to make it possible to play some programs what don't have metadata.
         pass
 
-    listitem.addStreamInfo('video', {
-        'duration': resolved_stream.duration,
-    })
-
     # Add subtitle info
-    subtitles_visible = kodi.get_setting('showsubtitles', 'true') == 'true'
-    if subtitles_visible and resolved_stream.subtitles:
-        listitem.setSubtitles(resolved_stream.subtitles)
-        listitem.addStreamInfo('subtitle', {
-            'language': 'nl',
+    if kodi.get_setting_as_bool('showsubtitles') and resolved_stream.subtitles:
+        subtitles = resolved_stream.subtitles
+        stream_dict.update({
+            'subtitle': {
+                'language': 'nl',
+            }
         })
+    else:
+        subtitles = None
 
-    max_bandwidth = str(kodi.get_max_bandwidth() * 1000)
-    listitem.setProperty('IsPlayable', 'true')
-    listitem.setProperty('network.bandwidth', max_bandwidth)
-    listitem.setProperty('inputstream.adaptive.max_bandwidth', max_bandwidth)
-    listitem.setProperty('inputstreamaddon', 'inputstream.adaptive')
-    listitem.setProperty('inputstream.adaptive.manifest_type', 'mpd')
-    listitem.setMimeType('application/dash+xml')
-    listitem.setContentLookup(False)
-
-    try:
-        from inputstreamhelper import Helper
-    except ImportError:
-        kodi.show_ok_dialog(message=kodi.localize(30708))  # Please reboot Kodi
-        return
-
-    is_helper = Helper('mpd', drm='com.widevine.alpha')
-    if is_helper.check_inputstream():
-        listitem.setProperty('inputstream.adaptive.license_type', 'com.widevine.alpha')
-        listitem.setProperty('inputstream.adaptive.license_key', _vtmgostream.create_license_key(resolved_stream.license_url))
-        xbmcplugin.setResolvedUrl(plugin.handle, True, listitem)
+    # Play this item
+    kodi.play(
+        TitleItem(
+            title=resolved_stream.title,
+            path=resolved_stream.url,
+            art_dict={},
+            info_dict=info_dict,
+            prop_dict=prop_dict,
+            stream_dict=stream_dict,
+            is_playable=True,
+        ),
+        license_key=_vtmgostream.create_license_key(resolved_stream.license_url),
+        subtitles=subtitles)
 
 
 def _format_plot(obj):
@@ -970,34 +982,5 @@ def _format_plot(obj):
     return plot
 
 
-def _get_kids_mode():
-    if kodi.get_setting_as_bool('use_kids_zone') and kodi.get_setting_as_bool('force_kids_zone'):
-        return True
-
-    if plugin.path.startswith('/kids'):
-        return True
-    return False
-
-
-def _breadcrumb(*args, **kwargs):
-    # Append Kids indicator
-    if _get_kids_mode():
-        args = ('KIDS',) + args
-
-    # Add title if requested
-    if kwargs.get('title', False):
-        breadcrumb = 'VTM GO'
-        if args:
-            breadcrumb += ' / '
-    else:
-        breadcrumb = ''
-
-    # Add other parts
-    if args:
-        breadcrumb = breadcrumb + " / ".join(args)
-
-    return breadcrumb
-
-
 def run(params):
-    plugin.run(params)
+    routing.run(params)

@@ -8,10 +8,7 @@ import dateutil.parser
 import dateutil.tz
 import requests
 
-from resources.lib import kodilogging
-from resources.lib.kodiutils import localize
-
-logger = kodilogging.get_logger('VtmGoEpg')
+from resources.lib.kodiwrapper import LOG_DEBUG, KodiWrapper  # pylint: disable=unused-import
 
 
 class EpgChannel:
@@ -71,7 +68,9 @@ class VtmGoEpg:
     EPG_URL = 'https://vtm.be/tv-gids/api/v2/broadcasts/{date}'
     DETAILS_URL = 'https://vtm.be/tv-gids/{channel}/uitzending/{type}/{uuid}'
 
-    def __init__(self):
+    def __init__(self, kodi):
+        self._kodi = kodi  # type: KodiWrapper
+
         self._session = requests.session()
         self._session.cookies.set('pws', 'functional|analytics|content_recommendation|targeted_advertising|social_media')
         self._session.cookies.set('pwv', '1')
@@ -117,8 +116,7 @@ class VtmGoEpg:
         timestamp = dateutil.parser.parse(timestamp)
 
         # Load guide info for this date
-        _vtmGoEpg = VtmGoEpg()
-        epg = _vtmGoEpg.get_epg(channel=channel, date=timestamp.strftime('%Y-%m-%d'))
+        epg = self.get_epg(channel=channel, date=timestamp.strftime('%Y-%m-%d'))
 
         # Find a matching broadcast
         for broadcast in epg.broadcasts:
@@ -183,8 +181,7 @@ class VtmGoEpg:
             program_uuid=broadcast_json.get('programUuid'),
         )
 
-    @staticmethod
-    def get_dates(date_format):
+    def get_dates(self, date_format):
         """ Return a dict of dates.
         :rtype: list[dict]
         """
@@ -197,19 +194,19 @@ class VtmGoEpg:
 
             if i == -1:
                 dates.append({
-                    'title': '%s, %s' % (localize(30301), day.strftime(date_format)),  # Yesterday,
+                    'title': '%s, %s' % (self._kodi.localize(30301), day.strftime(date_format)),  # Yesterday,
                     'date': 'yesterday',
                     'highlight': False,
                 })
             elif i == 0:
                 dates.append({
-                    'title': '%s, %s' % (localize(30302), day.strftime(date_format)),  # Today
+                    'title': '%s, %s' % (self._kodi.localize(30302), day.strftime(date_format)),  # Today
                     'date': 'today',
                     'highlight': True,
                 })
             elif i == 1:
                 dates.append({
-                    'title': '%s, %s' % (localize(30303), day.strftime(date_format)),  # Tomorrow
+                    'title': '%s, %s' % (self._kodi.localize(30303), day.strftime(date_format)),  # Tomorrow
                     'date': 'tomorrow',
                     'highlight': False,
                 })
@@ -227,7 +224,8 @@ class VtmGoEpg:
         :type url: str
         :rtype str
         """
-        logger.debug('Fetching %s...', url)
+        self._kodi.log('Sending GET {url}...', LOG_DEBUG, url=url)
+
         response = self._session.get(url, verify=False)
 
         if response.status_code != 200:
