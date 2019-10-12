@@ -47,12 +47,13 @@ VTM GO uses MPEG-DASH with Periods for the advertisements, and this is not suppo
 ```bash
 git clone -b Leia https://github.com/xbmc/xbmc.git
 git clone https://github.com/peak3d/inputstream.adaptive
-cd ~/inputstream.adaptive && mkdir build && cd build
+cd inputstream.adaptive && mkdir build && cd build
 cmake -DADDONS_TO_BUILD=inputstream.adaptive -DADDON_SRC_PREFIX=../.. -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=../../xbmc/addons -DPACKAGE_ZIP=1 ../../xbmc/cmake/addons
 make
-cd ~/xbmc/addons/
-zip -r inputstream.adaptive.zip inputstream.adaptive
+cd ../../xbmc/addons/
+zip -r /tmp/inputstream.adaptive.zip inputstream.adaptive
 ```
+The zip file will be in `/tmp/inputstream.adaptive.zip`. For Raspberry Pi instructions, see [here](https://github.com/michaelarnauts/plugin.video.vtm.go/issues/101#issuecomment-541317533).
 
 ## Disclaimer
 
