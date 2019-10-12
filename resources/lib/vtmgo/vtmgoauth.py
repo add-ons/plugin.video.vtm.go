@@ -7,10 +7,7 @@ import random
 
 import requests
 
-from resources.lib import kodiutils, kodilogging
-from resources.lib.kodiutils import localize, proxies
-
-logger = kodilogging.get_logger('VtmGoAuth')
+from resources.lib.kodiwrapper import LOG_DEBUG, KodiWrapper  # pylint: disable=unused-import
 
 
 class InvalidLoginException(Exception):
@@ -22,7 +19,10 @@ class VtmGoAuth:
     password = ''
     hash = None
 
-    def __init__(self):
+    def __init__(self, kodi):
+        self._kodi = kodi  # type: KodiWrapper
+        self._proxies = kodi.get_proxies()
+
         self._token = None
         self._name = None
         self._accountId = None
@@ -37,15 +37,15 @@ class VtmGoAuth:
 
         # Store new hash
         if not self.hash:
-            kodiutils.set_setting('credentials_hash', calc)
+            self._kodi.set_setting('credentials_hash', calc)
 
     def clear_token(self):
         """ Remove the cached JWT. """
-        logger.debug('Clearing token cache')
+        self._kodi.log('Clearing token cache', LOG_DEBUG)
         self._token = None
-        path = kodiutils.get_profile_path() + 'token.json'
-        if kodiutils.path_exists(path):
-            kodiutils.delete_file(path)
+        path = self._kodi.get_userdata_path() + 'token.json'
+        if self._kodi.check_if_path_exists(path):
+            self._kodi.delete_file(path)
 
     def get_token(self):
         """ Return a JWT that can be used to authenticate the user.
@@ -54,32 +54,31 @@ class VtmGoAuth:
 
         # Don't return a token when we have no password or username.
         if not self.username or not self.password:
-            logger.info('Skipping since we have no username or password')
+            self._kodi.log('Skipping since we have no username or password')
             return None
 
         # Return if we already have the token in memory.
         if self._token:
-            logger.debug('Returning token from memory')
+            self._kodi.log('Returning token from memory', LOG_DEBUG)
             return self._token
 
         # Try to load from cache
-        path = kodiutils.get_profile_path() + 'token.json'
-        if kodiutils.path_exists(path):
-            logger.debug('Returning token from cache')
-            f = kodiutils.open_file(path, 'r')
-            self._token = f.read()
-            f.close()
+        path = self._kodi.get_userdata_path() + 'token.json'
+        if self._kodi.check_if_path_exists(path):
+            self._kodi.log('Returning token from cache', LOG_DEBUG)
+
+            with self._kodi.open_file(path) as f:
+                self._token = f.read()
 
             if self._token:
                 return self._token
 
         # Authenticate with VTM GO and store the token
         self._token = self._login()
-        logger.debug('Returning token from vtm go')
+        self._kodi.log('Returning token from vtm go', LOG_DEBUG)
 
-        f = kodiutils.open_file(path, 'w')
-        f.write(self._token)
-        f.close()
+        with self._kodi.open_file(path, 'w') as f:
+            f.write(self._token)
 
         return self._token
 
@@ -100,7 +99,7 @@ class VtmGoAuth:
             'scope': 'openid profile'
         }, headers={
             'User-Agent': 'Mozilla/5.0 (Linux; Android 6.0.1; Nexus 5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/74.0.3729.157 Mobile Safari/537.36'
-        }, proxies=proxies)
+        }, proxies=self._proxies)
 
         # Now, send the login details. We will be redirected to vtmgo:// when we succeed. We then can extract an authorizationCode that we need to continue.
         try:
@@ -108,12 +107,12 @@ class VtmGoAuth:
                 'userName': self.username,
                 'password': self.password,
                 'jsEnabled': 'true',
-            })
+            }, proxies=self._proxies)
 
             if 'Wachtwoord is niet correct' in response.text:
                 raise InvalidLoginException()
 
-            raise Exception(localize(30702))  # Unknown error while logging in
+            raise Exception(self._kodi.localize(30702))  # Unknown error while logging in
 
         except requests.exceptions.InvalidSchema as e:
             # We get back an url like this: vtmgo://callback/oidc?state=yyyyyyyyyyyyyyyyyyyyyy&code=xxxxxxxxxxxxxxxxxxxxxxxxxx-xxxxxxxxxxxxxxxx
@@ -123,7 +122,7 @@ class VtmGoAuth:
             if matches:
                 code = matches.group(1)
             else:
-                raise Exception(localize(30703))  # Could not extract authentication code
+                raise Exception(self._kodi.localize(30703))  # Could not extract authentication code
 
         # Okay, final stage. We now need to use our authorizationCode to get a valid JWT.
         response = session.post('https://api.vtmgo.be/authorize', json={
@@ -136,7 +135,7 @@ class VtmGoAuth:
             'x-persgroep-os': 'android',
             'x-persgroep-os-version': '23',
             'User-Agent': 'VTMGO/6.5.0 (be.vmma.vtm.zenderapp; build:11019; Android 23) okhttp/3.12.1'
-        })
+        }, proxies=self._proxies)
         tokens = json.loads(response.text)
 
         self._token = tokens.get('jsonWebToken')

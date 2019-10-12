@@ -8,20 +8,12 @@
         <import addon="script.module.routing" version="0.2.0"/>
         <import addon="script.module.inputstreamhelper" version="0.3.4"/>
     </requires>
-    <extension point="xbmc.python.pluginsource" library="main.py">
+    <extension point="xbmc.python.pluginsource" library="plugin.py">
         <provides>video</provides>
     </extension>
     <extension point="xbmc.addon.metadata">
         <summary lang="en_GB">Access the VTM GO library</summary>
-        <description lang="en_GB">This is a Kodi add-on for watching all live video streams and all video-on-demand content available on the VTM GO platform.
-
-The following features are supported:
-* Watch live TV (VTM, Q2, Vitaya, CAZ, VTM Kids, VTM Kids Jr &amp; QMusic)
-* Watch on-demand content (movies and series)
-* Watch YouTube content from some of the DPG Media channels
-* Browse a TV Guide
-* Search the catalogue
-* Browse the Kids zone</description>
+        <description lang="en_GB">This add-on gives access to all live tv channels and all video-on-demand content available on the VTM GO platform.</description>
         <disclaimer lang="en_GB">This add-on is not officially commissioned/supported by DPG Media and is provided 'as is' without any warranty of any kind. The VTM GO name, VTM GO logo and channel icons are property of DPG Media and are used according to the fair use policy.</disclaimer>
         <platform>all</platform>
         <license>GPL-3.0</license>

@@ -7,16 +7,17 @@ import warnings
 
 from urllib3.exceptions import InsecureRequestWarning
 
-from resources.lib import vtmgoepg, kodilogging
+from resources.lib.kodiwrapper import KodiWrapper
+from resources.lib.vtmgo import vtmgoepg
 
-logger = kodilogging.get_logger('TestVtmGoEpg')
+kodi = KodiWrapper()
 
 
 class TestVtmGoEpg(unittest.TestCase):
 
     def __init__(self, *args, **kwargs):
         super(TestVtmGoEpg, self).__init__(*args, **kwargs)
-        self._vtmgoepg = vtmgoepg.VtmGoEpg()
+        self._vtmgoepg = vtmgoepg.VtmGoEpg(kodi)
 
     def setUp(self):
         # Don't warn that we don't close our HTTPS connections, this is on purpose.

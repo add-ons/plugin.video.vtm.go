@@ -9,9 +9,10 @@ import warnings
 
 from urllib3.exceptions import InsecureRequestWarning
 
-from resources.lib import vtmgo, vtmgoauth, vtmgostream, kodilogging
+from resources.lib.kodiwrapper import KodiWrapper, LOG_WARNING
+from resources.lib.vtmgo import vtmgo, vtmgostream, vtmgoauth
 
-logger = kodilogging.get_logger('TestVtmGo')
+kodi = KodiWrapper()
 
 
 class TestVtmGo(unittest.TestCase):
@@ -22,7 +23,7 @@ class TestVtmGo(unittest.TestCase):
         # Read credentials from credentials.json
         settings = {}
         if 'VTMGO_USERNAME' in os.environ and 'VTMGO_PASSWORD' in os.environ:
-            logger.warning('Using credentials from the environment variables VTMGO_USERNAME and VTMGO_PASSWORD')
+            kodi.log('Using credentials from the environment variables VTMGO_USERNAME and VTMGO_PASSWORD', log_level=LOG_WARNING)
             settings['username'] = os.environ.get('VTMGO_USERNAME')
             settings['password'] = os.environ.get('VTMGO_PASSWORD')
         else:
@@ -33,10 +34,9 @@ class TestVtmGo(unittest.TestCase):
             vtmgoauth.VtmGoAuth.username = settings['username']
             vtmgoauth.VtmGoAuth.password = settings['password']
 
-        self._vtmgoauth = vtmgoauth.VtmGoAuth()
-        self._vtmgo = vtmgo.VtmGo()
-        self._vtmgo_kids = vtmgo.VtmGo(kids=True)
-        self._vtmgostream = vtmgostream.VtmGoStream()
+        self._vtmgoauth = vtmgoauth.VtmGoAuth(kodi)
+        self._vtmgo = vtmgo.VtmGo(kodi)
+        self._vtmgostream = vtmgostream.VtmGoStream(kodi)
 
     def setUp(self):
         # Don't warn that we don't close our HTTPS connections, this is on purpose.
@@ -64,10 +64,6 @@ class TestVtmGo(unittest.TestCase):
         self.assertIsInstance(mylist, list)
         # print(mylist)
 
-        mylist = self._vtmgo_kids.get_mylist()
-        self.assertIsInstance(mylist, list)
-        # print(mylist)
-
     def test_get_categories(self):
         categories = self._vtmgo.get_categories()
         self.assertTrue(categories)
@@ -78,7 +74,7 @@ class TestVtmGo(unittest.TestCase):
         # print(items)
 
     def test_get_live(self):
-        items = self._vtmgo.get_live()
+        items = self._vtmgo.get_live_channels()
         self.assertTrue(items)
         # print(items)
 

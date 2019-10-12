@@ -29,5 +29,5 @@ if not sys.argv[1].startswith('plugin://'):
     sys.argv[1] = 'plugin://plugin.video.vtm.go' + sys.argv[1]
 
 print('** Running URI: %s' % sys.argv[1])
-plugin = plugin.plugin
+plugin = plugin.routing
 plugin.run([sys.argv[1], 0, ''])
