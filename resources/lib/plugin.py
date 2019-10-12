@@ -264,10 +264,15 @@ def show_tvguide_detail(channel=None, date=None):
 
     listing = []
     for broadcast in epg.broadcasts:
-        title = '{time} - {title}'.format(
+        title = '{time} - {title}{live}'.format(
             time=broadcast.time.strftime('%H:%M'),
-            title=broadcast.title
+            title=broadcast.title,
+            live=' [I](LIVE)[/I]' if broadcast.live else ''
         )
+
+        if broadcast.airing:
+            title = '[B]{title}[/B]'.format(title=title)
+
         listing.append(
             TitleItem(title=title,
                       path=routing.url_for(play_epg, channel=channel, program_type=broadcast.playable_type, epg_id=broadcast.uuid),

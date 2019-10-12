@@ -32,7 +32,7 @@ class EpgChannel:
 
 class EpgBroadcast:
     def __init__(self, uuid=None, playable_type=None, title=None, time=None, duration=None, image=None, description=None, live=None, rerun=None, tip=None,
-                 program_uuid=None, playable_uuid=None):
+                 program_uuid=None, playable_uuid=None, airing=None):
         """ Defines an EPG broadcast.
         :type uuid: str
         :type playable_type: str
@@ -46,6 +46,7 @@ class EpgBroadcast:
         :type tip: str
         :type program_uuid: str
         :type playable_uuid: str
+        :type airing: bool
         """
         self.uuid = uuid
         self.playable_type = playable_type
@@ -59,6 +60,7 @@ class EpgBroadcast:
         self.tip = tip
         self.program_uuid = program_uuid
         self.playable_uuid = playable_uuid
+        self.airing = airing
 
     def __repr__(self):
         return "%r" % self.__dict__
@@ -120,7 +122,7 @@ class VtmGoEpg:
 
         # Find a matching broadcast
         for broadcast in epg.broadcasts:
-            if broadcast.time >= timestamp < (broadcast.time + timedelta(seconds=broadcast.duration)):
+            if timestamp <= broadcast.time < (broadcast.time + timedelta(seconds=broadcast.duration)):
                 return broadcast
 
         return None
@@ -159,8 +161,7 @@ class VtmGoEpg:
 
         return self._parse_broadcast(data['details'][epg_id])
 
-    @staticmethod
-    def _parse_broadcast(broadcast_json):
+    def _parse_broadcast(self, broadcast_json):
         """ Parse the epg data.
         :type broadcast_json: dict
         :rtype: EpgBroadcast
@@ -170,12 +171,17 @@ class VtmGoEpg:
         if duration is None:
             duration = (broadcast_json.get('to') - broadcast_json.get('from')) / 1000
 
+        # Check if this broadcast is currently airing
+        timestamp = datetime.now(dateutil.tz.tzlocal())
+        start = dateutil.parser.parse(broadcast_json.get('fromIso') + 'Z').astimezone(dateutil.tz.gettz('CET'))
+        airing = bool(start <= timestamp < (start + timedelta(seconds=duration)))
+
         return EpgBroadcast(
             uuid=broadcast_json.get('uuid'),
             playable_type=broadcast_json.get('playableType'),
             playable_uuid=broadcast_json.get('playableUuid'),
             title=broadcast_json.get('title'),
-            time=dateutil.parser.isoparse(broadcast_json.get('fromIso') + 'Z').astimezone(dateutil.tz.gettz('CET')),
+            time=start,
             duration=duration,
             image=broadcast_json.get('imageUrl'),
             description=broadcast_json.get('synopsis'),
@@ -183,6 +189,7 @@ class VtmGoEpg:
             rerun=broadcast_json.get('rerun'),
             tip=broadcast_json.get('tip'),
             program_uuid=broadcast_json.get('programUuid'),
+            airing=airing,
         )
 
     def get_dates(self, date_format):
