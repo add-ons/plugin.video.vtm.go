@@ -7,7 +7,7 @@ import random
 
 import requests
 
-from resources.lib.kodiwrapper import LOG_DEBUG, KodiWrapper  # pylint: disable=unused-import
+from resources.lib.kodiwrapper import LOG_DEBUG, KodiWrapper, from_unicode  # pylint: disable=unused-import
 
 
 class InvalidLoginException(Exception):
@@ -78,7 +78,7 @@ class VtmGoAuth:
         self._kodi.log('Returning token from vtm go', LOG_DEBUG)
 
         with self._kodi.open_file(path, 'w') as f:
-            f.write(self._token)
+            f.write(from_unicode(self._token))
 
         return self._token
 

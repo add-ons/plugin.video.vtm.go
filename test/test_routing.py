@@ -57,9 +57,9 @@ class TestRouting(unittest.TestCase):
         self.assertEqual(routing.url_for(plugin.show_kids_index), 'plugin://plugin.video.vtm.go/kids')
 
     # Check credentials: '/check-credentials'
-    #    def test_check_credentials(self):
-    #        plugin.run(['plugin://plugin.video.vtm.go/check-credentials', '0', ''])
-    #        self.assertEqual(addon.url_for(plugin.check_credentials), 'plugin://plugin.video.vtm.go/check-credentials')
+    def test_check_credentials(self):
+        plugin.run(['plugin://plugin.video.vtm.go/check-credentials', '0', ''])
+        self.assertEqual(routing.url_for(plugin.check_credentials), 'plugin://plugin.video.vtm.go/check-credentials')
 
     # Live TV menu: '/livetv'
     def test_livetv_menu(self):

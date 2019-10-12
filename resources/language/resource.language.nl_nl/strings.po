@@ -266,7 +266,7 @@ msgstr "Wachtwoord"
 
 msgctxt "#30807"
 msgid "Check your credentials"
-msgstr "Controleer je logingegegevns"
+msgstr "Controleer je logingegevens"
 
 msgctxt "#30820"
 msgid "Interface"
