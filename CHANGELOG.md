@@ -6,6 +6,8 @@
 
 **Implemented enhancements:**
 
+- Highlight currently playing broadcast in TV guide and add Live flag. [\#103](https://github.com/michaelarnauts/plugin.video.vtm.go/issues/103)
+- Add currently playing broadcast to live TV channel [\#102](https://github.com/michaelarnauts/plugin.video.vtm.go/issues/102)
 - Implement additional catalogue sections [\#93](https://github.com/michaelarnauts/plugin.video.vtm.go/issues/93)
 - Add API to play a program by date and time  [\#83](https://github.com/michaelarnauts/plugin.video.vtm.go/issues/83)
 - Integrate with "Mijn lijst" [\#47](https://github.com/michaelarnauts/plugin.video.vtm.go/issues/47)
