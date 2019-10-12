@@ -163,8 +163,12 @@ def show_livetv():
             icon = channel.logo
             fanart = channel.logo
 
+        title = channel.name
+        if channel.epg:
+            title += '[COLOR gray] | {title}[/COLOR]'.format(title=channel.epg[0].title)
+
         listing.append(
-            TitleItem(title=channel.name,
+            TitleItem(title=title,
                       path=routing.url_for(play, category='channels', item=channel.channel_id) + '?.pvr',
                       art_dict={
                           'icon': icon,
