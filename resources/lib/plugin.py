@@ -644,7 +644,6 @@ def _generate_titleitem(item, my_list=False):
 
     art_dict = {
         'thumb': item.cover,
-        'fanart': item.cover,
     }
     info_dict = {
         'title': item.title,
@@ -668,7 +667,6 @@ def _generate_titleitem(item, my_list=False):
         # Get movie details from cache
         movie = vtm_go.get_movie(item.content_id, only_cache=True)
         if movie:
-            kodi.log('Got details for movie {item} from cache', item=item.content_id)
             art_dict.update({
                 'fanart': movie.cover,
             })
@@ -700,13 +698,15 @@ def _generate_titleitem(item, my_list=False):
         # Get program details from cache
         program = vtm_go.get_program(item.content_id, only_cache=True)
         if program:
-            kodi.log('Got details for program {item} from cache', item=item.content_id)
             art_dict.update({
                 'fanart': program.cover,
+                'banner': item.cover,
             })
             info_dict.update({
                 'title': program.name,
                 'plot': _format_plot(program),
+                'mpaa': ', '.join(program.legal) if hasattr(program, 'legal') and program.legal else kodi.localize(30216),
+                'season': len(program.seasons),
             })
 
         info_dict.update({

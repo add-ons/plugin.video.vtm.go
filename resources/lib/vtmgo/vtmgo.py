@@ -355,7 +355,9 @@ class VtmGo:
             return None
 
         # Fetch from API
-        if not movie:
+        if movie:
+            self._kodi.log('Got details for movie {item} from cache', item=movie['id'])
+        else:
             response = self._get_url('/%s/movies/%s' % (self._mode, movie_id))
             info = json.loads(response)
             movie = info.get('movie', {})
@@ -385,6 +387,7 @@ class VtmGo:
     def get_program(self, program_id, only_cache=False):
         """ Get the details of the specified program.
         :type program_id: str
+        :type only_cache: bool
         :rtype Program
         """
         # Fetch from cache
@@ -393,7 +396,9 @@ class VtmGo:
             return None
 
         # Fetch from API
-        if not program:
+        if program:
+            self._kodi.log('Got details for program {item} from cache', item=program['id'])
+        else:
             response = self._get_url('/%s/programs/%s' % (self._mode, program_id))
             info = json.loads(response)
             program = info.get('program', {})
