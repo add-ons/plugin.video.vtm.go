@@ -292,11 +292,14 @@ class KodiWrapper:
         import json
         fullpath = self._cache_path + '.'.join(key)
 
-        try:
-            with self.open_file(fullpath, 'r') as fdesc:
-                return json.load(fdesc)
-        except FileNotFoundError:
+        if not self.check_if_path_exists(fullpath):
             return None
+
+        with self.open_file(fullpath, 'r') as fdesc:
+            try:
+                return json.load(fdesc)
+            except (ValueError, TypeError):
+                return None
 
     def set_cache(self, key, data, ttl=None):
         """ Store an item in the cache
