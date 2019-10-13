@@ -343,15 +343,24 @@ class VtmGo:
 
         return items
 
-    def get_movie(self, movie_id):
+    def get_movie(self, movie_id, only_cache=False):
         """ Get the details of the specified movie.
         :type movie_id: str
+        :type only_cache: bool
         :rtype Movie
         """
-        response = self._get_url('/%s/movies/%s' % (self._mode, movie_id))
-        info = json.loads(response)
+        # Fetch from cache
+        movie = self._kodi.get_cache(['movie', movie_id])
+        if not movie and only_cache:
+            return None
 
-        movie = info.get('movie', {})
+        # Fetch from API
+        if not movie:
+            response = self._get_url('/%s/movies/%s' % (self._mode, movie_id))
+            info = json.loads(response)
+            movie = info.get('movie', {})
+            self._kodi.set_cache(['movie', movie_id], movie)
+
         channel_url = movie.get('channelLogoUrl')
         if channel_url:
             import os.path
@@ -373,15 +382,23 @@ class VtmGo:
             channel=channel,
         )
 
-    def get_program(self, program_id):
+    def get_program(self, program_id, only_cache=False):
         """ Get the details of the specified program.
         :type program_id: str
         :rtype Program
         """
-        response = self._get_url('/%s/programs/%s' % (self._mode, program_id))
-        info = json.loads(response)
+        # Fetch from cache
+        program = self._kodi.get_cache(['program', program_id])
+        if not program and only_cache:
+            return None
 
-        program = info.get('program', {})
+        # Fetch from API
+        if not program:
+            response = self._get_url('/%s/programs/%s' % (self._mode, program_id))
+            info = json.loads(response)
+            program = info.get('program', {})
+            self._kodi.set_cache(['program', program_id], program)
+
         channel_url = program.get('channelLogoUrl')
         if channel_url:
             import os.path

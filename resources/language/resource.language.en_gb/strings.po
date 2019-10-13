@@ -135,31 +135,31 @@ msgid "[COLOR red]Geo-blocked[/COLOR]\n"
 msgstr ""
 
 msgctxt "#30208"
-msgid "[COLOR blue]Available [B]until midnight[/B][/COLOR]\n"
+msgid "Available [B]until midnight[/B]"
 msgstr ""
 
 msgctxt "#30209"
-msgid "[COLOR blue][B]One more day[/B] remaining[/COLOR]\n"
+msgid "[B]One more day[/B] remaining"
 msgstr ""
 
 msgctxt "#30210"
-msgid "[COLOR blue][B]{years} more years[/B] remaining[/COLOR]\n"
+msgid "[B]{years} more years[/B] remaining"
 msgstr ""
 
 msgctxt "#30211"
-msgid "[COLOR blue][B]{months} more months[/B] remaining[/COLOR]\n"
+msgid "[B]{months} more months[/B] remaining"
 msgstr ""
 
 msgctxt "#30212"
-msgid "[COLOR blue][B]{days} more days[/B] remaining[/COLOR]\n"
+msgid "[B]{days} more days[/B] remaining"
 msgstr ""
 
 msgctxt "#30213"
-msgid "[B]Now: {start} - {end}\n» {title}[/B]\n"
+msgid "[B]Now:[/B] {start} - {end}\n» {title}"
 msgstr ""
 
 msgctxt "#30214"
-msgid "[B]Next:[/B] {start} - {end}\n» {title}\n"
+msgid "[B]Next:[/B] {start} - {end}\n» {title}"
 msgstr ""
 
 msgctxt "#30215"

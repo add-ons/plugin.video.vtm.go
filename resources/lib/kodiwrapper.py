@@ -103,6 +103,7 @@ class KodiWrapper:
         self._addon_id = self._addon.getAddonInfo('id')
         self._global_debug_logging = self.get_global_setting('debug.showloginfo')  # Returns a boolean
         self._debug_logging = self.get_setting_as_bool('debug_logging')
+        self._cache_path = self.get_userdata_path() + 'cache/'
 
     def show_listing(self, title_items, category=None, sort='unsorted', content=None, cache=True):
         """ Show a virtual directory in Kodi """
@@ -277,7 +278,7 @@ class KodiWrapper:
         return self._addon.setSetting(setting_id, setting_value)
 
     def open_settings(self):
-        """ Open the add-in settings window, shows Credentials """
+        """ Open the add-in settings window """
         self._addon.openSettings()
 
     @staticmethod
@@ -287,14 +288,43 @@ class KodiWrapper:
         json_result = xbmc.executeJSONRPC('{"jsonrpc": "2.0", "method": "Settings.GetSettingValue", "params": {"setting": "%s"}, "id": 1}' % setting)
         return json.loads(json_result).get('result', dict()).get('value')
 
+    def get_cache(self, key):
+        import json
+        fullpath = self._cache_path + '.'.join(key)
+
+        try:
+            with self.open_file(fullpath, 'r') as fdesc:
+                return json.load(fdesc)
+        except FileNotFoundError:
+            return None
+
+    def set_cache(self, key, data, ttl=None):
+        """ Store an item in the cache
+        :type key: list[str]
+        :type data: str
+        :type ttl: int
+        """
+        import json
+
+        # TODO: touch file to set expiry date
+        if not self.check_if_path_exists(self._cache_path):
+            self.mkdirs(self._cache_path)
+
+        fullpath = self._cache_path + '.'.join(key)
+
+        self.log('Storing to cache as {file}', file=fullpath)
+
+        with self.open_file(fullpath, 'w') as fdesc:
+            json.dump(data, fdesc)
+
     def get_max_bandwidth(self):
         """ Get the max bandwidth based on Kodi and add-on settings """
-        vrtnu_max_bandwidth = int(self.get_setting('max_bandwidth', '0'))
+        addon_max_bandwidth = int(self.get_setting('max_bandwidth', '0'))
         global_max_bandwidth = int(self.get_global_setting('network.bandwidth'))
-        if vrtnu_max_bandwidth != 0 and global_max_bandwidth != 0:
-            return min(vrtnu_max_bandwidth, global_max_bandwidth)
-        if vrtnu_max_bandwidth != 0:
-            return vrtnu_max_bandwidth
+        if addon_max_bandwidth != 0 and global_max_bandwidth != 0:
+            return min(addon_max_bandwidth, global_max_bandwidth)
+        if addon_max_bandwidth != 0:
+            return addon_max_bandwidth
         if global_max_bandwidth != 0:
             return global_max_bandwidth
         return 0
