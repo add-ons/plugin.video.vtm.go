@@ -284,6 +284,18 @@ msgctxt "#30825"
 msgid "Force Kids zone"
 msgstr "Forceer Kids zone"
 
+msgctxt "#30827"
+msgid "Metadata"
+msgstr "Metadata"
+
+msgctxt "#30829"
+msgid "Enable fetching of metadata in the background"
+msgstr "Update metadata op de achtergrond"
+
+msgctxt "#30831"
+msgid "Update metadata now"
+msgstr "Metadata nu updaten"
+
 msgctxt "#30860"
 msgid "Playback"
 msgstr "Afspelen"

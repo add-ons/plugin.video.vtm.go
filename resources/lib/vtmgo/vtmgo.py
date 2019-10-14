@@ -349,15 +349,13 @@ class VtmGo:
         :type only_cache: bool
         :rtype Movie
         """
-        # Fetch from cache
-        movie = self._kodi.get_cache(['movie', movie_id])
-        if not movie and only_cache:
-            return None
-
-        # Fetch from API
-        if movie:
-            self._kodi.log('Got details for movie {item} from cache', item=movie['id'])
+        if only_cache:
+            # Fetch from cache if asked
+            movie = self._kodi.get_cache(['movie', movie_id])
+            if not movie:
+                return None
         else:
+            # Fetch from API
             response = self._get_url('/%s/movies/%s' % (self._mode, movie_id))
             info = json.loads(response)
             movie = info.get('movie', {})
@@ -366,9 +364,9 @@ class VtmGo:
         channel_url = movie.get('channelLogoUrl')
         if channel_url:
             import os.path
-            channel = os.path.basename(channel_url).split('-')[0]
+            channel = os.path.basename(channel_url).split('-')[0].upper()
         else:
-            channel = 'vtmgo'
+            channel = 'VTM GO'
 
         return Movie(
             movie_id=movie.get('id'),
@@ -390,15 +388,13 @@ class VtmGo:
         :type only_cache: bool
         :rtype Program
         """
-        # Fetch from cache
-        program = self._kodi.get_cache(['program', program_id])
-        if not program and only_cache:
-            return None
-
-        # Fetch from API
-        if program:
-            self._kodi.log('Got details for program {item} from cache', item=program['id'])
+        if only_cache:
+            # Fetch from cache if asked
+            program = self._kodi.get_cache(['program', program_id])
+            if not program:
+                return None
         else:
+            # Fetch from API
             response = self._get_url('/%s/programs/%s' % (self._mode, program_id))
             info = json.loads(response)
             program = info.get('program', {})
@@ -407,9 +403,9 @@ class VtmGo:
         channel_url = program.get('channelLogoUrl')
         if channel_url:
             import os.path
-            channel = os.path.basename(channel_url).split('-')[0]
+            channel = os.path.basename(channel_url).split('-')[0].upper()
         else:
-            channel = 'vtmgo'
+            channel = 'VTM GO'
 
         seasons = {}
         for item_season in program.get('seasons', []):

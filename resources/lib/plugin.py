@@ -14,10 +14,6 @@ routing = routing.Plugin()
 kodi = KodiWrapper(routing=routing)
 vtm_go = VtmGo(kodi)
 
-VtmGoAuth.username = kodi.get_setting('username')
-VtmGoAuth.password = kodi.get_setting('password')
-VtmGoAuth.hash = kodi.get_setting('credentials_hash')
-
 
 @routing.route('/kids')
 def show_kids_index():
@@ -30,6 +26,9 @@ def show_index():
 
     listing = []
     listing.extend([
+        TitleItem(title='Update metadata',
+                  path=routing.url_for(update_metadata)
+                  ),
         TitleItem(title=kodi.localize(30001),  # A-Z
                   path=routing.url_for(show_catalog_category if not kids else show_kids_catalog_category, category='all'),
                   art_dict=dict(
@@ -132,6 +131,40 @@ def check_credentials():
         raise
 
     kodi.open_settings()
+
+
+@routing.route('/update-metadata')
+def update_metadata():
+    """ Update the metadata for the listings. """
+    import xbmc
+
+    progress = kodi.show_progress(message='Downloading metadata...')
+
+    # Fetch all items from the catalogue
+    items = vtm_go.get_items('all')
+    count = len(items)
+
+    # Loop over all of them and download the metadata
+    for index, item in enumerate(items):
+        # Update the items
+        if item.video_type == Content.CONTENT_TYPE_MOVIE:
+            if not vtm_go.get_movie(item.content_id, only_cache=True):
+                vtm_go.get_movie(item.content_id)
+                xbmc.sleep(10)
+        elif item.video_type == Content.CONTENT_TYPE_PROGRAM:
+            if not vtm_go.get_program(item.content_id, only_cache=True):
+                vtm_go.get_program(item.content_id)
+                xbmc.sleep(10)
+
+        # Upgrade the progress bar
+        progress.update(int(((index + 1) / count) * 100), 'Downloading metadata... ({index}/{total})'.format(index=index + 1, total=count))
+
+        # Allow to cancel this operation
+        if progress.iscanceled():
+            return
+
+    # Close the progress dialog
+    progress.close()
 
 
 @routing.route('/kids/livetv')

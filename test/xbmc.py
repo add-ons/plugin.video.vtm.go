@@ -87,7 +87,7 @@ class Monitor:
         ''' A stub implementation for the xbmc Keyboard class abortRequested() method '''
         return False
 
-    def waitForAbort(self):
+    def waitForAbort(self, timeout):
         ''' A stub implementation for the xbmc Keyboard class waitForAbort() method '''
         return
 

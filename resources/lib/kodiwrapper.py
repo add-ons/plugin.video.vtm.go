@@ -241,6 +241,15 @@ class KodiWrapper:
             heading = self._addon.getAddonInfo('name')
         return Dialog().multiselect(heading=heading, options=options, autoclose=autoclose, preselect=preselect, useDetails=use_details)
 
+    def show_progress(self, heading='', message=''):
+        """ Show a Kodi progress dialog """
+        from xbmcgui import DialogProgress
+        if not heading:
+            heading = self._addon.getAddonInfo('name')
+        progress = DialogProgress()
+        progress.create(heading=heading, line1=message)
+        return progress
+
     def set_locale(self):
         """ Load the proper locale for date strings """
         import locale
@@ -288,32 +297,47 @@ class KodiWrapper:
         json_result = xbmc.executeJSONRPC('{"jsonrpc": "2.0", "method": "Settings.GetSettingValue", "params": {"setting": "%s"}, "id": 1}' % setting)
         return json.loads(json_result).get('result', dict()).get('value')
 
-    def get_cache(self, key):
-        import json
-        fullpath = self._cache_path + '.'.join(key)
-
-        if not self.check_if_path_exists(fullpath):
-            return None
-
-        with self.open_file(fullpath, 'r') as fdesc:
-            try:
-                return json.load(fdesc)
-            except (ValueError, TypeError):
-                return None
-
-    def set_cache(self, key, data, ttl=None):
-        """ Store an item in the cache
+    def get_cache(self, key, ttl=None):
+        """ Get an item from the cache.
         :type key: list[str]
-        :type data: str
         :type ttl: int
         """
         import json
-
-        # TODO: touch file to set expiry date
-        if not self.check_if_path_exists(self._cache_path):
-            self.mkdirs(self._cache_path)
+        import time
 
         fullpath = self._cache_path + '.'.join(key)
+
+        # Check if file exists
+        if not self.check_if_path_exists(fullpath):
+            return None
+
+        # Check time to live
+        mtime = self.stat_file(fullpath).st_mtime()
+        now = time.mktime(time.localtime())
+        if ttl and now - mtime > ttl:
+            return None
+
+        # Get value
+        with self.open_file(fullpath, 'r') as fdesc:
+            try:
+                value = json.load(fdesc)
+                self.log('Fetching {file} from cache', file=fullpath)
+                return value
+            except (ValueError, TypeError):
+                return None
+
+    def set_cache(self, key, data):
+        """ Store an item in the cache.
+        :type key: list[str]
+        :type data: str
+        """
+        import json
+
+        fullpath = self._cache_path + '.'.join(key)
+
+        # Check if cache path exists
+        if not self.check_if_path_exists(self._cache_path):
+            self.mkdirs(self._cache_path)
 
         self.log('Storing to cache as {file}', file=fullpath)
 
