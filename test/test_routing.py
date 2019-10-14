@@ -10,7 +10,6 @@ from urllib3.exceptions import InsecureRequestWarning
 
 from resources.lib import plugin
 from resources.lib.kodiwrapper import LOG_WARNING, KodiWrapper
-from resources.lib.vtmgo import vtmgoauth
 
 xbmc = __import__('xbmc')
 xbmcaddon = __import__('xbmcaddon')

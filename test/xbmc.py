@@ -87,9 +87,9 @@ class Monitor:
         ''' A stub implementation for the xbmc Keyboard class abortRequested() method '''
         return False
 
-    def waitForAbort(self, timeout):
+    def waitForAbort(self, timeout=None):
         ''' A stub implementation for the xbmc Keyboard class waitForAbort() method '''
-        return
+        return False
 
 
 class Player:
@@ -111,6 +111,45 @@ class Player:
     def showSubtitles(self, bVisible):
         ''' A stub implementation for the xbmc Player class showSubtitles() method '''
         return
+
+    def getTotalTime(self):
+        ''' A stub implementation for the xbmc Player class getTotalTime() method '''
+        return 0
+
+    def getTime(self):
+        ''' A stub implementation for the xbmc Player class getTime() method '''
+        return 0
+
+    def getVideoInfoTag(self):
+        ''' A stub implementation for the xbmc Player class getVideoInfoTag() method '''
+        return VideoInfoTag()
+
+
+class VideoInfoTag:
+    ''' A stub implementation of the xbmc VideoInfoTag class '''
+
+    def __init__(self):
+        ''' A stub constructor for the xbmc VideoInfoTag class '''
+
+    def getSeason(self):
+        ''' A stub implementation for the xbmc VideoInfoTag class getSeason() method '''
+        return 0
+
+    def getEpisode(self):
+        ''' A stub implementation for the xbmc VideoInfoTag class getEpisode() method '''
+        return 0
+
+    def getTVShowTitle(self):
+        ''' A stub implementation for the xbmc VideoInfoTag class getTVShowTitle() method '''
+        return ''
+
+    def getPlayCount(self):
+        ''' A stub implementation for the xbmc VideoInfoTag class getPlayCount() method '''
+        return 0
+
+    def getRating(self):
+        ''' A stub implementation for the xbmc VideoInfoTag class getRating() method '''
+        return 0
 
 
 def executebuiltin(string, wait=False):  # pylint: disable=unused-argument
