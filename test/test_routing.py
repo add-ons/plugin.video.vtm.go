@@ -38,8 +38,8 @@ class TestRouting(unittest.TestCase):
                 settings = json.load(f)
 
         if settings['username'] and settings['password']:
-            vtmgoauth.VtmGoAuth.username = settings['username']
-            vtmgoauth.VtmGoAuth.password = settings['password']
+            kodi.set_setting('username', settings['username'])
+            kodi.set_setting('password', settings['password'])
 
     def setUp(self):
         # Don't warn that we don't close our HTTPS connections, this is on purpose.

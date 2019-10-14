@@ -147,7 +147,8 @@ class KodiWrapper:
         succeeded = xbmcplugin.addDirectoryItems(self._handle, listing, len(listing))
         xbmcplugin.endOfDirectory(self._handle, succeeded, cacheToDisc=cache)
 
-    def _generate_listitem(self, title_item):
+    @staticmethod
+    def _generate_listitem(title_item):
         """ Generate a ListItem from a TitleItem """
         from xbmcgui import ListItem
 

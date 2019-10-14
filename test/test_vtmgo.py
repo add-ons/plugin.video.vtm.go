@@ -31,8 +31,8 @@ class TestVtmGo(unittest.TestCase):
                 settings = json.load(f)
 
         if settings['username'] and settings['password']:
-            vtmgoauth.VtmGoAuth.username = settings['username']
-            vtmgoauth.VtmGoAuth.password = settings['password']
+            kodi.set_setting('username', settings['username'])
+            kodi.set_setting('password', settings['password'])
 
         self._vtmgoauth = vtmgoauth.VtmGoAuth(kodi)
         self._vtmgo = vtmgo.VtmGo(kodi)
