@@ -26,9 +26,6 @@ def show_index():
 
     listing = []
     listing.extend([
-        TitleItem(title='Update metadata',
-                  path=routing.url_for(update_metadata)
-                  ),
         TitleItem(title=kodi.localize(30001),  # A-Z
                   path=routing.url_for(show_catalog_category if not kids else show_kids_catalog_category, category='all'),
                   art_dict=dict(
