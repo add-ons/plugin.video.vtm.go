@@ -130,12 +130,12 @@ def check_credentials():
     kodi.open_settings()
 
 
-@routing.route('/update-metadata')
-def update_metadata():
+@routing.route('/metadata/update')
+def metadata_update(delay=10):
     """ Update the metadata for the listings. """
     import xbmc
 
-    progress = kodi.show_progress(message='Downloading metadata...')
+    progress = kodi.show_progress(message=kodi.localize(30715))
 
     # Fetch all items from the catalogue
     items = vtm_go.get_items('all')
@@ -147,21 +147,31 @@ def update_metadata():
         if item.video_type == Content.CONTENT_TYPE_MOVIE:
             if not vtm_go.get_movie(item.content_id, only_cache=True):
                 vtm_go.get_movie(item.content_id)
-                xbmc.sleep(10)
+                xbmc.sleep(delay)
         elif item.video_type == Content.CONTENT_TYPE_PROGRAM:
             if not vtm_go.get_program(item.content_id, only_cache=True):
                 vtm_go.get_program(item.content_id)
-                xbmc.sleep(10)
+                xbmc.sleep(delay)
 
         # Upgrade the progress bar
-        progress.update(int(((index + 1) / count) * 100), 'Downloading metadata... ({index}/{total})'.format(index=index + 1, total=count))
+        progress.update(int(((index + 1) / count) * 100), kodi.localize(30716, index=index + 1, total=count))
 
         # Allow to cancel this operation
         if progress.iscanceled():
-            return
+            break
 
     # Close the progress dialog
     progress.close()
+
+    # Update last updated
+    from time import time
+    kodi.set_setting('metadata_last_updated', str(int(time())))
+
+
+@routing.route('/metadata/clean')
+def metadata_clean():
+    kodi.invalidate_cache()
+    kodi.show_ok_dialog(message=kodi.localize(30714))  # Local metadata is cleared.
 
 
 @routing.route('/kids/livetv')

@@ -251,6 +251,15 @@ class KodiWrapper:
         progress.create(heading=heading, line1=message)
         return progress
 
+    def show_progress_background(self, heading='', message=''):
+        """ Show a Kodi progress dialog """
+        from xbmcgui import DialogProgressBG
+        if not heading:
+            heading = self._addon.getAddonInfo('name')
+        progress = DialogProgressBG()
+        progress.create(heading=heading, message=message)
+        return progress
+
     def set_locale(self):
         """ Load the proper locale for date strings """
         import locale
@@ -299,7 +308,7 @@ class KodiWrapper:
         return json.loads(json_result).get('result', dict()).get('value')
 
     def get_cache(self, key, ttl=None):
-        """ Get an item from the cache.
+        """ Get an item from the cache
         :type key: list[str]
         :type ttl: int
         """
@@ -328,7 +337,7 @@ class KodiWrapper:
                 return None
 
     def set_cache(self, key, data):
-        """ Store an item in the cache.
+        """ Store an item in the cache
         :type key: list[str]
         :type data: str
         """
@@ -344,6 +353,12 @@ class KodiWrapper:
 
         with self.open_file(fullpath, 'w') as fdesc:
             json.dump(data, fdesc)
+
+    def invalidate_cache(self):
+        """ Clear the cache """
+        _, files = self.listdir(self._cache_path)
+        for filename in files:
+            self.delete_file(self._cache_path + filename)
 
     def get_max_bandwidth(self):
         """ Get the max bandwidth based on Kodi and add-on settings """

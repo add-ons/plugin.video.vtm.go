@@ -193,7 +193,7 @@ msgid "In 2 days"
 msgstr "Overmorgen"
 
 
-### ERRORS
+### MESSAGES
 msgctxt "#30701"
 msgid "Invalid login details"
 msgstr "Foutieve inloggegevens"
@@ -246,6 +246,18 @@ msgctxt "#30713"
 msgid "The requested video was not found in the guide."
 msgstr "De gevraagde video werd niet gevonden in de gids."
 
+msgctxt "#30714"
+msgid "Local metadata is cleared."
+msgstr "De locale metadata is verwijderd."
+
+msgctxt "#30715"
+msgid "Updating metadata"
+msgstr "Vernieuwen metadata"
+
+msgctxt "#30716"
+msgid "Updating metadata ({index}/{total})"
+msgstr "Vernieuwen metadata ({index}/{total})"
+
 
 ### SETTINGS
 msgctxt "#30800"
@@ -289,12 +301,16 @@ msgid "Metadata"
 msgstr "Metadata"
 
 msgctxt "#30829"
-msgid "Enable fetching of metadata in the background"
-msgstr "Update metadata op de achtergrond"
+msgid "Periodically refresh metadata in the background"
+msgstr "Vernieuw de locale metdata automatisch in de achtergrond"
 
 msgctxt "#30831"
-msgid "Update metadata now"
-msgstr "Metadata nu updaten"
+msgid "Update local metadata now"
+msgstr "De locale metadata nu vernieuwen"
+
+msgctxt "#30833"
+msgid "Clear local metadata"
+msgstr "De locale metadata verwijderen"
 
 msgctxt "#30860"
 msgid "Playback"

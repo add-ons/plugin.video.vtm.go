@@ -193,7 +193,7 @@ msgid "In 2 days"
 msgstr ""
 
 
-### ERRORS
+### MESSAGES
 msgctxt "#30701"
 msgid "Invalid login details"
 msgstr ""
@@ -246,6 +246,18 @@ msgctxt "#30713"
 msgid "The requested video was not found in the guide."
 msgstr ""
 
+msgctxt "#30714"
+msgid "Local metadata is cleared."
+msgstr ""
+
+msgctxt "#30715"
+msgid "Updating metadata"
+msgstr ""
+
+msgctxt "#30716"
+msgid "Updating metadata ({index}/{total})"
+msgstr ""
+
 
 ### SETTINGS
 msgctxt "#30800"
@@ -289,11 +301,15 @@ msgid "Metadata"
 msgstr ""
 
 msgctxt "#30829"
-msgid "Enable fetching of metadata in the background"
+msgid "Periodically refresh metadata in the background"
 msgstr ""
 
 msgctxt "#30831"
-msgid "Update metadata now"
+msgid "Update local metadata now"
+msgstr ""
+
+msgctxt "#30833"
+msgid "Clear local metadata"
 msgstr ""
 
 msgctxt "#30860"
