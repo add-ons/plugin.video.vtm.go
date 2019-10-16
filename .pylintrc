@@ -4,7 +4,6 @@ disable=
     broad-except,
     duplicate-code,
     fixme,
-    import-error,
     import-outside-toplevel,
     invalid-name,
     line-too-long,
