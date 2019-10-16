@@ -1,4 +1,6 @@
 # -*- coding: utf-8 -*-
+""" VTM GO Authentication API """
+
 from __future__ import absolute_import, division, unicode_literals
 
 import hashlib
@@ -11,10 +13,12 @@ from resources.lib.kodiwrapper import LOG_DEBUG, KodiWrapper, from_unicode, LOG_
 
 
 class InvalidLoginException(Exception):
-    pass
+    """ Is thrown when the credentials are invalid """
 
 
 class VtmGoAuth:
+    """ VTM GO Authentication API """
+
     def __init__(self, kodi):
         self._kodi = kodi  # type: KodiWrapper
         self._proxies = kodi.get_proxies()

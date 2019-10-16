@@ -1,4 +1,6 @@
 # -*- coding: utf-8 -*-
+""" Addon code """
+
 from __future__ import absolute_import, division, unicode_literals
 
 import routing
@@ -17,11 +19,13 @@ vtm_go = VtmGo(kodi)
 
 @routing.route('/kids')
 def show_kids_index():
+    """ Show the main menu (kids) """
     show_index()
 
 
 @routing.route('/')
 def show_index():
+    """ Show the main menu """
     kids = kodi.kids_mode()
 
     listing = []
@@ -117,6 +121,7 @@ def show_index():
 
 @routing.route('/check-credentials')
 def check_credentials():
+    """ Check credentials (called from settings) """
     try:
         auth = VtmGoAuth(kodi)
         auth.clear_token()
@@ -131,7 +136,7 @@ def check_credentials():
 
 @routing.route('/metadata/update')
 def metadata_update(delay=10):
-    """ Update the metadata for the listings. """
+    """ Update the metadata for the listings (called from settings) """
     import xbmc
 
     progress = kodi.show_progress(message=kodi.localize(30715))
@@ -169,18 +174,20 @@ def metadata_update(delay=10):
 
 @routing.route('/metadata/clean')
 def metadata_clean():
+    """ Clear metadata (called from settings) """
     kodi.invalidate_cache()
     kodi.show_ok_dialog(message=kodi.localize(30714))  # Local metadata is cleared.
 
 
 @routing.route('/kids/livetv')
 def show_kids_livetv():
+    """ Show Live TV channels (kids) """
     show_livetv()
 
 
 @routing.route('/livetv')
 def show_livetv():
-    """ Shows the channels that can play live TV. """
+    """ Shows Live TV channels """
     try:
         channels = vtm_go.get_live_channels()
     except Exception as ex:
@@ -230,12 +237,13 @@ def show_livetv():
 
 @routing.route('/kids/tvguide')
 def show_kids_tvguide():
+    """ Shows the TV Guide (kids) """
     show_tvguide()
 
 
 @routing.route('/tvguide')
 def show_tvguide():
-    """ Shows the channels from the TV guide. """
+    """ Shows the TV guide """
     kids = kodi.kids_mode()
 
     from . import CHANNELS
@@ -268,11 +276,8 @@ def show_tvguide():
 
 @routing.route('/tvguide/<channel>')
 def show_tvguide_channel(channel):
-    """ Shows the dates in the tv guide.
-    :type channel: string
-    """
+    """ Shows the dates in the tv guide """
     listing = []
-
     for day in VtmGoEpg(kodi).get_dates('%A %d %B %Y'):
         if day.get('highlight'):
             title = '[B]{title}[/B]'.format(title=day.get('title'))
@@ -296,10 +301,7 @@ def show_tvguide_channel(channel):
 
 @routing.route('/tvguide/<channel>/<date>')
 def show_tvguide_detail(channel=None, date=None):
-    """ Shows the programs of a specific date in the tv guide.
-    :type channel: string
-    :type date: string
-    """
+    """ Shows the programs of a specific date in the tv guide """
     try:
         _vtmGoEpg = VtmGoEpg(kodi)
         epg = _vtmGoEpg.get_epg(channel=channel, date=date)
@@ -345,12 +347,13 @@ def show_tvguide_detail(channel=None, date=None):
 
 @routing.route('/kids/recommendations')
 def show_kids_recommendations():
+    """ Show the recommendations (kids) """
     show_recommendations()
 
 
 @routing.route('/recommendations')
 def show_recommendations():
-    """ Show the recommendations. """
+    """ Show the recommendations """
     kids = kodi.kids_mode()
 
     try:
@@ -375,12 +378,13 @@ def show_recommendations():
 
 @routing.route('/kids/recommendations/<category>')
 def show_kids_recommendations_category(category):
+    """ Show a category in the recommendations """
     show_recommendations_category(category)
 
 
 @routing.route('/recommendations/<category>')
 def show_recommendations_category(category):
-    """ Show the items in a recommendations category. """
+    """ Show the items in a recommendations category """
     try:
         recommendations = vtm_go.get_recommendations()
     except Exception as ex:
@@ -402,12 +406,13 @@ def show_recommendations_category(category):
 
 @routing.route('/kids/mylist')
 def show_kids_mylist():
+    """ Show the items in "My List" (kids) """
     show_mylist()
 
 
 @routing.route('/mylist')
 def show_mylist():
-    """ Show the items in My List. """
+    """ Show the items in "My List" """
     try:
         mylist = vtm_go.get_mylist()
     except Exception as ex:
@@ -424,36 +429,39 @@ def show_mylist():
 
 @routing.route('/kids/mylist/add/<video_type>/<content_id>')
 def kids_mylist_add(video_type, content_id):
+    """ Add an item to "My List" (kids) """
     mylist_add(video_type, content_id)
 
 
 @routing.route('/mylist/add/<video_type>/<content_id>')
 def mylist_add(video_type, content_id):
-    """ Add an item to My List. """
+    """ Add an item to "My List" """
     vtm_go.add_mylist(video_type, content_id)
     kodi.end_of_directory()
 
 
 @routing.route('/kids/mylist/del/<video_type>/<content_id>')
 def kids_mylist_del(video_type, content_id):
+    """ Remove an item from "My List" (kids) """
     mylist_del(video_type, content_id)
 
 
 @routing.route('/mylist/del/<video_type>/<content_id>')
 def mylist_del(video_type, content_id):
-    """ Remove an item from My List. """
+    """ Remove an item from "My List" """
     vtm_go.del_mylist(video_type, content_id)
     kodi.end_of_directory()
 
 
 @routing.route('/kids/catalog')
 def show_kids_catalog():
+    """ Show the catalog (kids) """
     show_catalog()
 
 
 @routing.route('/catalog')
 def show_catalog():
-    """ Show the catalog. """
+    """ Show the catalog """
     kids = kodi.kids_mode()
 
     try:
@@ -478,12 +486,13 @@ def show_catalog():
 
 @routing.route('/kids/catalog/<category>')
 def show_kids_catalog_category(category):
+    """ Show a category in the catalog (kids) """
     show_catalog_category(category)
 
 
 @routing.route('/catalog/<category>')
 def show_catalog_category(category):
-    """ Show a category in the catalog. """
+    """ Show a category in the catalog """
     try:
         items = vtm_go.get_items(category)
     except Exception as ex:
@@ -501,7 +510,7 @@ def show_catalog_category(category):
 
 @routing.route('/program/<program>')
 def show_program(program):
-    """ Show a program from the catalog. """
+    """ Show a program from the catalog """
     try:
         program_obj = vtm_go.get_program(program)
     except Exception as ex:
@@ -552,7 +561,7 @@ def show_program(program):
 
 @routing.route('/program/<program>/<season>')
 def show_program_season(program, season):
-    """ Show a program from the catalog. """
+    """ Show a program from the catalog """
     try:
         program_obj = vtm_go.get_program(program)
     except Exception as ex:
@@ -606,12 +615,13 @@ def show_program_season(program, season):
 
 @routing.route('/kids/youtube')
 def show_kids_youtube():
+    """ Shows the Youtube channel overview (kids) """
     show_youtube()
 
 
 @routing.route('/youtube')
 def show_youtube():
-    """ Shows the Youtube channel overview. """
+    """ Shows the Youtube channel overview """
     kids = kodi.kids_mode()
 
     listing = []
@@ -646,13 +656,14 @@ def show_youtube():
 @routing.route('/kids/search')
 @routing.route('/kids/search/<query>')
 def show_kids_search(query=None):
+    """ Shows the search dialog (kids) """
     show_search(query)
 
 
 @routing.route('/search')
 @routing.route('/search/<query>')
 def show_search(query=None):
-    """ Shows the search dialog. """
+    """ Shows the search dialog """
     if not query:
         # Ask for query
         query = kodi.get_search_string(heading=kodi.localize(30009))
@@ -663,7 +674,7 @@ def show_search(query=None):
     # Do search
     try:
         items = vtm_go.do_search(query)
-    except Exception as ex:
+    except Exception as ex:  # pylint: disable=broad-except
         kodi.show_notification(message=str(ex))
         kodi.end_of_directory()
         return
@@ -890,6 +901,7 @@ def play(category, item):
 
 
 def _format_plot(obj):
+    """ Format the plot for a Content item """
     plot = ''
 
     if hasattr(obj, 'description'):
@@ -933,4 +945,5 @@ def _format_plot(obj):
 
 
 def run(params):
+    """ Run the routing plugin """
     routing.run(params)

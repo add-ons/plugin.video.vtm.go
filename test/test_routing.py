@@ -1,4 +1,8 @@
 # -*- coding: utf-8 -*-
+""" Tests for Routing """
+
+# pylint: disable=missing-docstring
+
 from __future__ import absolute_import, division, print_function, unicode_literals
 
 import unittest
@@ -20,6 +24,7 @@ kodi = KodiWrapper(routing=routing)
 
 
 class TestRouting(unittest.TestCase):
+    """ Tests for Routing """
 
     def __init__(self, *args, **kwargs):
         super(TestRouting, self).__init__(*args, **kwargs)
@@ -34,6 +39,12 @@ class TestRouting(unittest.TestCase):
     def test_main_menu(self):
         routing.run(['plugin://plugin.video.vtm.go/', '0', ''])
         self.assertEqual(routing.url_for(plugin.show_index), 'plugin://plugin.video.vtm.go/')
+
+    def test_metadata_update(self):
+        routing.run(['plugin://plugin.video.vtm.go/metadata/clean', '0', ''])
+        self.assertEqual(routing.url_for(plugin.metadata_clean), 'plugin://plugin.video.vtm.go/metadata/clean')
+        routing.run(['plugin://plugin.video.vtm.go/metadata/update', '0', ''])
+        self.assertEqual(routing.url_for(plugin.metadata_update), 'plugin://plugin.video.vtm.go/metadata/update')
 
     def test_kids_zone(self):
         plugin.run(['plugin://plugin.video.vtm.go/kids', '0', ''])
@@ -153,6 +164,7 @@ class TestRouting(unittest.TestCase):
         import dateutil
         import datetime
         timestamp = datetime.datetime.now(dateutil.tz.tzlocal())
+        timestamp = timestamp.replace(hour=6, minute=0, second=0)
         plugin.run(['plugin://plugin.video.vtm.go/play/epg/vtm/' + timestamp.isoformat(), '0', ''])
         self.assertEqual(
             routing.url_for(plugin.play_epg_datetime, channel='vtm', timestamp=timestamp.isoformat()),

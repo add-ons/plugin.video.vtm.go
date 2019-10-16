@@ -87,6 +87,7 @@ class DialogProgress:
     @staticmethod
     def iscanceled():
         ''' A stub implementation for the xbmcgui DialogProgress class iscanceled() method '''
+        return True
 
     def update(self, percentage, line1=None, line2=None, line3=None):
         ''' A stub implementation for the xbmcgui DialogProgress class update() method '''

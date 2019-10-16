@@ -48,7 +48,6 @@ def addDirectoryItem(handle, path, listitem, isFolder=False):
     ''' A reimplementation of the xbmcplugin addDirectoryItems() function '''
     label = kodi_to_ansi(listitem.label)
     path = uri_to_path(path) if path else ''
-    # perma = kodi_to_ansi(listitem.label)  # FIXME: Add permalink
     bullet = '»' if isFolder else '·'
     print('{bullet} {label}{path}'.format(bullet=bullet, label=label, path=path))
     return True

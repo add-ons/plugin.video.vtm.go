@@ -1,4 +1,7 @@
 # -*- coding: utf-8 -*-
+""" VTM GO API """
+# pylint: disable=missing-function-docstring
+
 from __future__ import absolute_import, division, unicode_literals
 
 import json
@@ -6,7 +9,7 @@ import json
 import requests
 
 from resources.lib import UnavailableException
-from resources.lib.kodiwrapper import LOG_DEBUG, KodiWrapper, to_unicode, LOG_INFO  # pylint: disable=unused-import
+from resources.lib.kodiwrapper import LOG_DEBUG, KodiWrapper, LOG_INFO  # pylint: disable=unused-import
 from resources.lib.vtmgo.vtmgoauth import VtmGoAuth
 
 try:  # Python 3
@@ -16,8 +19,10 @@ except ImportError:  # Python 2
 
 
 class LiveChannel:
+    """ Defines a tv channel that can be streamed live """
+
     def __init__(self, channel_id=None, name=None, logo=None, epg=None, geoblocked=False):
-        """ Defines a tv channel that can be streamed live.
+        """
         :type channel_id: str
         :type name: str
         :type logo: str
@@ -35,8 +40,10 @@ class LiveChannel:
 
 
 class LiveChannelEpg:
+    """ Defines a program that is broadcast on a live tv channel"""
+
     def __init__(self, title=None, start=None, end=None):
-        """ Defines a program that is broadcast on a live tv channel.
+        """
         :type title: str
         :type start: datetime.datetime
         :type end: datetime.datetime
@@ -50,8 +57,10 @@ class LiveChannelEpg:
 
 
 class Category:
+    """ Defines a category from the catalogue"""
+
     def __init__(self, category_id=None, title=None, content=None):
-        """ Defines a category from the catalogue.
+        """
         :type category_id: str
         :type title: str
         :type content: list[Content]
@@ -65,11 +74,12 @@ class Category:
 
 
 class Content:
+    """ Defines an item from the catalogue"""
     CONTENT_TYPE_MOVIE = 'MOVIE'
     CONTENT_TYPE_PROGRAM = 'PROGRAM'
 
     def __init__(self, content_id=None, title=None, description=None, cover=None, video_type=None, my_list=False, geoblocked=None):
-        """ Defines an item from the catalogue.
+        """
         :type content_id: str
         :type title: str
         :type description: str
@@ -91,9 +101,11 @@ class Content:
 
 
 class Movie:
+    """ Defines a Movie"""
+
     def __init__(self, movie_id=None, name=None, description=None, year=None, cover=None, duration=None, remaining=None, geoblocked=None,
                  channel=None, legal=None, aired=None):
-        """ Defines a Movie.
+        """
         :type movie_id: str
         :type name: str
         :type description: str
@@ -123,8 +135,10 @@ class Movie:
 
 
 class Program:
+    """ Defines a Program"""
+
     def __init__(self, program_id=None, name=None, description=None, cover=None, seasons=None, geoblocked=None, channel=None, legal=None):
-        """ Defines a Program.
+        """
         :type program_id: str
         :type name: str
         :type description: str
@@ -148,8 +162,10 @@ class Program:
 
 
 class Season:
+    """ Defines a Season"""
+
     def __init__(self, number=None, episodes=None, cover=None, geoblocked=None, channel=None, legal=None):
-        """ Defines a Season.
+        """
         :type number: str
         :type episodes: dict[int, Episode]
         :type cover: str
@@ -169,9 +185,11 @@ class Season:
 
 
 class Episode:
+    """ Defines an Episode """
+
     def __init__(self, episode_id=None, number=None, season=None, name=None, description=None, cover=None, duration=None, remaining=None, geoblocked=None,
                  channel=None, legal=None, aired=None):
-        """ Defines an Episode.
+        """
         :type episode_id: str
         :type number: int
         :type season: str
@@ -204,6 +222,8 @@ class Episode:
 
 
 class VtmGo:
+    """ VTM GO API """
+
     def __init__(self, kodi):
         self._kodi = kodi  # type: KodiWrapper
         self._proxies = kodi.get_proxies()

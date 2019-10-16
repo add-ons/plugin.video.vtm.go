@@ -44,7 +44,7 @@ test-unit:
 ifdef TRAVIS_JOB_ID
 		@coverage run -m unittest discover
 else
-		@python -m unittest discover
+		@python -m unittest discover -v -b -f
 endif
 
 clean:

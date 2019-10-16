@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+""" VTM GO Stream API """
 
 from __future__ import absolute_import, division, unicode_literals
 
@@ -13,8 +14,10 @@ from resources.lib.kodiwrapper import from_unicode, LOG_DEBUG, LOG_ERROR, KodiWr
 
 
 class ResolvedStream:
+    """ Defines a stream that we can play"""
+
     def __init__(self, program=None, title=None, duration=None, url=None, license_url=None, subtitles=None, cookies=None):
-        """ Defines a stream that we can play.
+        """
         :type program: str|None
         :type title: str
         :type duration: str|None
@@ -36,6 +39,8 @@ class ResolvedStream:
 
 
 class VtmGoStream:
+    """ VTM GO Stream API """
+
     _VTM_API_KEY = 'zTxhgTEtb055Ihgw3tN158DZ0wbbaVO86lJJulMl'
     _ANVATO_API_KEY = 'HOydnxEYtxXYY1UfT3ADuevMP7xRjPg6XYNrPLhFISL'
     _ANVATO_USER_AGENT = 'ANVSDK Android/5.0.39 (Linux; Android 6.0.1; Nexus 5)'
@@ -187,7 +192,8 @@ class VtmGoStream:
                 self._kodi.log('Found subtitle url {url}', url=subtitle.get('url'))
         return subtitles
 
-    def _delay_webvtt_timing(self, match, ad_breaks):
+    @staticmethod
+    def _delay_webvtt_timing(match, ad_breaks):
         """ Delay the timing of a webvtt subtitle.
         :type match: any
         :type ad_breaks: list[dict]
@@ -226,9 +232,8 @@ class VtmGoStream:
             dirs, files = self._kodi.listdir(temp_dir)  # pylint: disable=unused-variable
             if files:
                 for item in files:
-                    file_path = temp_dir + item
                     if item.endswith('.vtt'):
-                        self._kodi.delete_file(file_path)
+                        self._kodi.delete_file(temp_dir + item)
         ad_breaks = list()
         delayed_subtitles = list()
         webvtt_timing_regex = re.compile(r'\n(\d{2}:\d{2}:\d{2}\.\d{3}) --> (\d{2}:\d{2}:\d{2}\.\d{3})\s')
@@ -399,7 +404,7 @@ class VtmGoStream:
             if decoded.get('master_m3u8'):
                 self._kodi.log('Followed redirection from {url_from} to {url_to}', url_from=url, url_to=decoded.get('master_m3u8'))
                 return decoded
-        except Exception:
+        except ValueError:
             self._kodi.log('No manifest url found {url}', LOG_ERROR, url=url)
 
         # Fallback to the url like we have it

@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+""" Library around all Kodi functions """
 
 from __future__ import absolute_import, division, unicode_literals
 
@@ -212,7 +213,8 @@ class KodiWrapper:
                 xbmc.sleep(100)
             xbmc.Player().showSubtitles(True)
 
-    def get_search_string(self, heading='', message=''):
+    @staticmethod
+    def get_search_string(heading='', message=''):
         """ Ask the user for a search string """
         search_string = None
         keyboard = xbmc.Keyboard(message, heading)
@@ -290,6 +292,7 @@ class KodiWrapper:
         return value
 
     def get_setting_as_bool(self, setting):
+        """ Get an add-on setting as a boolean value """
         return self.get_setting(setting).lower() == "true"
 
     def set_setting(self, setting_id, setting_value):
@@ -347,8 +350,10 @@ class KodiWrapper:
 
     def invalidate_cache(self, ttl=None):
         """ Clear the cache """
-        import time
+        if not self.check_if_path_exists(self._cache_path):
+            return
         _, files = self.listdir(self._cache_path)
+        import time
         now = time.mktime(time.localtime())
         for filename in files:
             fullpath = self._cache_path + filename

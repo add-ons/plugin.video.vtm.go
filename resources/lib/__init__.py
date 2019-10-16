@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+""" Static data for this addon """
 
 from __future__ import absolute_import, division, unicode_literals
 
@@ -111,8 +112,8 @@ CHANNELS = [
 
 
 class GeoblockedException(Exception):
-    pass
+    """ Is thrown when a geoblocked item is played. """
 
 
 class UnavailableException(Exception):
-    pass
+    """ Is thrown when an unavailable item is played. """
