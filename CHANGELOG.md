@@ -1,5 +1,21 @@
 # Change Log
 
+## [Unreleased](https://github.com/michaelarnauts/plugin.video.vtm.go/tree/HEAD)
+
+[Full Changelog](https://github.com/michaelarnauts/plugin.video.vtm.go/compare/v0.9.1...HEAD)
+
+**Fixed bugs:**
+
+- Kids mode seems to be ignored in some places [\#107](https://github.com/michaelarnauts/plugin.video.vtm.go/issues/107)
+
+**Closed issues:**
+
+- Something is not right with the new 0.9.1 version [\#106](https://github.com/michaelarnauts/plugin.video.vtm.go/issues/106)
+
+**Merged pull requests:**
+
+- Fix kids mode [\#108](https://github.com/michaelarnauts/plugin.video.vtm.go/pull/108) ([michaelarnauts](https://github.com/michaelarnauts))
+
 ## [v0.9.1](https://github.com/michaelarnauts/plugin.video.vtm.go/tree/v0.9.1) (2019-10-16)
 
 [Full Changelog](https://github.com/michaelarnauts/plugin.video.vtm.go/compare/v0.9.0...v0.9.1)
@@ -9,17 +25,18 @@
 - Highlight currently playing broadcast in TV guide and add Live flag. [\#103](https://github.com/michaelarnauts/plugin.video.vtm.go/issues/103)
 - Add currently playing broadcast to live TV channel [\#102](https://github.com/michaelarnauts/plugin.video.vtm.go/issues/102)
 - Implement additional catalogue sections [\#93](https://github.com/michaelarnauts/plugin.video.vtm.go/issues/93)
+- Implement caching [\#84](https://github.com/michaelarnauts/plugin.video.vtm.go/issues/84)
 - Add API to play a program by date and time  [\#83](https://github.com/michaelarnauts/plugin.video.vtm.go/issues/83)
 - Fetch metadata of programs [\#81](https://github.com/michaelarnauts/plugin.video.vtm.go/issues/81)
 - Integrate with "Mijn lijst" [\#47](https://github.com/michaelarnauts/plugin.video.vtm.go/issues/47)
 
 **Fixed bugs:**
 
-- login check fails [\#100](https://github.com/michaelarnauts/plugin.video.vtm.go/issues/100)
 - Subtitles out of sync in VOD streams with commercials. [\#51](https://github.com/michaelarnauts/plugin.video.vtm.go/issues/51)
 - Seeking is not possible [\#28](https://github.com/michaelarnauts/plugin.video.vtm.go/issues/28)
 - Only the part after the last advertisement is played. [\#8](https://github.com/michaelarnauts/plugin.video.vtm.go/issues/8)
 - Live TV is broken due to unimplemented startPTS\_ in inputstream adaptive. [\#1](https://github.com/michaelarnauts/plugin.video.vtm.go/issues/1)
+- login check fails [\#100](https://github.com/michaelarnauts/plugin.video.vtm.go/issues/100)
 
 **Merged pull requests:**
 
