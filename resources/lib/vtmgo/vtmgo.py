@@ -221,8 +221,9 @@ class VtmGo:
         self._proxies = kodi.get_proxies()
         self._auth = VtmGoAuth(kodi)
 
-        # This can be vtmgo or vtmgo-kids
-        self._mode = 'vtmgo-kids' if self._kodi.kids_mode() else 'vtmgo'
+    def _mode(self):
+        """ Return the mode that should be used for API calls """
+        return 'vtmgo-kids' if self._kodi.kids_mode() else 'vtmgo'
 
     def get_config(self):
         """ Returns the config for the app. """
@@ -235,7 +236,7 @@ class VtmGo:
 
     def get_recommendations(self):
         """ Returns the config for the dashboard. """
-        response = self._get_url('/%s/main' % self._mode)
+        response = self._get_url('/%s/main' % self._mode())
         recommendations = json.loads(response)
 
         categories = []
@@ -262,7 +263,7 @@ class VtmGo:
 
     def get_mylist(self):
         """ Returns the contents of My List """
-        response = self._get_url('/%s/main/swimlane/my-list' % self._mode)
+        response = self._get_url('/%s/main/swimlane/my-list' % self._mode())
 
         # My list can be empty
         if not response:
@@ -284,18 +285,18 @@ class VtmGo:
 
     def add_mylist(self, video_type, content_id):
         """ Add an item to My List """
-        self._put_url('/%s/userData/myList/%s/%s' % (self._mode, video_type, content_id))
+        self._put_url('/%s/userData/myList/%s/%s' % (self._mode(), video_type, content_id))
 
     def del_mylist(self, video_type, content_id):
         """ Delete an item from My List """
-        self._delete_url('/%s/userData/myList/%s/%s' % (self._mode, video_type, content_id))
+        self._delete_url('/%s/userData/myList/%s/%s' % (self._mode(), video_type, content_id))
 
     def get_live_channels(self):
         """ Get a list of all the live tv channels.
         :rtype list[LiveChannel]
         """
         import dateutil.parser
-        response = self._get_url('/%s/live' % self._mode)
+        response = self._get_url('/%s/live' % self._mode())
         info = json.loads(response)
 
         channels = []
@@ -320,7 +321,7 @@ class VtmGo:
         """ Get a list of all the categories.
         :rtype list[Category]
         """
-        response = self._get_url('/%s/catalog/filters' % self._mode)
+        response = self._get_url('/%s/catalog/filters' % self._mode())
         info = json.loads(response)
 
         categories = []
@@ -338,9 +339,9 @@ class VtmGo:
         :rtype list[Content]
         """
         if category and category != 'all':
-            response = self._get_url('/%s/catalog?pageSize=%d&filter=%s' % (self._mode, 1000, quote(category)))
+            response = self._get_url('/%s/catalog?pageSize=%d&filter=%s' % (self._mode(), 1000, quote(category)))
         else:
-            response = self._get_url('/%s/catalog?pageSize=%d' % (self._mode, 1000))
+            response = self._get_url('/%s/catalog?pageSize=%d' % (self._mode(), 1000))
         info = json.loads(response)
 
         items = []
@@ -368,7 +369,7 @@ class VtmGo:
                 return None
         else:
             # Fetch from API
-            response = self._get_url('/%s/movies/%s' % (self._mode, movie_id))
+            response = self._get_url('/%s/movies/%s' % (self._mode(), movie_id))
             info = json.loads(response)
             movie = info.get('movie', {})
             self._kodi.set_cache(['movie', movie_id], movie)
@@ -407,7 +408,7 @@ class VtmGo:
                 return None
         else:
             # Fetch from API
-            response = self._get_url('/%s/programs/%s' % (self._mode, program_id))
+            response = self._get_url('/%s/programs/%s' % (self._mode(), program_id))
             info = json.loads(response)
             program = info.get('program', {})
             self._kodi.set_cache(['program', program_id], program)
@@ -464,7 +465,7 @@ class VtmGo:
         :type episode_id: str
         :rtype Episode
         """
-        response = self._get_url('/%s/episodes/%s' % (self._mode, episode_id))
+        response = self._get_url('/%s/episodes/%s' % (self._mode(), episode_id))
         info = json.loads(response)
 
         episode = info.get('episode', {})
@@ -483,7 +484,7 @@ class VtmGo:
         :type search: str
         :rtype list[Content]
         """
-        response = self._get_url('/%s/autocomplete/?maxItems=%d&keywords=%s' % (self._mode, 50, quote(search)))
+        response = self._get_url('/%s/autocomplete/?maxItems=%d&keywords=%s' % (self._mode(), 50, quote(search)))
         results = json.loads(response)
 
         items = []
