@@ -432,6 +432,7 @@ def kids_mylist_add(video_type, content_id):
 def mylist_add(video_type, content_id):
     """ Add an item to My List. """
     vtm_go.add_mylist(video_type, content_id)
+    kodi.end_of_directory()
 
 
 @routing.route('/kids/mylist/del/<video_type>/<content_id>')
@@ -443,6 +444,7 @@ def kids_mylist_del(video_type, content_id):
 def mylist_del(video_type, content_id):
     """ Remove an item from My List. """
     vtm_go.del_mylist(video_type, content_id)
+    kodi.end_of_directory()
 
 
 @routing.route('/kids/catalog')
