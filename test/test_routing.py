@@ -164,6 +164,7 @@ class TestRouting(unittest.TestCase):
         import dateutil
         import datetime
         timestamp = datetime.datetime.now(dateutil.tz.tzlocal())
+        timestamp = timestamp.replace(hour=6, minute=0, second=0)
         plugin.run(['plugin://plugin.video.vtm.go/play/epg/vtm/' + timestamp.isoformat(), '0', ''])
         self.assertEqual(
             routing.url_for(plugin.play_epg_datetime, channel='vtm', timestamp=timestamp.isoformat()),
