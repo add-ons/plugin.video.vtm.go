@@ -2,7 +2,6 @@
 disable=
     bad-option-value,
     broad-except,
-    cyclic-import,
     duplicate-code,
     fixme,
     import-error,
