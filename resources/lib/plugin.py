@@ -125,7 +125,6 @@ def check_credentials():
 
     except InvalidLoginException:
         kodi.show_ok_dialog(message=kodi.localize(30203))  # Your credentials are not valid!
-        raise
 
     kodi.open_settings()
 
@@ -666,7 +665,8 @@ def show_search(query=None):
         items = vtm_go.do_search(query)
     except Exception as ex:
         kodi.show_notification(message=str(ex))
-        raise
+        kodi.end_of_directory()
+        return
 
     # Display results
     listing = []
