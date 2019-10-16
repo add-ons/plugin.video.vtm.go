@@ -1,4 +1,6 @@
 # -*- coding: utf-8 -*-
+""" Background service code """
+
 from __future__ import absolute_import, division, unicode_literals
 
 from time import time
@@ -10,6 +12,7 @@ from resources.lib.vtmgo.vtmgo import VtmGo, Content
 
 
 class BackgroundService(Monitor):
+    """ Background service code """
 
     def __init__(self):
         Monitor.__init__(self)
@@ -80,4 +83,5 @@ class BackgroundService(Monitor):
 
 
 def run():
+    """ Run the BackgroundService """
     BackgroundService().run()

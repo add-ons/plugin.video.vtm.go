@@ -1,4 +1,6 @@
 # -*- coding: utf-8 -*-
+""" Tests for VTM GO API """
+# pylint: disable=missing-function-docstring
 
 from __future__ import absolute_import, division, print_function, unicode_literals
 
@@ -14,6 +16,7 @@ kodi = KodiWrapper()
 
 
 class TestVtmGo(unittest.TestCase):
+    """ Tests for VTM GO API """
 
     def __init__(self, *args, **kwargs):
         super(TestVtmGo, self).__init__(*args, **kwargs)

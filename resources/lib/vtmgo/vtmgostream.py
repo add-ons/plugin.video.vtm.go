@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+""" VTM GO Stream API """
 
 from __future__ import absolute_import, division, unicode_literals
 
@@ -13,8 +14,9 @@ from resources.lib.kodiwrapper import from_unicode, LOG_DEBUG, LOG_ERROR, KodiWr
 
 
 class ResolvedStream:
+    """ Defines a stream that we can play"""
     def __init__(self, program=None, title=None, duration=None, url=None, license_url=None, subtitles=None, cookies=None):
-        """ Defines a stream that we can play.
+        """
         :type program: str|None
         :type title: str
         :type duration: str|None
@@ -36,6 +38,8 @@ class ResolvedStream:
 
 
 class VtmGoStream:
+    """ VTM GO Stream API """
+
     _VTM_API_KEY = 'zTxhgTEtb055Ihgw3tN158DZ0wbbaVO86lJJulMl'
     _ANVATO_API_KEY = 'HOydnxEYtxXYY1UfT3ADuevMP7xRjPg6XYNrPLhFISL'
     _ANVATO_USER_AGENT = 'ANVSDK Android/5.0.39 (Linux; Android 6.0.1; Nexus 5)'

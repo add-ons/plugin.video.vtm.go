@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+""" Library around all Kodi functions """
 
 from __future__ import absolute_import, division, unicode_literals
 
@@ -290,6 +291,7 @@ class KodiWrapper:
         return value
 
     def get_setting_as_bool(self, setting):
+        """ Get an add-on setting as a boolean value """
         return self.get_setting(setting).lower() == "true"
 
     def set_setting(self, setting_id, setting_value):

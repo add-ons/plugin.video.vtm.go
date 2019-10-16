@@ -1,15 +1,5 @@
-# Kodi Media Center language file
-# Addon Name: VTM GO
-# Addon id: plugin.video.vtm.go
-# Addon Provider: michaelarnauts
 msgid ""
 msgstr ""
-"Project-Id-Version: plugin.video.vtm.go\n"
-"Report-Msgid-Bugs-To: https://github.com/michaelarnauts/plugin.video.vtm.go\n"
-"POT-Creation-Date: 2019-09-13 22:00+0000\n"
-"PO-Revision-Date: 2019-09-13 22:00+0000\n"
-"Last-Translator: Dag Wieers <dag@wieers.com>\n"
-"Language-Team: Nederlands\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"

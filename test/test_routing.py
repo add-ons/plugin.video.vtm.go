@@ -1,4 +1,7 @@
 # -*- coding: utf-8 -*-
+""" Tests for Routing """
+# pylint: disable=missing-function-docstring
+
 from __future__ import absolute_import, division, print_function, unicode_literals
 
 import unittest
@@ -20,6 +23,7 @@ kodi = KodiWrapper(routing=routing)
 
 
 class TestRouting(unittest.TestCase):
+    """ Tests for Routing """
 
     def __init__(self, *args, **kwargs):
         super(TestRouting, self).__init__(*args, **kwargs)

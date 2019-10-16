@@ -1,4 +1,6 @@
 # -*- coding: utf-8 -*-
+""" VTM GO EPG API """
+
 from __future__ import absolute_import, division, unicode_literals
 
 import json
@@ -12,8 +14,9 @@ from resources.lib.kodiwrapper import LOG_DEBUG, KodiWrapper, LOG_ERROR, LOG_INF
 
 
 class EpgChannel:
+    """ Defines an Channel with EPG information """
     def __init__(self, uuid=None, key=None, name=None, logo=None, broadcasts=None):
-        """ Defines an Channel with EPG information.
+        """
         :type uuid: str
         :type key: str
         :type name: str
@@ -31,9 +34,10 @@ class EpgChannel:
 
 
 class EpgBroadcast:
+    """ Defines an EPG broadcast"""
     def __init__(self, uuid=None, playable_type=None, title=None, time=None, duration=None, image=None, description=None, live=None, rerun=None, tip=None,
                  program_uuid=None, playable_uuid=None, airing=None):
-        """ Defines an EPG broadcast.
+        """
         :type uuid: str
         :type playable_type: str
         :type title: str
@@ -67,6 +71,7 @@ class EpgBroadcast:
 
 
 class VtmGoEpg:
+    """ VTM GO EPG API """
     EPG_URL = 'https://vtm.be/tv-gids/api/v2/broadcasts/{date}'
     DETAILS_URL = 'https://vtm.be/tv-gids/{channel}/uitzending/{type}/{uuid}'
 
