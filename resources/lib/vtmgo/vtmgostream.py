@@ -231,9 +231,8 @@ class VtmGoStream:
             dirs, files = self._kodi.listdir(temp_dir)  # pylint: disable=unused-variable
             if files:
                 for item in files:
-                    file_path = temp_dir + item
                     if item.endswith('.vtt'):
-                        self._kodi.delete_file(file_path)
+                        self._kodi.delete_file(temp_dir + item)
         ad_breaks = list()
         delayed_subtitles = list()
         webvtt_timing_regex = re.compile(r'\n(\d{2}:\d{2}:\d{2}\.\d{3}) --> (\d{2}:\d{2}:\d{2}\.\d{3})\s')
