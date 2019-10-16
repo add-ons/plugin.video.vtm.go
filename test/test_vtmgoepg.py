@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 """ Tests for VTM GO EPG API """
-# pylint: disable=missing-function-docstring
+
+# pylint: disable=missing-docstring
 
 from __future__ import absolute_import, division, print_function, unicode_literals
 

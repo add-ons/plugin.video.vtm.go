@@ -397,15 +397,13 @@ class VtmGoStream:
         :type url: str
         :rtype dict
         """
-        from json import JSONDecodeError
-
         download = self._download_text(url)
         try:
             decoded = json.loads(download)
             if decoded.get('master_m3u8'):
                 self._kodi.log('Followed redirection from {url_from} to {url_to}', url_from=url, url_to=decoded.get('master_m3u8'))
                 return decoded
-        except JSONDecodeError:
+        except ValueError:
             self._kodi.log('No manifest url found {url}', LOG_ERROR, url=url)
 
         # Fallback to the url like we have it

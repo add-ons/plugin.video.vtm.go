@@ -6,6 +6,7 @@ disable=
     import-outside-toplevel,
     invalid-name,
     line-too-long,
+    old-style-class,
     too-few-public-methods,
     too-many-arguments,
     too-many-instance-attributes,
