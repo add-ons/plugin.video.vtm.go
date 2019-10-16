@@ -166,7 +166,8 @@ class VtmGoEpg:
 
         return self._parse_broadcast(data['details'][epg_id])
 
-    def _parse_broadcast(self, broadcast_json):
+    @staticmethod
+    def _parse_broadcast(broadcast_json):
         """ Parse the epg data.
         :type broadcast_json: dict
         :rtype: EpgBroadcast

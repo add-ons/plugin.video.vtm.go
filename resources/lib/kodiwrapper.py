@@ -213,7 +213,8 @@ class KodiWrapper:
                 xbmc.sleep(100)
             xbmc.Player().showSubtitles(True)
 
-    def get_search_string(self, heading='', message=''):
+    @staticmethod
+    def get_search_string(heading='', message=''):
         """ Ask the user for a search string """
         search_string = None
         keyboard = xbmc.Keyboard(message, heading)
