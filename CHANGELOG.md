@@ -1,8 +1,8 @@
 # Change Log
 
-## [Unreleased](https://github.com/michaelarnauts/plugin.video.vtm.go/tree/HEAD)
+## [v0.9.1](https://github.com/michaelarnauts/plugin.video.vtm.go/tree/v0.9.1) (2019-10-16)
 
-[Full Changelog](https://github.com/michaelarnauts/plugin.video.vtm.go/compare/v0.9.0...HEAD)
+[Full Changelog](https://github.com/michaelarnauts/plugin.video.vtm.go/compare/v0.9.0...v0.9.1)
 
 **Implemented enhancements:**
 
@@ -10,6 +10,7 @@
 - Add currently playing broadcast to live TV channel [\#102](https://github.com/michaelarnauts/plugin.video.vtm.go/issues/102)
 - Implement additional catalogue sections [\#93](https://github.com/michaelarnauts/plugin.video.vtm.go/issues/93)
 - Add API to play a program by date and time  [\#83](https://github.com/michaelarnauts/plugin.video.vtm.go/issues/83)
+- Fetch metadata of programs [\#81](https://github.com/michaelarnauts/plugin.video.vtm.go/issues/81)
 - Integrate with "Mijn lijst" [\#47](https://github.com/michaelarnauts/plugin.video.vtm.go/issues/47)
 
 **Fixed bugs:**
@@ -22,6 +23,7 @@
 
 **Merged pull requests:**
 
+- Add caching of metadata [\#104](https://github.com/michaelarnauts/plugin.video.vtm.go/pull/104) ([michaelarnauts](https://github.com/michaelarnauts))
 - General code cleanup [\#99](https://github.com/michaelarnauts/plugin.video.vtm.go/pull/99) ([michaelarnauts](https://github.com/michaelarnauts))
 - Implement playing from EPG with a specified date and time. [\#98](https://github.com/michaelarnauts/plugin.video.vtm.go/pull/98) ([michaelarnauts](https://github.com/michaelarnauts))
 - Integrate My List [\#96](https://github.com/michaelarnauts/plugin.video.vtm.go/pull/96) ([michaelarnauts](https://github.com/michaelarnauts))
