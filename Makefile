@@ -42,9 +42,9 @@ test: test-unit
 test-unit:
 	@printf "${blue}>>> Running unit tests$(reset)"
 ifdef TRAVIS_JOB_ID
-		@coverage run -m unittest discover
+		@coverage run -m unittest discover -v -b
 else
-		@python -m unittest discover -v -f -b
+		@python -m unittest discover -v -b -f
 endif
 
 clean:
