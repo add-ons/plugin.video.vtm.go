@@ -45,6 +45,9 @@ class BackgroundService(Monitor):
         """ Update the metadata for the listings. """
         self.kodi.log('Updating metadata in the background')
 
+        # Clear outdated metadata
+        self.kodi.invalidate_cache(30 * 24 * 3600)  # one month
+
         vtm_go = self.vtm_go
 
         progress = self.kodi.show_progress_background(message=self.kodi.localize(30715))

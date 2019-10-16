@@ -312,24 +312,19 @@ class KodiWrapper:
         :type key: list[str]
         :type ttl: int
         """
-        import json
         import time
 
         fullpath = self._cache_path + '.'.join(key)
 
-        # Check if file exists
         if not self.check_if_path_exists(fullpath):
             return None
 
-        # Check time to live
-        mtime = self.stat_file(fullpath).st_mtime()
-        now = time.mktime(time.localtime())
-        if ttl and now - mtime > ttl:
+        if ttl and time.mktime(time.localtime()) - self.stat_file(fullpath).st_mtime() > ttl:
             return None
 
-        # Get value
         with self.open_file(fullpath, 'r') as fdesc:
             try:
+                import json
                 value = json.load(fdesc)
                 self.log('Fetching {file} from cache', file=fullpath)
                 return value
@@ -341,24 +336,25 @@ class KodiWrapper:
         :type key: list[str]
         :type data: str
         """
-        import json
-
-        fullpath = self._cache_path + '.'.join(key)
-
-        # Check if cache path exists
         if not self.check_if_path_exists(self._cache_path):
             self.mkdirs(self._cache_path)
 
-        self.log('Storing to cache as {file}', file=fullpath)
-
+        fullpath = self._cache_path + '.'.join(key)
         with self.open_file(fullpath, 'w') as fdesc:
+            import json
+            self.log('Storing to cache as {file}', file=fullpath)
             json.dump(data, fdesc)
 
-    def invalidate_cache(self):
+    def invalidate_cache(self, ttl=None):
         """ Clear the cache """
+        import time
         _, files = self.listdir(self._cache_path)
+        now = time.mktime(time.localtime())
         for filename in files:
-            self.delete_file(self._cache_path + filename)
+            fullpath = self._cache_path + filename
+            if ttl and now - self.stat_file(fullpath).st_mtime() < ttl:
+                continue
+            self.delete_file(fullpath)
 
     def get_max_bandwidth(self):
         """ Get the max bandwidth based on Kodi and add-on settings """
