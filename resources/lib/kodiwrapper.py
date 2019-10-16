@@ -350,8 +350,10 @@ class KodiWrapper:
 
     def invalidate_cache(self, ttl=None):
         """ Clear the cache """
-        import time
+        if not self.check_if_path_exists(self._cache_path):
+            return
         _, files = self.listdir(self._cache_path)
+        import time
         now = time.mktime(time.localtime())
         for filename in files:
             fullpath = self._cache_path + filename
