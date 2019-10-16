@@ -6,7 +6,7 @@ import json
 import requests
 
 from resources.lib import UnavailableException
-from resources.lib.kodiwrapper import LOG_DEBUG, KodiWrapper, to_unicode  # pylint: disable=unused-import
+from resources.lib.kodiwrapper import LOG_DEBUG, KodiWrapper, to_unicode, LOG_INFO  # pylint: disable=unused-import
 from resources.lib.vtmgo.vtmgoauth import VtmGoAuth
 
 try:  # Python 3
@@ -501,7 +501,7 @@ class VtmGo:
         if token:
             headers['x-dpp-jwt'] = token
 
-        self._kodi.log('Sending GET {url}...', LOG_DEBUG, url=url)
+        self._kodi.log('Sending GET {url}...', LOG_INFO, url=url)
 
         response = requests.session().get('https://api.vtmgo.be' + url, headers=headers, verify=False, proxies=self._proxies)
 
@@ -532,7 +532,7 @@ class VtmGo:
         if token:
             headers['x-dpp-jwt'] = token
 
-        self._kodi.log('Sending PUT {url}...', LOG_DEBUG, url=url)
+        self._kodi.log('Sending PUT {url}...', LOG_INFO, url=url)
 
         response = requests.session().put('https://api.vtmgo.be' + url, headers=headers, verify=False, proxies=self._proxies)
 
@@ -563,7 +563,7 @@ class VtmGo:
         if token:
             headers['x-dpp-jwt'] = token
 
-        self._kodi.log('Sending DELETE {url}...', LOG_DEBUG, url=url)
+        self._kodi.log('Sending DELETE {url}...', LOG_INFO, url=url)
 
         response = requests.session().delete('https://api.vtmgo.be' + url, headers=headers, verify=False, proxies=self._proxies)
 

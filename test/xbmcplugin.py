@@ -6,7 +6,7 @@
 # pylint: disable=invalid-name,unused-argument
 from __future__ import absolute_import, division, print_function, unicode_literals
 
-from xbmc import log, LOGFATAL
+from xbmc import log, LOGERROR
 from xbmcextra import kodi_to_ansi, uri_to_path
 
 try:  # Python 3
@@ -91,4 +91,4 @@ def setResolvedUrl(handle, succeeded, listitem):
         response = urlopen(request)
         log('Stream playing successfully: %s' % response.code)
     except HTTPError as exc:
-        log('Playing stream returned: %s' % exc, LOGFATAL)
+        log('Playing stream returned: %s' % exc, LOGERROR)
