@@ -9,7 +9,7 @@ import json
 import requests
 
 from resources.lib import UnavailableException
-from resources.lib.kodiwrapper import LOG_DEBUG, KodiWrapper, to_unicode, LOG_INFO  # pylint: disable=unused-import
+from resources.lib.kodiwrapper import LOG_DEBUG, KodiWrapper, LOG_INFO  # pylint: disable=unused-import
 from resources.lib.vtmgo.vtmgoauth import VtmGoAuth
 
 try:  # Python 3
@@ -20,6 +20,7 @@ except ImportError:  # Python 2
 
 class LiveChannel:
     """ Defines a tv channel that can be streamed live """
+
     def __init__(self, channel_id=None, name=None, logo=None, epg=None, geoblocked=False):
         """
         :type channel_id: str
@@ -40,6 +41,7 @@ class LiveChannel:
 
 class LiveChannelEpg:
     """ Defines a program that is broadcast on a live tv channel"""
+
     def __init__(self, title=None, start=None, end=None):
         """
         :type title: str
@@ -56,6 +58,7 @@ class LiveChannelEpg:
 
 class Category:
     """ Defines a category from the catalogue"""
+
     def __init__(self, category_id=None, title=None, content=None):
         """
         :type category_id: str
@@ -99,6 +102,7 @@ class Content:
 
 class Movie:
     """ Defines a Movie"""
+
     def __init__(self, movie_id=None, name=None, description=None, year=None, cover=None, duration=None, remaining=None, geoblocked=None,
                  channel=None, legal=None, aired=None):
         """
@@ -132,6 +136,7 @@ class Movie:
 
 class Program:
     """ Defines a Program"""
+
     def __init__(self, program_id=None, name=None, description=None, cover=None, seasons=None, geoblocked=None, channel=None, legal=None):
         """
         :type program_id: str
@@ -158,6 +163,7 @@ class Program:
 
 class Season:
     """ Defines a Season"""
+
     def __init__(self, number=None, episodes=None, cover=None, geoblocked=None, channel=None, legal=None):
         """
         :type number: str
@@ -180,6 +186,7 @@ class Season:
 
 class Episode:
     """ Defines an Episode """
+
     def __init__(self, episode_id=None, number=None, season=None, name=None, description=None, cover=None, duration=None, remaining=None, geoblocked=None,
                  channel=None, legal=None, aired=None):
         """
@@ -216,6 +223,7 @@ class Episode:
 
 class VtmGo:
     """ VTM GO API """
+
     def __init__(self, kodi):
         self._kodi = kodi  # type: KodiWrapper
         self._proxies = kodi.get_proxies()

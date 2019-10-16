@@ -15,6 +15,7 @@ from resources.lib.kodiwrapper import LOG_DEBUG, KodiWrapper, LOG_ERROR, LOG_INF
 
 class EpgChannel:
     """ Defines an Channel with EPG information """
+
     def __init__(self, uuid=None, key=None, name=None, logo=None, broadcasts=None):
         """
         :type uuid: str
@@ -35,6 +36,7 @@ class EpgChannel:
 
 class EpgBroadcast:
     """ Defines an EPG broadcast"""
+
     def __init__(self, uuid=None, playable_type=None, title=None, time=None, duration=None, image=None, description=None, live=None, rerun=None, tip=None,
                  program_uuid=None, playable_uuid=None, airing=None):
         """

@@ -674,7 +674,7 @@ def show_search(query=None):
     # Do search
     try:
         items = vtm_go.do_search(query)
-    except Exception as ex:
+    except Exception as ex:  # pylint: disable=broad-except
         kodi.show_notification(message=str(ex))
         kodi.end_of_directory()
         return

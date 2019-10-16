@@ -15,6 +15,7 @@ from resources.lib.kodiwrapper import from_unicode, LOG_DEBUG, LOG_ERROR, KodiWr
 
 class ResolvedStream:
     """ Defines a stream that we can play"""
+
     def __init__(self, program=None, title=None, duration=None, url=None, license_url=None, subtitles=None, cookies=None):
         """
         :type program: str|None
