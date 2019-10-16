@@ -6,7 +6,7 @@ import json
 import requests
 
 from resources.lib import UnavailableException
-from resources.lib.kodiwrapper import LOG_DEBUG, KodiWrapper, to_unicode  # pylint: disable=unused-import
+from resources.lib.kodiwrapper import LOG_DEBUG, KodiWrapper, to_unicode, LOG_INFO  # pylint: disable=unused-import
 from resources.lib.vtmgo.vtmgoauth import VtmGoAuth
 
 try:  # Python 3
@@ -343,21 +343,30 @@ class VtmGo:
 
         return items
 
-    def get_movie(self, movie_id):
+    def get_movie(self, movie_id, only_cache=False):
         """ Get the details of the specified movie.
         :type movie_id: str
+        :type only_cache: bool
         :rtype Movie
         """
-        response = self._get_url('/%s/movies/%s' % (self._mode, movie_id))
-        info = json.loads(response)
+        if only_cache:
+            # Fetch from cache if asked
+            movie = self._kodi.get_cache(['movie', movie_id])
+            if not movie:
+                return None
+        else:
+            # Fetch from API
+            response = self._get_url('/%s/movies/%s' % (self._mode, movie_id))
+            info = json.loads(response)
+            movie = info.get('movie', {})
+            self._kodi.set_cache(['movie', movie_id], movie)
 
-        movie = info.get('movie', {})
         channel_url = movie.get('channelLogoUrl')
         if channel_url:
             import os.path
-            channel = os.path.basename(channel_url).split('-')[0]
+            channel = os.path.basename(channel_url).split('-')[0].upper()
         else:
-            channel = 'vtmgo'
+            channel = 'VTM GO'
 
         return Movie(
             movie_id=movie.get('id'),
@@ -373,21 +382,30 @@ class VtmGo:
             channel=channel,
         )
 
-    def get_program(self, program_id):
+    def get_program(self, program_id, only_cache=False):
         """ Get the details of the specified program.
         :type program_id: str
+        :type only_cache: bool
         :rtype Program
         """
-        response = self._get_url('/%s/programs/%s' % (self._mode, program_id))
-        info = json.loads(response)
+        if only_cache:
+            # Fetch from cache if asked
+            program = self._kodi.get_cache(['program', program_id])
+            if not program:
+                return None
+        else:
+            # Fetch from API
+            response = self._get_url('/%s/programs/%s' % (self._mode, program_id))
+            info = json.loads(response)
+            program = info.get('program', {})
+            self._kodi.set_cache(['program', program_id], program)
 
-        program = info.get('program', {})
         channel_url = program.get('channelLogoUrl')
         if channel_url:
             import os.path
-            channel = os.path.basename(channel_url).split('-')[0]
+            channel = os.path.basename(channel_url).split('-')[0].upper()
         else:
-            channel = 'vtmgo'
+            channel = 'VTM GO'
 
         seasons = {}
         for item_season in program.get('seasons', []):
@@ -483,7 +501,7 @@ class VtmGo:
         if token:
             headers['x-dpp-jwt'] = token
 
-        self._kodi.log('Sending GET {url}...', LOG_DEBUG, url=url)
+        self._kodi.log('Sending GET {url}...', LOG_INFO, url=url)
 
         response = requests.session().get('https://api.vtmgo.be' + url, headers=headers, verify=False, proxies=self._proxies)
 
@@ -514,7 +532,7 @@ class VtmGo:
         if token:
             headers['x-dpp-jwt'] = token
 
-        self._kodi.log('Sending PUT {url}...', LOG_DEBUG, url=url)
+        self._kodi.log('Sending PUT {url}...', LOG_INFO, url=url)
 
         response = requests.session().put('https://api.vtmgo.be' + url, headers=headers, verify=False, proxies=self._proxies)
 
@@ -545,7 +563,7 @@ class VtmGo:
         if token:
             headers['x-dpp-jwt'] = token
 
-        self._kodi.log('Sending DELETE {url}...', LOG_DEBUG, url=url)
+        self._kodi.log('Sending DELETE {url}...', LOG_INFO, url=url)
 
         response = requests.session().delete('https://api.vtmgo.be' + url, headers=headers, verify=False, proxies=self._proxies)
 

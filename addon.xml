@@ -11,6 +11,7 @@
     <extension point="xbmc.python.pluginsource" library="plugin.py">
         <provides>video</provides>
     </extension>
+    <extension point="xbmc.service" library="service.py"/>
     <extension point="xbmc.addon.metadata">
         <summary lang="en_GB">Access the VTM GO library</summary>
         <description lang="en_GB">This add-on gives access to all live tv channels and all video-on-demand content available on the VTM GO platform.</description>
@@ -20,6 +21,7 @@
         <news>v0.9.0 (19/09/2019)
 First release
         </news>
+        <source>https://github.com/michaelarnauts/plugin.video.vtm.go</source>
         <assets>
             <icon>resources/icon.png</icon>
         </assets>

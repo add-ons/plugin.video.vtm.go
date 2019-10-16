@@ -6,7 +6,7 @@
     "plugin.video.vtm.go": {
         "_comment": "do-not-add-email-and-password-here",
         "force_kids_zone": "false",
-        "log_level": "Debug",
+        "debug_logging": "false",
         "max_bandwidth": 4096,
         "password": "",
         "show_subtitles": "true",

@@ -12,10 +12,7 @@ from resources.lib.vtmgo.vtmgostream import VtmGoStream
 
 routing = routing.Plugin()
 kodi = KodiWrapper(routing=routing)
-
-VtmGoAuth.username = kodi.get_setting('username')
-VtmGoAuth.password = kodi.get_setting('password')
-VtmGoAuth.hash = kodi.get_setting('credentials_hash')
+vtm_go = VtmGo(kodi)
 
 
 @routing.route('/kids')
@@ -36,8 +33,6 @@ def show_index():
                   ),
                   info_dict=dict(
                       plot=kodi.localize(30002),
-
-
                   )),
         TitleItem(title=kodi.localize(30003),  # Catalogue
                   path=routing.url_for(show_catalog if not kids else show_kids_catalog),
@@ -135,6 +130,50 @@ def check_credentials():
     kodi.open_settings()
 
 
+@routing.route('/metadata/update')
+def metadata_update(delay=10):
+    """ Update the metadata for the listings. """
+    import xbmc
+
+    progress = kodi.show_progress(message=kodi.localize(30715))
+
+    # Fetch all items from the catalogue
+    items = vtm_go.get_items('all')
+    count = len(items)
+
+    # Loop over all of them and download the metadata
+    for index, item in enumerate(items):
+        # Update the items
+        if item.video_type == Content.CONTENT_TYPE_MOVIE:
+            if not vtm_go.get_movie(item.content_id, only_cache=True):
+                vtm_go.get_movie(item.content_id)
+                xbmc.sleep(delay)
+        elif item.video_type == Content.CONTENT_TYPE_PROGRAM:
+            if not vtm_go.get_program(item.content_id, only_cache=True):
+                vtm_go.get_program(item.content_id)
+                xbmc.sleep(delay)
+
+        # Upgrade the progress bar
+        progress.update(int(((index + 1) / count) * 100), kodi.localize(30716, index=index + 1, total=count))
+
+        # Allow to cancel this operation
+        if progress.iscanceled():
+            break
+
+    # Close the progress dialog
+    progress.close()
+
+    # Update last updated
+    from time import time
+    kodi.set_setting('metadata_last_updated', str(int(time())))
+
+
+@routing.route('/metadata/clean')
+def metadata_clean():
+    kodi.invalidate_cache()
+    kodi.show_ok_dialog(message=kodi.localize(30714))  # Local metadata is cleared.
+
+
 @routing.route('/kids/livetv')
 def show_kids_livetv():
     show_livetv()
@@ -144,8 +183,7 @@ def show_kids_livetv():
 def show_livetv():
     """ Shows the channels that can play live TV. """
     try:
-        _vtmGo = VtmGo(kodi)
-        channels = _vtmGo.get_live_channels()
+        channels = vtm_go.get_live_channels()
     except Exception as ex:
         kodi.show_notification(message=str(ex))
         raise
@@ -247,6 +285,10 @@ def show_tvguide_channel(channel):
                       path=routing.url_for(show_tvguide_detail, channel=channel, date=day.get('date')),
                       art_dict={
                           'icon': 'DefaultYear.png',
+                          'thumb': 'DefaultYear.png',
+                      },
+                      info_dict={
+                          'plot': None,
                       })
         )
 
@@ -299,7 +341,7 @@ def show_tvguide_detail(channel=None, date=None):
                       is_playable=True)
         )
 
-    kodi.show_listing(listing, 30013, content='videos')
+    kodi.show_listing(listing, 30013, content='tvshows')
 
 
 @routing.route('/kids/recommendations')
@@ -313,8 +355,7 @@ def show_recommendations():
     kids = kodi.kids_mode()
 
     try:
-        _vtmGo = VtmGo(kodi)
-        recommendations = _vtmGo.get_recommendations()
+        recommendations = vtm_go.get_recommendations()
     except Exception as ex:
         kodi.show_notification(message=str(ex))
         raise
@@ -342,8 +383,7 @@ def show_kids_recommendations_category(category):
 def show_recommendations_category(category):
     """ Show the items in a recommendations category. """
     try:
-        _vtmGo = VtmGo(kodi)
-        recommendations = _vtmGo.get_recommendations()
+        recommendations = vtm_go.get_recommendations()
     except Exception as ex:
         kodi.show_notification(message=str(ex))
         raise
@@ -355,41 +395,10 @@ def show_recommendations_category(category):
             continue
 
         for item in cat.content:
-            if item.video_type == Content.CONTENT_TYPE_MOVIE:
-                listing.append(
-                    TitleItem(title=item.title,
-                              path=routing.url_for(play, category='movies', item=item.content_id),
-                              art_dict={
-                                  'icon': item.cover,
-                                  'thumb': item.cover,
-                              },
-                              info_dict={
-                                  'plot': item.title,
-                                  'mediatype': 'movie',
-                              },
-                              stream_dict={
-                                  'codec': 'h264',
-                                  'height': 1080,
-                                  'width': 1920,
-                              },
-                              is_playable=True)
-                )
-
-            elif item.video_type == Content.CONTENT_TYPE_PROGRAM:
-                listing.append(
-                    TitleItem(title=item.title,
-                              path=routing.url_for(show_program, program=item.content_id),
-                              art_dict={
-                                  'icon': item.cover,
-                                  'thumb': item.cover,
-                              },
-                              info_dict={
-                                  'plot': item.title,
-                              })
-                )
+            listing.append(_generate_titleitem(item))
 
     # Sort categories by default like in VTM GO.
-    kodi.show_listing(listing, 30015, content='files')
+    kodi.show_listing(listing, 30015, content='tvshows')
 
 
 @routing.route('/kids/mylist')
@@ -400,62 +409,18 @@ def show_kids_mylist():
 @routing.route('/mylist')
 def show_mylist():
     """ Show the items in My List. """
-    kids = kodi.kids_mode()
-
     try:
-        _vtmGo = VtmGo(kodi)
-        mylist = _vtmGo.get_mylist()
+        mylist = vtm_go.get_mylist()
     except Exception as ex:
         kodi.show_notification(message=str(ex))
         raise
 
     listing = []
     for item in mylist:
-        art_dict = {
-            'icon': item.cover,
-            'thumb': item.cover,
-        }
-
-        context_menu = [(
-            kodi.localize(30051),  # Remove from My List
-            'XBMC.Container.Update(%s)' %
-            routing.url_for(mylist_del if not kids else kids_mylist_del,
-                            video_type=item.video_type,
-                            content_id=item.content_id)
-        )]
-
-        if item.video_type == Content.CONTENT_TYPE_MOVIE:
-            listing.append(
-                TitleItem(title=item.title,
-                          path=routing.url_for(play, category='movies', item=item.content_id),
-                          art_dict=art_dict,
-                          info_dict={
-                              'plot': item.title,
-                              'mediatype': 'movie',
-                          },
-                          stream_dict={
-                              'codec': 'h264',
-                              'height': 1080,
-                              'width': 1920,
-                          },
-                          context_menu=context_menu,
-                          is_playable=True)
-            )
-
-        elif item.video_type == Content.CONTENT_TYPE_PROGRAM:
-            listing.append(
-                TitleItem(title=item.title,
-                          path=routing.url_for(show_program, program=item.content_id),
-                          art_dict=art_dict,
-                          info_dict={
-                              'plot': item.title,
-                              'mediatype': None,
-                          },
-                          context_menu=context_menu)
-            )
+        listing.append(_generate_titleitem(item, True))
 
     # Sort categories by default like in VTM GO.
-    kodi.show_listing(listing, 30017, content='files')
+    kodi.show_listing(listing, 30017, content='tvshows')
 
 
 @routing.route('/kids/mylist/add/<video_type>/<content_id>')
@@ -466,8 +431,7 @@ def kids_mylist_add(video_type, content_id):
 @routing.route('/mylist/add/<video_type>/<content_id>')
 def mylist_add(video_type, content_id):
     """ Add an item to My List. """
-    _vtmGo = VtmGo(kodi)
-    _vtmGo.add_mylist(video_type, content_id)
+    vtm_go.add_mylist(video_type, content_id)
 
 
 @routing.route('/kids/mylist/del/<video_type>/<content_id>')
@@ -478,8 +442,7 @@ def kids_mylist_del(video_type, content_id):
 @routing.route('/mylist/del/<video_type>/<content_id>')
 def mylist_del(video_type, content_id):
     """ Remove an item from My List. """
-    _vtmGo = VtmGo(kodi)
-    _vtmGo.del_mylist(video_type, content_id)
+    vtm_go.del_mylist(video_type, content_id)
 
 
 @routing.route('/kids/catalog')
@@ -493,8 +456,7 @@ def show_catalog():
     kids = kodi.kids_mode()
 
     try:
-        _vtmGo = VtmGo(kodi)
-        categories = _vtmGo.get_categories()
+        categories = vtm_go.get_categories()
     except Exception as ex:
         kodi.show_notification(message=str(ex))
         raise
@@ -521,62 +483,15 @@ def show_kids_catalog_category(category):
 @routing.route('/catalog/<category>')
 def show_catalog_category(category):
     """ Show a category in the catalog. """
-    kids = kodi.kids_mode()
-
     try:
-        _vtmGo = VtmGo(kodi)
-        items = _vtmGo.get_items(category)
+        items = vtm_go.get_items(category)
     except Exception as ex:
         kodi.show_notification(message=str(ex))
         raise
 
     listing = []
     for item in items:
-        art_dict = {
-            'thumb': item.cover,
-            'fanart': item.cover,
-        }
-
-        # Add "Add to My List" here
-        # We don't know if it is already on My List, so we can't give an option to remove here.
-        context_menu = [(
-            kodi.localize(30050),  # Add to My List
-            'XBMC.Container.Update(%s)' % routing.url_for(mylist_add if not kids else kids_mylist_add,
-                                                          video_type=item.video_type,
-                                                          content_id=item.content_id)
-        )]
-
-        if item.video_type == Content.CONTENT_TYPE_MOVIE:
-            listing.append(
-                TitleItem(title=item.title,
-                          path=routing.url_for(play, category='movies', item=item.content_id),
-                          art_dict=art_dict,
-                          info_dict={
-                              'title': item.title,
-                              'plot': item.description,
-                              'mediatype': 'movie',
-                          },
-                          stream_dict={
-                              'codec': 'h264',
-                              'height': 1080,
-                              'width': 1920,
-                          },
-                          context_menu=context_menu,
-                          is_playable=True)
-            )
-
-        elif item.video_type == Content.CONTENT_TYPE_PROGRAM:
-            listing.append(
-                TitleItem(title=item.title,
-                          path=routing.url_for(show_program, program=item.content_id),
-                          art_dict=art_dict,
-                          info_dict={
-                              'title': item.title,
-                              'plot': item.description,
-                              'mediatype': None,
-                          },
-                          context_menu=context_menu)
-            )
+        listing.append(_generate_titleitem(item))
 
     # Sort items by label, but don't put folders at the top.
     # Used for A-Z listing or when movies and episodes are mixed.
@@ -587,8 +502,7 @@ def show_catalog_category(category):
 def show_program(program):
     """ Show a program from the catalog. """
     try:
-        _vtmGo = VtmGo(kodi)
-        program_obj = _vtmGo.get_program(program)
+        program_obj = vtm_go.get_program(program)
     except Exception as ex:
         kodi.show_notification(message=str(ex))
         raise
@@ -639,8 +553,7 @@ def show_program(program):
 def show_program_season(program, season):
     """ Show a program from the catalog. """
     try:
-        _vtmGo = VtmGo(kodi)
-        program_obj = _vtmGo.get_program(program)
+        program_obj = vtm_go.get_program(program)
     except Exception as ex:
         kodi.show_notification(message=str(ex))
         raise
@@ -675,7 +588,6 @@ def show_program_season(program, season):
                               'set': program_obj.name,
                               'studio': episode.channel,
                               'aired': episode.aired,
-                              'overlay': 2,
                               'mpaa': ', '.join(episode.legal) if hasattr(episode, 'legal') and episode.legal else kodi.localize(30216),
                           },
                           stream_dict={
@@ -740,8 +652,6 @@ def show_kids_search(query=None):
 @routing.route('/search/<query>')
 def show_search(query=None):
     """ Shows the search dialog. """
-    kids = kodi.kids_mode()
-
     if not query:
         # Ask for query
         query = kodi.get_search_string(heading=kodi.localize(30009))
@@ -751,8 +661,7 @@ def show_search(query=None):
 
     # Do search
     try:
-        _vtmGo = VtmGo(kodi)
-        items = _vtmGo.do_search(query)
+        items = vtm_go.do_search(query)
     except Exception as ex:
         kodi.show_notification(message=str(ex))
         raise
@@ -760,54 +669,97 @@ def show_search(query=None):
     # Display results
     listing = []
     for item in items:
-        art_dict = {
-            'thumb': item.cover,
-            'fanart': item.cover,
-        }
-
-        # Add "Add to My List" here
-        # We don't know if it is already on My List, so we can't give an option to remove here.
-        context_menu = [(
-            kodi.localize(30050),  # Add to My List
-            'XBMC.Container.Update(%s)' % routing.url_for(mylist_add if not kids else kids_mylist_add,
-                                                          video_type=item.video_type,
-                                                          content_id=item.content_id)
-        )]
-
-        if item.video_type == Content.CONTENT_TYPE_MOVIE:
-            listing.append(
-                TitleItem(title=item.title,
-                          path=routing.url_for(play, category='movies', item=item.content_id),
-                          art_dict=art_dict,
-                          info_dict={
-                              'title': item.title,
-                              'plot': item.description,
-                              'mediatype': 'movie',
-                          },
-                          stream_dict={
-                              'codec': 'h264',
-                              'height': 1080,
-                              'width': 1920,
-                          },
-                          context_menu=context_menu,
-                          is_playable=True)
-            )
-
-        elif item.video_type == Content.CONTENT_TYPE_PROGRAM:
-            listing.append(
-                TitleItem(title=item.title,
-                          path=routing.url_for(show_program, program=item.content_id),
-                          art_dict=art_dict,
-                          info_dict={
-                              'title': item.title,
-                              'plot': item.description,
-                              'mediatype': None,
-                          },
-                          context_menu=context_menu)
-            )
+        listing.append(_generate_titleitem(item))
 
     # Sort like we get our results back.
-    kodi.show_listing(listing, 30009)
+    kodi.show_listing(listing, 30009, content='tvshows')
+
+
+def _generate_titleitem(item, my_list=False):
+    """ Generate a TitleItem based on a Content.
+    :type item: Content
+    :rtype TitleItem
+    """
+    kids = kodi.kids_mode()
+
+    art_dict = {
+        'thumb': item.cover,
+    }
+    info_dict = {
+        'title': item.title,
+        'plot': item.description,
+    }
+
+    if my_list:
+        context_menu = [(
+            kodi.localize(30051),  # Remove from My List
+            'XBMC.Container.Update(%s)' %
+            routing.url_for(mylist_del if not kids else kids_mylist_del, video_type=item.video_type, content_id=item.content_id)
+        )]
+    else:
+        context_menu = [(
+            kodi.localize(30050),  # Add to My List
+            'XBMC.Container.Update(%s)' %
+            routing.url_for(mylist_add if not kids else kids_mylist_add, video_type=item.video_type, content_id=item.content_id)
+        )]
+
+    if item.video_type == Content.CONTENT_TYPE_MOVIE:
+        # Get movie details from cache
+        movie = vtm_go.get_movie(item.content_id, only_cache=True)
+        if movie:
+            art_dict.update({
+                'fanart': movie.cover,
+            })
+            info_dict.update({
+                'plot': _format_plot(movie),
+                'duration': movie.duration,
+                'year': movie.year,
+                'aired': movie.aired,
+                'mpaa': ', '.join(movie.legal) if hasattr(movie, 'legal') and movie.legal else kodi.localize(30216),
+            })
+
+        info_dict.update({
+            'mediatype': 'movie',
+        })
+
+        return TitleItem(title=item.title,
+                         path=routing.url_for(play, category='movies', item=item.content_id),
+                         art_dict=art_dict,
+                         info_dict=info_dict,
+                         stream_dict={
+                             'codec': 'h264',
+                             'height': 1080,
+                             'width': 1920,
+                         },
+                         context_menu=context_menu,
+                         is_playable=True)
+
+    if item.video_type == Content.CONTENT_TYPE_PROGRAM:
+        # Get program details from cache
+        program = vtm_go.get_program(item.content_id, only_cache=True)
+        if program:
+            art_dict.update({
+                'fanart': program.cover,
+                'banner': item.cover,
+            })
+            info_dict.update({
+                'title': program.name,
+                'plot': _format_plot(program),
+                'mpaa': ', '.join(program.legal) if hasattr(program, 'legal') and program.legal else kodi.localize(30216),
+                'season': len(program.seasons),
+            })
+
+        info_dict.update({
+            'mediatype': None,
+        })
+
+        return TitleItem(title=item.title,
+                         path=routing.url_for(show_program, program=item.content_id),
+                         art_dict=art_dict,
+                         info_dict=info_dict,
+                         context_menu=context_menu)
+
+    return None
 
 
 @routing.route('/play/epg/<channel>/<timestamp>')
@@ -884,6 +836,7 @@ def play(category, item):
             details = VtmGo(kodi).get_movie(item)
             info_dict.update({
                 'plot': details.description,
+                'year': details.year,
             })
 
         elif category == 'episodes':
@@ -937,54 +890,44 @@ def play(category, item):
 def _format_plot(obj):
     plot = ''
 
-    # Add program name to plot
-    if hasattr(obj, 'name') or (hasattr(obj, 'legal') and obj.legal):
-        if hasattr(obj, 'name'):
-            plot += '[B]{name}[/B]'.format(name=obj.name)
-        if hasattr(obj, 'legal') and obj.legal:
-            plot += '  [COLOR gray]'
-            for icon in obj.legal:
-                plot += '[%s]' % icon
-            plot += '[/COLOR]'
-        plot += '\n'
-
-    if hasattr(obj, 'geoblocked') and obj.geoblocked:
-        plot += kodi.localize(30207)  # Geo-blocked
-
-    if hasattr(obj, 'remaining') and obj.remaining is not None:
-        if obj.remaining == 0:
-            plot += kodi.localize(30208)  # Available until midnight
-        elif obj.remaining == 1:
-            plot += kodi.localize(30209)  # One more day remaining
-        elif obj.remaining / 365 > 5:
-            pass  # If it is available for more than 5 years, do not show
-        elif obj.remaining / 365 > 2:
-            plot += kodi.localize(30210, years=int(obj.remaining / 365))  # X years remaining
-        elif obj.remaining / 30.5 > 3:
-            plot += kodi.localize(30211, months=int(obj.remaining / 30.5))  # X months remaining
-        else:
-            plot += kodi.localize(30212, days=obj.remaining)  # X days remaining
-
-    if plot:
-        plot += '\n'
-
     if hasattr(obj, 'description'):
         plot += obj.description
+        plot += '\n\n'
 
     if hasattr(obj, 'epg'):
         if obj.epg:
             plot += kodi.localize(30213,  # Now
                                   start=obj.epg[0].start.strftime('%H:%M'),
                                   end=obj.epg[0].end.strftime('%H:%M'),
-                                  title=obj.epg[0].title)
+                                  title=obj.epg[0].title) + "\n"
 
         if len(obj.epg) > 1:
             plot += kodi.localize(30214,  # Next
                                   start=obj.epg[1].start.strftime('%H:%M'),
                                   end=obj.epg[1].end.strftime('%H:%M'),
-                                  title=obj.epg[1].title)
+                                  title=obj.epg[1].title) + "\n"
 
-    return plot
+    # Add remaining
+    if hasattr(obj, 'remaining') and obj.remaining is not None:
+        if obj.remaining == 0:
+            plot += '» ' + kodi.localize(30208) + "\n"  # Available until midnight
+        elif obj.remaining == 1:
+            plot += '» ' + kodi.localize(30209) + "\n"  # One more day remaining
+        elif obj.remaining / 365 > 5:
+            pass  # If it is available for more than 5 years, do not show
+        elif obj.remaining / 365 > 2:
+            plot += '» ' + kodi.localize(30210, years=int(obj.remaining / 365)) + "\n"  # X years remaining
+        elif obj.remaining / 30.5 > 3:
+            plot += '» ' + kodi.localize(30211, months=int(obj.remaining / 30.5)) + "\n"  # X months remaining
+        else:
+            plot += '» ' + kodi.localize(30212, days=obj.remaining) + "\n"  # X days remaining
+
+    # Add geo-blocked message
+    if hasattr(obj, 'geoblocked') and obj.geoblocked:
+        plot += kodi.localize(30207)  # Geo-blocked
+        plot += '\n'
+
+    return plot.rstrip()
 
 
 def run(params):

@@ -8,7 +8,7 @@ import dateutil.parser
 import dateutil.tz
 import requests
 
-from resources.lib.kodiwrapper import LOG_DEBUG, KodiWrapper, LOG_ERROR  # pylint: disable=unused-import
+from resources.lib.kodiwrapper import LOG_DEBUG, KodiWrapper, LOG_ERROR, LOG_INFO  # pylint: disable=unused-import
 
 
 class EpgChannel:
@@ -235,7 +235,7 @@ class VtmGoEpg:
         :type url: str
         :rtype str
         """
-        self._kodi.log('Sending GET {url}...', LOG_DEBUG, url=url)
+        self._kodi.log('Sending GET {url}...', LOG_INFO, url=url)
 
         response = self._session.get(url, verify=False)
 

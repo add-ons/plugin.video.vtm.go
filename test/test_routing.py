@@ -1,16 +1,13 @@
 # -*- coding: utf-8 -*-
 from __future__ import absolute_import, division, print_function, unicode_literals
 
-import json
-import os
 import unittest
 import warnings
 
 from urllib3.exceptions import InsecureRequestWarning
 
 from resources.lib import plugin
-from resources.lib.kodiwrapper import LOG_WARNING, KodiWrapper
-from resources.lib.vtmgo import vtmgoauth
+from resources.lib.kodiwrapper import KodiWrapper
 
 xbmc = __import__('xbmc')
 xbmcaddon = __import__('xbmcaddon')
@@ -26,20 +23,6 @@ class TestRouting(unittest.TestCase):
 
     def __init__(self, *args, **kwargs):
         super(TestRouting, self).__init__(*args, **kwargs)
-
-        # Read credentials from credentials.json
-        settings = {}
-        if 'VTMGO_USERNAME' in os.environ and 'VTMGO_PASSWORD' in os.environ:
-            kodi.log('Using credentials from the environment variables VTMGO_USERNAME and VTMGO_PASSWORD', log_level=LOG_WARNING)
-            settings['username'] = os.environ.get('VTMGO_USERNAME')
-            settings['password'] = os.environ.get('VTMGO_PASSWORD')
-        else:
-            with open('test/userdata/credentials.json') as f:
-                settings = json.load(f)
-
-        if settings['username'] and settings['password']:
-            vtmgoauth.VtmGoAuth.username = settings['username']
-            vtmgoauth.VtmGoAuth.password = settings['password']
 
     def setUp(self):
         # Don't warn that we don't close our HTTPS connections, this is on purpose.

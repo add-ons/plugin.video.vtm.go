@@ -17,6 +17,7 @@ class TestVtmGoEpg(unittest.TestCase):
 
     def __init__(self, *args, **kwargs):
         super(TestVtmGoEpg, self).__init__(*args, **kwargs)
+
         self._vtmgoepg = vtmgoepg.VtmGoEpg(kodi)
 
     def setUp(self):

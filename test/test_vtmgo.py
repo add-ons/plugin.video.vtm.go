@@ -2,14 +2,12 @@
 
 from __future__ import absolute_import, division, print_function, unicode_literals
 
-import json
-import os
 import unittest
 import warnings
 
 from urllib3.exceptions import InsecureRequestWarning
 
-from resources.lib.kodiwrapper import KodiWrapper, LOG_WARNING
+from resources.lib.kodiwrapper import KodiWrapper
 from resources.lib.vtmgo import vtmgo, vtmgostream, vtmgoauth
 
 kodi = KodiWrapper()
@@ -19,20 +17,6 @@ class TestVtmGo(unittest.TestCase):
 
     def __init__(self, *args, **kwargs):
         super(TestVtmGo, self).__init__(*args, **kwargs)
-
-        # Read credentials from credentials.json
-        settings = {}
-        if 'VTMGO_USERNAME' in os.environ and 'VTMGO_PASSWORD' in os.environ:
-            kodi.log('Using credentials from the environment variables VTMGO_USERNAME and VTMGO_PASSWORD', log_level=LOG_WARNING)
-            settings['username'] = os.environ.get('VTMGO_USERNAME')
-            settings['password'] = os.environ.get('VTMGO_PASSWORD')
-        else:
-            with open('test/userdata/credentials.json') as f:
-                settings = json.load(f)
-
-        if settings['username'] and settings['password']:
-            vtmgoauth.VtmGoAuth.username = settings['username']
-            vtmgoauth.VtmGoAuth.password = settings['password']
 
         self._vtmgoauth = vtmgoauth.VtmGoAuth(kodi)
         self._vtmgo = vtmgo.VtmGo(kodi)

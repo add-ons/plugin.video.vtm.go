@@ -7,7 +7,7 @@ import random
 
 import requests
 
-from resources.lib.kodiwrapper import LOG_DEBUG, KodiWrapper, from_unicode  # pylint: disable=unused-import
+from resources.lib.kodiwrapper import LOG_DEBUG, KodiWrapper, from_unicode, LOG_INFO  # pylint: disable=unused-import
 
 
 class InvalidLoginException(Exception):
@@ -15,29 +15,31 @@ class InvalidLoginException(Exception):
 
 
 class VtmGoAuth:
-    username = ''
-    password = ''
-    hash = None
-
     def __init__(self, kodi):
         self._kodi = kodi  # type: KodiWrapper
         self._proxies = kodi.get_proxies()
 
         self._token = None
-        self._name = None
-        self._accountId = None
+        # self._name = None
+        # self._accountId = None
 
-        # Calculate new hash
-        calc = hashlib.md5((self.username + self.password).encode('utf-8')).hexdigest()
+        self.username = kodi.get_setting('username')
+        self.password = kodi.get_setting('password')
 
-        # Clear tokens when hash is different
-        if self.hash and self.hash != calc:
+        if self._credentials_changed():
+            kodi.log('Clearing auth tokens due to changed credentials', LOG_INFO)
             self.clear_token()
-            self.hash = None
 
-        # Store new hash
-        if not self.hash:
-            self._kodi.set_setting('credentials_hash', calc)
+    def _credentials_changed(self):
+        """ Check if credentials have changed """
+        old_hash = self._kodi.get_setting('credentials_hash')
+        new_hash = ''
+        if self.username or self.password:
+            new_hash = hashlib.md5((self.username + self.password).encode('utf-8')).hexdigest()
+        if new_hash != old_hash:
+            self._kodi.set_setting('credentials_hash', new_hash)
+            return True
+        return False
 
     def clear_token(self):
         """ Remove the cached JWT. """
@@ -51,10 +53,9 @@ class VtmGoAuth:
         """ Return a JWT that can be used to authenticate the user.
         :rtype str
         """
-
         # Don't return a token when we have no password or username.
         if not self.username or not self.password:
-            self._kodi.log('Skipping since we have no username or password')
+            self._kodi.log('Skipping since we have no username or password', LOG_INFO)
             return None
 
         # Return if we already have the token in memory.
@@ -109,7 +110,10 @@ class VtmGoAuth:
                 'jsEnabled': 'true',
             }, proxies=self._proxies)
 
-            if 'Wachtwoord is niet correct' in response.text:
+            if 'errorBlock-OIDC-004' in response.text:  # E-mailadres is niet gekend.
+                raise InvalidLoginException()
+
+            if 'errorBlock-OIDC-003' in response.text:  # Wachtwoord is niet correct.
                 raise InvalidLoginException()
 
             raise Exception(self._kodi.localize(30702))  # Unknown error while logging in
@@ -139,8 +143,8 @@ class VtmGoAuth:
         tokens = json.loads(response.text)
 
         self._token = tokens.get('jsonWebToken')
-        self._name = tokens.get('name')
-        self._accountId = tokens.get('accountId')
+        # self._name = tokens.get('name')
+        # self._accountId = tokens.get('accountId')
 
         return self._token
 
