@@ -112,6 +112,18 @@ def addon_settings():
         print("Error: Cannot use 'test/userdata/addon_settings.json' : %s" % e)
         settings = {}
 
+    # Read credentials from environment or credentials.json
+    if 'ADDON_USERNAME' in os.environ and 'ADDON_PASSWORD' in os.environ:
+        print('Using credentials from the environment variables ADDON_USERNAME and ADDON_PASSWORD')
+        settings[ADDON_ID]['username'] = os.environ.get('ADDON_USERNAME')
+        settings[ADDON_ID]['password'] = os.environ.get('ADDON_PASSWORD')
+    elif os.path.exists('test/userdata/credentials.json'):
+        print('Using credentials from test/userdata/credentials.json')
+        with open('test/userdata/credentials.json') as f:
+            credentials = json.load(f)
+        settings[ADDON_ID].update(credentials)
+    else:
+        print("Error: Cannot use 'test/userdata/credentials.json'")
     return settings
 
 
