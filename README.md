@@ -10,7 +10,7 @@
 
 *plugin.video.vtm.go* is a Kodi add-on for watching all live video streams and all video-on-demand content available on the VTM GO platform. 
 
-You will need to create an account on the [VTM GO website](https://vtm.be/vtmgo). This add-on will also play the ads that are added to the streams by VTM GO.
+> Note: You will need to create an account on the [VTM GO website](https://vtm.be/vtmgo). This add-on will also play the advertisements that are added to the streams by VTM GO.
 
 The following features are supported:
 * Watch live TV (VTM, Q2, Vitaya, CAZ, VTM Kids, VTM Kids Jr & QMusic)
