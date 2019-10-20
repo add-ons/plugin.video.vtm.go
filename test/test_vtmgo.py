@@ -10,7 +10,7 @@ import warnings
 
 from urllib3.exceptions import InsecureRequestWarning
 
-from lib import GeoblockedException
+from resources.lib import GeoblockedException
 from resources.lib.kodiwrapper import KodiWrapper
 from resources.lib.vtmgo import vtmgo, vtmgostream, vtmgoauth
 
