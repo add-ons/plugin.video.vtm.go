@@ -305,12 +305,22 @@ def show_tvguide_detail(channel=None, date=None):
     try:
         _vtmGoEpg = VtmGoEpg(kodi)
         epg = _vtmGoEpg.get_epg(channel=channel, date=date)
-    except Exception as ex:
+    except UnavailableException as ex:
         kodi.show_notification(message=str(ex))
-        raise
+        kodi.end_of_directory()
+        return
 
     listing = []
     for broadcast in epg.broadcasts:
+        if broadcast.playable_type == 'episodes':
+            context_menu = [(
+                kodi.localize(30052),  # Go to Program
+                'XBMC.Container.Update(%s)' %
+                routing.url_for(show_program_from_epg, program=broadcast.uuid)
+            )]
+        else:
+            context_menu = None
+
         title = '{time} - {title}{live}'.format(
             time=broadcast.time.strftime('%H:%M'),
             title=broadcast.title,
@@ -320,9 +330,17 @@ def show_tvguide_detail(channel=None, date=None):
         if broadcast.airing:
             title = '[B]{title}[/B]'.format(title=title)
 
+        if broadcast.title != 'Geen Uitzending':
+            path = routing.url_for(play_epg, channel=channel, program_type=broadcast.playable_type, epg_id=broadcast.uuid)
+            is_playable = True
+        else:
+            path = None
+            is_playable = False
+            title = '[COLOR gray]' + title + '[/COLOR]'
+
         listing.append(
             TitleItem(title=title,
-                      path=routing.url_for(play_epg, channel=channel, program_type=broadcast.playable_type, epg_id=broadcast.uuid),
+                      path=path,
                       art_dict={
                           'icon': broadcast.image,
                           'thumb': broadcast.image,
@@ -339,10 +357,11 @@ def show_tvguide_detail(channel=None, date=None):
                           'height': 1080,
                           'width': 1920,
                       },
-                      is_playable=True)
+                      context_menu=context_menu,
+                      is_playable=is_playable)
         )
 
-    kodi.show_listing(listing, 30013, content='tvshows')
+    kodi.show_listing(listing, 30013, content='episodes')
 
 
 @routing.route('/kids/recommendations')
@@ -508,14 +527,27 @@ def show_catalog_category(category):
     kodi.show_listing(listing, 30003, content='movies' if category == 'films' else 'tvshows', sort='label')
 
 
+@routing.route('/program-epg/<program>')
+def show_program_from_epg(program):
+    """ Play a program based on the channel and information from the EPG. """
+    _vtmGoEpg = VtmGoEpg(kodi)
+    details = _vtmGoEpg.get_details(channel='vtm', program_type='episodes', epg_id=program)
+    if not details:
+        kodi.show_ok_dialog(heading=kodi.localize(30711), message=kodi.localize(30713))  # The requested video was not found in the guide.
+        return
+
+    show_program(details.program_uuid)
+
+
 @routing.route('/program/<program>')
 def show_program(program):
     """ Show a program from the catalog """
     try:
         program_obj = vtm_go.get_program(program)
-    except Exception as ex:
-        kodi.show_notification(message=str(ex))
-        raise
+    except UnavailableException:
+        kodi.show_notification(message=kodi.localize(30717))  # This program is not available in the VTM GO catalogue.
+        kodi.end_of_directory()
+        return
 
     listing = []
 
@@ -564,9 +596,10 @@ def show_program_season(program, season):
     """ Show a program from the catalog """
     try:
         program_obj = vtm_go.get_program(program)
-    except Exception as ex:
-        kodi.show_notification(message=str(ex))
-        raise
+    except UnavailableException:
+        kodi.show_notification(message=kodi.localize(30717))  # This program is not available in the VTM GO catalogue.
+        kodi.end_of_directory()
+        return
 
     if season == 'all':
         # Show all seasons

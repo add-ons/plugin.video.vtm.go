@@ -208,10 +208,6 @@ msgctxt "#30706"
 msgid "No stream found that we can handle."
 msgstr "Er is geen werkende stream gevonden."
 
-msgctxt "#30707"
-msgid "Unhandled videoType {type}"
-msgstr "Niet-ondersteunde videoType {type}"
-
 msgctxt "#30708"
 msgid "Please restart Kodi."
 msgstr "Gelieve Kodi te herstarten."
@@ -248,6 +244,9 @@ msgctxt "#30716"
 msgid "Updating metadata ({index}/{total})"
 msgstr "Vernieuwen metadata ({index}/{total})"
 
+msgctxt "#30717"
+msgid "This program is not available in the VTM GO catalogue."
+msgstr "Dit programma is niet beschikbaar in de VTM GO catalogus."
 
 ### SETTINGS
 msgctxt "#30800"
