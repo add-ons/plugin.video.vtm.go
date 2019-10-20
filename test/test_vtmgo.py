@@ -10,6 +10,7 @@ import warnings
 
 from urllib3.exceptions import InsecureRequestWarning
 
+from resources.lib import GeoblockedException
 from resources.lib.kodiwrapper import KodiWrapper
 from resources.lib.vtmgo import vtmgo, vtmgostream, vtmgoauth
 
@@ -48,7 +49,7 @@ class TestVtmGo(unittest.TestCase):
         # print(main)
 
     def test_get_mylist(self):
-        mylist = self._vtmgo.get_mylist()
+        mylist = self._vtmgo.get_swimlane('my-list')
         self.assertIsInstance(mylist, list)
         # print(mylist)
 
@@ -77,19 +78,28 @@ class TestVtmGo(unittest.TestCase):
         # print(info)
 
     def test_get_stream(self):
-        info = self._vtmgostream.get_stream('episodes', 'ae0fa98d-6ed5-4f4a-8581-a051ed3bb755')
-        self.assertTrue(info)
-        # print(info)
+        try:
+            info = self._vtmgostream.get_stream('episodes', 'ae0fa98d-6ed5-4f4a-8581-a051ed3bb755')
+            self.assertTrue(info)
+            # print(info)
+        except GeoblockedException:
+            pass
 
-        info = self._vtmgostream.get_stream('channels', 'd8659669-b964-414c-aa9c-e31d8d15696b')
-        self.assertTrue(info)
-        # print(info)
+        try:
+            info = self._vtmgostream.get_stream('channels', 'd8659669-b964-414c-aa9c-e31d8d15696b')
+            self.assertTrue(info)
+            # print(info)
+        except GeoblockedException:
+            pass
 
     def test_get_stream_with_subtitles(self):
-        # 13 Geboden - Episode 2
-        info = self._vtmgostream.get_stream('episodes', '2fafb247-0368-46d4-bdcf-fb209420e715')
-        self.assertTrue(info)
-        # print(info)
+        try:
+            # 13 Geboden - Episode 2
+            info = self._vtmgostream.get_stream('episodes', '2fafb247-0368-46d4-bdcf-fb209420e715')
+            self.assertTrue(info)
+            # print(info)
+        except GeoblockedException:
+            pass
 
 
 if __name__ == '__main__':

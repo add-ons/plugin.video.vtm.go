@@ -5,10 +5,9 @@ from __future__ import absolute_import, division, unicode_literals
 
 from time import time
 
+from resources.lib.kodiwrapper import KodiWrapper, LOG_INFO, LOG_DEBUG
+from resources.lib.vtmgo.vtmgo import VtmGo, Program, Movie
 from xbmc import Monitor
-
-from resources.lib.kodiwrapper import KodiWrapper, LOG_INFO
-from resources.lib.vtmgo.vtmgo import VtmGo, Content
 
 
 class BackgroundService(Monitor):
@@ -28,7 +27,7 @@ class BackgroundService(Monitor):
             # Update every `update_interval` after the last update
             if self.kodi.get_setting_as_bool('metadata_update') \
                     and int(self.kodi.get_setting('metadata_last_updated', 0)) + self.update_interval < time():
-                self.update_metadata()
+                self._update_metadata()
                 self.kodi.set_setting('metadata_last_updated', str(int(time())))
 
             # Stop when abort requested
@@ -39,12 +38,12 @@ class BackgroundService(Monitor):
 
     def onSettingsChanged(self):
         """ Callback when a setting has changed """
-        self.kodi.log('IN VTM GO: Settings changed')
+        self.kodi.log('IN VTM GO: Settings changed', LOG_DEBUG)
 
         # Refresh our VtmGo instance
         self.vtm_go = VtmGo(self.kodi)
 
-    def update_metadata(self, delay=10):
+    def _update_metadata(self, delay=10):
         """ Update the metadata for the listings. """
         self.kodi.log('Updating metadata in the background')
 
@@ -62,13 +61,13 @@ class BackgroundService(Monitor):
         # Loop over all of them and download the metadata
         for index, item in enumerate(items):
             # Update the items
-            if item.video_type == Content.CONTENT_TYPE_MOVIE:
-                if not vtm_go.get_movie(item.content_id, only_cache=True):
-                    vtm_go.get_movie(item.content_id)
+            if isinstance(item, Movie):
+                if not vtm_go.get_movie(item.movie_id, only_cache=True):
+                    vtm_go.get_movie(item.movie_id)
                     self.waitForAbort(delay / 1000)
-            elif item.video_type == Content.CONTENT_TYPE_PROGRAM:
-                if not vtm_go.get_program(item.content_id, only_cache=True):
-                    vtm_go.get_program(item.content_id)
+            elif isinstance(item, Program):
+                if not vtm_go.get_program(item.program_id, only_cache=True):
+                    vtm_go.get_program(item.program_id)
                     self.waitForAbort(delay / 1000)
 
             # Upgrade the progress bar

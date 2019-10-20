@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 """ Addon code """
+# pylint: disable=too-many-lines
 
 from __future__ import absolute_import, division, unicode_literals
 
@@ -7,7 +8,7 @@ import routing
 
 from resources.lib import GeoblockedException, UnavailableException
 from resources.lib.kodiwrapper import KodiWrapper, TitleItem
-from resources.lib.vtmgo.vtmgo import Content, VtmGo
+from resources.lib.vtmgo.vtmgo import VtmGo, Episode, Movie, Program
 from resources.lib.vtmgo.vtmgoauth import VtmGoAuth, InvalidLoginException
 from resources.lib.vtmgo.vtmgoepg import VtmGoEpg
 from resources.lib.vtmgo.vtmgostream import VtmGoStream
@@ -78,6 +79,14 @@ def show_index():
                   info_dict={
                       'plot': kodi.localize(30018),
                   }),
+        # TitleItem(title=kodi.localize(30019),  # Continue watching
+        #           path=routing.url_for(show_continuewatching if not kids else show_kids_continuewatching),
+        #           art_dict={
+        #               'icon': 'DefaultInProgressShows.png'
+        #           },
+        #           info_dict={
+        #               'plot': kodi.localize(30020),
+        #           }),
     ])
 
     # Only provide YouTube option when plugin.video.youtube is available
@@ -148,13 +157,13 @@ def metadata_update(delay=10):
     # Loop over all of them and download the metadata
     for index, item in enumerate(items):
         # Update the items
-        if item.video_type == Content.CONTENT_TYPE_MOVIE:
-            if not vtm_go.get_movie(item.content_id, only_cache=True):
-                vtm_go.get_movie(item.content_id)
+        if isinstance(item, Movie):
+            if not vtm_go.get_movie(item.movie_id, only_cache=True):
+                vtm_go.get_movie(item.movie_id)
                 xbmc.sleep(delay)
-        elif item.video_type == Content.CONTENT_TYPE_PROGRAM:
-            if not vtm_go.get_program(item.content_id, only_cache=True):
-                vtm_go.get_program(item.content_id)
+        elif isinstance(item, Program):
+            if not vtm_go.get_program(item.program_id, only_cache=True):
+                vtm_go.get_program(item.program_id)
                 xbmc.sleep(delay)
 
         # Upgrade the progress bar
@@ -433,14 +442,15 @@ def show_kids_mylist():
 def show_mylist():
     """ Show the items in "My List" """
     try:
-        mylist = vtm_go.get_mylist()
+        mylist = vtm_go.get_swimlane('my-list')
     except Exception as ex:
         kodi.show_notification(message=str(ex))
         raise
 
     listing = []
     for item in mylist:
-        listing.append(_generate_titleitem(item, True))
+        item.my_list = True
+        listing.append(_generate_titleitem(item))
 
     # Sort categories by default like in VTM GO.
     kodi.show_listing(listing, 30017, content='tvshows')
@@ -470,6 +480,37 @@ def mylist_del(video_type, content_id):
     """ Remove an item from "My List" """
     vtm_go.del_mylist(video_type, content_id)
     kodi.end_of_directory()
+    kodi.container_refresh()
+
+
+@routing.route('/kids/continuewatching')
+def show_kids_continuewatching():
+    """ Show the items in "Continue Watching" (kids) """
+    show_continuewatching()
+
+
+@routing.route('/continuewatching')
+def show_continuewatching():
+    """ Show the items in "Continue Watching" """
+    try:
+        mylist = vtm_go.get_swimlane('continue-watching')
+    except Exception as ex:
+        kodi.show_notification(message=str(ex))
+        raise
+
+    listing = []
+    for item in mylist:
+        titleitem = _generate_titleitem(item, progress=True)
+
+        # Add Program Name to title since this list contains episodes from multiple programs
+        title = '%s - %s' % (titleitem.info_dict.get('tvshowtitle'), titleitem.info_dict.get('title'))
+        titleitem.title = title
+        titleitem.info_dict['title'] = title
+
+        listing.append(titleitem)
+
+    # Sort categories by default like in VTM GO.
+    kodi.show_listing(listing, 30019, content='episodes', sort='label')
 
 
 @routing.route('/kids/catalog')
@@ -611,36 +652,7 @@ def show_program_season(program, season):
     listing = []
     for s in seasons:
         for episode in s.episodes.values():
-            listing.append(
-                TitleItem(title=episode.name,
-                          path=routing.url_for(play, category='episodes', item=episode.episode_id),
-                          art_dict={
-                              'banner': program_obj.cover,
-                              'fanart': program_obj.cover,
-                              'thumb': episode.cover,
-                          },
-                          info_dict={
-                              'tvshowtitle': program_obj.name,
-                              'title': episode.name,
-                              'tagline': program_obj.description,
-                              'plot': _format_plot(episode),
-                              'duration': episode.duration,
-                              'season': episode.season,
-                              'episode': episode.number,
-                              'mediatype': 'episode',
-                              'set': program_obj.name,
-                              'studio': episode.channel,
-                              'aired': episode.aired,
-                              'mpaa': ', '.join(episode.legal) if hasattr(episode, 'legal') and episode.legal else kodi.localize(30216),
-                          },
-                          stream_dict={
-                              'duration': episode.duration,
-                              'codec': 'h264',
-                              'height': 1080,
-                              'width': 1920,
-                          },
-                          is_playable=True)
-            )
+            listing.append(_generate_titleitem(episode))
 
     # Sort by episode number by default. Takes seasons into account.
     kodi.show_listing(listing, 30003, content='episodes', sort='episode')
@@ -721,9 +733,9 @@ def show_search(query=None):
     kodi.show_listing(listing, 30009, content='tvshows')
 
 
-def _generate_titleitem(item, my_list=False):
-    """ Generate a TitleItem based on a Content.
-    :type item: Content
+def _generate_titleitem(item, progress=False):
+    """ Generate a TitleItem based on a Movie, Program or Episode.
+    :type item: Union[Movie, Program, Episode]
     :rtype TitleItem
     """
     kids = kodi.kids_mode()
@@ -732,26 +744,34 @@ def _generate_titleitem(item, my_list=False):
         'thumb': item.cover,
     }
     info_dict = {
-        'title': item.title,
+        'title': item.name,
         'plot': item.description,
     }
+    prop_dict = {}
 
-    if my_list:
-        context_menu = [(
-            kodi.localize(30051),  # Remove from My List
-            'XBMC.Container.Update(%s)' %
-            routing.url_for(mylist_del if not kids else kids_mylist_del, video_type=item.video_type, content_id=item.content_id)
-        )]
-    else:
-        context_menu = [(
-            kodi.localize(30050),  # Add to My List
-            'XBMC.Container.Update(%s)' %
-            routing.url_for(mylist_add if not kids else kids_mylist_add, video_type=item.video_type, content_id=item.content_id)
-        )]
+    #
+    # Movie
+    #
+    if isinstance(item, Movie):
+        if item.my_list:
+            context_menu = [(
+                kodi.localize(30051),  # Remove from My List
+                'XBMC.Container.Update(%s)' %
+                routing.url_for(mylist_del if not kids else kids_mylist_del, video_type=vtm_go.CONTENT_TYPE_MOVIE, content_id=item.movie_id)
+            )]
+        else:
+            context_menu = [(
+                kodi.localize(30050),  # Add to My List
+                'XBMC.Container.Update(%s)' %
+                routing.url_for(mylist_add if not kids else kids_mylist_add, video_type=vtm_go.CONTENT_TYPE_MOVIE, content_id=item.movie_id)
+            )]
 
-    if item.video_type == Content.CONTENT_TYPE_MOVIE:
+        info_dict.update({
+            'mediatype': 'movie',
+        })
+
         # Get movie details from cache
-        movie = vtm_go.get_movie(item.content_id, only_cache=True)
+        movie = vtm_go.get_movie(item.movie_id, only_cache=True)
         if movie:
             art_dict.update({
                 'fanart': movie.cover,
@@ -764,12 +784,8 @@ def _generate_titleitem(item, my_list=False):
                 'mpaa': ', '.join(movie.legal) if hasattr(movie, 'legal') and movie.legal else kodi.localize(30216),
             })
 
-        info_dict.update({
-            'mediatype': 'movie',
-        })
-
-        return TitleItem(title=item.title,
-                         path=routing.url_for(play, category='movies', item=item.content_id),
+        return TitleItem(title=item.name,
+                         path=routing.url_for(play, category='movies', item=item.movie_id),
                          art_dict=art_dict,
                          info_dict=info_dict,
                          stream_dict={
@@ -780,9 +796,29 @@ def _generate_titleitem(item, my_list=False):
                          context_menu=context_menu,
                          is_playable=True)
 
-    if item.video_type == Content.CONTENT_TYPE_PROGRAM:
+    #
+    # Program
+    #
+    if isinstance(item, Program):
+        if item.my_list:
+            context_menu = [(
+                kodi.localize(30051),  # Remove from My List
+                'XBMC.Container.Update(%s)' %
+                routing.url_for(mylist_del if not kids else kids_mylist_del, video_type=vtm_go.CONTENT_TYPE_PROGRAM, content_id=item.program_id)
+            )]
+        else:
+            context_menu = [(
+                kodi.localize(30050),  # Add to My List
+                'XBMC.Container.Update(%s)' %
+                routing.url_for(mylist_add if not kids else kids_mylist_add, video_type=vtm_go.CONTENT_TYPE_PROGRAM, content_id=item.program_id)
+            )]
+
+        info_dict.update({
+            'mediatype': None,
+        })
+
         # Get program details from cache
-        program = vtm_go.get_program(item.content_id, only_cache=True)
+        program = vtm_go.get_program(item.program_id, only_cache=True)
         if program:
             art_dict.update({
                 'fanart': program.cover,
@@ -795,17 +831,96 @@ def _generate_titleitem(item, my_list=False):
                 'season': len(program.seasons),
             })
 
-        info_dict.update({
-            'mediatype': None,
-        })
-
-        return TitleItem(title=item.title,
-                         path=routing.url_for(show_program, program=item.content_id),
+        return TitleItem(title=item.name,
+                         path=routing.url_for(show_program, program=item.program_id),
                          art_dict=art_dict,
                          info_dict=info_dict,
                          context_menu=context_menu)
 
-    return None
+    #
+    # Episode
+    #
+    if isinstance(item, Episode):
+        context_menu = [(
+            kodi.localize(30052),  # Go to Program
+            'XBMC.Container.Update(%s)' %
+            routing.url_for(show_program, program=item.program_id)
+        )]
+
+        info_dict.update({
+            'tvshowtitle': item.program_name,
+            'title': item.name,
+            'plot': _format_plot(item),
+            'duration': item.duration,
+            'season': item.season,
+            'episode': item.number,
+            'mediatype': 'episode',
+            'set': item.program_name,
+            'studio': item.channel,
+            'aired': item.aired,
+            'mpaa': ', '.join(item.legal) if hasattr(item, 'legal') and item.legal else kodi.localize(30216),
+        })
+
+        if progress and item.watched:
+            info_dict.update({
+                'playcount': 1,
+            })
+
+        stream_dict = {
+            'codec': 'h264',
+            'duration': item.duration,
+            'height': 1080,
+            'width': 1920,
+        }
+
+        # Get program and episode details from cache
+        program = vtm_go.get_program(item.program_id, only_cache=True)
+        if program:
+            episode = vtm_go.get_episode_from_program(program, item.episode_id)
+            if episode:
+                art_dict.update({
+                    'fanart': episode.cover,
+                    'banner': episode.cover,
+                })
+                info_dict.update({
+                    'tvshowtitle': program.name,
+                    'title': episode.name,
+                    'plot': _format_plot(episode),
+                    'duration': episode.duration,
+                    'season': episode.season,
+                    'episode': episode.number,
+                    'set': program.name,
+                    'studio': episode.channel,
+                    'aired': episode.aired,
+                    'mpaa': ', '.join(episode.legal) if hasattr(episode, 'legal') and episode.legal else kodi.localize(30216),
+                })
+
+                if progress and item.watched:
+                    info_dict.update({
+                        'playcount': 1,
+                    })
+
+                stream_dict.update({
+                    'duration': episode.duration,
+                })
+
+        # Add progress info
+        if progress and not item.watched and item.progress:
+            prop_dict.update({
+                'ResumeTime': item.progress,
+                'TotalTime': item.progress + 1,
+            })
+
+        return TitleItem(title=info_dict['title'],
+                         path=routing.url_for(play, category='episodes', item=item.episode_id),
+                         art_dict=art_dict,
+                         info_dict=info_dict,
+                         stream_dict=stream_dict,
+                         prop_dict=prop_dict,
+                         context_menu=context_menu,
+                         is_playable=True)
+
+    raise Exception('Unknown video_type')
 
 
 @routing.route('/play/epg/<channel>/<timestamp>')
@@ -849,8 +964,8 @@ def play(category, item):
         kodi.show_ok_dialog(message=kodi.localize(30708))  # Please reboot Kodi
         return
 
-    # Get stream information
     try:
+        # Get stream information
         resolved_stream = _vtmgostream.get_stream(category, item)
 
     except GeoblockedException:
@@ -934,7 +1049,7 @@ def play(category, item):
 
 
 def _format_plot(obj):
-    """ Format the plot for a Content item """
+    """ Format the plot for a item """
     plot = ''
 
     if hasattr(obj, 'description'):

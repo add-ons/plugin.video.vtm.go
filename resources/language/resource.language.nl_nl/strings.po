@@ -79,6 +79,14 @@ msgctxt "#30018"
 msgid "Show your personal favourites"
 msgstr "Bekijk je persoonlijke favorieten"
 
+msgctxt "#30019"
+msgid "Continue watching"
+msgstr "Verder kijken"
+
+msgctxt "#30020"
+msgid "Continue watching where you left off"
+msgstr "Kijk verder waar je gebleven was"
+
 
 ### CONTEXT MENU
 
@@ -89,6 +97,10 @@ msgstr "Toevoegen aan mijn lijst"
 msgctxt "#30051"
 msgid "Remove from My List"
 msgstr "Verwijderen uit mijn lijst"
+
+msgctxt "#30052"
+msgid "Go to Program"
+msgstr "Ga naar programma"
 
 
 ### CODE
