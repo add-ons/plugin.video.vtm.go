@@ -126,7 +126,7 @@ class VtmGoStream:
                 cookies=self._session.cookies.get_dict()
             )
 
-        raise Exception(self._kodi.localize(30707, type=stream_type))  # Unhandled videoType
+        raise Exception('Unknown video type {type}'.format(type=stream_type))
 
     def _get_stream_info(self, strtype, stream_id):
         """ Get the stream info for the specified stream.

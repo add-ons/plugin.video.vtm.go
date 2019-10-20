@@ -207,10 +207,6 @@ msgctxt "#30706"
 msgid "No stream found that we can handle."
 msgstr ""
 
-msgctxt "#30707"
-msgid "Unhandled videoType {type}"
-msgstr ""
-
 msgctxt "#30708"
 msgid "Please restart Kodi."
 msgstr ""
@@ -245,6 +241,10 @@ msgstr ""
 
 msgctxt "#30716"
 msgid "Updating metadata ({index}/{total})"
+msgstr ""
+
+msgctxt "#30717"
+msgid "This program is not available in the VTM GO catalogue."
 msgstr ""
 
 
