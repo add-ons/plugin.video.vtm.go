@@ -358,8 +358,6 @@ def show_tvguide_detail(channel=None, date=None):
 @routing.route('/recommendations')
 def show_recommendations():
     """ Show the recommendations """
-    kids = kodi.kids_mode()
-
     try:
         recommendations = vtm_go.get_recommendations()
     except Exception as ex:
@@ -370,7 +368,7 @@ def show_recommendations():
     for cat in recommendations:
         listing.append(
             TitleItem(title=cat.title,
-                      path=routing.url_for(show_recommendations_category, kids=kids, category=cat.category_id),
+                      path=routing.url_for(show_recommendations_category, kids=kodi.kids_mode(), category=cat.category_id),
                       info_dict={
                           'plot': '[B]{category}[/B]'.format(category=cat.title),
                       })
@@ -468,8 +466,6 @@ def show_continuewatching():
 @routing.route('/catalog')
 def show_catalog():
     """ Show the catalog """
-    kids = kodi.kids_mode()
-
     try:
         categories = vtm_go.get_categories()
     except Exception as ex:
@@ -480,7 +476,7 @@ def show_catalog():
     for cat in categories:
         listing.append(
             TitleItem(title=cat.title,
-                      path=routing.url_for(show_catalog_category, kids=kids, category=cat.category_id),
+                      path=routing.url_for(show_catalog_category, kids=kodi.kids_mode(), category=cat.category_id),
                       info_dict={
                           'plot': '[B]{category}[/B]'.format(category=cat.title),
                       })
@@ -665,8 +661,6 @@ def _generate_titleitem(item, progress=False):
     :type item: Union[Movie, Program, Episode]
     :rtype TitleItem
     """
-    kids = kodi.kids_mode()
-
     art_dict = {
         'thumb': item.cover,
     }
@@ -684,13 +678,13 @@ def _generate_titleitem(item, progress=False):
             context_menu = [(
                 kodi.localize(30051),  # Remove from My List
                 'XBMC.Container.Update(%s)' %
-                routing.url_for(mylist_del, kids=kids, video_type=vtm_go.CONTENT_TYPE_MOVIE, content_id=item.movie_id)
+                routing.url_for(mylist_del, kids=kodi.kids_mode(), video_type=vtm_go.CONTENT_TYPE_MOVIE, content_id=item.movie_id)
             )]
         else:
             context_menu = [(
                 kodi.localize(30050),  # Add to My List
                 'XBMC.Container.Update(%s)' %
-                routing.url_for(mylist_add, kids=kids, video_type=vtm_go.CONTENT_TYPE_MOVIE, content_id=item.movie_id)
+                routing.url_for(mylist_add, kids=kodi.kids_mode(), video_type=vtm_go.CONTENT_TYPE_MOVIE, content_id=item.movie_id)
             )]
 
         info_dict.update({
@@ -731,13 +725,13 @@ def _generate_titleitem(item, progress=False):
             context_menu = [(
                 kodi.localize(30051),  # Remove from My List
                 'XBMC.Container.Update(%s)' %
-                routing.url_for(mylist_del, kids=kids, video_type=vtm_go.CONTENT_TYPE_PROGRAM, content_id=item.program_id)
+                routing.url_for(mylist_del, kids=kodi.kids_mode(), video_type=vtm_go.CONTENT_TYPE_PROGRAM, content_id=item.program_id)
             )]
         else:
             context_menu = [(
                 kodi.localize(30050),  # Add to My List
                 'XBMC.Container.Update(%s)' %
-                routing.url_for(mylist_add, kids=kids, video_type=vtm_go.CONTENT_TYPE_PROGRAM, content_id=item.program_id)
+                routing.url_for(mylist_add, kids=kodi.kids_mode(), video_type=vtm_go.CONTENT_TYPE_PROGRAM, content_id=item.program_id)
             )]
 
         info_dict.update({
