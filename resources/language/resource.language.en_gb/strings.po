@@ -78,6 +78,14 @@ msgctxt "#30018"
 msgid "Show your personal favourites"
 msgstr ""
 
+msgctxt "#30019"
+msgid "Continue watching"
+msgstr ""
+
+msgctxt "#30020"
+msgid "Continue watching where you left off"
+msgstr ""
+
 
 ### CONTEXT MENU
 

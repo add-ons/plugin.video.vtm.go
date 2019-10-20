@@ -28,7 +28,7 @@ class BackgroundService(Monitor):
             # Update every `update_interval` after the last update
             if self.kodi.get_setting_as_bool('metadata_update') \
                     and int(self.kodi.get_setting('metadata_last_updated', 0)) + self.update_interval < time():
-                self.update_metadata()
+                self._update_metadata()
                 self.kodi.set_setting('metadata_last_updated', str(int(time())))
 
             # Stop when abort requested
@@ -44,7 +44,7 @@ class BackgroundService(Monitor):
         # Refresh our VtmGo instance
         self.vtm_go = VtmGo(self.kodi)
 
-    def update_metadata(self, delay=10):
+    def _update_metadata(self, delay=10):
         """ Update the metadata for the listings. """
         self.kodi.log('Updating metadata in the background')
 

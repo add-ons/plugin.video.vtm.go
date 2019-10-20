@@ -74,14 +74,15 @@ class Category:
 
 
 class Content:
-    """ Defines an item from the catalogue"""
+    """ Defines an item from the catalogue """
     CONTENT_TYPE_MOVIE = 'MOVIE'
     CONTENT_TYPE_PROGRAM = 'PROGRAM'
+    CONTENT_TYPE_EPISODE = 'EPISODE'
 
-    def __init__(self, content_id=None, title=None, description=None, cover=None, video_type=None, my_list=False, geoblocked=None):
+    def __init__(self, content_id=None, name=None, description=None, cover=None, video_type=None, my_list=False, geoblocked=None):
         """
         :type content_id: str
-        :type title: str
+        :type name: str
         :type description: str
         :type cover: str
         :type video_type: str
@@ -89,7 +90,7 @@ class Content:
         :type geoblocked: bool
         """
         self.content_id = content_id
-        self.title = title
+        self.name = name
         self.description = description if description else ''
         self.cover = cover
         self.video_type = video_type
@@ -101,7 +102,7 @@ class Content:
 
 
 class Movie:
-    """ Defines a Movie"""
+    """ Defines a Movie """
 
     def __init__(self, movie_id=None, name=None, description=None, year=None, cover=None, duration=None, remaining=None, geoblocked=None,
                  channel=None, legal=None, aired=None):
@@ -135,7 +136,7 @@ class Movie:
 
 
 class Program:
-    """ Defines a Program"""
+    """ Defines a Program """
 
     def __init__(self, program_id=None, name=None, description=None, cover=None, seasons=None, geoblocked=None, channel=None, legal=None):
         """
@@ -162,7 +163,7 @@ class Program:
 
 
 class Season:
-    """ Defines a Season"""
+    """ Defines a Season """
 
     def __init__(self, number=None, episodes=None, cover=None, geoblocked=None, channel=None, legal=None):
         """
@@ -187,10 +188,12 @@ class Season:
 class Episode:
     """ Defines an Episode """
 
-    def __init__(self, episode_id=None, number=None, season=None, name=None, description=None, cover=None, duration=None, remaining=None, geoblocked=None,
+    def __init__(self, episode_id=None, program_id=None, number=None, season=None, name=None, description=None, cover=None, duration=None, remaining=None,
+                 geoblocked=None,
                  channel=None, legal=None, aired=None):
         """
         :type episode_id: str
+        :type program_id: str
         :type number: int
         :type season: str
         :type name: str
@@ -205,6 +208,7 @@ class Episode:
         """
         import re
         self.episode_id = episode_id
+        self.program_id = program_id
         self.number = int(number)
         self.season = int(season)
         self.name = re.compile('^%d. ' % number).sub('', name)  # Strip episode from name
@@ -223,6 +227,13 @@ class Episode:
 
 class VtmGo:
     """ VTM GO API """
+    _headers = {
+        'x-app-version': '5',
+        'x-persgroep-mobile-app': 'true',
+        'x-persgroep-os': 'android',
+        'x-persgroep-os-version': '23',
+        'User-Agent': 'VTMGO/6.8.2 (be.vmma.vtm.zenderapp; build:11215; Android 23) okhttp/3.14.2'
+    }
 
     def __init__(self, kodi):
         self._kodi = kodi  # type: KodiWrapper
@@ -249,31 +260,33 @@ class VtmGo:
 
         categories = []
         for cat in recommendations.get('rows', []):
-            if cat.get('rowType') in ['SWIMLANE_DEFAULT']:
-                items = []
+            if cat.get('rowType') not in ['SWIMLANE_DEFAULT']:
+                self._kodi.log('Skipping recommendation {name} with type={type}', name=cat.get('title'), type=cat.get('rowType'))
+                continue
 
-                for item in cat.get('teasers'):
-                    items.append(Content(
-                        content_id=item.get('target', {}).get('id'),
-                        video_type=item.get('target', {}).get('type'),
-                        title=item.get('title'),
-                        geoblocked=item.get('geoBlocked'),
-                        cover=item.get('imageUrl'),
-                    ))
-
-                categories.append(Category(
-                    category_id=cat.get('id'),
-                    title=cat.get('title'),
-                    content=items,
+            items = []
+            for item in cat.get('teasers'):
+                items.append(Content(
+                    content_id=item.get('target', {}).get('id'),
+                    video_type=item.get('target', {}).get('type'),
+                    name=item.get('title'),
+                    geoblocked=item.get('geoBlocked'),
+                    cover=item.get('imageUrl'),
                 ))
+
+            categories.append(Category(
+                category_id=cat.get('id'),
+                title=cat.get('title'),
+                content=items,
+            ))
 
         return categories
 
-    def get_mylist(self):
+    def get_swimlane(self, swimlane=None):
         """ Returns the contents of My List """
-        response = self._get_url('/%s/main/swimlane/my-list' % self._mode())
+        response = self._get_url('/%s/main/swimlane/%s' % (self._mode(), swimlane))
 
-        # My list can be empty
+        # Result can be empty
         if not response:
             return []
 
@@ -281,13 +294,24 @@ class VtmGo:
 
         items = []
         for item in result.get('teasers'):
-            items.append(Content(
-                content_id=item.get('target', {}).get('id'),
-                video_type=item.get('target', {}).get('type'),
-                title=item.get('title'),
-                geoblocked=item.get('geoBlocked'),
-                cover=item.get('imageUrl'),
-            ))
+            if item.get('target', {}).get('type') == Content.CONTENT_TYPE_EPISODE:
+                items.append(Episode(
+                    episode_id=item.get('target', {}).get('id'),
+                    program_id=item.get('target', {}).get('programId'),
+                    number=item.get('target', {}).get('episodeIndex'),
+                    season=item.get('target', {}).get('seasonIndex'),
+                    name='%dx%02d. ' % (item.get('target', {}).get('episodeIndex'), item.get('target', {}).get('seasonIndex')) + item.get('title'),
+                    geoblocked=item.get('geoBlocked'),
+                    cover=item.get('imageUrl'),
+                ))
+            else:
+                items.append(Content(
+                    content_id=item.get('target', {}).get('id'),
+                    video_type=item.get('target', {}).get('type'),
+                    name=item.get('title'),
+                    geoblocked=item.get('geoBlocked'),
+                    cover=item.get('imageUrl'),
+                ))
 
         return items
 
@@ -356,7 +380,7 @@ class VtmGo:
         for item in info.get('pagedTeasers', {}).get('content', []):
             items.append(Content(
                 content_id=item.get('target', {}).get('id'),
-                title=item.get('title'),
+                name=item.get('title'),
                 cover=item.get('imageUrl'),
                 video_type=item.get('target', {}).get('type'),
                 geoblocked=item.get('geoBlocked'),
@@ -435,6 +459,7 @@ class VtmGo:
             for item_episode in item_season.get('episodes', []):
                 episodes[item_episode.get('index')] = Episode(
                     episode_id=item_episode.get('id'),
+                    program_id=program_id,
                     number=item_episode.get('index'),
                     season=item_season.get('index'),
                     name=item_episode.get('name'),
@@ -468,11 +493,30 @@ class VtmGo:
             legal=program.get('legalIcons'),
         )
 
+    def get_episode_from_program(self, program_id, episode_id, only_cache=False):
+        """ Get the details of the specified episode.
+        :type program_id: str
+        :type episode_id: str
+        :type only_cache: bool
+        :rtype Episode
+        """
+        program = self.get_program(program_id, only_cache=only_cache)
+        if not program:
+            raise UnavailableException()
+
+        for season in program.seasons.values():
+            for episode in season.episodes.values():
+                if episode.episode_id == episode_id:
+                    return episode
+
+        raise UnavailableException()
+
     def get_episode(self, episode_id):
         """ Get the details of the specified episode.
         :type episode_id: str
         :rtype Episode
         """
+        # The following API doesn't seem to be available in API version 6 anymore.
         response = self._get_url('/%s/episodes/%s' % (self._mode(), episode_id))
         info = json.loads(response)
 
@@ -499,7 +543,7 @@ class VtmGo:
         for item in results.get('suggestions', []):
             items.append(Content(
                 content_id=item.get('id'),
-                title=item.get('name'),
+                name=item.get('name'),
                 video_type=item.get('type'),
             ))
 
@@ -510,14 +554,7 @@ class VtmGo:
         :type url: str
         :rtype str
         """
-        headers = {
-            'x-app-version': '5',
-            'x-persgroep-mobile-app': 'true',
-            'x-persgroep-os': 'android',
-            'x-persgroep-os-version': '23',
-            'User-Agent': 'VTMGO/6.5.0 (be.vmma.vtm.zenderapp; build:11019; Android 23) okhttp/3.12.1'
-        }
-
+        headers = self._headers
         token = self._auth.get_token()
         if token:
             headers['x-dpp-jwt'] = token
@@ -526,7 +563,7 @@ class VtmGo:
 
         response = requests.session().get('https://api.vtmgo.be' + url, headers=headers, verify=False, proxies=self._proxies)
 
-        self._kodi.log('Got response: {response}', LOG_DEBUG, response=response.text)
+        self._kodi.log('Got response (status={code}): {response}', LOG_DEBUG, code=response.status_code, response=response.text)
 
         if response.status_code == 404:
             raise UnavailableException()
@@ -541,14 +578,7 @@ class VtmGo:
         :type url: str
         :rtype str
         """
-        headers = {
-            'x-app-version': '5',
-            'x-persgroep-mobile-app': 'true',
-            'x-persgroep-os': 'android',
-            'x-persgroep-os-version': '23',
-            'User-Agent': 'VTMGO/6.5.0 (be.vmma.vtm.zenderapp; build:11019; Android 23) okhttp/3.12.1'
-        }
-
+        headers = self._headers
         token = self._auth.get_token()
         if token:
             headers['x-dpp-jwt'] = token
@@ -572,14 +602,7 @@ class VtmGo:
         :type url: str
         :rtype str
         """
-        headers = {
-            'x-app-version': '5',
-            'x-persgroep-mobile-app': 'true',
-            'x-persgroep-os': 'android',
-            'x-persgroep-os-version': '23',
-            'User-Agent': 'VTMGO/6.5.0 (be.vmma.vtm.zenderapp; build:11019; Android 23) okhttp/3.12.1'
-        }
-
+        headers = self._headers
         token = self._auth.get_token()
         if token:
             headers['x-dpp-jwt'] = token

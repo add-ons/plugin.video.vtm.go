@@ -48,7 +48,7 @@ class TestVtmGo(unittest.TestCase):
         # print(main)
 
     def test_get_mylist(self):
-        mylist = self._vtmgo.get_mylist()
+        mylist = self._vtmgo.get_swimlane('my-list')
         self.assertIsInstance(mylist, list)
         # print(mylist)
 
