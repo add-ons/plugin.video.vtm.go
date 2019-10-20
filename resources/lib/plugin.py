@@ -18,12 +18,6 @@ kodi = KodiWrapper(routing=routing)
 vtm_go = VtmGo(kodi)
 
 
-@routing.route('/kids')
-def show_kids_index():
-    """ Show the main menu (kids) """
-    show_index()
-
-
 @routing.route('/')
 def show_index():
     """ Show the main menu """
@@ -32,7 +26,7 @@ def show_index():
     listing = []
     listing.extend([
         TitleItem(title=kodi.localize(30001),  # A-Z
-                  path=routing.url_for(show_catalog_category if not kids else show_kids_catalog_category, category='all'),
+                  path=routing.url_for(show_catalog_category, kids=kids, category='all'),
                   art_dict=dict(
                       icon='DefaultMovieTitle.png'
                   ),
@@ -40,7 +34,7 @@ def show_index():
                       plot=kodi.localize(30002),
                   )),
         TitleItem(title=kodi.localize(30003),  # Catalogue
-                  path=routing.url_for(show_catalog if not kids else show_kids_catalog),
+                  path=routing.url_for(show_catalog, kids=kids),
                   art_dict=dict(
                       icon='DefaultGenre.png'
                   ),
@@ -48,7 +42,7 @@ def show_index():
                       plot=kodi.localize(30004),
                   )),
         TitleItem(title=kodi.localize(30005),  # Live TV
-                  path=routing.url_for(show_livetv if not kids else show_kids_livetv),
+                  path=routing.url_for(show_livetv, kids=kids),
                   art_dict=dict(
                       icon='DefaultAddonPVRClient.png'
                   ),
@@ -56,7 +50,7 @@ def show_index():
                       plot=kodi.localize(30006),
                   )),
         TitleItem(title=kodi.localize(30013),  # TV Guide
-                  path=routing.url_for(show_tvguide if not kids else show_kids_tvguide),
+                  path=routing.url_for(show_tvguide, kids=kids),
                   art_dict={
                       'icon': 'DefaultAddonTvInfo.png'
                   },
@@ -64,7 +58,7 @@ def show_index():
                       'plot': kodi.localize(30014),
                   }),
         TitleItem(title=kodi.localize(30015),  # Recommendations
-                  path=routing.url_for(show_recommendations if not kids else show_kids_recommendations),
+                  path=routing.url_for(show_recommendations, kids=kids),
                   art_dict={
                       'icon': 'DefaultFavourites.png'
                   },
@@ -72,7 +66,7 @@ def show_index():
                       'plot': kodi.localize(30016),
                   }),
         TitleItem(title=kodi.localize(30017),  # My List
-                  path=routing.url_for(show_mylist if not kids else show_kids_mylist),
+                  path=routing.url_for(show_mylist, kids=kids),
                   art_dict={
                       'icon': 'DefaultPlaylist.png'
                   },
@@ -93,7 +87,7 @@ def show_index():
     if kodi.get_cond_visibility('System.HasAddon(plugin.video.youtube)') != 0:
         listing.append(
             TitleItem(title=kodi.localize(30007),  # YouTube
-                      path=routing.url_for(show_youtube if not kids else show_kids_youtube),
+                      path=routing.url_for(show_youtube, kids=kids),
                       art_dict=dict(
                           icon='DefaultTags.png'
                       ),
@@ -104,7 +98,7 @@ def show_index():
 
     listing.extend([
         TitleItem(title=kodi.localize(30009),  # Search
-                  path=routing.url_for(show_search if not kids else show_kids_search),
+                  path=routing.url_for(show_search, kids=kids),
                   art_dict=dict(
                       icon='DefaultAddonsSearch.png'
                   ),
@@ -116,7 +110,7 @@ def show_index():
     if not kids:
         listing.append(
             TitleItem(title=kodi.localize(30011),  # Kids Zone
-                      path=routing.url_for(show_kids_index),
+                      path=routing.url_for(show_index, kids=True),
                       art_dict=dict(
                           icon='DefaultUser.png'
                       ),
@@ -188,12 +182,6 @@ def metadata_clean():
     kodi.show_ok_dialog(message=kodi.localize(30714))  # Local metadata is cleared.
 
 
-@routing.route('/kids/livetv')
-def show_kids_livetv():
-    """ Show Live TV channels (kids) """
-    show_livetv()
-
-
 @routing.route('/livetv')
 def show_livetv():
     """ Shows Live TV channels """
@@ -242,12 +230,6 @@ def show_livetv():
         )
 
     kodi.show_listing(listing, 30005)
-
-
-@routing.route('/kids/tvguide')
-def show_kids_tvguide():
-    """ Shows the TV Guide (kids) """
-    show_tvguide()
 
 
 @routing.route('/tvguide')
@@ -373,12 +355,6 @@ def show_tvguide_detail(channel=None, date=None):
     kodi.show_listing(listing, 30013, content='episodes')
 
 
-@routing.route('/kids/recommendations')
-def show_kids_recommendations():
-    """ Show the recommendations (kids) """
-    show_recommendations()
-
-
 @routing.route('/recommendations')
 def show_recommendations():
     """ Show the recommendations """
@@ -394,7 +370,7 @@ def show_recommendations():
     for cat in recommendations:
         listing.append(
             TitleItem(title=cat.title,
-                      path=routing.url_for(show_kids_recommendations_category if kids else show_recommendations_category, category=cat.category_id),
+                      path=routing.url_for(show_recommendations_category, kids=kids, category=cat.category_id),
                       info_dict={
                           'plot': '[B]{category}[/B]'.format(category=cat.title),
                       })
@@ -402,12 +378,6 @@ def show_recommendations():
 
     # Sort categories by default like in VTM GO.
     kodi.show_listing(listing, 30015, content='files')
-
-
-@routing.route('/kids/recommendations/<category>')
-def show_kids_recommendations_category(category):
-    """ Show a category in the recommendations """
-    show_recommendations_category(category)
 
 
 @routing.route('/recommendations/<category>')
@@ -432,12 +402,6 @@ def show_recommendations_category(category):
     kodi.show_listing(listing, 30015, content='tvshows')
 
 
-@routing.route('/kids/mylist')
-def show_kids_mylist():
-    """ Show the items in "My List" (kids) """
-    show_mylist()
-
-
 @routing.route('/mylist')
 def show_mylist():
     """ Show the items in "My List" """
@@ -456,23 +420,11 @@ def show_mylist():
     kodi.show_listing(listing, 30017, content='tvshows')
 
 
-@routing.route('/kids/mylist/add/<video_type>/<content_id>')
-def kids_mylist_add(video_type, content_id):
-    """ Add an item to "My List" (kids) """
-    mylist_add(video_type, content_id)
-
-
 @routing.route('/mylist/add/<video_type>/<content_id>')
 def mylist_add(video_type, content_id):
     """ Add an item to "My List" """
     vtm_go.add_mylist(video_type, content_id)
     kodi.end_of_directory()
-
-
-@routing.route('/kids/mylist/del/<video_type>/<content_id>')
-def kids_mylist_del(video_type, content_id):
-    """ Remove an item from "My List" (kids) """
-    mylist_del(video_type, content_id)
 
 
 @routing.route('/mylist/del/<video_type>/<content_id>')
@@ -513,12 +465,6 @@ def show_continuewatching():
     kodi.show_listing(listing, 30019, content='episodes', sort='label')
 
 
-@routing.route('/kids/catalog')
-def show_kids_catalog():
-    """ Show the catalog (kids) """
-    show_catalog()
-
-
 @routing.route('/catalog')
 def show_catalog():
     """ Show the catalog """
@@ -534,7 +480,7 @@ def show_catalog():
     for cat in categories:
         listing.append(
             TitleItem(title=cat.title,
-                      path=routing.url_for(show_kids_catalog_category if kids else show_catalog_category, category=cat.category_id),
+                      path=routing.url_for(show_catalog_category, kids=kids, category=cat.category_id),
                       info_dict={
                           'plot': '[B]{category}[/B]'.format(category=cat.title),
                       })
@@ -542,12 +488,6 @@ def show_catalog():
 
     # Sort categories by default like in VTM GO.
     kodi.show_listing(listing, 30003, content='files')
-
-
-@routing.route('/kids/catalog/<category>')
-def show_kids_catalog_category(category):
-    """ Show a category in the catalog (kids) """
-    show_catalog_category(category)
 
 
 @routing.route('/catalog/<category>')
@@ -658,12 +598,6 @@ def show_program_season(program, season):
     kodi.show_listing(listing, 30003, content='episodes', sort='episode')
 
 
-@routing.route('/kids/youtube')
-def show_kids_youtube():
-    """ Shows the Youtube channel overview (kids) """
-    show_youtube()
-
-
 @routing.route('/youtube')
 def show_youtube():
     """ Shows the Youtube channel overview """
@@ -696,13 +630,6 @@ def show_youtube():
 
     # Sort by default like in our dict.
     kodi.show_listing(listing, 30007)
-
-
-@routing.route('/kids/search')
-@routing.route('/kids/search/<query>')
-def show_kids_search(query=None):
-    """ Shows the search dialog (kids) """
-    show_search(query)
 
 
 @routing.route('/search')
@@ -757,13 +684,13 @@ def _generate_titleitem(item, progress=False):
             context_menu = [(
                 kodi.localize(30051),  # Remove from My List
                 'XBMC.Container.Update(%s)' %
-                routing.url_for(mylist_del if not kids else kids_mylist_del, video_type=vtm_go.CONTENT_TYPE_MOVIE, content_id=item.movie_id)
+                routing.url_for(mylist_del, kids=kids, video_type=vtm_go.CONTENT_TYPE_MOVIE, content_id=item.movie_id)
             )]
         else:
             context_menu = [(
                 kodi.localize(30050),  # Add to My List
                 'XBMC.Container.Update(%s)' %
-                routing.url_for(mylist_add if not kids else kids_mylist_add, video_type=vtm_go.CONTENT_TYPE_MOVIE, content_id=item.movie_id)
+                routing.url_for(mylist_add, kids=kids, video_type=vtm_go.CONTENT_TYPE_MOVIE, content_id=item.movie_id)
             )]
 
         info_dict.update({
@@ -804,13 +731,13 @@ def _generate_titleitem(item, progress=False):
             context_menu = [(
                 kodi.localize(30051),  # Remove from My List
                 'XBMC.Container.Update(%s)' %
-                routing.url_for(mylist_del if not kids else kids_mylist_del, video_type=vtm_go.CONTENT_TYPE_PROGRAM, content_id=item.program_id)
+                routing.url_for(mylist_del, kids=kids, video_type=vtm_go.CONTENT_TYPE_PROGRAM, content_id=item.program_id)
             )]
         else:
             context_menu = [(
                 kodi.localize(30050),  # Add to My List
                 'XBMC.Container.Update(%s)' %
-                routing.url_for(mylist_add if not kids else kids_mylist_add, video_type=vtm_go.CONTENT_TYPE_PROGRAM, content_id=item.program_id)
+                routing.url_for(mylist_add, kids=kids, video_type=vtm_go.CONTENT_TYPE_PROGRAM, content_id=item.program_id)
             )]
 
         info_dict.update({

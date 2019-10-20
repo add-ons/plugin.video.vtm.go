@@ -523,6 +523,7 @@ class KodiWrapper:
         if self.get_setting_as_bool('force_kids_zone'):
             return True
 
-        if self.routing and self.routing.path.startswith('/kids'):
+        if self.routing and 'True' in self.routing.args.get('kids', []):
             return True
+
         return False
