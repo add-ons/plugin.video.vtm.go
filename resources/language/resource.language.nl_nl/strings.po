@@ -98,6 +98,10 @@ msgctxt "#30051"
 msgid "Remove from My List"
 msgstr "Verwijderen uit mijn lijst"
 
+msgctxt "#30052"
+msgid "Go to Program"
+msgstr "Ga naar programma"
+
 
 ### CODE
 msgctxt "#30200"

@@ -63,39 +63,11 @@ class Category:
         """
         :type category_id: str
         :type title: str
-        :type content: list[Content]
+        :type content: list[Union[Movie, Program, Episode]]
         """
         self.category_id = category_id
         self.title = title
         self.content = content
-
-    def __repr__(self):
-        return "%r" % self.__dict__
-
-
-class Content:
-    """ Defines an item from the catalogue """
-    CONTENT_TYPE_MOVIE = 'MOVIE'
-    CONTENT_TYPE_PROGRAM = 'PROGRAM'
-    CONTENT_TYPE_EPISODE = 'EPISODE'
-
-    def __init__(self, content_id=None, name=None, description=None, cover=None, video_type=None, my_list=False, geoblocked=None):
-        """
-        :type content_id: str
-        :type name: str
-        :type description: str
-        :type cover: str
-        :type video_type: str
-        :type my_list: bool
-        :type geoblocked: bool
-        """
-        self.content_id = content_id
-        self.name = name
-        self.description = description if description else ''
-        self.cover = cover
-        self.video_type = video_type
-        self.my_list = my_list
-        self.geoblocked = geoblocked
 
     def __repr__(self):
         return "%r" % self.__dict__
@@ -227,7 +199,11 @@ class Episode:
 
 class VtmGo:
     """ VTM GO API """
-    _headers = {
+    CONTENT_TYPE_MOVIE = 'MOVIE'
+    CONTENT_TYPE_PROGRAM = 'PROGRAM'
+    CONTENT_TYPE_EPISODE = 'EPISODE'
+
+    _HEADERS = {
         'x-app-version': '5',
         'x-persgroep-mobile-app': 'true',
         'x-persgroep-os': 'android',
@@ -266,13 +242,20 @@ class VtmGo:
 
             items = []
             for item in cat.get('teasers'):
-                items.append(Content(
-                    content_id=item.get('target', {}).get('id'),
-                    video_type=item.get('target', {}).get('type'),
-                    name=item.get('title'),
-                    geoblocked=item.get('geoBlocked'),
-                    cover=item.get('imageUrl'),
-                ))
+                if item.get('target', {}).get('type') == self.CONTENT_TYPE_MOVIE:
+                    items.append(Movie(
+                        movie_id=item.get('target', {}).get('id'),
+                        name=item.get('title'),
+                        cover=item.get('imageUrl'),
+                        geoblocked=item.get('geoBlocked'),
+                    ))
+                elif item.get('target', {}).get('type') == self.CONTENT_TYPE_PROGRAM:
+                    items.append(Program(
+                        program_id=item.get('target', {}).get('id'),
+                        name=item.get('title'),
+                        cover=item.get('imageUrl'),
+                        geoblocked=item.get('geoBlocked'),
+                    ))
 
             categories.append(Category(
                 category_id=cat.get('id'),
@@ -294,21 +277,29 @@ class VtmGo:
 
         items = []
         for item in result.get('teasers'):
-            if item.get('target', {}).get('type') == Content.CONTENT_TYPE_EPISODE:
+            if item.get('target', {}).get('type') == self.CONTENT_TYPE_MOVIE:
+                items.append(Movie(
+                    movie_id=item.get('target', {}).get('id'),
+                    name=item.get('title'),
+                    geoblocked=item.get('geoBlocked'),
+                    cover=item.get('imageUrl'),
+                ))
+
+            elif item.get('target', {}).get('type') == self.CONTENT_TYPE_PROGRAM:
+                items.append(Program(
+                    program_id=item.get('target', {}).get('id'),
+                    name=item.get('title'),
+                    geoblocked=item.get('geoBlocked'),
+                    cover=item.get('imageUrl'),
+                ))
+
+            elif item.get('target', {}).get('type') == self.CONTENT_TYPE_EPISODE:
                 items.append(Episode(
                     episode_id=item.get('target', {}).get('id'),
                     program_id=item.get('target', {}).get('programId'),
                     number=item.get('target', {}).get('episodeIndex'),
                     season=item.get('target', {}).get('seasonIndex'),
                     name='%dx%02d. ' % (item.get('target', {}).get('episodeIndex'), item.get('target', {}).get('seasonIndex')) + item.get('title'),
-                    geoblocked=item.get('geoBlocked'),
-                    cover=item.get('imageUrl'),
-                ))
-            else:
-                items.append(Content(
-                    content_id=item.get('target', {}).get('id'),
-                    video_type=item.get('target', {}).get('type'),
-                    name=item.get('title'),
                     geoblocked=item.get('geoBlocked'),
                     cover=item.get('imageUrl'),
                 ))
@@ -368,7 +359,7 @@ class VtmGo:
     def get_items(self, category=None):
         """ Get a list of all the items in a category.
         :type category: str
-        :rtype list[Content]
+        :rtype list[Union[Movie, Program]]
         """
         if category and category != 'all':
             response = self._get_url('/%s/catalog?pageSize=%d&filter=%s' % (self._mode(), 1000, quote(category)))
@@ -378,13 +369,20 @@ class VtmGo:
 
         items = []
         for item in info.get('pagedTeasers', {}).get('content', []):
-            items.append(Content(
-                content_id=item.get('target', {}).get('id'),
-                name=item.get('title'),
-                cover=item.get('imageUrl'),
-                video_type=item.get('target', {}).get('type'),
-                geoblocked=item.get('geoBlocked'),
-            ))
+            if item.get('target', {}).get('type') == self.CONTENT_TYPE_MOVIE:
+                items.append(Movie(
+                    movie_id=item.get('target', {}).get('id'),
+                    name=item.get('title'),
+                    cover=item.get('imageUrl'),
+                    geoblocked=item.get('geoBlocked'),
+                ))
+            elif item.get('target', {}).get('type') == self.CONTENT_TYPE_PROGRAM:
+                items.append(Program(
+                    program_id=item.get('target', {}).get('id'),
+                    name=item.get('title'),
+                    cover=item.get('imageUrl'),
+                    geoblocked=item.get('geoBlocked'),
+                ))
 
         return items
 
@@ -534,18 +532,23 @@ class VtmGo:
     def do_search(self, search):
         """ Do a search in the full catalogue.
         :type search: str
-        :rtype list[Content]
+        :rtype list[Union[Movie, Program]]
         """
         response = self._get_url('/%s/autocomplete/?maxItems=%d&keywords=%s' % (self._mode(), 50, quote(search)))
         results = json.loads(response)
 
         items = []
         for item in results.get('suggestions', []):
-            items.append(Content(
-                content_id=item.get('id'),
-                name=item.get('name'),
-                video_type=item.get('type'),
-            ))
+            if item.get('type') == self.CONTENT_TYPE_MOVIE:
+                items.append(Movie(
+                    movie_id=item.get('id'),
+                    name=item.get('name'),
+                ))
+            elif item.get('type') == self.CONTENT_TYPE_PROGRAM:
+                items.append(Program(
+                    program_id=item.get('id'),
+                    name=item.get('name'),
+                ))
 
         return items
 
@@ -554,7 +557,7 @@ class VtmGo:
         :type url: str
         :rtype str
         """
-        headers = self._headers
+        headers = self._HEADERS
         token = self._auth.get_token()
         if token:
             headers['x-dpp-jwt'] = token
@@ -578,7 +581,7 @@ class VtmGo:
         :type url: str
         :rtype str
         """
-        headers = self._headers
+        headers = self._HEADERS
         token = self._auth.get_token()
         if token:
             headers['x-dpp-jwt'] = token
@@ -602,7 +605,7 @@ class VtmGo:
         :type url: str
         :rtype str
         """
-        headers = self._headers
+        headers = self._HEADERS
         token = self._auth.get_token()
         if token:
             headers['x-dpp-jwt'] = token
