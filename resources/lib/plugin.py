@@ -79,14 +79,14 @@ def show_index():
                   info_dict={
                       'plot': kodi.localize(30018),
                   }),
-        TitleItem(title=kodi.localize(30019),  # Continue watching
-                  path=routing.url_for(show_continuewatching if not kids else show_kids_continuewatching),
-                  art_dict={
-                      'icon': 'DefaultInProgressShows.png'
-                  },
-                  info_dict={
-                      'plot': kodi.localize(30020),
-                  }),
+        # TitleItem(title=kodi.localize(30019),  # Continue watching
+        #           path=routing.url_for(show_continuewatching if not kids else show_kids_continuewatching),
+        #           art_dict={
+        #               'icon': 'DefaultInProgressShows.png'
+        #           },
+        #           info_dict={
+        #               'plot': kodi.localize(30020),
+        #           }),
     ])
 
     # Only provide YouTube option when plugin.video.youtube is available
@@ -449,7 +449,8 @@ def show_mylist():
 
     listing = []
     for item in mylist:
-        listing.append(_generate_titleitem(item, True))
+        item.my_list = True
+        listing.append(_generate_titleitem(item))
 
     # Sort categories by default like in VTM GO.
     kodi.show_listing(listing, 30017, content='tvshows')
@@ -479,6 +480,7 @@ def mylist_del(video_type, content_id):
     """ Remove an item from "My List" """
     vtm_go.del_mylist(video_type, content_id)
     kodi.end_of_directory()
+    kodi.container_refresh()
 
 
 @routing.route('/kids/continuewatching')
@@ -498,7 +500,14 @@ def show_continuewatching():
 
     listing = []
     for item in mylist:
-        listing.append(_generate_titleitem(item, True))
+        titleitem = _generate_titleitem(item, progress=True)
+
+        # Add Program Name to title since this list contains episodes from multiple programs
+        title = '%s - %s' % (titleitem.info_dict.get('tvshowtitle'), titleitem.info_dict.get('title'))
+        titleitem.title = title
+        titleitem.info_dict['title'] = title
+
+        listing.append(titleitem)
 
     # Sort categories by default like in VTM GO.
     kodi.show_listing(listing, 30019, content='episodes', sort='label')
@@ -643,36 +652,7 @@ def show_program_season(program, season):
     listing = []
     for s in seasons:
         for episode in s.episodes.values():
-            listing.append(
-                TitleItem(title=episode.name,
-                          path=routing.url_for(play, category='episodes', item=episode.episode_id),
-                          art_dict={
-                              'banner': program_obj.cover,
-                              'fanart': program_obj.cover,
-                              'thumb': episode.cover,
-                          },
-                          info_dict={
-                              'tvshowtitle': program_obj.name,
-                              'title': episode.name,
-                              'tagline': program_obj.description,
-                              'plot': _format_plot(episode),
-                              'duration': episode.duration,
-                              'season': episode.season,
-                              'episode': episode.number,
-                              'mediatype': 'episode',
-                              'set': program_obj.name,
-                              'studio': episode.channel,
-                              'aired': episode.aired,
-                              'mpaa': ', '.join(episode.legal) if hasattr(episode, 'legal') and episode.legal else kodi.localize(30216),
-                          },
-                          stream_dict={
-                              'duration': episode.duration,
-                              'codec': 'h264',
-                              'height': 1080,
-                              'width': 1920,
-                          },
-                          is_playable=True)
-            )
+            listing.append(_generate_titleitem(episode))
 
     # Sort by episode number by default. Takes seasons into account.
     kodi.show_listing(listing, 30003, content='episodes', sort='episode')
@@ -753,7 +733,7 @@ def show_search(query=None):
     kodi.show_listing(listing, 30009, content='tvshows')
 
 
-def _generate_titleitem(item, my_list=False):
+def _generate_titleitem(item, progress=False):
     """ Generate a TitleItem based on a Movie, Program or Episode.
     :type item: Union[Movie, Program, Episode]
     :rtype TitleItem
@@ -767,9 +747,13 @@ def _generate_titleitem(item, my_list=False):
         'title': item.name,
         'plot': item.description,
     }
+    prop_dict = {}
 
+    #
+    # Movie
+    #
     if isinstance(item, Movie):
-        if my_list:
+        if item.my_list:
             context_menu = [(
                 kodi.localize(30051),  # Remove from My List
                 'XBMC.Container.Update(%s)' %
@@ -812,8 +796,11 @@ def _generate_titleitem(item, my_list=False):
                          context_menu=context_menu,
                          is_playable=True)
 
+    #
+    # Program
+    #
     if isinstance(item, Program):
-        if my_list:
+        if item.my_list:
             context_menu = [(
                 kodi.localize(30051),  # Remove from My List
                 'XBMC.Container.Update(%s)' %
@@ -850,6 +837,9 @@ def _generate_titleitem(item, my_list=False):
                          info_dict=info_dict,
                          context_menu=context_menu)
 
+    #
+    # Episode
+    #
     if isinstance(item, Episode):
         context_menu = [(
             kodi.localize(30052),  # Go to Program
@@ -858,38 +848,67 @@ def _generate_titleitem(item, my_list=False):
         )]
 
         info_dict.update({
-            'title': '%dx%02d. %s' % (item.season, item.number, item.name),
-            'mediatype': 'episode',
+            'tvshowtitle': item.program_name,
+            'title': item.name,
+            'plot': _format_plot(item),
+            'duration': item.duration,
             'season': item.season,
             'episode': item.number,
+            'mediatype': 'episode',
+            'set': item.program_name,
+            'studio': item.channel,
+            'aired': item.aired,
+            'mpaa': ', '.join(item.legal) if hasattr(item, 'legal') and item.legal else kodi.localize(30216),
         })
+
+        if progress and item.watched:
+            info_dict.update({
+                'playcount': 1,
+            })
+
         stream_dict = {
             'codec': 'h264',
+            'duration': item.duration,
             'height': 1080,
             'width': 1920,
         }
 
-        # Get program details
+        # Get program and episode details from cache
         program = vtm_go.get_program(item.program_id, only_cache=True)
-        episode = vtm_go.get_episode_from_program(item.program_id, item.episode_id, only_cache=True)
-        if program and episode:
-            art_dict.update({
-                'fanart': episode.cover,
-                'banner': episode.cover,
-            })
-            info_dict.update({
-                'title': '%dx%02d. %s - %s' % (item.season, item.number, program.name, episode.name),
-                'tvshowtitle': program.name,
-                'tagline': program.description,
-                'plot': _format_plot(episode),
-                'duration': episode.duration,
-                'set': program.name,
-                'studio': episode.channel,
-                'aired': episode.aired,
-                'mpaa': ', '.join(episode.legal) if hasattr(episode, 'legal') and episode.legal else kodi.localize(30216),
-            })
-            stream_dict.update({
-                'duration': episode.duration,
+        if program:
+            episode = vtm_go.get_episode_from_program(program, item.episode_id)
+            if episode:
+                art_dict.update({
+                    'fanart': episode.cover,
+                    'banner': episode.cover,
+                })
+                info_dict.update({
+                    'tvshowtitle': program.name,
+                    'title': episode.name,
+                    'plot': _format_plot(episode),
+                    'duration': episode.duration,
+                    'season': episode.season,
+                    'episode': episode.number,
+                    'set': program.name,
+                    'studio': episode.channel,
+                    'aired': episode.aired,
+                    'mpaa': ', '.join(episode.legal) if hasattr(episode, 'legal') and episode.legal else kodi.localize(30216),
+                })
+
+                if progress and item.watched:
+                    info_dict.update({
+                        'playcount': 1,
+                    })
+
+                stream_dict.update({
+                    'duration': episode.duration,
+                })
+
+        # Add progress info
+        if progress and not item.watched and item.progress:
+            prop_dict.update({
+                'ResumeTime': item.progress,
+                'TotalTime': item.progress + 1,
             })
 
         return TitleItem(title=info_dict['title'],
@@ -897,6 +916,7 @@ def _generate_titleitem(item, my_list=False):
                          art_dict=art_dict,
                          info_dict=info_dict,
                          stream_dict=stream_dict,
+                         prop_dict=prop_dict,
                          context_menu=context_menu,
                          is_playable=True)
 
@@ -944,8 +964,8 @@ def play(category, item):
         kodi.show_ok_dialog(message=kodi.localize(30708))  # Please reboot Kodi
         return
 
-    # Get stream information
     try:
+        # Get stream information
         resolved_stream = _vtmgostream.get_stream(category, item)
 
     except GeoblockedException:

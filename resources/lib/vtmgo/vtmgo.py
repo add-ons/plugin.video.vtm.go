@@ -77,7 +77,7 @@ class Movie:
     """ Defines a Movie """
 
     def __init__(self, movie_id=None, name=None, description=None, year=None, cover=None, duration=None, remaining=None, geoblocked=None,
-                 channel=None, legal=None, aired=None):
+                 channel=None, legal=None, aired=None, my_list=None):
         """
         :type movie_id: str
         :type name: str
@@ -90,6 +90,7 @@ class Movie:
         :type channel: str
         :type legal: str
         :type aired: str
+        :type my_list: bool
         """
         self.movie_id = movie_id
         self.name = name
@@ -102,6 +103,7 @@ class Movie:
         self.channel = channel
         self.legal = legal
         self.aired = aired
+        self.my_list = my_list
 
     def __repr__(self):
         return "%r" % self.__dict__
@@ -110,7 +112,7 @@ class Movie:
 class Program:
     """ Defines a Program """
 
-    def __init__(self, program_id=None, name=None, description=None, cover=None, seasons=None, geoblocked=None, channel=None, legal=None):
+    def __init__(self, program_id=None, name=None, description=None, cover=None, seasons=None, geoblocked=None, channel=None, legal=None, my_list=None):
         """
         :type program_id: str
         :type name: str
@@ -120,6 +122,7 @@ class Program:
         :type geoblocked: bool
         :type channel: str
         :type legal: str
+        :type my_list: bool
         """
         self.program_id = program_id
         self.name = name
@@ -129,6 +132,7 @@ class Program:
         self.geoblocked = geoblocked
         self.channel = channel
         self.legal = legal
+        self.my_list = my_list
 
     def __repr__(self):
         return "%r" % self.__dict__
@@ -160,12 +164,12 @@ class Season:
 class Episode:
     """ Defines an Episode """
 
-    def __init__(self, episode_id=None, program_id=None, number=None, season=None, name=None, description=None, cover=None, duration=None, remaining=None,
-                 geoblocked=None,
-                 channel=None, legal=None, aired=None):
+    def __init__(self, episode_id=None, program_id=None, program_name=None, number=None, season=None, name=None, description=None, cover=None, duration=None,
+                 remaining=None, geoblocked=None, channel=None, legal=None, aired=None, progress=None, watched=False):
         """
         :type episode_id: str
         :type program_id: str
+        :type program_name: str
         :type number: int
         :type season: str
         :type name: str
@@ -177,10 +181,13 @@ class Episode:
         :type channel: str
         :type legal: str
         :type aired: str
+        :type progress: int
+        :type watched: bool
         """
         import re
         self.episode_id = episode_id
         self.program_id = program_id
+        self.program_name = program_name
         self.number = int(number)
         self.season = int(season)
         self.name = re.compile('^%d. ' % number).sub('', name)  # Strip episode from name
@@ -192,6 +199,8 @@ class Episode:
         self.channel = channel
         self.legal = legal
         self.aired = aired
+        self.progress = progress
+        self.watched = watched
 
     def __repr__(self):
         return "%r" % self.__dict__
@@ -294,14 +303,22 @@ class VtmGo:
                 ))
 
             elif item.get('target', {}).get('type') == self.CONTENT_TYPE_EPISODE:
+                if swimlane == 'continue-watching':
+                    title = '%dx%02d' % (item.get('target', {}).get('seasonIndex'), item.get('target', {}).get('episodeIndex'))
+                else:
+                    title = item.get('title')
+
                 items.append(Episode(
                     episode_id=item.get('target', {}).get('id'),
                     program_id=item.get('target', {}).get('programId'),
+                    program_name=item.get('target', {}).get('programName'),
                     number=item.get('target', {}).get('episodeIndex'),
                     season=item.get('target', {}).get('seasonIndex'),
-                    name='%dx%02d. ' % (item.get('target', {}).get('episodeIndex'), item.get('target', {}).get('seasonIndex')) + item.get('title'),
+                    name=title,
                     geoblocked=item.get('geoBlocked'),
                     cover=item.get('imageUrl'),
+                    progress=item.get('playerPositionSeconds'),
+                    watched=False,
                 ))
 
         return items
@@ -458,6 +475,7 @@ class VtmGo:
                 episodes[item_episode.get('index')] = Episode(
                     episode_id=item_episode.get('id'),
                     program_id=program_id,
+                    program_name=program.get('name'),
                     number=item_episode.get('index'),
                     season=item_season.get('index'),
                     name=item_episode.get('name'),
@@ -469,6 +487,8 @@ class VtmGo:
                     channel=channel,
                     legal=program.get('legalIcons'),
                     aired=item_episode.get('broadcastTimestamp'),
+                    progress=item_episode.get('playerPositionSeconds', 0),
+                    watched=item_episode.get('doneWatching', False),
                 )
 
             seasons[item_season.get('index')] = Season(
@@ -491,23 +511,19 @@ class VtmGo:
             legal=program.get('legalIcons'),
         )
 
-    def get_episode_from_program(self, program_id, episode_id, only_cache=False):
-        """ Get the details of the specified episode.
-        :type program_id: str
+    @staticmethod
+    def get_episode_from_program(program, episode_id):
+        """ Extract the specified episode from the program data.
+        :type program: Program
         :type episode_id: str
-        :type only_cache: bool
         :rtype Episode
         """
-        program = self.get_program(program_id, only_cache=only_cache)
-        if not program:
-            raise UnavailableException()
-
         for season in program.seasons.values():
             for episode in season.episodes.values():
                 if episode.episode_id == episode_id:
                     return episode
 
-        raise UnavailableException()
+        return None
 
     def get_episode(self, episode_id):
         """ Get the details of the specified episode.
@@ -522,11 +538,14 @@ class VtmGo:
 
         return Episode(
             episode_id=episode.get('id'),
+            program_id=episode.get('programId'),
+            program_name=episode.get('programName'),
             number=episode.get('index'),
             season=episode.get('seasonIndex'),
             name=episode.get('name'),
             description=episode.get('description'),
             cover=episode.get('bigPhotoUrl'),
+            progress=episode.get('playerPositionSeconds'),
         )
 
     def do_search(self, search):

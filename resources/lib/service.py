@@ -5,7 +5,7 @@ from __future__ import absolute_import, division, unicode_literals
 
 from time import time
 
-from resources.lib.kodiwrapper import KodiWrapper, LOG_INFO
+from resources.lib.kodiwrapper import KodiWrapper, LOG_INFO, LOG_DEBUG
 from resources.lib.vtmgo.vtmgo import VtmGo, Program, Movie
 from xbmc import Monitor
 
@@ -38,7 +38,7 @@ class BackgroundService(Monitor):
 
     def onSettingsChanged(self):
         """ Callback when a setting has changed """
-        self.kodi.log('IN VTM GO: Settings changed')
+        self.kodi.log('IN VTM GO: Settings changed', LOG_DEBUG)
 
         # Refresh our VtmGo instance
         self.vtm_go = VtmGo(self.kodi)

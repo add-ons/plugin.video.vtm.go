@@ -498,6 +498,11 @@ class KodiWrapper:
         self.log("Delete file '{path}'.", LOG_DEBUG, path=path)
         return delete(path)
 
+    def container_refresh(self):
+        """ Refresh the current container """
+        self.log('Execute: Container.Refresh', LOG_DEBUG)
+        xbmc.executebuiltin('Container.Refresh')
+
     def end_of_directory(self):
         """ Close a virtual directory, required to avoid a waiting Kodi """
         xbmcplugin.endOfDirectory(handle=self._handle, succeeded=False, updateListing=False, cacheToDisc=False)
