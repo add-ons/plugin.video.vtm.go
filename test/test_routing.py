@@ -47,8 +47,8 @@ class TestRouting(unittest.TestCase):
         self.assertEqual(routing.url_for(plugin.metadata_update), 'plugin://plugin.video.vtm.go/metadata/update')
 
     def test_kids_zone(self):
-        plugin.run(['plugin://plugin.video.vtm.go/kids', '0', ''])
-        self.assertEqual(routing.url_for(plugin.show_kids_index), 'plugin://plugin.video.vtm.go/kids')
+        plugin.run(['plugin://plugin.video.vtm.go/?kids=True', '0', ''])
+        self.assertEqual(routing.url_for(plugin.show_index, kids=True), 'plugin://plugin.video.vtm.go/?kids=True')
 
     # Check credentials: '/check-credentials'
     def test_check_credentials(self):
@@ -59,8 +59,6 @@ class TestRouting(unittest.TestCase):
     def test_livetv_menu(self):
         plugin.run(['plugin://plugin.video.vtm.go/livetv', '0', ''])
         self.assertEqual(routing.url_for(plugin.show_livetv), 'plugin://plugin.video.vtm.go/livetv')
-        plugin.run(['plugin://plugin.video.vtm.go/kids/livetv', '0', ''])
-        self.assertEqual(routing.url_for(plugin.show_kids_livetv), 'plugin://plugin.video.vtm.go/kids/livetv')
 
     # Episodes menu: '/program/<program>'
     def test_program_menu(self):
@@ -80,15 +78,11 @@ class TestRouting(unittest.TestCase):
     def test_catalog_menu(self):
         plugin.run(['plugin://plugin.video.vtm.go/catalog', '0', ''])
         self.assertEqual(routing.url_for(plugin.show_catalog), 'plugin://plugin.video.vtm.go/catalog')
-        plugin.run(['plugin://plugin.video.vtm.go/kids/catalog', '0', ''])
-        self.assertEqual(routing.url_for(plugin.show_kids_catalog), 'plugin://plugin.video.vtm.go/kids/catalog')
 
     # Catalogue menu: '/catalog/<category>'
     def test_catalog_category_menu(self):
         plugin.run(['plugin://plugin.video.vtm.go/catalog/films', '0', ''])
         self.assertEqual(routing.url_for(plugin.show_catalog_category, category='films'), 'plugin://plugin.video.vtm.go/catalog/films')
-        plugin.run(['plugin://plugin.video.vtm.go/kids/catalog/films', '0', ''])
-        self.assertEqual(routing.url_for(plugin.show_kids_catalog_category, category='films'), 'plugin://plugin.video.vtm.go/kids/catalog/films')
         plugin.run(['plugin://plugin.video.vtm.go/catalog/kids', '0', ''])
         self.assertEqual(routing.url_for(plugin.show_catalog_category, category='kids'), 'plugin://plugin.video.vtm.go/catalog/kids')
         plugin.run(['plugin://plugin.video.vtm.go/catalog/nieuws-actua', '0', ''])
@@ -98,8 +92,6 @@ class TestRouting(unittest.TestCase):
     def test_youtube_menu(self):
         plugin.run(['plugin://plugin.video.vtm.go/youtube', '0', ''])
         self.assertEqual(routing.url_for(plugin.show_youtube), 'plugin://plugin.video.vtm.go/youtube')
-        plugin.run(['plugin://plugin.video.vtm.go/kids/youtube', '0', ''])
-        self.assertEqual(routing.url_for(plugin.show_kids_youtube), 'plugin://plugin.video.vtm.go/kids/youtube')
 
     # Search menu: '/search'
     def test_search_menu(self):
@@ -107,15 +99,11 @@ class TestRouting(unittest.TestCase):
         self.assertEqual(routing.url_for(plugin.show_search), 'plugin://plugin.video.vtm.go/search')
         plugin.run(['plugin://plugin.video.vtm.go/search/nieuws', '0', ''])
         self.assertEqual(routing.url_for(plugin.show_search, query='nieuws'), 'plugin://plugin.video.vtm.go/search/nieuws')
-        plugin.run(['plugin://plugin.video.vtm.go/kids/search', '0', ''])
-        self.assertEqual(routing.url_for(plugin.show_kids_search), 'plugin://plugin.video.vtm.go/kids/search')
 
     # TV Guide menu: '/tvguide'
     def test_tvguide_menu(self):
         plugin.run(['plugin://plugin.video.vtm.go/tvguide', '0', ''])
         self.assertEqual(routing.url_for(plugin.show_tvguide), 'plugin://plugin.video.vtm.go/tvguide')
-        plugin.run(['plugin://plugin.video.vtm.go/kids/tvguide', '0', ''])
-        self.assertEqual(routing.url_for(plugin.show_kids_tvguide), 'plugin://plugin.video.vtm.go/kids/tvguide')
         plugin.run(['plugin://plugin.video.vtm.go/tvguide/vtm', '0', ''])
         self.assertEqual(routing.url_for(plugin.show_tvguide_channel, channel='vtm'), 'plugin://plugin.video.vtm.go/tvguide/vtm')
         plugin.run(['plugin://plugin.video.vtm.go/tvguide/vtm/today', '0', ''])
@@ -125,8 +113,6 @@ class TestRouting(unittest.TestCase):
     def test_recommendations_menu(self):
         plugin.run(['plugin://plugin.video.vtm.go/recommendations', '0', ''])
         self.assertEqual(routing.url_for(plugin.show_recommendations), 'plugin://plugin.video.vtm.go/recommendations')
-        plugin.run(['plugin://plugin.video.vtm.go/kids/recommendations', '0', ''])
-        self.assertEqual(routing.url_for(plugin.show_kids_recommendations), 'plugin://plugin.video.vtm.go/kids/recommendations')
         plugin.run(['plugin://plugin.video.vtm.go/recommendations/775de6ef-003d-4571-8a6e-8433be0ef379', '0', ''])
         self.assertEqual(routing.url_for(plugin.show_recommendations_category, category='775de6ef-003d-4571-8a6e-8433be0ef379'),
                          'plugin://plugin.video.vtm.go/recommendations/775de6ef-003d-4571-8a6e-8433be0ef379')
@@ -135,8 +121,6 @@ class TestRouting(unittest.TestCase):
     def test_mylist_menu(self):
         plugin.run(['plugin://plugin.video.vtm.go/mylist', '0', ''])
         self.assertEqual(routing.url_for(plugin.show_mylist), 'plugin://plugin.video.vtm.go/mylist')
-        plugin.run(['plugin://plugin.video.vtm.go/kids/mylist', '0', ''])
-        self.assertEqual(routing.url_for(plugin.show_kids_mylist), 'plugin://plugin.video.vtm.go/kids/mylist')
 
     # Play Live TV: '/play/livetv/<channel>'
     def test_play_livetv(self):
