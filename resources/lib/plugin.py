@@ -74,7 +74,7 @@ def show_index():
                       'plot': kodi.localize(30018),
                   }),
         # TitleItem(title=kodi.localize(30019),  # Continue watching
-        #           path=routing.url_for(show_continuewatching if not kids else show_kids_continuewatching),
+        #           path=routing.url_for(show_continuewatching, kids=kids),
         #           art_dict={
         #               'icon': 'DefaultInProgressShows.png'
         #           },
@@ -431,12 +431,6 @@ def mylist_del(video_type, content_id):
     vtm_go.del_mylist(video_type, content_id)
     kodi.end_of_directory()
     kodi.container_refresh()
-
-
-@routing.route('/kids/continuewatching')
-def show_kids_continuewatching():
-    """ Show the items in "Continue Watching" (kids) """
-    show_continuewatching()
 
 
 @routing.route('/continuewatching')
