@@ -201,24 +201,12 @@ msgid "Invalid login details"
 msgstr "Foutieve inloggegevens"
 
 msgctxt "#30702"
-msgid "Unknown error while logging in"
-msgstr "Onbekende fout bij het inloggen"
-
-msgctxt "#30703"
-msgid "Could not extract authentication code"
-msgstr "Onbekend of ontbrekende authenticate-code"
+msgid "Unknown error while logging in: {code}"
+msgstr "Onbekende fout bij het inloggen: {code}"
 
 msgctxt "#30704"
 msgid "This video may be geo-blocked, or your account is already being used currently."
 msgstr "Deze video werd wellicht geografisch geblokkeerd, of je account is reeds in gebruik."
-
-msgctxt "#30705"
-msgid "Could not parse media info."
-msgstr "De media info kon niet geïnterpreteerd worden."
-
-msgctxt "#30706"
-msgid "No stream found that we can handle."
-msgstr "Er is geen werkende stream gevonden."
 
 msgctxt "#30708"
 msgid "Please restart Kodi."

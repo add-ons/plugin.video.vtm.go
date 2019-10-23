@@ -113,7 +113,7 @@ class VtmGoEpg:
                     broadcasts=[self._parse_broadcast(broadcast) for broadcast in epg_channel.get('broadcasts', [])]
                 )
 
-        return None
+        raise Exception('Channel %s not found in the EPG' % channel)
 
     def get_broadcast(self, channel, timestamp):
         """ Load EPG information for the specified channel and date.

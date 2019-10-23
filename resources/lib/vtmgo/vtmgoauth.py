@@ -16,6 +16,13 @@ class InvalidLoginException(Exception):
     """ Is thrown when the credentials are invalid """
 
 
+class LoginErrorException(Exception):
+    """ Is thrown when we could not login """
+
+    def __init__(self, code):
+        self.code = code
+
+
 class VtmGoAuth:
     """ VTM GO Authentication API """
 
@@ -27,11 +34,11 @@ class VtmGoAuth:
         # self._name = None
         # self._accountId = None
 
-        self.username = kodi.get_setting('username')
-        self.password = kodi.get_setting('password')
+        self.username = self._kodi.get_setting('username')
+        self.password = self._kodi.get_setting('password')
 
         if self._credentials_changed():
-            kodi.log('Clearing auth tokens due to changed credentials', LOG_INFO)
+            self._kodi.log('Clearing auth tokens due to changed credentials', LOG_INFO)
             self.clear_token()
 
     def _credentials_changed(self):
@@ -120,7 +127,7 @@ class VtmGoAuth:
             if 'errorBlock-OIDC-003' in response.text:  # Wachtwoord is niet correct.
                 raise InvalidLoginException()
 
-            raise Exception(self._kodi.localize(30702))  # Unknown error while logging in
+            raise LoginErrorException(code=100)  # Unknown error while logging in
 
         except requests.exceptions.InvalidSchema as e:
             # We get back an url like this: vtmgo://callback/oidc?state=yyyyyyyyyyyyyyyyyyyyyy&code=xxxxxxxxxxxxxxxxxxxxxxxxxx-xxxxxxxxxxxxxxxx
@@ -130,7 +137,7 @@ class VtmGoAuth:
             if matches:
                 code = matches.group(1)
             else:
-                raise Exception(self._kodi.localize(30703))  # Could not extract authentication code
+                raise LoginErrorException(code=101)  # Could not extract authentication code
 
         # Okay, final stage. We now need to use our authorizationCode to get a valid JWT.
         response = session.post('https://api.vtmgo.be/authorize', json={

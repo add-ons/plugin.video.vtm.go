@@ -8,7 +8,7 @@ import routing
 from resources.lib import GeoblockedException, UnavailableException
 from resources.lib.kodiwrapper import KodiWrapper, TitleItem
 from resources.lib.vtmgo.vtmgo import VtmGo
-from resources.lib.vtmgo.vtmgoauth import VtmGoAuth, InvalidLoginException
+from resources.lib.vtmgo.vtmgoauth import VtmGoAuth, InvalidLoginException, LoginErrorException
 from resources.lib.vtmgo.vtmgoepg import VtmGoEpg
 from resources.lib.vtmgo.vtmgostream import VtmGoStream
 
@@ -189,6 +189,9 @@ def check_credentials():
 
     except InvalidLoginException:
         kodi.show_ok_dialog(message=kodi.localize(30203))  # Your credentials are not valid!
+
+    except LoginErrorException as e:
+        kodi.show_ok_dialog(message=kodi.localize(30702, code=e.code))  # Unknown error while logging in: {code}
 
     kodi.open_settings()
 

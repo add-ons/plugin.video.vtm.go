@@ -200,23 +200,11 @@ msgid "Invalid login details"
 msgstr ""
 
 msgctxt "#30702"
-msgid "Unknown error while logging in"
-msgstr ""
-
-msgctxt "#30703"
-msgid "Could not extract authentication code"
+msgid "Unknown error while logging in: {code}"
 msgstr ""
 
 msgctxt "#30704"
 msgid "This video may be geo-blocked, or your account is already being used currently."
-msgstr ""
-
-msgctxt "#30705"
-msgid "Could not parse media info."
-msgstr ""
-
-msgctxt "#30706"
-msgid "No stream found that we can handle."
 msgstr ""
 
 msgctxt "#30708"
