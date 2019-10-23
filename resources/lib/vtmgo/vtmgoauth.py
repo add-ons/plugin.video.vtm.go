@@ -20,6 +20,7 @@ class LoginErrorException(Exception):
     """ Is thrown when we could not login """
 
     def __init__(self, code):
+        super(LoginErrorException, self).__init__()
         self.code = code
 
 
