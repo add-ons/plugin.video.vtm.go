@@ -20,7 +20,7 @@ xbmcplugin = __import__('xbmcplugin')
 xbmcvfs = __import__('xbmcvfs')
 
 routing = plugin.routing
-kodi = KodiWrapper(routing=routing)
+kodi = KodiWrapper(globals())
 
 
 class TestRouting(unittest.TestCase):

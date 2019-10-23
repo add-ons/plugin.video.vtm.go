@@ -91,13 +91,18 @@ class TitleItem:
 class KodiWrapper:
     """ A wrapper around all Kodi functionality """
 
-    def __init__(self, routing=None):
+    def __init__(self, addon=None):
         """ Initialize the Kodi wrapper """
-        self.routing = None
-        if routing:
-            self.routing = routing
+        if addon:
+            self.addon = addon
+            self.routing = addon['routing']
             self._handle = self.routing.handle
             self._url = self.routing.base_url
+        else:
+            self.addon = None
+            self.routing = None
+            self._handle = None
+            self._url = None
         self._addon = Addon()
         self._system_locale_works = None
         self._addon_name = self._addon.getAddonInfo('name')
@@ -105,6 +110,11 @@ class KodiWrapper:
         self._global_debug_logging = self.get_global_setting('debug.showloginfo')  # Returns a boolean
         self._debug_logging = self.get_setting_as_bool('debug_logging')
         self._cache_path = self.get_userdata_path() + 'cache/'
+
+    def url_for(self, name, *args, **kwargs):
+        """ Wrapper for routing.url_for() to lookup by name """
+        kwargs = {k: v for k, v in kwargs.items() if v is not None}  # Strip out empty kwargs
+        return self.routing.url_for(self.addon[name], *args, **kwargs)
 
     def show_listing(self, title_items, category=None, sort='unsorted', content=None, cache=True):
         """ Show a virtual directory in Kodi """
@@ -526,4 +536,4 @@ class KodiWrapper:
         if self.routing and 'True' in self.routing.args.get('kids', []):
             return True
 
-        return False
+        return None
