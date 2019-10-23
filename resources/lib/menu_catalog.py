@@ -48,7 +48,7 @@ class MenuCatalog(Menu):
         # Used for A-Z listing or when movies and episodes are mixed.
         self._kodi.show_listing(listing, 30003, content='movies' if category == 'films' else 'tvshows', sort='label')
 
-    def show_program(self, program):
+    def show_catalog_program(self, program):
         """ Show a program from the catalog """
         try:
             program_obj = self.vtm_go.get_program(program)
@@ -63,7 +63,7 @@ class MenuCatalog(Menu):
         if self._kodi.get_global_setting('videolibrary.showallitems') is True:
             listing.append(
                 TitleItem(title='* %s' % self._kodi.localize(30204),  # * All seasons
-                          path=self._kodi.url_for('show_program_season', program=program, season='all'),
+                          path=self._kodi.url_for('show_catalog_program_season', program=program, season='all'),
                           art_dict={
                               'thumb': program_obj.cover,
                               'fanart': program_obj.cover,
@@ -81,7 +81,7 @@ class MenuCatalog(Menu):
         for s in program_obj.seasons.values():
             listing.append(
                 TitleItem(title=self._kodi.localize(30205, season=s.number),  # Season X
-                          path=self._kodi.url_for('show_program_season', program=program, season=s.number),
+                          path=self._kodi.url_for('show_catalog_program_season', program=program, season=s.number),
                           art_dict={
                               'thumb': s.cover,
                               'fanart': program_obj.cover,
@@ -98,7 +98,7 @@ class MenuCatalog(Menu):
         # Sort by label. Some programs return seasons unordered.
         self._kodi.show_listing(listing, 30003, content='tvshows', sort='label')
 
-    def show_program_season(self, program, season):
+    def show_catalog_program_season(self, program, season):
         """ Show a program from the catalog """
         try:
             program_obj = self.vtm_go.get_program(program)
@@ -122,7 +122,7 @@ class MenuCatalog(Menu):
         # Sort by episode number by default. Takes seasons into account.
         self._kodi.show_listing(listing, 30003, content='episodes', sort='episode')
 
-    def show_recommendations(self):
+    def show_catalog_recommendations(self):
         """ Show the recommendations """
         try:
             recommendations = self.vtm_go.get_recommendations()
@@ -143,7 +143,7 @@ class MenuCatalog(Menu):
         # Sort categories by default like in VTM GO.
         self._kodi.show_listing(listing, 30015, content='files')
 
-    def show_recommendations_category(self, category):
+    def show_catalog_recommendations_category(self, category):
         """ Show the items in a recommendations category """
         try:
             recommendations = self.vtm_go.get_recommendations()
@@ -163,7 +163,7 @@ class MenuCatalog(Menu):
         # Sort categories by default like in VTM GO.
         self._kodi.show_listing(listing, 30015, content='tvshows')
 
-    def show_mylist(self):
+    def show_catalog_mylist(self):
         """ Show the items in "My List" """
         try:
             mylist = self.vtm_go.get_swimlane('my-list')
@@ -179,7 +179,7 @@ class MenuCatalog(Menu):
         # Sort categories by default like in VTM GO.
         self._kodi.show_listing(listing, 30017, content='tvshows')
 
-    def show_continuewatching(self):
+    def show_catalog_continuewatching(self):
         """ Show the items in "Continue Watching" """
         try:
             mylist = self.vtm_go.get_swimlane('continue-watching')

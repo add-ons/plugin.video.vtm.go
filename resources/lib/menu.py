@@ -155,7 +155,7 @@ class Menu:
                 })
 
             return TitleItem(title=item.name,
-                             path=self._kodi.url_for('show_program', program=item.program_id),
+                             path=self._kodi.url_for('show_catalog_program', program=item.program_id),
                              art_dict=art_dict,
                              info_dict=info_dict,
                              context_menu=context_menu)
@@ -167,7 +167,7 @@ class Menu:
             context_menu = [(
                 self._kodi.localize(30052),  # Go to Program
                 'XBMC.Container.Update(%s)' %
-                self._kodi.url_for('show_program', program=item.program_id)
+                self._kodi.url_for('show_catalog_program', program=item.program_id)
             )]
 
             info_dict.update({

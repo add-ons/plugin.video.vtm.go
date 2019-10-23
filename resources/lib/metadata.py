@@ -20,7 +20,7 @@ class Metadata:
 
         progress = self._kodi.show_progress(message=self._kodi.localize(30715))
 
-        # Fetch all items from the catalogue
+        # Fetch all items from the catalog
         items = self.vtm_go.get_items('all')
         count = len(items)
 

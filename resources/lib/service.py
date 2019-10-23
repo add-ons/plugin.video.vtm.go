@@ -54,7 +54,7 @@ class BackgroundService(Monitor):
 
         progress = self.kodi.show_progress_background(message=self.kodi.localize(30715))
 
-        # Fetch all items from the catalogue
+        # Fetch all items from the catalog
         items = vtm_go.get_items('all')
         count = len(items)
 

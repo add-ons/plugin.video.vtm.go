@@ -51,28 +51,56 @@ def show_tvguide_detail(channel=None, date=None):
     MenuChannels(kodi).show_tvguide_detail(channel, date)
 
 
-@routing.route('/recommendations')
+@routing.route('/catalog')
+def show_catalog():
+    """ Show the catalog """
+    from resources.lib.menu_catalog import MenuCatalog
+    MenuCatalog(kodi).show_catalog()
+
+
+@routing.route('/catalog/category/<category>')
+def show_catalog_category(category):
+    """ Show a category in the catalog """
+    from resources.lib.menu_catalog import MenuCatalog
+    MenuCatalog(kodi).show_catalog_category(category)
+
+
+@routing.route('/catalog/program/<program>')
+def show_catalog_program(program):
+    """ Show a program from the catalog """
+    from resources.lib.menu_catalog import MenuCatalog
+    MenuCatalog(kodi).show_catalog_program(program)
+
+
+@routing.route('/program/<program>/<season>')
+def show_catalog_program_season(program, season):
+    """ Show a program from the catalog """
+    from resources.lib.menu_catalog import MenuCatalog
+    MenuCatalog(kodi).show_catalog_program_season(program, season)
+
+
+@routing.route('/catalog/recommendations')
 def show_recommendations():
     """ Shows the programs of a specific date in the tv guide """
     from resources.lib.menu_catalog import MenuCatalog
-    MenuCatalog(kodi).show_recommendations()
+    MenuCatalog(kodi).show_catalog_recommendations()
 
 
-@routing.route('/recommendations/<category>')
+@routing.route('/catalog/recommendations/<category>')
 def show_recommendations_category(category):
     """ Show the items in a recommendations category """
     from resources.lib.menu_catalog import MenuCatalog
-    MenuCatalog(kodi).show_recommendations_category(category)
+    MenuCatalog(kodi).show_catalog_recommendations_category(category)
 
 
-@routing.route('/mylist')
+@routing.route('/catalog/mylist')
 def show_mylist():
     """ Show the items in "My List" """
     from resources.lib.menu_catalog import MenuCatalog
-    MenuCatalog(kodi).show_mylist()
+    MenuCatalog(kodi).show_catalog_mylist()
 
 
-@routing.route('/mylist/add/<video_type>/<content_id>')
+@routing.route('/catalog/mylist/add/<video_type>/<content_id>')
 def mylist_add(video_type, content_id):
     """ Add an item to "My List" """
     vtm_go = VtmGo(kodi)
@@ -80,7 +108,7 @@ def mylist_add(video_type, content_id):
     kodi.end_of_directory()
 
 
-@routing.route('/mylist/del/<video_type>/<content_id>')
+@routing.route('/catalog/mylist/del/<video_type>/<content_id>')
 def mylist_del(video_type, content_id):
     """ Remove an item from "My List" """
     vtm_go = VtmGo(kodi)
@@ -89,25 +117,11 @@ def mylist_del(video_type, content_id):
     kodi.container_refresh()
 
 
-@routing.route('/continuewatching')
+@routing.route('/catalog/continuewatching')
 def show_continuewatching():
     """ Show the items in "Continue Watching" """
     from resources.lib.menu_catalog import MenuCatalog
-    MenuCatalog(kodi).show_continuewatching()
-
-
-@routing.route('/catalog')
-def show_catalog():
-    """ Show the catalog """
-    from resources.lib.menu_catalog import MenuCatalog
-    MenuCatalog(kodi).show_catalog()
-
-
-@routing.route('/catalog/<category>')
-def show_catalog_category(category):
-    """ Show a category in the catalog """
-    from resources.lib.menu_catalog import MenuCatalog
-    MenuCatalog(kodi).show_catalog_category(category)
+    MenuCatalog(kodi).show_catalog_continuewatching()
 
 
 @routing.route('/program-epg/<program>')
@@ -119,21 +133,7 @@ def show_program_from_epg(program):
         kodi.show_ok_dialog(heading=kodi.localize(30711), message=kodi.localize(30713))  # The requested video was not found in the guide.
         return
 
-    show_program(details.program_uuid)
-
-
-@routing.route('/program/<program>')
-def show_program(program):
-    """ Show a program from the catalog """
-    from resources.lib.menu_catalog import MenuCatalog
-    MenuCatalog(kodi).show_program(program)
-
-
-@routing.route('/program/<program>/<season>')
-def show_program_season(program, season):
-    """ Show a program from the catalog """
-    from resources.lib.menu_catalog import MenuCatalog
-    MenuCatalog(kodi).show_program_season(program, season)
+    show_catalog_program(details.program_uuid)
 
 
 @routing.route('/youtube')
