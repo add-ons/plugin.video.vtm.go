@@ -5,6 +5,7 @@ from __future__ import absolute_import, division, unicode_literals
 
 from resources.lib.kodiwrapper import TitleItem
 from resources.lib.vtmgo.vtmgo import Movie, Program, Episode, VtmGo
+from resources.lib.vtmgo.vtmgoauth import InvalidLoginException, LoginErrorException
 
 
 class Menu:
@@ -15,7 +16,126 @@ class Menu:
         self._kodi = _kodi
         self.vtm_go = VtmGo(self._kodi)
 
-    def _format_plot(self, obj):
+    def show_mainmenu(self):
+        """ Show the main menu """
+        kids = self._kodi.kids_mode()
+
+        listing = []
+        listing.extend([
+            TitleItem(title=self._kodi.localize(30001),  # A-Z
+                      path=self._kodi.url_for('show_catalog_category', kids=kids, category='all'),
+                      art_dict=dict(
+                          icon='DefaultMovieTitle.png'
+                      ),
+                      info_dict=dict(
+                          plot=self._kodi.localize(30002),
+                      )),
+            TitleItem(title=self._kodi.localize(30003),  # Catalogue
+                      path=self._kodi.url_for('show_catalog', kids=kids),
+                      art_dict=dict(
+                          icon='DefaultGenre.png'
+                      ),
+                      info_dict=dict(
+                          plot=self._kodi.localize(30004),
+                      )),
+            TitleItem(title=self._kodi.localize(30005),  # Live TV
+                      path=self._kodi.url_for('show_livetv', kids=kids),
+                      art_dict=dict(
+                          icon='DefaultAddonPVRClient.png'
+                      ),
+                      info_dict=dict(
+                          plot=self._kodi.localize(30006),
+                      )),
+            TitleItem(title=self._kodi.localize(30013),  # TV Guide
+                      path=self._kodi.url_for('show_tvguide', kids=kids),
+                      art_dict={
+                          'icon': 'DefaultAddonTvInfo.png'
+                      },
+                      info_dict={
+                          'plot': self._kodi.localize(30014),
+                      }),
+            TitleItem(title=self._kodi.localize(30015),  # Recommendations
+                      path=self._kodi.url_for('show_recommendations', kids=kids),
+                      art_dict={
+                          'icon': 'DefaultFavourites.png'
+                      },
+                      info_dict={
+                          'plot': self._kodi.localize(30016),
+                      }),
+            TitleItem(title=self._kodi.localize(30017),  # My List
+                      path=self._kodi.url_for('show_mylist', kids=kids),
+                      art_dict={
+                          'icon': 'DefaultPlaylist.png'
+                      },
+                      info_dict={
+                          'plot': self._kodi.localize(30018),
+                      }),
+            # TitleItem(title=self._kodi.localize(30019),  # Continue watching
+            #           path=routing.url_for(show_continuewatching, kids=kids),
+            #           art_dict={
+            #               'icon': 'DefaultInProgressShows.png'
+            #           },
+            #           info_dict={
+            #               'plot': self._kodi.localize(30020),
+            #           }),
+        ])
+
+        # Only provide YouTube option when plugin.video.youtube is available
+        if self._kodi.get_cond_visibility('System.HasAddon(plugin.video.youtube)') != 0:
+            listing.append(
+                TitleItem(title=self._kodi.localize(30007),  # YouTube
+                          path=self._kodi.url_for('show_youtube', kids=kids),
+                          art_dict=dict(
+                              icon='DefaultTags.png'
+                          ),
+                          info_dict=dict(
+                              plot=self._kodi.localize(30008),
+                          ))
+            )
+
+        listing.extend([
+            TitleItem(title=self._kodi.localize(30009),  # Search
+                      path=self._kodi.url_for('show_search', kids=kids),
+                      art_dict=dict(
+                          icon='DefaultAddonsSearch.png'
+                      ),
+                      info_dict=dict(
+                          plot=self._kodi.localize(30010),
+                      )),
+        ])
+
+        if not kids:
+            listing.append(
+                TitleItem(title=self._kodi.localize(30011),  # Kids Zone
+                          path=self._kodi.url_for('show_main_menu', kids=True),
+                          art_dict=dict(
+                              icon='DefaultUser.png'
+                          ),
+                          info_dict=dict(
+                              plot=self._kodi.localize(30012),
+                          ))
+            )
+
+        self._kodi.show_listing(listing)
+
+    def check_credentials(self):
+        """ Check credentials (called from settings) """
+        try:
+            from resources.lib.vtmgo.vtmgoauth import VtmGoAuth
+            auth = VtmGoAuth(self._kodi)
+            auth.clear_token()
+            auth.get_token()
+            self._kodi.show_ok_dialog(message=self._kodi.localize(30202))  # Credentials are correct!
+
+        except InvalidLoginException:
+            self._kodi.show_ok_dialog(message=self._kodi.localize(30203))  # Your credentials are not valid!
+
+        except LoginErrorException as e:
+            self._kodi.show_ok_dialog(message=self._kodi.localize(30702, code=e.code))  # Unknown error while logging in: {code}
+
+        self._kodi.open_settings()
+
+    def format_plot(self, obj):
         """ Format the plot for a item """
         plot = ''
 
@@ -58,9 +178,10 @@ class Menu:
 
         return plot.rstrip()
 
-    def _generate_titleitem(self, item, progress=False):
+    def generate_titleitem(self, item, progress=False):
         """ Generate a TitleItem based on a Movie, Program or Episode.
         :type item: Union[Movie, Program, Episode]
+        :type progress: bool
         :rtype TitleItem
         """
         art_dict = {
@@ -100,7 +221,7 @@ class Menu:
                     'fanart': movie.cover,
                 })
                 info_dict.update({
-                    'plot': self._format_plot(movie),
+                    'plot': self.format_plot(movie),
                     'duration': movie.duration,
                     'year': movie.year,
                     'aired': movie.aired,
@@ -149,7 +270,7 @@ class Menu:
                 })
                 info_dict.update({
                     'title': program.name,
-                    'plot': self._format_plot(program),
+                    'plot': self.format_plot(program),
                     'mpaa': ', '.join(program.legal) if hasattr(program, 'legal') and program.legal else self._kodi.localize(30216),
                     'season': len(program.seasons),
                 })
@@ -173,7 +294,7 @@ class Menu:
             info_dict.update({
                 'tvshowtitle': item.program_name,
                 'title': item.name,
-                'plot': self._format_plot(item),
+                'plot': self.format_plot(item),
                 'duration': item.duration,
                 'season': item.season,
                 'episode': item.number,
@@ -208,7 +329,7 @@ class Menu:
                     info_dict.update({
                         'tvshowtitle': program.name,
                         'title': episode.name,
-                        'plot': self._format_plot(episode),
+                        'plot': self.format_plot(episode),
                         'duration': episode.duration,
                         'season': episode.season,
                         'episode': episode.number,
