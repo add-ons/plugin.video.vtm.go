@@ -54,6 +54,7 @@ class BackgroundService(Monitor):
         self.kodi.log('Updating metadata in the background')
 
         def update_status(i, total):
+            """ Update the progress indicator """
             progress.update(int(((i + 1) / total) * 100))
             return self.abortRequested() or not self.kodi.get_setting_as_bool('metadata_update')
 

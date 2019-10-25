@@ -20,6 +20,7 @@ class Metadata:
         progress = self._kodi.show_progress(message=self._kodi.localize(30715))
 
         def update_status(i, total):
+            """ Update the progress indicator """
             progress.update(int(((i + 1) / total) * 100), self._kodi.localize(30716, index=i + 1, total=total))
             return progress.iscanceled()
 
