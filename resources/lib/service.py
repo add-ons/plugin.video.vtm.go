@@ -6,7 +6,7 @@ from __future__ import absolute_import, division, unicode_literals
 from time import time
 
 from resources.lib.kodiwrapper import KodiWrapper, LOG_INFO, LOG_DEBUG
-from resources.lib.vtmgo.vtmgo import VtmGo, Program, Movie
+from resources.lib.vtmgo.vtmgo import VtmGo
 from xbmc import Monitor
 
 
@@ -18,6 +18,7 @@ class BackgroundService(Monitor):
         self.kodi = KodiWrapper()
         self.vtm_go = VtmGo(self.kodi)
         self.update_interval = 24 * 3600  # Every 24 hours
+        self.cache_expiry = 30 * 24 * 3600  # One month
 
     def run(self):
         """ Background loop for maintenance tasks """
@@ -25,10 +26,8 @@ class BackgroundService(Monitor):
 
         while not self.abortRequested():
             # Update every `update_interval` after the last update
-            if self.kodi.get_setting_as_bool('metadata_update') \
-                    and int(self.kodi.get_setting('metadata_last_updated', 0)) + self.update_interval < time():
+            if self.kodi.get_setting_as_bool('metadata_update') and int(self.kodi.get_setting('metadata_last_updated', 0)) + self.update_interval < time():
                 self._update_metadata()
-                self.kodi.set_setting('metadata_last_updated', str(int(time())))
 
             # Stop when abort requested
             if self.waitForAbort(10):
@@ -43,42 +42,30 @@ class BackgroundService(Monitor):
         # Refresh our VtmGo instance
         self.vtm_go = VtmGo(self.kodi)
 
-    def _update_metadata(self, delay=10):
+    def _update_metadata(self):
         """ Update the metadata for the listings. """
-        self.kodi.log('Updating metadata in the background')
+        from resources.lib.modules.metadata import Metadata
 
         # Clear outdated metadata
-        self.kodi.invalidate_cache(30 * 24 * 3600)  # one month
+        self.kodi.invalidate_cache(self.cache_expiry)
 
-        vtm_go = self.vtm_go
-
+        # Create progress indicator
         progress = self.kodi.show_progress_background(message=self.kodi.localize(30715))
+        self.kodi.log('Updating metadata in the background')
 
-        # Fetch all items from the catalogue
-        items = vtm_go.get_items('all')
-        count = len(items)
+        def update_status(i, total):
+            """ Update the progress indicator """
+            progress.update(int(((i + 1) / total) * 100))
+            return self.abortRequested() or not self.kodi.get_setting_as_bool('metadata_update')
 
-        # Loop over all of them and download the metadata
-        for index, item in enumerate(items):
-            # Update the items
-            if isinstance(item, Movie):
-                if not vtm_go.get_movie(item.movie_id, only_cache=True):
-                    vtm_go.get_movie(item.movie_id)
-                    self.waitForAbort(delay / 1000)
-            elif isinstance(item, Program):
-                if not vtm_go.get_program(item.program_id, only_cache=True):
-                    vtm_go.get_program(item.program_id)
-                    self.waitForAbort(delay / 1000)
+        success = Metadata(self.kodi).fetch_metadata(callback=update_status)
 
-            # Upgrade the progress bar
-            progress.update(int(((index + 1) / count) * 100))
-
-            # Abort when the setting is disabled or kodi is exiting
-            if self.abortRequested() or not self.kodi.get_setting_as_bool('metadata_update'):
-                break
-
-        # Close the progress dialog
+        # Close progress indicator
         progress.close()
+
+        # Update metadata_last_updated
+        if success:
+            self.kodi.set_setting('metadata_last_updated', str(int(time())))
 
 
 def run():

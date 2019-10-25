@@ -57,7 +57,7 @@ class LiveChannelEpg:
 
 
 class Category:
-    """ Defines a category from the catalogue"""
+    """ Defines a category from the catalog """
 
     def __init__(self, category_id=None, title=None, content=None):
         """
@@ -230,7 +230,7 @@ class VtmGo:
         return 'vtmgo-kids' if self._kodi.kids_mode() else 'vtmgo'
 
     def get_config(self):
-        """ Returns the config for the app. """
+        """ Returns the config for the app """
         # This is currently not used
         response = self._get_url('/config')
         info = json.loads(response)
@@ -239,7 +239,7 @@ class VtmGo:
         return info
 
     def get_recommendations(self):
-        """ Returns the config for the dashboard. """
+        """ Returns the config for the dashboard """
         response = self._get_url('/%s/main' % self._mode())
         recommendations = json.loads(response)
 
@@ -549,7 +549,7 @@ class VtmGo:
         )
 
     def do_search(self, search):
-        """ Do a search in the full catalogue.
+        """ Do a search in the full catalog.
         :type search: str
         :rtype list[Union[Movie, Program]]
         """

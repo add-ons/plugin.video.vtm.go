@@ -178,7 +178,7 @@ class VtmGoStream:
                     return stream.get('anvato')
         elif stream_info.get('code'):
             self._kodi.log('VTM GO Videoplayer service API error: {type}', LOG_ERROR, type=stream_info.get('type'))
-        raise Exception(self._kodi.localize(30706))  # No stream found that we can handle
+        raise Exception('No stream found that we can handle')
 
     def _extract_subtitles_from_stream_info(self, stream_info):
         """ Extract a list of the subtitles.
@@ -364,7 +364,7 @@ class VtmGoStream:
         import re
         matches = re.search(r"^anvatoVideoJSONLoaded\((.*)\)$", response.text)
         if not matches:
-            raise Exception(self._kodi.localize(30705))  # Could not parse media info
+            raise Exception('Could not parse media info')
         info = json.loads(matches.group(1))
         return info
 
