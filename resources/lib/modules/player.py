@@ -6,42 +6,20 @@ from __future__ import absolute_import, division, unicode_literals
 from resources.lib import GeoblockedException, UnavailableException
 from resources.lib.kodiwrapper import TitleItem
 from resources.lib.vtmgo.vtmgo import VtmGo
-from resources.lib.vtmgo.vtmgoepg import VtmGoEpg
 from resources.lib.vtmgo.vtmgostream import VtmGoStream
 
 
 class Player:
     """ Code responsible for playing something """
 
-    def __init__(self, _kodi):
+    def __init__(self, kodi):
         """ Initialise object """
-        self._kodi = _kodi
-        self.vtm_go = VtmGo(self._kodi)
-
-    def play_datetime(self, channel, timestamp):
-        """ Play a program based on the channel and the timestamp when it was aired. """
-        _vtmGoEpg = VtmGoEpg(self._kodi)
-        broadcast = _vtmGoEpg.get_broadcast(channel, timestamp)
-        if not broadcast:
-            self._kodi.show_ok_dialog(heading=self._kodi.localize(30711), message=self._kodi.localize(30713))  # The requested video was not found in the guide.
-            return
-
-        self.play_epg(channel, broadcast.playable_type, broadcast.uuid)
-
-    def play_epg(self, channel, program_type, epg_id):
-        """ Play a program based on the channel and information from the EPG. """
-        _vtmGoEpg = VtmGoEpg(self._kodi)
-        details = _vtmGoEpg.get_details(channel=channel, program_type=program_type, epg_id=epg_id)
-        if not details:
-            self._kodi.show_ok_dialog(heading=self._kodi.localize(30711), message=self._kodi.localize(30713))  # The requested video was not found in the guide.
-            return
-
-        self.play(details.playable_type, details.playable_uuid)
+        self._kodi = kodi
+        self._vtm_go = VtmGo(self._kodi)
+        self._vtm_go_stream = VtmGoStream(self._kodi)
 
     def play(self, category, item):
         """ Play the requested item. Uses setResolvedUrl(). """
-        _vtmgostream = VtmGoStream(self._kodi)
-
         # Check if inputstreamhelper is correctly installed
         try:
             from inputstreamhelper import Helper
@@ -56,7 +34,7 @@ class Player:
 
         try:
             # Get stream information
-            resolved_stream = _vtmgostream.get_stream(category, item)
+            resolved_stream = self._vtm_go_stream.get_stream(category, item)
 
         except GeoblockedException:
             self._kodi.show_ok_dialog(heading=self._kodi.localize(30709), message=self._kodi.localize(30710))  # Geo-blocked
@@ -135,4 +113,4 @@ class Player:
                 stream_dict=stream_dict,
                 is_playable=True,
             ),
-            license_key=_vtmgostream.create_license_key(resolved_stream.license_url))
+            license_key=self._vtm_go_stream.create_license_key(resolved_stream.license_url))

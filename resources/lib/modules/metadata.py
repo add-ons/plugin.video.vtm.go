@@ -9,10 +9,10 @@ from resources.lib.vtmgo.vtmgo import VtmGo, Movie, Program
 class Metadata:
     """ Code responsible for the refreshing of the metadata """
 
-    def __init__(self, _kodi):
+    def __init__(self, kodi):
         """ Initialise object """
-        self._kodi = _kodi
-        self.vtm_go = VtmGo(self._kodi)
+        self._kodi = kodi
+        self._vtm_go = VtmGo(self._kodi)
 
     def update(self):
         """ Update the metadata with a foreground progress indicator """
@@ -32,17 +32,17 @@ class Metadata:
     def fetch_metadata(self, callback=None):
         """ Fetch the metadata for all the items in the catalog """
         # Fetch all items from the catalog
-        items = self.vtm_go.get_items('all')
+        items = self._vtm_go.get_items('all')
         count = len(items)
 
         # Loop over all of them and download the metadata
         for index, item in enumerate(items):
             if isinstance(item, Movie):
-                if not self.vtm_go.get_movie(item.movie_id, only_cache=True):
-                    self.vtm_go.get_movie(item.movie_id)
+                if not self._vtm_go.get_movie(item.movie_id, only_cache=True):
+                    self._vtm_go.get_movie(item.movie_id)
             elif isinstance(item, Program):
-                if not self.vtm_go.get_program(item.program_id, only_cache=True):
-                    self.vtm_go.get_program(item.program_id)
+                if not self._vtm_go.get_program(item.program_id, only_cache=True):
+                    self._vtm_go.get_program(item.program_id)
 
             # Update the progress indicator
             if callback and callback(index, count):

@@ -12,31 +12,31 @@ class Search:
 
     def __init__(self, kodi):
         """ Initialise object """
-        self.kodi = kodi
-        self.vtm_go = VtmGo(self.kodi)
-        self.menu = Menu(self.kodi)
+        self._kodi = kodi
+        self._vtm_go = VtmGo(self._kodi)
+        self._menu = Menu(self._kodi)
 
     def show_search(self, query=None):
         """ Shows the search dialog """
         if not query:
             # Ask for query
-            query = self.kodi.get_search_string(heading=self.kodi.localize(30009))
+            query = self._kodi.get_search_string(heading=self._kodi.localize(30009))
             if not query:
-                self.kodi.end_of_directory()
+                self._kodi.end_of_directory()
                 return
 
         # Do search
         try:
-            items = self.vtm_go.do_search(query)
+            items = self._vtm_go.do_search(query)
         except Exception as ex:  # pylint: disable=broad-except
-            self.kodi.show_notification(message=str(ex))
-            self.kodi.end_of_directory()
+            self._kodi.show_notification(message=str(ex))
+            self._kodi.end_of_directory()
             return
 
         # Display results
         listing = []
         for item in items:
-            listing.append(self.menu.generate_titleitem(item))
+            listing.append(self._menu.generate_titleitem(item))
 
         # Sort like we get our results back.
-        self.kodi.show_listing(listing, 30009, content='tvshows')
+        self._kodi.show_listing(listing, 30009, content='tvshows')

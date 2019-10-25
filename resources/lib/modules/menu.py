@@ -11,10 +11,10 @@ from resources.lib.vtmgo.vtmgoauth import InvalidLoginException, LoginErrorExcep
 class Menu:
     """ Menu code """
 
-    def __init__(self, _kodi):
+    def __init__(self, kodi):
         """ Initialise object """
-        self._kodi = _kodi
-        self.vtm_go = VtmGo(self._kodi)
+        self._kodi = kodi
+        self._vtm_go = VtmGo(self._kodi)
 
     def show_mainmenu(self):
         """ Show the main menu """
@@ -201,13 +201,13 @@ class Menu:
                 context_menu = [(
                     self._kodi.localize(30051),  # Remove from My List
                     'XBMC.Container.Update(%s)' %
-                    self._kodi.url_for('mylist_del', kids=self._kodi.kids_mode(), video_type=self.vtm_go.CONTENT_TYPE_MOVIE, content_id=item.movie_id)
+                    self._kodi.url_for('mylist_del', kids=self._kodi.kids_mode(), video_type=self._vtm_go.CONTENT_TYPE_MOVIE, content_id=item.movie_id)
                 )]
             else:
                 context_menu = [(
                     self._kodi.localize(30050),  # Add to My List
                     'XBMC.Container.Update(%s)' %
-                    self._kodi.url_for('mylist_add', kids=self._kodi.kids_mode(), video_type=self.vtm_go.CONTENT_TYPE_MOVIE, content_id=item.movie_id)
+                    self._kodi.url_for('mylist_add', kids=self._kodi.kids_mode(), video_type=self._vtm_go.CONTENT_TYPE_MOVIE, content_id=item.movie_id)
                 )]
 
             info_dict.update({
@@ -215,7 +215,7 @@ class Menu:
             })
 
             # Get movie details from cache
-            movie = self.vtm_go.get_movie(item.movie_id, only_cache=True)
+            movie = self._vtm_go.get_movie(item.movie_id, only_cache=True)
             if movie:
                 art_dict.update({
                     'fanart': movie.cover,
@@ -248,13 +248,13 @@ class Menu:
                 context_menu = [(
                     self._kodi.localize(30051),  # Remove from My List
                     'XBMC.Container.Update(%s)' %
-                    self._kodi.url_for('mylist_del', kids=self._kodi.kids_mode(), video_type=self.vtm_go.CONTENT_TYPE_PROGRAM, content_id=item.program_id)
+                    self._kodi.url_for('mylist_del', kids=self._kodi.kids_mode(), video_type=self._vtm_go.CONTENT_TYPE_PROGRAM, content_id=item.program_id)
                 )]
             else:
                 context_menu = [(
                     self._kodi.localize(30050),  # Add to My List
                     'XBMC.Container.Update(%s)' %
-                    self._kodi.url_for('mylist_add', kids=self._kodi.kids_mode(), video_type=self.vtm_go.CONTENT_TYPE_PROGRAM, content_id=item.program_id)
+                    self._kodi.url_for('mylist_add', kids=self._kodi.kids_mode(), video_type=self._vtm_go.CONTENT_TYPE_PROGRAM, content_id=item.program_id)
                 )]
 
             info_dict.update({
@@ -262,7 +262,7 @@ class Menu:
             })
 
             # Get program details from cache
-            program = self.vtm_go.get_program(item.program_id, only_cache=True)
+            program = self._vtm_go.get_program(item.program_id, only_cache=True)
             if program:
                 art_dict.update({
                     'fanart': program.cover,
@@ -318,9 +318,9 @@ class Menu:
             }
 
             # Get program and episode details from cache
-            program = self.vtm_go.get_program(item.program_id, only_cache=True)
+            program = self._vtm_go.get_program(item.program_id, only_cache=True)
             if program:
-                episode = self.vtm_go.get_episode_from_program(program, item.episode_id)
+                episode = self._vtm_go.get_episode_from_program(program, item.episode_id)
                 if episode:
                     art_dict.update({
                         'fanart': episode.cover,

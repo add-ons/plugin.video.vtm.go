@@ -162,15 +162,15 @@ def metadata_clean():
 @routing.route('/play/epg/<channel>/<timestamp>')
 def play_epg_datetime(channel, timestamp):
     """ Play a program based on the channel and the timestamp when it was aired """
-    from resources.lib.modules.player import Player
-    Player(kodi).play_datetime(channel, timestamp)
+    from resources.lib.modules.channels import Channels
+    Channels(kodi).play_datetime(channel, timestamp)
 
 
 @routing.route('/play/epg/<channel>/<program_type>/<epg_id>')
 def play_epg(channel, program_type, epg_id):
     """ Play a program based on the channel and information from the EPG """
-    from resources.lib.modules.player import Player
-    Player(kodi).play_epg(channel, program_type, epg_id)
+    from resources.lib.modules.channels import Channels
+    Channels(kodi).play_epg(channel, program_type, epg_id)
 
 
 @routing.route('/play/catalog/<category>/<item>')
