@@ -63,17 +63,18 @@ class TestVtmGoEpg(unittest.TestCase):
             self.assertTrue(details)
             plugin.run([routing.url_for(plugin.show_program_from_epg, channel='vtm', program=broadcast.uuid), '0', ''])
 
-        plugin.run([routing.url_for(plugin.show_program_from_epg, channel='vtm', program='error'), '0', ''])
-
         broadcast = next(b for b in combined_broadcasts if b.playable_type == 'movies')
         if broadcast:
             details = self._vtmgoepg.get_details(channel='vtm', program_type=broadcast.playable_type, epg_id=broadcast.uuid)
             self.assertTrue(details)
+            plugin.run([routing.url_for(plugin.play_epg_program, channel='vtm', program_type=broadcast.playable_type, epg_id=broadcast.uuid, aired='123'), '0', ''])
 
         broadcast = next(b for b in combined_broadcasts if b.playable_type == 'oneoffs')
         if broadcast:
             details = self._vtmgoepg.get_details(channel='vtm', program_type=broadcast.playable_type, epg_id=broadcast.uuid)
             self.assertTrue(details)
+
+        plugin.run([routing.url_for(plugin.show_program_from_epg, channel='vtm', program='error'), '0', ''])
 
 
 if __name__ == '__main__':
