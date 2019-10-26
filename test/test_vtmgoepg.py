@@ -36,36 +36,41 @@ class TestVtmGoEpg(unittest.TestCase):
     def test_get_epg(self):
         from datetime import date
 
-        # Get list of EPG for tomorrow
-        epg = self._vtmgoepg.get_epg(channel='vtm', date='tomorrow')
-        self.assertTrue(epg)
-
-        # Get list of EPG for yesterday
-        epg = self._vtmgoepg.get_epg(channel='vtm', date='yesterday')
-        self.assertTrue(epg)
-
         # Get list of EPG for today
         epg = self._vtmgoepg.get_epg(channel='vitaya')
-        self.assertTrue(epg)
-
-        epg = self._vtmgoepg.get_epg(channel='vtm', date='today')
         self.assertTrue(epg)
 
         epg = self._vtmgoepg.get_epg(channel='vtm', date=date.today().strftime('%Y-%m-%d'))
         self.assertTrue(epg)
 
-        broadcast = next(b for b in epg.broadcasts if b.playable_type == 'episodes')
+        # Get list of EPG for tomorrow
+        epg_tomorrow = self._vtmgoepg.get_epg(channel='vtm', date='tomorrow')
+        self.assertTrue(epg_tomorrow)
+
+        # Get list of EPG for yesterday
+        epg_yesterday = self._vtmgoepg.get_epg(channel='vtm', date='yesterday')
+        self.assertTrue(epg_yesterday)
+
+        # Get list of EPG for today
+        epg_today = self._vtmgoepg.get_epg(channel='vtm', date='today')
+        self.assertTrue(epg_today)
+
+        combined_broadcasts = epg_today.broadcasts + epg_tomorrow.broadcasts + epg_yesterday.broadcasts
+
+        broadcast = next(b for b in combined_broadcasts if b.playable_type == 'episodes')
         if broadcast:
             details = self._vtmgoepg.get_details(channel='vtm', program_type=broadcast.playable_type, epg_id=broadcast.uuid)
             self.assertTrue(details)
             plugin.run([routing.url_for(plugin.show_program_from_epg, channel='vtm', program=broadcast.uuid), '0', ''])
 
-        broadcast = next(b for b in epg.broadcasts if b.playable_type == 'movies')
+        plugin.run([routing.url_for(plugin.show_program_from_epg, channel='vtm', program='error'), '0', ''])
+
+        broadcast = next(b for b in combined_broadcasts if b.playable_type == 'movies')
         if broadcast:
             details = self._vtmgoepg.get_details(channel='vtm', program_type=broadcast.playable_type, epg_id=broadcast.uuid)
             self.assertTrue(details)
 
-        broadcast = next(b for b in epg.broadcasts if b.playable_type == 'oneoffs')
+        broadcast = next(b for b in combined_broadcasts if b.playable_type == 'oneoffs')
         if broadcast:
             details = self._vtmgoepg.get_details(channel='vtm', program_type=broadcast.playable_type, epg_id=broadcast.uuid)
             self.assertTrue(details)
