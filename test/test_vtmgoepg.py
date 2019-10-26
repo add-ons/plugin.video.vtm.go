@@ -10,10 +10,12 @@ import warnings
 
 from urllib3.exceptions import InsecureRequestWarning
 
+from resources.lib import plugin
 from resources.lib.kodiwrapper import KodiWrapper
 from resources.lib.vtmgo import vtmgoepg
 
 kodi = KodiWrapper()
+routing = plugin.routing
 
 
 class TestVtmGoEpg(unittest.TestCase):
@@ -53,16 +55,20 @@ class TestVtmGoEpg(unittest.TestCase):
         self.assertTrue(epg)
 
         broadcast = next(b for b in epg.broadcasts if b.playable_type == 'episodes')
-        details = self._vtmgoepg.get_details(channel='vtm', program_type=broadcast.playable_type, epg_id=broadcast.uuid)
-        self.assertTrue(details)
+        if broadcast:
+            details = self._vtmgoepg.get_details(channel='vtm', program_type=broadcast.playable_type, epg_id=broadcast.uuid)
+            self.assertTrue(details)
+            plugin.run([routing.url_for(plugin.show_program_from_epg, channel='vtm', program=broadcast.uuid), '0', ''])
 
         broadcast = next(b for b in epg.broadcasts if b.playable_type == 'movies')
-        details = self._vtmgoepg.get_details(channel='vtm', program_type=broadcast.playable_type, epg_id=broadcast.uuid)
-        self.assertTrue(details)
+        if broadcast:
+            details = self._vtmgoepg.get_details(channel='vtm', program_type=broadcast.playable_type, epg_id=broadcast.uuid)
+            self.assertTrue(details)
 
         broadcast = next(b for b in epg.broadcasts if b.playable_type == 'oneoffs')
-        details = self._vtmgoepg.get_details(channel='vtm', program_type=broadcast.playable_type, epg_id=broadcast.uuid)
-        self.assertTrue(details)
+        if broadcast:
+            details = self._vtmgoepg.get_details(channel='vtm', program_type=broadcast.playable_type, epg_id=broadcast.uuid)
+            self.assertTrue(details)
 
 
 if __name__ == '__main__':

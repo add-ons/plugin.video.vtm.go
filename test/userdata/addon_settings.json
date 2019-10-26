@@ -5,7 +5,13 @@
     "inputstream.rtmp": {},
     "plugin.video.vtm.go": {
         "_comment": "do-not-add-email-and-password-here",
-        "debug_logging": "false"
+        "debug_logging": "false",
+        "interface_show_recommendations": "true",
+        "interface_show_mylist": "true",
+        "interface_show_continuewatching": "true",
+        "interface_show_kids_zone": "true",
+        "show_subtitles": "true",
+        "max_bandwidth": "0"
     },
     "script.module.inputstreamhelper": {
         "disabled": "true"
