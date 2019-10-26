@@ -530,7 +530,7 @@ class KodiWrapper:
 
     def kids_mode(self):
         """ Returns if kids zone is active """
-        if self.get_setting_as_bool('force_kids_zone'):
+        if self.get_setting_as_bool('interface_force_kids_zone'):
             return True
 
         if self.routing and 'True' in self.routing.args.get('kids', []):

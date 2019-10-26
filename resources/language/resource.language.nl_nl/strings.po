@@ -303,13 +303,25 @@ msgctxt "#30821"
 msgid "Features"
 msgstr "Functionaliteit"
 
+msgctxt "#30822"
+msgid "Show recommendations"
+msgstr "Toon 'Aanbevelingen' menu"
+
 msgctxt "#30823"
-msgid "Use Kids zone"
-msgstr "Gebruik Kids zone"
+msgid "Show My List"
+msgstr "Toon 'Mijn lijst' menu"
+
+msgctxt "#30824"
+msgid "Show Kids zone"
+msgstr "Toon 'Kids zone' menu"
 
 msgctxt "#30825"
 msgid "Force Kids zone"
-msgstr "Forceer Kids zone"
+msgstr "Forceer kids zone"
+
+msgctxt "#30826"
+msgid "Show Continue watching"
+msgstr "Toon 'Verder kijken' menu"
 
 msgctxt "#30827"
 msgid "Metadata"
@@ -318,6 +330,10 @@ msgstr "Metadata"
 msgctxt "#30829"
 msgid "Periodically refresh metadata in the background"
 msgstr "Vernieuw de locale metdata automatisch in de achtergrond"
+
+msgctxt "#30830"
+msgid "Periodically refresh metadata in the background HELP"
+msgstr "Vernieuw de locale metdata automatisch in de achtergrond HELP"
 
 msgctxt "#30831"
 msgid "Update local metadata now"
