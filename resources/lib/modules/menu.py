@@ -217,6 +217,7 @@ class Menu:
                     'duration': movie.duration,
                     'year': movie.year,
                     'aired': movie.aired,
+                    'studio': movie.channel,
                     'mpaa': ', '.join(movie.legal) if hasattr(movie, 'legal') and movie.legal else self._kodi.localize(30216),
                 })
 
@@ -263,6 +264,7 @@ class Menu:
                 info_dict.update({
                     'title': program.name,
                     'plot': self.format_plot(program),
+                    'studio': program.channel,
                     'mpaa': ', '.join(program.legal) if hasattr(program, 'legal') and program.legal else self._kodi.localize(30216),
                     'season': len(program.seasons),
                 })
