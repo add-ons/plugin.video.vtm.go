@@ -3,10 +3,10 @@
 
 from __future__ import absolute_import, division, unicode_literals
 
-from resources.lib import UnavailableException
 from resources.lib.kodiwrapper import TitleItem
 from resources.lib.modules.menu import Menu
 from resources.lib.vtmgo.vtmgo import VtmGo
+from resources.lib.vtmgo.vtmgostream import StreamUnavailableException
 
 
 class Catalog:
@@ -59,7 +59,7 @@ class Catalog:
         """ Show a program from the catalog """
         try:
             program_obj = self._vtm_go.get_program(program)
-        except UnavailableException:
+        except StreamUnavailableException:
             self._kodi.show_notification(message=self._kodi.localize(30717))  # This program is not available in the VTM GO catalogue.
             self._kodi.end_of_directory()
             return
@@ -109,7 +109,7 @@ class Catalog:
         """ Show a program from the catalog """
         try:
             program_obj = self._vtm_go.get_program(program)
-        except UnavailableException:
+        except StreamUnavailableException:
             self._kodi.show_notification(message=self._kodi.localize(30717))  # This program is not available in the VTM GO catalogue.
             self._kodi.end_of_directory()
             return
@@ -218,35 +218,3 @@ class Catalog:
 
         # Sort categories by default like in VTM GO.
         self._kodi.show_listing(listing, 30019, content='episodes', sort='label')
-
-    def show_youtube(self):
-        """ Shows the Youtube channel overview """
-        kids = self._kodi.kids_mode()
-
-        listing = []
-        from resources.lib import YOUTUBE
-        for entry in YOUTUBE:
-            # Skip non-kids channels when we are in kids mode.
-            if kids and entry.get('kids') is False:
-                continue
-
-            # Lookup the high resolution logo based on the channel name
-            icon = '{path}/resources/logos/{logo}-white.png'.format(path=self._kodi.get_addon_path(), logo=entry.get('logo'))
-            fanart = '{path}/resources/logos/{logo}.png'.format(path=self._kodi.get_addon_path(), logo=entry.get('logo'))
-
-            listing.append(
-                TitleItem(title=entry.get('label'),
-                          path=entry.get('path'),
-                          art_dict={
-                              'icon': icon,
-                              'thumb': icon,
-                              'fanart': fanart,
-                          },
-                          info_dict={
-                              'plot': self._kodi.localize(30206, label=entry.get('label')),
-                              'studio': entry.get('studio'),
-                          })
-            )
-
-        # Sort by default like in our dict.
-        self._kodi.show_listing(listing, 30007)

@@ -17,4 +17,5 @@ test/userdata/credentials.json
 test/userdata/temp
 test/userdata/token.json
 test/userdata/cache
+test/userdata/addon_data
 test/cdm

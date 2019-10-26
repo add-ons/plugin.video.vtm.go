@@ -3,9 +3,9 @@
 
 from __future__ import absolute_import, division, unicode_literals
 
-from resources.lib import UnavailableException
 from resources.lib.kodiwrapper import TitleItem
 from resources.lib.modules.menu import Menu
+from resources.lib.vtmgo.vtmgo import UnavailableException
 from resources.lib.vtmgo.vtmgoepg import VtmGoEpg
 
 
@@ -18,36 +18,36 @@ class TvGuide:
         self._vtm_go_epg = VtmGoEpg(self._kodi)
         self._menu = Menu(self._kodi)
 
-    def show_tvguide(self):
-        """ Shows the TV guide """
-        kids = self._kodi.kids_mode()
-
-        from resources.lib import CHANNELS
-
-        listing = []
-        for entry in CHANNELS:
-            # Skip non-kids channels when we are in kids mode.
-            if kids and entry.get('kids') is False:
-                continue
-
-            # Lookup the high resolution logo based on the channel name
-            icon = '{path}/resources/logos/{logo}-white.png'.format(path=self._kodi.get_addon_path(), logo=entry.get('logo'))
-            fanart = '{path}/resources/logos/{logo}.png'.format(path=self._kodi.get_addon_path(), logo=entry.get('logo'))
-
-            listing.append(
-                TitleItem(title=entry.get('label'),
-                          path=self._kodi.url_for('show_tvguide_channel', channel=entry.get('key')),
-                          art_dict={
-                              'icon': icon,
-                              'thumb': icon,
-                              'fanart': fanart,
-                          },
-                          info_dict={
-                              'plot': self._kodi.localize(30215, channel=entry.get('label')),
-                          })
-            )
-
-        self._kodi.show_listing(listing, 30013)
+    # def show_tvguide(self):
+    #     """ Shows the TV guide """
+    #     kids = self._kodi.kids_mode()
+    #
+    #     from resources.lib import CHANNELS
+    #
+    #     listing = []
+    #     for entry in CHANNELS:
+    #         # Skip non-kids channels when we are in kids mode.
+    #         if kids and entry.get('kids') is False:
+    #             continue
+    #
+    #         # Lookup the high resolution logo based on the channel name
+    #         icon = '{path}/resources/logos/{logo}-white.png'.format(path=self._kodi.get_addon_path(), logo=entry.get('logo'))
+    #         fanart = '{path}/resources/logos/{logo}.png'.format(path=self._kodi.get_addon_path(), logo=entry.get('logo'))
+    #
+    #         listing.append(
+    #             TitleItem(title=entry.get('label'),
+    #                       path=self._kodi.url_for('show_tvguide_channel', channel=entry.get('key')),
+    #                       art_dict={
+    #                           'icon': icon,
+    #                           'thumb': icon,
+    #                           'fanart': fanart,
+    #                       },
+    #                       info_dict={
+    #                           'plot': self._kodi.localize(30215, channel=entry.get('label')),
+    #                       })
+    #         )
+    #
+    #     self._kodi.show_listing(listing, 30013)
 
     def show_tvguide_channel(self, channel):
         """ Shows the dates in the tv guide """

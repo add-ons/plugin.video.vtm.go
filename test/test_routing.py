@@ -40,8 +40,9 @@ class TestRouting(unittest.TestCase):
         routing.run([routing.url_for(plugin.show_main_menu), '0', ''])
         routing.run([routing.url_for(plugin.show_main_menu), '0', '?kids=True'])
 
-    def test_livetv_menu(self):
-        plugin.run([routing.url_for(plugin.show_livetv), '0', ''])
+    def test_channels_menu(self):
+        plugin.run([routing.url_for(plugin.show_channels), '0', ''])
+        plugin.run([routing.url_for(plugin.show_channel_menu, channel='vtm'), '0', ''])
 
     def test_catalog_menu(self):
         plugin.run([routing.url_for(plugin.show_catalog), '0', ''])
@@ -64,15 +65,11 @@ class TestRouting(unittest.TestCase):
     def test_catalog_mylist_menu(self):
         plugin.run([routing.url_for(plugin.show_mylist), '0', ''])
 
-    def test_youtube_menu(self):
-        plugin.run([routing.url_for(plugin.show_youtube), '0', ''])
-
     def test_search_menu(self):
         plugin.run([routing.url_for(plugin.show_search), '0', ''])
         plugin.run([routing.url_for(plugin.show_search, query='nieuws'), '0', ''])
 
     def test_tvguide_menu(self):
-        plugin.run([routing.url_for(plugin.show_tvguide), '0', ''])
         plugin.run([routing.url_for(plugin.show_tvguide_channel, channel='vtm'), '0', ''])
         plugin.run([routing.url_for(plugin.show_tvguide_detail, channel='vtm', date='today'), '0', ''])
 

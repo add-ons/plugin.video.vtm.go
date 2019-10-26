@@ -9,8 +9,15 @@ from datetime import timedelta
 
 import requests
 
-from resources.lib import GeoblockedException, UnavailableException
 from resources.lib.kodiwrapper import from_unicode, LOG_DEBUG, LOG_ERROR, KodiWrapper  # pylint: disable=unused-import
+
+
+class StreamGeoblockedException(Exception):
+    """ Is thrown when a geoblocked item is played. """
+
+
+class StreamUnavailableException(Exception):
+    """ Is thrown when an unavailable item is played. """
 
 
 class ResolvedStream:
@@ -153,15 +160,15 @@ class VtmGoStream:
         if response.status_code == 403:
             error = json.loads(response.text)
             if error['type'] == 'videoPlaybackGeoblocked':
-                raise GeoblockedException()
+                raise StreamGeoblockedException()
             if error['type'] == 'serviceError':
-                raise UnavailableException()
+                raise StreamUnavailableException()
 
         if response.status_code == 404:
-            raise UnavailableException()
+            raise StreamUnavailableException()
 
         if response.status_code != 200:
-            raise UnavailableException()
+            raise StreamUnavailableException()
 
         info = json.loads(response.text)
         return info

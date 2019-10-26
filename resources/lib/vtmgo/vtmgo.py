@@ -8,7 +8,6 @@ import json
 
 import requests
 
-from resources.lib import UnavailableException
 from resources.lib.kodiwrapper import LOG_DEBUG, KodiWrapper, LOG_INFO  # pylint: disable=unused-import
 from resources.lib.vtmgo.vtmgoauth import VtmGoAuth
 
@@ -18,17 +17,23 @@ except ImportError:  # Python 2
     from urllib import quote
 
 
+class UnavailableException(Exception):
+    """ Is thrown when an item is unavailable. """
+
+
 class LiveChannel:
     """ Defines a tv channel that can be streamed live """
 
-    def __init__(self, channel_id=None, name=None, logo=None, epg=None, geoblocked=False):
+    def __init__(self, key=None, channel_id=None, name=None, logo=None, epg=None, geoblocked=False):
         """
+        :type key: str
         :type channel_id: str
         :type name: str
         :type logo: str
         :type epg: list[LiveChannelEpg]
         :type geoblocked: bool
         """
+        self.key = key
         self.channel_id = channel_id
         self.name = name
         self.logo = logo
@@ -349,6 +354,7 @@ class VtmGo:
                     end=dateutil.parser.parse(item_epg.get('endsAt')),
                 ))
             channels.append(LiveChannel(
+                key=item.get('seoKey'),
                 channel_id=item.get('channelId'),
                 logo=item.get('channelLogoUrl'),
                 name=item.get('name'),
@@ -356,6 +362,19 @@ class VtmGo:
             ))
 
         return channels
+
+    def get_live_channel(self, key):
+        """ Get a the specified live tv channel.
+        :rtype LiveChannel
+        """
+
+        self._kodi.log(key)
+
+        channels = self.get_live_channels()
+        for channel in channels:
+            if channel.key == key:
+                return channel
+        return None
 
     def get_categories(self):
         """ Get a list of all the categories.

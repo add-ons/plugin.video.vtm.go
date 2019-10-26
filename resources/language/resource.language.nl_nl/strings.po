@@ -13,7 +13,7 @@ msgstr "A-Z"
 
 msgctxt "#30002"
 msgid "Alphabetically sorted list of programs"
-msgstr "Volledige lijst van tv-programma's"
+msgstr "Volledige lijst van programma's"
 
 msgctxt "#30003"
 msgid "Catalogue"
@@ -21,7 +21,7 @@ msgstr "Catalogus"
 
 msgctxt "#30004"
 msgid "TV Shows and Movies listed by category"
-msgstr "Tv-programma's en films per categorie"
+msgstr "Programma's en films per categorie"
 
 msgctxt "#30005"
 msgid "Live TV"
@@ -32,12 +32,12 @@ msgid "Watch TV channels live via Internet"
 msgstr "Bekijk tv-kanalen live via Internet"
 
 msgctxt "#30007"
-msgid "YouTube"
-msgstr "YouTube"
+msgid "Channels"
+msgstr "Kanalen"
 
 msgctxt "#30008"
-msgid "Watch YouTube content"
-msgstr "Bekijk video's op YouTube"
+msgid "Show channel based overview"
+msgstr "Toon een overzicht per tv-kanaal"
 
 msgctxt "#30009"
 msgid "Search VTM GO"
@@ -88,19 +88,45 @@ msgid "Continue watching where you left off"
 msgstr "Kijk verder waar je gebleven was"
 
 
+### SUBMENUS
+msgctxt "#30051"
+msgid "Watch [B]{channel}[/B]"
+msgstr "Kijk [B]{channel}[/B]"
+
+msgctxt "#30052"
+msgid "Watch live [B]{channel}[/B]"
+msgstr "Kijk live [B]{channel}[/B]"
+
+msgctxt "#30053"
+msgid "TV Guide for [B]{channel}[/B]"
+msgstr "TV-gids voor [B]{channel}[/B]"
+
+msgctxt "#30054"
+msgid "Browse the TV Guide for [B]{channel}[/B]"
+msgstr "Doorblader de TV-gids voor [B]{channel}[/B]"
+
+
 ### CONTEXT MENU
 
-msgctxt "#30050"
+msgctxt "#30100"
 msgid "Add to My List"
 msgstr "Toevoegen aan mijn lijst"
 
-msgctxt "#30051"
+msgctxt "#30101"
 msgid "Remove from My List"
 msgstr "Verwijderen uit mijn lijst"
 
-msgctxt "#30052"
+msgctxt "#30102"
 msgid "Go to Program"
 msgstr "Ga naar programma"
+
+msgctxt "#30103"
+msgid "Watch live"
+msgstr "Kijk live"
+
+msgctxt "#30104"
+msgid "TV Guide"
+msgstr "TV-gids"
 
 
 ### CODE
@@ -230,7 +256,7 @@ msgstr "Deze video is niet beschikbaar en kan nu niet worden afgespeeld."
 
 msgctxt "#30713"
 msgid "The requested video was not found in the guide."
-msgstr "De gevraagde video werd niet gevonden in de gids."
+msgstr "De gevraagde video werd niet gevonden in de tv-gids."
 
 msgctxt "#30714"
 msgid "Local metadata is cleared."

@@ -18,18 +18,32 @@ def show_main_menu():
     Menu(kodi).show_mainmenu()
 
 
-@routing.route('/livetv')
-def show_livetv():
+# @routing.route('/livetv')
+# def show_livetv():
+#     """ Shows Live TV channels """
+#     from resources.lib.modules.channels import Channels
+#     Channels(kodi).show_livetv()
+
+
+@routing.route('/channels')
+def show_channels():
     """ Shows Live TV channels """
     from resources.lib.modules.channels import Channels
-    Channels(kodi).show_livetv()
+    Channels(kodi).show_channels()
 
 
-@routing.route('/tvguide')
-def show_tvguide():
-    """ Shows the TV guide """
-    from resources.lib.modules.tvguide import TvGuide
-    TvGuide(kodi).show_tvguide()
+@routing.route('/channels/<channel>')
+def show_channel_menu(channel):
+    """ Shows Live TV channels """
+    from resources.lib.modules.channels import Channels
+    Channels(kodi).show_channel_menu(channel)
+
+
+# @routing.route('/tvguide')
+# def show_tvguide():
+#     """ Shows the TV guide """
+#     from resources.lib.modules.tvguide import TvGuide
+#     TvGuide(kodi).show_tvguide()
 
 
 @routing.route('/tvguide/channel/<channel>')
@@ -121,13 +135,6 @@ def show_continuewatching():
     """ Show the items in "Continue Watching" """
     from resources.lib.modules.catalog import Catalog
     Catalog(kodi).show_continuewatching()
-
-
-@routing.route('/youtube')
-def show_youtube():
-    """ Shows the Youtube channel overview """
-    from resources.lib.modules.catalog import Catalog
-    Catalog(kodi).show_youtube()
 
 
 @routing.route('/search')
