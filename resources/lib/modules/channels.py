@@ -135,7 +135,8 @@ class Channels:
             if kids and channel.get('kids') is False:
                 continue
 
-            channel_info = [cval for (ckey, cval) in enumerate(channel_infos) if cval.key == key][0]
+            # Find this channel in the list
+            channel_info = next(c for c in channel_infos if c.key == key)
 
             # Lookup the high resolution logo based on the channel name
             icon = '{path}/resources/logos/{logo}-white.png'.format(path=self._kodi.get_addon_path(), logo=channel.get('logo'))

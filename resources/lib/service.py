@@ -37,8 +37,6 @@ class BackgroundService(Monitor):
 
     def onSettingsChanged(self):
         """ Callback when a setting has changed """
-        self.kodi.log('IN VTM GO: Settings changed', LOG_DEBUG)
-
         # Refresh our VtmGo instance
         self.vtm_go = VtmGo(self.kodi)
 

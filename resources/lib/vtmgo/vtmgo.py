@@ -367,14 +367,8 @@ class VtmGo:
         """ Get a the specified live tv channel.
         :rtype LiveChannel
         """
-
-        self._kodi.log(key)
-
         channels = self.get_live_channels()
-        for channel in channels:
-            if channel.key == key:
-                return channel
-        return None
+        return next(c for c in channels if c.key == key)
 
     def get_categories(self):
         """ Get a list of all the categories.
