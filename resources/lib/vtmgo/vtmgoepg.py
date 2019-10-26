@@ -110,6 +110,7 @@ class VtmGoEpg:
                     name=epg_channel.get('name'),
                     key=epg_channel.get('seoKey'),
                     logo=epg_channel.get('channelLogoUrl'),
+                    uuid=epg_channel.get('uuid'),
                     broadcasts=[self._parse_broadcast(broadcast) for broadcast in epg_channel.get('broadcasts', [])]
                 )
 
@@ -174,10 +175,8 @@ class VtmGoEpg:
         :type broadcast_json: dict
         :rtype: EpgBroadcast
         """
-        # Sometimes, the duration field is empty, but luckily, we can calculate it.
-        duration = broadcast_json.get('duration')
-        if duration is None:
-            duration = (broadcast_json.get('to') - broadcast_json.get('from')) / 1000
+        # The broadcast_json.get('duration') field doesn't include the advertisements, so the total time is incorrect
+        duration = (broadcast_json.get('to') - broadcast_json.get('from')) / 1000
 
         # Check if this broadcast is currently airing
         timestamp = datetime.now(dateutil.tz.tzlocal())

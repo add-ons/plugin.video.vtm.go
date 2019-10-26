@@ -160,10 +160,11 @@ def play_epg_datetime(channel, timestamp):
 
 
 @routing.route('/play/epg/<channel>/<program_type>/<epg_id>')
-def play_epg_program(channel, program_type, epg_id):
+@routing.route('/play/epg/<channel>/<program_type>/<epg_id>/<airing>')
+def play_epg_program(channel, program_type, epg_id, airing=None):
     """ Play a program based on the channel and information from the EPG """
     from resources.lib.modules.tvguide import TvGuide
-    TvGuide(kodi).play_epg_program(channel, program_type, epg_id)
+    TvGuide(kodi).play_epg_program(channel, program_type, epg_id, airing)
 
 
 @routing.route('/play/catalog/<category>/<item>')

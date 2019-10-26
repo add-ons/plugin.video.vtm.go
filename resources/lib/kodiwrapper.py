@@ -116,6 +116,10 @@ class KodiWrapper:
         kwargs = {k: v for k, v in kwargs.items() if v is not None}  # Strip out empty kwargs
         return self.routing.url_for(self.addon[name], *args, **kwargs)
 
+    def redirect(self, url):
+        """ Wrapper for routing.redirect() so it also works with urls """
+        return self.routing.redirect(url.replace('plugin://' + self._addon_id, ''))
+
     def show_listing(self, title_items, category=None, sort='unsorted', content=None, cache=True):
         """ Show a virtual directory in Kodi """
         if content:
@@ -232,6 +236,12 @@ class KodiWrapper:
         if keyboard.isConfirmed():
             search_string = to_unicode(keyboard.getText())
         return search_string
+
+    @staticmethod
+    def show_context_menu(items):
+        """ Show Kodi's context menu dialog """
+        from xbmcgui import Dialog
+        return Dialog().contextmenu(items)
 
     def show_ok_dialog(self, heading='', message=''):
         """ Show Kodi's OK dialog """
