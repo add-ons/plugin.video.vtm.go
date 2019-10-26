@@ -303,12 +303,24 @@ msgctxt "#30821"
 msgid "Features"
 msgstr ""
 
+msgctxt "#30822"
+msgid "Show recommendations"
+msgstr ""
+
 msgctxt "#30823"
-msgid "Use Kids zone"
+msgid "Show My List"
+msgstr ""
+
+msgctxt "#30824"
+msgid "Show Kids zone"
 msgstr ""
 
 msgctxt "#30825"
 msgid "Force Kids zone"
+msgstr ""
+
+msgctxt "#30826"
+msgid "Show Continue watching"
 msgstr ""
 
 msgctxt "#30827"
@@ -317,6 +329,10 @@ msgstr ""
 
 msgctxt "#30829"
 msgid "Periodically refresh metadata in the background"
+msgstr ""
+
+msgctxt "#30830"
+msgid "Periodically refresh metadata in the background HELP"
 msgstr ""
 
 msgctxt "#30831"

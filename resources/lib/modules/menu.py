@@ -23,7 +23,7 @@ class Menu:
         kids = self._kodi.kids_mode()
 
         listing = []
-        listing.extend([
+        listing.append(
             TitleItem(title=self._kodi.localize(30001),  # A-Z
                       path=self._kodi.url_for('show_catalog_category', kids=kids, category='all'),
                       art_dict=dict(
@@ -31,7 +31,8 @@ class Menu:
                       ),
                       info_dict=dict(
                           plot=self._kodi.localize(30002),
-                      )),
+                      )))
+        listing.append(
             TitleItem(title=self._kodi.localize(30003),  # Catalogue
                       path=self._kodi.url_for('show_catalog', kids=kids),
                       art_dict=dict(
@@ -39,7 +40,8 @@ class Menu:
                       ),
                       info_dict=dict(
                           plot=self._kodi.localize(30004),
-                      )),
+                      )))
+        listing.append(
             TitleItem(title=self._kodi.localize(30007),  # TV Channels
                       path=self._kodi.url_for('show_channels', kids=kids),
                       art_dict=dict(
@@ -47,31 +49,42 @@ class Menu:
                       ),
                       info_dict=dict(
                           plot=self._kodi.localize(30008),
-                      )),
-            TitleItem(title=self._kodi.localize(30015),  # Recommendations
-                      path=self._kodi.url_for('show_recommendations', kids=kids),
-                      art_dict={
-                          'icon': 'DefaultFavourites.png'
-                      },
-                      info_dict={
-                          'plot': self._kodi.localize(30016),
-                      }),
-            TitleItem(title=self._kodi.localize(30017),  # My List
-                      path=self._kodi.url_for('show_mylist', kids=kids),
-                      art_dict={
-                          'icon': 'DefaultPlaylist.png'
-                      },
-                      info_dict={
-                          'plot': self._kodi.localize(30018),
-                      }),
-            # TitleItem(title=self._kodi.localize(30019),  # Continue watching
-            #           path=routing.url_for(show_continuewatching, kids=kids),
-            #           art_dict={
-            #               'icon': 'DefaultInProgressShows.png'
-            #           },
-            #           info_dict={
-            #               'plot': self._kodi.localize(30020),
-            #           }),
+                      )))
+
+        if self._kodi.get_setting_as_bool('interface_show_recommendations'):
+            listing.append(
+                TitleItem(title=self._kodi.localize(30015),  # Recommendations
+                          path=self._kodi.url_for('show_recommendations', kids=kids),
+                          art_dict={
+                              'icon': 'DefaultFavourites.png'
+                          },
+                          info_dict={
+                              'plot': self._kodi.localize(30016),
+                          }))
+
+        if self._kodi.get_setting_as_bool('interface_show_mylist'):
+            listing.append(
+                TitleItem(title=self._kodi.localize(30017),  # My List
+                          path=self._kodi.url_for('show_mylist', kids=kids),
+                          art_dict={
+                              'icon': 'DefaultPlaylist.png'
+                          },
+                          info_dict={
+                              'plot': self._kodi.localize(30018),
+                          }))
+
+        if self._kodi.get_setting_as_bool('interface_show_continuewatching'):
+            listing.append(
+                TitleItem(title=self._kodi.localize(30019),  # Continue watching
+                          path=self._kodi.url_for('show_continuewatching', kids=kids),
+                          art_dict={
+                              'icon': 'DefaultInProgressShows.png'
+                          },
+                          info_dict={
+                              'plot': self._kodi.localize(30020),
+                          }))
+
+        listing.append(
             TitleItem(title=self._kodi.localize(30009),  # Search
                       path=self._kodi.url_for('show_search', kids=kids),
                       art_dict=dict(
@@ -79,10 +92,9 @@ class Menu:
                       ),
                       info_dict=dict(
                           plot=self._kodi.localize(30010),
-                      )),
-        ])
+                      )))
 
-        if not kids:
+        if self._kodi.get_setting_as_bool('interface_show_kids_zone') and not kids:
             listing.append(
                 TitleItem(title=self._kodi.localize(30011),  # Kids Zone
                           path=self._kodi.url_for('show_main_menu', kids=True),
@@ -91,8 +103,7 @@ class Menu:
                           ),
                           info_dict=dict(
                               plot=self._kodi.localize(30012),
-                          ))
-            )
+                          )))
 
         self._kodi.show_listing(listing)
 
