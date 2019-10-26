@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-""" Menu code related to search """
+""" Search module """
 
 from __future__ import absolute_import, division, unicode_literals
 
@@ -11,13 +11,17 @@ class Search:
     """ Menu code related to search """
 
     def __init__(self, kodi):
-        """ Initialise object """
+        """ Initialise object
+        :type kodi: KodiWrapper
+        """
         self._kodi = kodi
         self._vtm_go = VtmGo(self._kodi)
         self._menu = Menu(self._kodi)
 
     def show_search(self, query=None):
-        """ Shows the search dialog """
+        """ Shows the search dialog
+        :type query: str
+        """
         if not query:
             # Ask for query
             query = self._kodi.get_search_string(heading=self._kodi.localize(30009))

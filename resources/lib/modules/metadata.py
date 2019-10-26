@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-""" Metadata """
+""" Metadata module """
 
 from __future__ import absolute_import, division, unicode_literals
 
@@ -30,7 +30,9 @@ class Metadata:
         progress.close()
 
     def fetch_metadata(self, callback=None):
-        """ Fetch the metadata for all the items in the catalog """
+        """ Fetch the metadata for all the items in the catalog
+        :type callback: callable
+        """
         # Fetch all items from the catalog
         items = self._vtm_go.get_items('all')
         count = len(items)

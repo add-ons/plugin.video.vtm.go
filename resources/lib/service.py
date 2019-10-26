@@ -5,7 +5,7 @@ from __future__ import absolute_import, division, unicode_literals
 
 from time import time
 
-from resources.lib.kodiwrapper import KodiWrapper, LOG_INFO, LOG_DEBUG
+from resources.lib.kodiwrapper import KodiWrapper, LOG_INFO
 from resources.lib.vtmgo.vtmgo import VtmGo
 from xbmc import Monitor
 

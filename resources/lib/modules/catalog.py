@@ -1,19 +1,20 @@
 # -*- coding: utf-8 -*-
-""" Menu code related to the catalog """
+""" Catalog module """
 
 from __future__ import absolute_import, division, unicode_literals
 
 from resources.lib.kodiwrapper import TitleItem
 from resources.lib.modules.menu import Menu
-from resources.lib.vtmgo.vtmgo import VtmGo
-from resources.lib.vtmgo.vtmgostream import StreamUnavailableException
+from resources.lib.vtmgo.vtmgo import VtmGo, UnavailableException
 
 
 class Catalog:
     """ Menu code related to the catalog """
 
     def __init__(self, kodi):
-        """ Initialise object """
+        """ Initialise object
+        :type kodi: KodiWrapper
+        """
         self._kodi = kodi
         self._vtm_go = VtmGo(self._kodi)
         self._menu = Menu(self._kodi)
@@ -40,7 +41,9 @@ class Catalog:
         self._kodi.show_listing(listing, 30003, content='files')
 
     def show_catalog_category(self, category):
-        """ Show a category in the catalog """
+        """ Show a category in the catalog
+        :type category: str
+        """
         try:
             items = self._vtm_go.get_items(category)
         except Exception as ex:
@@ -56,11 +59,13 @@ class Catalog:
         self._kodi.show_listing(listing, 30003, content='movies' if category == 'films' else 'tvshows', sort='label')
 
     def show_program(self, program):
-        """ Show a program from the catalog """
+        """ Show a program from the catalog
+        :type program: str
+         """
         try:
             program_obj = self._vtm_go.get_program(program)
-        except StreamUnavailableException:
-            self._kodi.show_notification(message=self._kodi.localize(30717))  # This program is not available in the VTM GO catalogue.
+        except UnavailableException:
+            self._kodi.show_ok_dialog(message=self._kodi.localize(30717))  # This program is not available in the VTM GO catalogue.
             self._kodi.end_of_directory()
             return
 
@@ -70,7 +75,7 @@ class Catalog:
         if self._kodi.get_global_setting('videolibrary.showallitems') is True:
             listing.append(
                 TitleItem(title='* %s' % self._kodi.localize(30204),  # * All seasons
-                          path=self._kodi.url_for('show_catalog_program_season', program=program, season='all'),
+                          path=self._kodi.url_for('show_catalog_program_season', program=program, season=-1),
                           art_dict={
                               'thumb': program_obj.cover,
                               'fanart': program_obj.cover,
@@ -106,20 +111,23 @@ class Catalog:
         self._kodi.show_listing(listing, 30003, content='tvshows', sort='label')
 
     def show_program_season(self, program, season):
-        """ Show a program from the catalog """
+        """ Show a program from the catalog
+        :type program: str
+        :type season: int
+        """
         try:
             program_obj = self._vtm_go.get_program(program)
-        except StreamUnavailableException:
-            self._kodi.show_notification(message=self._kodi.localize(30717))  # This program is not available in the VTM GO catalogue.
+        except UnavailableException:
+            self._kodi.show_ok_dialog(message=self._kodi.localize(30717))  # This program is not available in the VTM GO catalogue.
             self._kodi.end_of_directory()
             return
 
-        if season == 'all':
+        if season == -1:
             # Show all seasons
             seasons = program_obj.seasons.values()
         else:
             # Show the season that was selected
-            seasons = [program_obj.seasons[int(season)]]
+            seasons = [program_obj.seasons[season]]
 
         listing = []
         for s in seasons:
@@ -151,7 +159,9 @@ class Catalog:
         self._kodi.show_listing(listing, 30015, content='files')
 
     def show_recommendations_category(self, category):
-        """ Show the items in a recommendations category """
+        """ Show the items in a recommendations category
+        :type category: str
+        """
         try:
             recommendations = self._vtm_go.get_recommendations()
         except Exception as ex:
@@ -187,12 +197,18 @@ class Catalog:
         self._kodi.show_listing(listing, 30017, content='tvshows')
 
     def mylist_add(self, video_type, content_id):
-        """ Add an item to "My List" """
+        """ Add an item to "My List"
+        :type video_type: str
+        :type content_id: str
+         """
         self._vtm_go.add_mylist(video_type, content_id)
         self._kodi.end_of_directory()
 
     def mylist_del(self, video_type, content_id):
-        """ Remove an item from "My List" """
+        """ Remove an item from "My List"
+        :type video_type: str
+        :type content_id: str
+        """
         self._vtm_go.del_mylist(video_type, content_id)
         self._kodi.end_of_directory()
         self._kodi.container_refresh()

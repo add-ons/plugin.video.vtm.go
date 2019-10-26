@@ -18,13 +18,6 @@ def show_main_menu():
     Menu(kodi).show_mainmenu()
 
 
-# @routing.route('/livetv')
-# def show_livetv():
-#     """ Shows Live TV channels """
-#     from resources.lib.modules.channels import Channels
-#     Channels(kodi).show_livetv()
-
-
 @routing.route('/channels')
 def show_channels():
     """ Shows Live TV channels """
@@ -37,13 +30,6 @@ def show_channel_menu(channel):
     """ Shows Live TV channels """
     from resources.lib.modules.channels import Channels
     Channels(kodi).show_channel_menu(channel)
-
-
-# @routing.route('/tvguide')
-# def show_tvguide():
-#     """ Shows the TV guide """
-#     from resources.lib.modules.tvguide import TvGuide
-#     TvGuide(kodi).show_tvguide()
 
 
 @routing.route('/tvguide/channel/<channel>')
@@ -92,7 +78,7 @@ def show_catalog_program(program):
 def show_catalog_program_season(program, season):
     """ Show a program from the catalog """
     from resources.lib.modules.catalog import Catalog
-    Catalog(kodi).show_program_season(program, season)
+    Catalog(kodi).show_program_season(program, int(season))
 
 
 @routing.route('/catalog/recommendations')

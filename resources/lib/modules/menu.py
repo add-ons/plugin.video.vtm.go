@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-""" Menu code """
+""" Menu module """
 
 from __future__ import absolute_import, division, unicode_literals
 
@@ -12,7 +12,9 @@ class Menu:
     """ Menu code """
 
     def __init__(self, kodi):
-        """ Initialise object """
+        """ Initialise object
+        :type kodi: KodiWrapper
+        """
         self._kodi = kodi
         self._vtm_go = VtmGo(self._kodi)
 
@@ -112,7 +114,10 @@ class Menu:
         self._kodi.open_settings()
 
     def format_plot(self, obj):
-        """ Format the plot for a item """
+        """ Format the plot for a item
+        :type obj: object
+        :rtype str
+        """
         plot = ''
 
         if hasattr(obj, 'description'):

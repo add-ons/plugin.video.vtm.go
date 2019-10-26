@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-""" Metadata """
+""" Player module """
 
 from __future__ import absolute_import, division, unicode_literals
 
@@ -9,16 +9,21 @@ from resources.lib.vtmgo.vtmgostream import VtmGoStream, StreamGeoblockedExcepti
 
 
 class Player:
-    """ Code responsible for playing something """
+    """ Code responsible for playing media """
 
     def __init__(self, kodi):
-        """ Initialise object """
+        """ Initialise object
+        :type kodi: KodiWrapper
+        """
         self._kodi = kodi
         self._vtm_go = VtmGo(self._kodi)
         self._vtm_go_stream = VtmGoStream(self._kodi)
 
     def play(self, category, item):
-        """ Play the requested item. Uses setResolvedUrl(). """
+        """ Play the requested item.
+        :type category: string
+        :type item: string
+        """
         # Check if inputstreamhelper is correctly installed
         try:
             from inputstreamhelper import Helper

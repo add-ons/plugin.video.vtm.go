@@ -13,44 +13,17 @@ class TvGuide:
     """ Menu code related to the TV Guide """
 
     def __init__(self, kodi):
-        """ Initialise object """
+        """ Initialise object
+        :type kodi: KodiWrapper
+        """
         self._kodi = kodi
         self._vtm_go_epg = VtmGoEpg(self._kodi)
         self._menu = Menu(self._kodi)
 
-    # def show_tvguide(self):
-    #     """ Shows the TV guide """
-    #     kids = self._kodi.kids_mode()
-    #
-    #     from resources.lib import CHANNELS
-    #
-    #     listing = []
-    #     for entry in CHANNELS:
-    #         # Skip non-kids channels when we are in kids mode.
-    #         if kids and entry.get('kids') is False:
-    #             continue
-    #
-    #         # Lookup the high resolution logo based on the channel name
-    #         icon = '{path}/resources/logos/{logo}-white.png'.format(path=self._kodi.get_addon_path(), logo=entry.get('logo'))
-    #         fanart = '{path}/resources/logos/{logo}.png'.format(path=self._kodi.get_addon_path(), logo=entry.get('logo'))
-    #
-    #         listing.append(
-    #             TitleItem(title=entry.get('label'),
-    #                       path=self._kodi.url_for('show_tvguide_channel', channel=entry.get('key')),
-    #                       art_dict={
-    #                           'icon': icon,
-    #                           'thumb': icon,
-    #                           'fanart': fanart,
-    #                       },
-    #                       info_dict={
-    #                           'plot': self._kodi.localize(30215, channel=entry.get('label')),
-    #                       })
-    #         )
-    #
-    #     self._kodi.show_listing(listing, 30013)
-
     def show_tvguide_channel(self, channel):
-        """ Shows the dates in the tv guide """
+        """ Shows the dates in the tv guide
+        :type channel: str
+        """
         listing = []
         for day in self._vtm_go_epg.get_dates('%A %d %B %Y'):
             if day.get('highlight'):
@@ -73,7 +46,10 @@ class TvGuide:
         self._kodi.show_listing(listing, 30013, content='files')
 
     def show_tvguide_detail(self, channel=None, date=None):
-        """ Shows the programs of a specific date in the tv guide """
+        """ Shows the programs of a specific date in the tv guide
+        :type channel: str
+        :type date: str
+        """
         try:
             epg = self._vtm_go_epg.get_epg(channel=channel, date=date)
         except UnavailableException as ex:
@@ -85,7 +61,7 @@ class TvGuide:
         for broadcast in epg.broadcasts:
             if broadcast.playable_type == 'episodes':
                 context_menu = [(
-                    self._kodi.localize(30052),  # Go to Program
+                    self._kodi.localize(30102),  # Go to Program
                     'XBMC.Container.Update(%s)' %
                     self._kodi.url_for('show_program_from_epg', channel=channel, program=broadcast.uuid)
                 )]
@@ -135,7 +111,10 @@ class TvGuide:
         self._kodi.show_listing(listing, 30013, content='episodes')
 
     def show_program_from_epg(self, channel, program):
-        """ Show a program based on the channel and information from the EPG. """
+        """ Show a program based on the channel and information from the EPG
+        :type channel: str
+        :type program: str
+        """
         details = self._vtm_go_epg.get_details(channel=channel, program_type='episodes', epg_id=program)
         if not details:
             self._kodi.show_ok_dialog(heading=self._kodi.localize(30711), message=self._kodi.localize(30713))  # The requested video was not found in the guide.
@@ -146,7 +125,10 @@ class TvGuide:
             self._kodi.url_for('show_catalog_program', program=details.program_uuid).replace('plugin://plugin.video.vtm.go', ''))
 
     def play_epg_datetime(self, channel, timestamp):
-        """ Play a program based on the channel and the timestamp when it was aired. """
+        """ Play a program based on the channel and the timestamp when it was aired
+        :type channel: str
+        :type timestamp: str
+        """
         broadcast = self._vtm_go_epg.get_broadcast(channel, timestamp)
         if not broadcast:
             self._kodi.show_ok_dialog(heading=self._kodi.localize(30711), message=self._kodi.localize(30713))  # The requested video was not found in the guide.
@@ -155,7 +137,11 @@ class TvGuide:
         self.play_epg_program(channel, broadcast.playable_type, broadcast.uuid)
 
     def play_epg_program(self, channel, program_type, epg_id):
-        """ Play a program based on the channel and information from the EPG. """
+        """ Play a program based on the channel and information from the EPG
+        :type channel: str
+        :type program_type: str
+        :type epg_id: str
+        """
         details = self._vtm_go_epg.get_details(channel=channel, program_type=program_type, epg_id=epg_id)
         if not details:
             self._kodi.show_ok_dialog(heading=self._kodi.localize(30711), message=self._kodi.localize(30713))  # The requested video was not found in the guide.

@@ -56,7 +56,7 @@ class TestRouting(unittest.TestCase):
         plugin.run([routing.url_for(plugin.show_catalog_program, program='e892cf10-5100-42ce-8d59-6b5c03cc2b96'), '0', ''])
 
     def test_catalog_program_season_menu(self):
-        plugin.run([routing.url_for(plugin.show_catalog_program_season, program='e892cf10-5100-42ce-8d59-6b5c03cc2b96', season='all'), '0', ''])
+        plugin.run([routing.url_for(plugin.show_catalog_program_season, program='e892cf10-5100-42ce-8d59-6b5c03cc2b96', season=-1), '0', ''])
 
     def test_catalog_recommendations_menu(self):
         plugin.run([routing.url_for(plugin.show_recommendations), '0', ''])

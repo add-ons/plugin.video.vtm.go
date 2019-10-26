@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-""" Menu code related to channels """
+""" Channels module """
 
 from __future__ import absolute_import, division, unicode_literals
 
@@ -116,7 +116,9 @@ class Channels:
     """ Menu code related to channels """
 
     def __init__(self, kodi):
-        """ Initialise object """
+        """ Initialise object
+        :type kodi: KodiWrapper
+        """
         self._kodi = kodi
         self._vtm_go = VtmGo(self._kodi)
         self._menu = Menu(self._kodi)
@@ -180,7 +182,9 @@ class Channels:
         self._kodi.show_listing(listing, 30007)
 
     def show_channel_menu(self, key):
-        """ Shows a TV channel """
+        """ Shows a TV channel
+        :type key: str
+        """
         channel = CHANNELS[key]
 
         # Fetch EPG from API
