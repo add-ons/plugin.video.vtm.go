@@ -34,10 +34,6 @@ class TestVtmGoEpg(unittest.TestCase):
     def test_get_epg(self):
         from datetime import date
 
-        # Get list of EPG for today
-        epg = self._vtmgoepg.get_epg(channel='vtm', date='today')
-        self.assertTrue(epg)
-
         # Get list of EPG for tomorrow
         epg = self._vtmgoepg.get_epg(channel='vtm', date='tomorrow')
         self.assertTrue(epg)
@@ -47,14 +43,25 @@ class TestVtmGoEpg(unittest.TestCase):
         self.assertTrue(epg)
 
         # Get list of EPG for today
+        epg = self._vtmgoepg.get_epg(channel='vitaya')
+        self.assertTrue(epg)
+
+        epg = self._vtmgoepg.get_epg(channel='vtm', date='today')
+        self.assertTrue(epg)
+
         epg = self._vtmgoepg.get_epg(channel='vtm', date=date.today().strftime('%Y-%m-%d'))
         self.assertTrue(epg)
 
-        # Take first broadcast of vtm channel
-        first = epg.broadcasts[0]
+        broadcast = next(b for b in epg.broadcasts if b.playable_type == 'episodes')
+        details = self._vtmgoepg.get_details(channel='vtm', program_type=broadcast.playable_type, epg_id=broadcast.uuid)
+        self.assertTrue(details)
 
-        # Fetch details
-        details = self._vtmgoepg.get_details(channel='vtm', program_type=first.playable_type, epg_id=first.uuid)
+        broadcast = next(b for b in epg.broadcasts if b.playable_type == 'movies')
+        details = self._vtmgoepg.get_details(channel='vtm', program_type=broadcast.playable_type, epg_id=broadcast.uuid)
+        self.assertTrue(details)
+
+        broadcast = next(b for b in epg.broadcasts if b.playable_type == 'oneoffs')
+        details = self._vtmgoepg.get_details(channel='vtm', program_type=broadcast.playable_type, epg_id=broadcast.uuid)
         self.assertTrue(details)
 
 

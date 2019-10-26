@@ -12,6 +12,7 @@ from urllib3.exceptions import InsecureRequestWarning
 
 from resources.lib.kodiwrapper import KodiWrapper
 from resources.lib.vtmgo import vtmgo, vtmgostream, vtmgoauth
+from resources.lib.vtmgo.vtmgo import Movie, Program
 from resources.lib.vtmgo.vtmgostream import StreamGeoblockedException
 
 kodi = KodiWrapper()
@@ -43,52 +44,53 @@ class TestVtmGo(unittest.TestCase):
         self.assertTrue(config)
         # print(config)
 
-    def test_get_recommendations(self):
-        recommendations = self._vtmgo.get_recommendations()
-        self.assertTrue(recommendations)
-        # print(main)
-
-    def test_get_mylist(self):
-        mylist = self._vtmgo.get_swimlane('my-list')
-        self.assertIsInstance(mylist, list)
-        # print(mylist)
-
-    def test_get_categories(self):
+    def test_catalog(self):
         categories = self._vtmgo.get_categories()
         self.assertTrue(categories)
         # print(categories)
 
-        items = self._vtmgo.get_items('films')
+        items = self._vtmgo.get_items('all')
         self.assertTrue(items)
         # print(items)
 
-    def test_get_live(self):
-        items = self._vtmgo.get_live_channels()
+        # Movies
+        movie = next(a for a in items if isinstance(a, Movie))
+        info = self._vtmgo.get_movie(movie.movie_id)
+        self.assertTrue(info)
+
+        stream = self._vtmgostream.get_stream('movies', info.movie_id)
+        self.assertTrue(stream)
+
+        # Programs
+        program = next(a for a in items if isinstance(a, Program))
+        info = self._vtmgo.get_program(program.program_id)
+        self.assertTrue(info)
+
+        season = list(info.seasons.values())[0]
+        episode = list(season.episodes.values())[0]
+        info = self._vtmgo.get_episode(episode.episode_id)
+        self.assertTrue(info)
+
+        stream = self._vtmgostream.get_stream('episodes', info.episode_id)
+        self.assertTrue(stream)
+
+    def test_recommendations(self):
+        recommendations = self._vtmgo.get_recommendations()
+        self.assertTrue(recommendations)
+        # print(main)
+
+    def test_mylist(self):
+        mylist = self._vtmgo.get_swimlane('my-list')
+        self.assertIsInstance(mylist, list)
+        # print(mylist)
+
+    def test_live(self):
+        items = self._vtmgo.get_live_channel('vtm')
         self.assertTrue(items)
         # print(items)
 
-    def test_get_program(self):
-        info = self._vtmgo.get_program('e892cf10-5100-42ce-8d59-6b5c03cc2b96')
-        self.assertTrue(info)
-        # print(info)
-
-    def test_get_episode(self):
-        info = self._vtmgo.get_episode('ae0fa98d-6ed5-4f4a-8581-a051ed3bb755')
-        self.assertTrue(info)
-        # print(info)
-
-    def test_get_live_stream(self):
         try:
-            info = self._vtmgostream.get_stream('channels', 'd8659669-b964-414c-aa9c-e31d8d15696b')
-            self.assertTrue(info)
-            # print(info)
-        except StreamGeoblockedException:
-            pass
-
-    def test_get_vod_stream(self):
-        try:
-            # 13 Geboden - Episode 2
-            info = self._vtmgostream.get_stream('episodes', '2fafb247-0368-46d4-bdcf-fb209420e715')
+            info = self._vtmgostream.get_stream('channels', items.channel_id)
             self.assertTrue(info)
             # print(info)
         except StreamGeoblockedException:
