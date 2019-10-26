@@ -70,6 +70,7 @@ class Player:
                 info_dict.update({
                     'plot': details.description,
                     'year': details.year,
+                    'aired': details.aired,
                 })
 
             elif category == 'episodes':
@@ -84,7 +85,7 @@ class Player:
                 })
 
             elif category == 'channels':
-                info_dict.update({'mediatype': 'video'})
+                info_dict.update({'mediatype': 'episode'})
 
                 # For live channels, we need to keep on updating the manifest
                 # This might not be needed, and could be done with the Location-tag updates if inputstream.adaptive supports it

@@ -123,8 +123,13 @@ class VtmGoStream:
 
         if stream_type == 'channels':
             # Live TV
+            if stream_info['video']['metadata']['videoType'] == 'episode':
+                program = stream_info['video']['metadata']['program']['title']
+            else:
+                program = None
+
             return ResolvedStream(
-                program=None,
+                program=program,
                 title=stream_info['video']['metadata']['title'],
                 duration=None,
                 url=url,

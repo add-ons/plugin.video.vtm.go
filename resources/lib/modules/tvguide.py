@@ -12,6 +12,8 @@ from resources.lib.vtmgo.vtmgoepg import VtmGoEpg
 class TvGuide:
     """ Menu code related to the TV Guide """
 
+    EPG_NO_BROADCAST = 'Geen Uitzending'
+
     def __init__(self, kodi):
         """ Initialise object
         :type kodi: KodiWrapper
@@ -77,13 +79,17 @@ class TvGuide:
             if broadcast.airing:
                 title = '[B]{title}[/B]'.format(title=title)
 
-            if broadcast.title != 'Geen Uitzending':
-                path = self._kodi.url_for('play_epg_program', channel=channel, program_type=broadcast.playable_type, epg_id=broadcast.uuid)
-                is_playable = True
-            else:
+            if broadcast.title == self.EPG_NO_BROADCAST:
                 path = None
                 is_playable = False
                 title = '[COLOR gray]' + title + '[/COLOR]'
+            else:
+                path = self._kodi.url_for('play_epg_program',
+                                          channel=channel,
+                                          program_type=broadcast.playable_type,
+                                          epg_id=broadcast.uuid,
+                                          airing=epg.uuid if broadcast.airing else None)
+                is_playable = True
 
             listing.append(
                 TitleItem(title=title,
@@ -121,7 +127,7 @@ class TvGuide:
             return
 
         # Show the program with our freshly obtained program_uuid
-        self._kodi.routing.redirect(
+        self._kodi.redirect(
             self._kodi.url_for('show_catalog_program', program=details.program_uuid).replace('plugin://plugin.video.vtm.go', ''))
 
     def play_epg_datetime(self, channel, timestamp):
@@ -136,17 +142,27 @@ class TvGuide:
 
         self.play_epg_program(channel, broadcast.playable_type, broadcast.uuid)
 
-    def play_epg_program(self, channel, program_type, epg_id):
+    def play_epg_program(self, channel, program_type, epg_id, airing=None):
         """ Play a program based on the channel and information from the EPG
         :type channel: str
         :type program_type: str
         :type epg_id: str
+        :type airing: str
         """
+        if airing:
+            res = self._kodi.show_context_menu([self._kodi.localize(30103), self._kodi.localize(30105)])  # Watch Live | Play from Catalog
+            if res == -1:  # user has cancelled
+                return
+            if res == 0:  # user selected "Watch Live"
+                self._kodi.redirect(
+                    self._kodi.url_for('play', category='channels', item=airing))
+                return
+
         details = self._vtm_go_epg.get_details(channel=channel, program_type=program_type, epg_id=epg_id)
         if not details:
             self._kodi.show_ok_dialog(heading=self._kodi.localize(30711), message=self._kodi.localize(30713))  # The requested video was not found in the guide.
             return
 
         # Play this program
-        self._kodi.routing.redirect(
-            self._kodi.url_for('play', category=details.playable_type, item=details.playable_uuid).replace('plugin://plugin.video.vtm.go', ''))
+        self._kodi.redirect(
+            self._kodi.url_for('play', category=details.playable_type, item=details.playable_uuid))

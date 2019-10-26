@@ -46,9 +46,8 @@ class TestVtmGoEpg(unittest.TestCase):
         epg = self._vtmgoepg.get_epg(channel='vtm', date='yesterday')
         self.assertTrue(epg)
 
-        # Get list of EPG for yesterday
-        today = date.today().strftime('%Y-%m-%d')
-        epg = self._vtmgoepg.get_epg(channel='vtm', date=today)
+        # Get list of EPG for today
+        epg = self._vtmgoepg.get_epg(channel='vtm', date=date.today().strftime('%Y-%m-%d'))
         self.assertTrue(epg)
 
         # Take first broadcast of vtm channel

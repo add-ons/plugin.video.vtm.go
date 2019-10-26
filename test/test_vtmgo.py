@@ -77,14 +77,7 @@ class TestVtmGo(unittest.TestCase):
         self.assertTrue(info)
         # print(info)
 
-    def test_get_stream(self):
-        try:
-            info = self._vtmgostream.get_stream('episodes', 'ae0fa98d-6ed5-4f4a-8581-a051ed3bb755')
-            self.assertTrue(info)
-            # print(info)
-        except StreamGeoblockedException:
-            pass
-
+    def test_get_live_stream(self):
         try:
             info = self._vtmgostream.get_stream('channels', 'd8659669-b964-414c-aa9c-e31d8d15696b')
             self.assertTrue(info)
@@ -92,7 +85,7 @@ class TestVtmGo(unittest.TestCase):
         except StreamGeoblockedException:
             pass
 
-    def test_get_stream_with_subtitles(self):
+    def test_get_vod_stream(self):
         try:
             # 13 Geboden - Episode 2
             info = self._vtmgostream.get_stream('episodes', '2fafb247-0368-46d4-bdcf-fb209420e715')

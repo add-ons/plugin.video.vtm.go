@@ -120,11 +120,15 @@ msgid "Go to Program"
 msgstr ""
 
 msgctxt "#30103"
-msgid "Watch live"
+msgid "Watch Live"
 msgstr ""
 
 msgctxt "#30104"
 msgid "TV Guide"
+msgstr ""
+
+msgctxt "#30105"
+msgid "Play from Catalog"
 msgstr ""
 
 

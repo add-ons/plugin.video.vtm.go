@@ -44,6 +44,12 @@ class Dialog:
         return None
 
     @staticmethod
+    def contextmenu(items):  # pylint: disable=useless-return
+        ''' A stub implementation for the xbmcgui Dialog class contextmenu() method '''
+        print('\033[37;44;1mCONTEXTMENU:\033[35;49;1m \033[37;1m%s\033[39;0m' % (', '.join(items)))
+        return -1
+
+    @staticmethod
     def yesno(heading, line1, line2=None, line3=None, nolabel=None, yeslabel=None, autoclose=0):
         ''' A stub implementation for the xbmcgui Dialog class yesno() method '''
         heading = kodi_to_ansi(heading)
