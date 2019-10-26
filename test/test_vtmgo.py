@@ -11,6 +11,7 @@ import warnings
 from urllib3.exceptions import InsecureRequestWarning
 
 from resources.lib.kodiwrapper import KodiWrapper
+from resources.lib.modules.player import Player
 from resources.lib.vtmgo import vtmgo, vtmgostream, vtmgoauth
 from resources.lib.vtmgo.vtmgo import Movie, Program
 from resources.lib.vtmgo.vtmgostream import StreamGeoblockedException
@@ -27,6 +28,7 @@ class TestVtmGo(unittest.TestCase):
         self._vtmgoauth = vtmgoauth.VtmGoAuth(kodi)
         self._vtmgo = vtmgo.VtmGo(kodi)
         self._vtmgostream = vtmgostream.VtmGoStream(kodi)
+        self._player = Player(kodi)
 
     def setUp(self):
         # Don't warn that we don't close our HTTPS connections, this is on purpose.
@@ -54,15 +56,16 @@ class TestVtmGo(unittest.TestCase):
         # print(items)
 
         # Movies
-        movie = next(a for a in items if isinstance(a, Movie))
+        movie = next(a for a in items if isinstance(a, Movie) and not a.geoblocked)
         info = self._vtmgo.get_movie(movie.movie_id)
         self.assertTrue(info)
-
-        stream = self._vtmgostream.get_stream('movies', info.movie_id)
-        self.assertTrue(stream)
+        try:
+            self._player.play('movies', info.movie_id)
+        except StreamGeoblockedException:
+            pass
 
         # Programs
-        program = next(a for a in items if isinstance(a, Program))
+        program = next(a for a in items if isinstance(a, Program) and not a.geoblocked)
         info = self._vtmgo.get_program(program.program_id)
         self.assertTrue(info)
 
@@ -70,9 +73,10 @@ class TestVtmGo(unittest.TestCase):
         episode = list(season.episodes.values())[0]
         info = self._vtmgo.get_episode(episode.episode_id)
         self.assertTrue(info)
-
-        stream = self._vtmgostream.get_stream('episodes', info.episode_id)
-        self.assertTrue(stream)
+        try:
+            self._player.play('episodes', info.episode_id)
+        except StreamGeoblockedException:
+            pass
 
     def test_recommendations(self):
         recommendations = self._vtmgo.get_recommendations()
@@ -85,14 +89,12 @@ class TestVtmGo(unittest.TestCase):
         # print(mylist)
 
     def test_live(self):
-        items = self._vtmgo.get_live_channel('vtm')
-        self.assertTrue(items)
+        channel = self._vtmgo.get_live_channel('vtm')
+        self.assertTrue(channel)
         # print(items)
 
         try:
-            info = self._vtmgostream.get_stream('channels', items.channel_id)
-            self.assertTrue(info)
-            # print(info)
+            self._player.play('channels', channel.channel_id)
         except StreamGeoblockedException:
             pass
 
