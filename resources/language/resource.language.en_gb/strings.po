@@ -31,11 +31,11 @@ msgid "Watch TV channels live via Internet"
 msgstr ""
 
 msgctxt "#30007"
-msgid "YouTube"
+msgid "Channels"
 msgstr ""
 
 msgctxt "#30008"
-msgid "Watch YouTube content"
+msgid "Show channel based overview"
 msgstr ""
 
 msgctxt "#30009"
@@ -87,18 +87,44 @@ msgid "Continue watching where you left off"
 msgstr ""
 
 
-### CONTEXT MENU
-
-msgctxt "#30050"
-msgid "Add to My List"
-msgstr ""
-
+### SUBMENUS
 msgctxt "#30051"
-msgid "Remove from My List"
+msgid "Watch [B]{channel}[/B]"
 msgstr ""
 
 msgctxt "#30052"
+msgid "Watch live [B]{channel}[/B]"
+msgstr ""
+
+msgctxt "#30053"
+msgid "TV Guide for [B]{channel}[/B]"
+msgstr ""
+
+msgctxt "#30054"
+msgid "Browse the TV Guide for [B]{channel}[/B]"
+msgstr ""
+
+
+### CONTEXT MENU
+
+msgctxt "#30100"
+msgid "Add to My List"
+msgstr ""
+
+msgctxt "#30101"
+msgid "Remove from My List"
+msgstr ""
+
+msgctxt "#30102"
 msgid "Go to Program"
+msgstr ""
+
+msgctxt "#30103"
+msgid "Watch live"
+msgstr ""
+
+msgctxt "#30104"
+msgid "TV Guide"
 msgstr ""
 
 

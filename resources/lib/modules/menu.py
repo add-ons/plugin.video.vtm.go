@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-""" Menu code """
+""" Menu module """
 
 from __future__ import absolute_import, division, unicode_literals
 
@@ -12,7 +12,9 @@ class Menu:
     """ Menu code """
 
     def __init__(self, kodi):
-        """ Initialise object """
+        """ Initialise object
+        :type kodi: KodiWrapper
+        """
         self._kodi = kodi
         self._vtm_go = VtmGo(self._kodi)
 
@@ -38,22 +40,14 @@ class Menu:
                       info_dict=dict(
                           plot=self._kodi.localize(30004),
                       )),
-            TitleItem(title=self._kodi.localize(30005),  # Live TV
-                      path=self._kodi.url_for('show_livetv', kids=kids),
+            TitleItem(title=self._kodi.localize(30007),  # TV Channels
+                      path=self._kodi.url_for('show_channels', kids=kids),
                       art_dict=dict(
                           icon='DefaultAddonPVRClient.png'
                       ),
                       info_dict=dict(
-                          plot=self._kodi.localize(30006),
+                          plot=self._kodi.localize(30008),
                       )),
-            TitleItem(title=self._kodi.localize(30013),  # TV Guide
-                      path=self._kodi.url_for('show_tvguide', kids=kids),
-                      art_dict={
-                          'icon': 'DefaultAddonTvInfo.png'
-                      },
-                      info_dict={
-                          'plot': self._kodi.localize(30014),
-                      }),
             TitleItem(title=self._kodi.localize(30015),  # Recommendations
                       path=self._kodi.url_for('show_recommendations', kids=kids),
                       art_dict={
@@ -78,22 +72,6 @@ class Menu:
             #           info_dict={
             #               'plot': self._kodi.localize(30020),
             #           }),
-        ])
-
-        # Only provide YouTube option when plugin.video.youtube is available
-        if self._kodi.get_cond_visibility('System.HasAddon(plugin.video.youtube)') != 0:
-            listing.append(
-                TitleItem(title=self._kodi.localize(30007),  # YouTube
-                          path=self._kodi.url_for('show_youtube', kids=kids),
-                          art_dict=dict(
-                              icon='DefaultTags.png'
-                          ),
-                          info_dict=dict(
-                              plot=self._kodi.localize(30008),
-                          ))
-            )
-
-        listing.extend([
             TitleItem(title=self._kodi.localize(30009),  # Search
                       path=self._kodi.url_for('show_search', kids=kids),
                       art_dict=dict(
@@ -136,7 +114,10 @@ class Menu:
         self._kodi.open_settings()
 
     def format_plot(self, obj):
-        """ Format the plot for a item """
+        """ Format the plot for a item
+        :type obj: object
+        :rtype str
+        """
         plot = ''
 
         if hasattr(obj, 'description'):
@@ -199,13 +180,13 @@ class Menu:
         if isinstance(item, Movie):
             if item.my_list:
                 context_menu = [(
-                    self._kodi.localize(30051),  # Remove from My List
+                    self._kodi.localize(30101),  # Remove from My List
                     'XBMC.Container.Update(%s)' %
                     self._kodi.url_for('mylist_del', kids=self._kodi.kids_mode(), video_type=self._vtm_go.CONTENT_TYPE_MOVIE, content_id=item.movie_id)
                 )]
             else:
                 context_menu = [(
-                    self._kodi.localize(30050),  # Add to My List
+                    self._kodi.localize(30100),  # Add to My List
                     'XBMC.Container.Update(%s)' %
                     self._kodi.url_for('mylist_add', kids=self._kodi.kids_mode(), video_type=self._vtm_go.CONTENT_TYPE_MOVIE, content_id=item.movie_id)
                 )]
@@ -246,13 +227,13 @@ class Menu:
         if isinstance(item, Program):
             if item.my_list:
                 context_menu = [(
-                    self._kodi.localize(30051),  # Remove from My List
+                    self._kodi.localize(30101),  # Remove from My List
                     'XBMC.Container.Update(%s)' %
                     self._kodi.url_for('mylist_del', kids=self._kodi.kids_mode(), video_type=self._vtm_go.CONTENT_TYPE_PROGRAM, content_id=item.program_id)
                 )]
             else:
                 context_menu = [(
-                    self._kodi.localize(30050),  # Add to My List
+                    self._kodi.localize(30100),  # Add to My List
                     'XBMC.Container.Update(%s)' %
                     self._kodi.url_for('mylist_add', kids=self._kodi.kids_mode(), video_type=self._vtm_go.CONTENT_TYPE_PROGRAM, content_id=item.program_id)
                 )]
@@ -286,7 +267,7 @@ class Menu:
         #
         if isinstance(item, Episode):
             context_menu = [(
-                self._kodi.localize(30052),  # Go to Program
+                self._kodi.localize(30102),  # Go to Program
                 'XBMC.Container.Update(%s)' %
                 self._kodi.url_for('show_catalog_program', program=item.program_id)
             )]

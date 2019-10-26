@@ -1,25 +1,29 @@
 # -*- coding: utf-8 -*-
-""" Metadata """
+""" Player module """
 
 from __future__ import absolute_import, division, unicode_literals
 
-from resources.lib import GeoblockedException, UnavailableException
 from resources.lib.kodiwrapper import TitleItem
-from resources.lib.vtmgo.vtmgo import VtmGo
-from resources.lib.vtmgo.vtmgostream import VtmGoStream
+from resources.lib.vtmgo.vtmgo import VtmGo, UnavailableException
+from resources.lib.vtmgo.vtmgostream import VtmGoStream, StreamGeoblockedException, StreamUnavailableException
 
 
 class Player:
-    """ Code responsible for playing something """
+    """ Code responsible for playing media """
 
     def __init__(self, kodi):
-        """ Initialise object """
+        """ Initialise object
+        :type kodi: KodiWrapper
+        """
         self._kodi = kodi
         self._vtm_go = VtmGo(self._kodi)
         self._vtm_go_stream = VtmGoStream(self._kodi)
 
     def play(self, category, item):
-        """ Play the requested item. Uses setResolvedUrl(). """
+        """ Play the requested item.
+        :type category: string
+        :type item: string
+        """
         # Check if inputstreamhelper is correctly installed
         try:
             from inputstreamhelper import Helper
@@ -36,11 +40,11 @@ class Player:
             # Get stream information
             resolved_stream = self._vtm_go_stream.get_stream(category, item)
 
-        except GeoblockedException:
+        except StreamGeoblockedException:
             self._kodi.show_ok_dialog(heading=self._kodi.localize(30709), message=self._kodi.localize(30710))  # Geo-blocked
             return
 
-        except UnavailableException:
+        except StreamUnavailableException:
             self._kodi.show_ok_dialog(heading=self._kodi.localize(30711), message=self._kodi.localize(30712))  # Unavailable
             return
 
@@ -91,10 +95,6 @@ class Player:
 
             else:
                 raise Exception('Unknown category %s' % category)
-
-        except GeoblockedException:
-            self._kodi.show_ok_dialog(heading=self._kodi.localize(30709), message=self._kodi.localize(30710))  # Geo-blocked
-            return
 
         except UnavailableException:
             # We continue without details.

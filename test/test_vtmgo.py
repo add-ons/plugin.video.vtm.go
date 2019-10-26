@@ -10,9 +10,9 @@ import warnings
 
 from urllib3.exceptions import InsecureRequestWarning
 
-from resources.lib import GeoblockedException
 from resources.lib.kodiwrapper import KodiWrapper
 from resources.lib.vtmgo import vtmgo, vtmgostream, vtmgoauth
+from resources.lib.vtmgo.vtmgostream import StreamGeoblockedException
 
 kodi = KodiWrapper()
 
@@ -82,14 +82,14 @@ class TestVtmGo(unittest.TestCase):
             info = self._vtmgostream.get_stream('episodes', 'ae0fa98d-6ed5-4f4a-8581-a051ed3bb755')
             self.assertTrue(info)
             # print(info)
-        except GeoblockedException:
+        except StreamGeoblockedException:
             pass
 
         try:
             info = self._vtmgostream.get_stream('channels', 'd8659669-b964-414c-aa9c-e31d8d15696b')
             self.assertTrue(info)
             # print(info)
-        except GeoblockedException:
+        except StreamGeoblockedException:
             pass
 
     def test_get_stream_with_subtitles(self):
@@ -98,7 +98,7 @@ class TestVtmGo(unittest.TestCase):
             info = self._vtmgostream.get_stream('episodes', '2fafb247-0368-46d4-bdcf-fb209420e715')
             self.assertTrue(info)
             # print(info)
-        except GeoblockedException:
+        except StreamGeoblockedException:
             pass
 
 
