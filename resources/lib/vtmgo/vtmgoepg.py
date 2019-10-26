@@ -152,7 +152,8 @@ class VtmGoEpg:
         elif program_type == 'oneoffs':
             url = self.DETAILS_URL.format(channel=channel, type='oneoff', uuid=epg_id)
         else:
-            raise Exception('Unknown broadcast type %s.' % program_type)
+            self._kodi.log('Unknown broadcast type {type}.', LOG_ERROR, type=program_type)
+            return None
 
         # Fetch data
         response = self._get_url(url)
@@ -161,7 +162,8 @@ class VtmGoEpg:
         matches = re.search(r'EPG_REDUX_DATA=([^;]+);', response)
         if not matches:
             self._kodi.log('Got response: {response}', LOG_ERROR, response=response)
-            raise Exception('Could not parse EPG details.')
+            self._kodi.log('Could not parse EPG details.', LOG_ERROR)
+            return None
 
         data = json.loads(matches.group(1))
 

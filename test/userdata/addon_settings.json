@@ -6,15 +6,14 @@
     "plugin.video.vtm.go": {
         "_comment": "do-not-add-email-and-password-here",
         "debug_logging": "false",
-        "max_bandwidth": 4096,
-        "username": "",
-        "password": "",
-        "show_subtitles": "true"
+        "interface_show_recommendations": "true",
+        "interface_show_mylist": "true",
+        "interface_show_continuewatching": "true",
+        "interface_show_kids_zone": "true",
+        "show_subtitles": "true",
+        "max_bandwidth": "0"
     },
     "script.module.inputstreamhelper": {
-        "disabled": "false",
-        "last_update": "",
-        "update_frequency": "14",
-        "version": ""
+        "disabled": "true"
     }
 }

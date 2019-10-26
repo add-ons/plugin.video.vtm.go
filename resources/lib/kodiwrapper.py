@@ -529,9 +529,9 @@ class KodiWrapper:
 
     def log(self, message, log_level=LOG_INFO, **kwargs):
         """ Log info messages to Kodi """
-        if not self._global_debug_logging and self._debug_logging and log_level in [LOG_DEBUG, LOG_INFO]:
-            # If Debug Logging is not enabled, Kodi filters everything up to NOTICE out
-            log_level = LOG_NOTICE
+        if not self._debug_logging and log_level in [LOG_DEBUG]:
+            # Don't log when debug_logging is false
+            return
         if kwargs:
             import string
             message = string.Formatter().vformat(message, (), SafeDict(**kwargs))

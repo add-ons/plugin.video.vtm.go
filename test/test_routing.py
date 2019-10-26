@@ -65,6 +65,9 @@ class TestRouting(unittest.TestCase):
     def test_catalog_mylist_menu(self):
         plugin.run([routing.url_for(plugin.show_mylist), '0', ''])
 
+    def test_catalog_continuewatching_menu(self):
+        plugin.run([routing.url_for(plugin.show_continuewatching), '0', ''])
+
     def test_search_menu(self):
         plugin.run([routing.url_for(plugin.show_search), '0', ''])
         plugin.run([routing.url_for(plugin.show_search, query='nieuws'), '0', ''])

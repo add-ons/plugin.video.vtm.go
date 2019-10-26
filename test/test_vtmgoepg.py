@@ -10,10 +10,12 @@ import warnings
 
 from urllib3.exceptions import InsecureRequestWarning
 
+from resources.lib import plugin
 from resources.lib.kodiwrapper import KodiWrapper
 from resources.lib.vtmgo import vtmgoepg
 
 kodi = KodiWrapper()
+routing = plugin.routing
 
 
 class TestVtmGoEpg(unittest.TestCase):
@@ -35,27 +37,44 @@ class TestVtmGoEpg(unittest.TestCase):
         from datetime import date
 
         # Get list of EPG for today
-        epg = self._vtmgoepg.get_epg(channel='vtm', date='today')
+        epg = self._vtmgoepg.get_epg(channel='vitaya')
         self.assertTrue(epg)
 
-        # Get list of EPG for tomorrow
-        epg = self._vtmgoepg.get_epg(channel='vtm', date='tomorrow')
-        self.assertTrue(epg)
-
-        # Get list of EPG for yesterday
-        epg = self._vtmgoepg.get_epg(channel='vtm', date='yesterday')
-        self.assertTrue(epg)
-
-        # Get list of EPG for today
         epg = self._vtmgoepg.get_epg(channel='vtm', date=date.today().strftime('%Y-%m-%d'))
         self.assertTrue(epg)
 
-        # Take first broadcast of vtm channel
-        first = epg.broadcasts[0]
+        # Get list of EPG for tomorrow
+        epg_tomorrow = self._vtmgoepg.get_epg(channel='vtm', date='tomorrow')
+        self.assertTrue(epg_tomorrow)
 
-        # Fetch details
-        details = self._vtmgoepg.get_details(channel='vtm', program_type=first.playable_type, epg_id=first.uuid)
-        self.assertTrue(details)
+        # Get list of EPG for yesterday
+        epg_yesterday = self._vtmgoepg.get_epg(channel='vtm', date='yesterday')
+        self.assertTrue(epg_yesterday)
+
+        # Get list of EPG for today
+        epg_today = self._vtmgoepg.get_epg(channel='vtm', date='today')
+        self.assertTrue(epg_today)
+
+        combined_broadcasts = epg_today.broadcasts + epg_tomorrow.broadcasts + epg_yesterday.broadcasts
+
+        broadcast = next(b for b in combined_broadcasts if b.playable_type == 'episodes')
+        if broadcast:
+            details = self._vtmgoepg.get_details(channel='vtm', program_type=broadcast.playable_type, epg_id=broadcast.uuid)
+            self.assertTrue(details)
+            plugin.run([routing.url_for(plugin.show_program_from_epg, channel='vtm', program=broadcast.uuid), '0', ''])
+
+        broadcast = next(b for b in combined_broadcasts if b.playable_type == 'movies')
+        if broadcast:
+            details = self._vtmgoepg.get_details(channel='vtm', program_type=broadcast.playable_type, epg_id=broadcast.uuid)
+            self.assertTrue(details)
+            plugin.run([routing.url_for(plugin.play_epg_program, channel='vtm', program_type=broadcast.playable_type, epg_id=broadcast.uuid, aired='123'), '0', ''])
+
+        broadcast = next(b for b in combined_broadcasts if b.playable_type == 'oneoffs')
+        if broadcast:
+            details = self._vtmgoepg.get_details(channel='vtm', program_type=broadcast.playable_type, epg_id=broadcast.uuid)
+            self.assertTrue(details)
+
+        plugin.run([routing.url_for(plugin.show_program_from_epg, channel='vtm', program='error'), '0', ''])
 
 
 if __name__ == '__main__':
