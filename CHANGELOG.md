@@ -4,9 +4,19 @@
 
 [Full Changelog](https://github.com/michaelarnauts/plugin.video.vtm.go/compare/v0.9.1...HEAD)
 
+**Implemented enhancements:**
+
+- Allow hiding specific items from the main menu [\#97](https://github.com/michaelarnauts/plugin.video.vtm.go/issues/97)
+- Add a per-channel program listing [\#52](https://github.com/michaelarnauts/plugin.video.vtm.go/issues/52)
+- Add settings to hide menu items [\#115](https://github.com/michaelarnauts/plugin.video.vtm.go/pull/115) ([michaelarnauts](https://github.com/michaelarnauts))
+- Consolidate YouTube, TV Guide and Live TV into one Channels menu [\#114](https://github.com/michaelarnauts/plugin.video.vtm.go/pull/114) ([michaelarnauts](https://github.com/michaelarnauts))
+- Add go to program on context menu of episodes [\#110](https://github.com/michaelarnauts/plugin.video.vtm.go/pull/110) ([michaelarnauts](https://github.com/michaelarnauts))
+
 **Fixed bugs:**
 
 - Kids mode seems to be ignored in some places [\#107](https://github.com/michaelarnauts/plugin.video.vtm.go/issues/107)
+- Various TV Guide fixes [\#116](https://github.com/michaelarnauts/plugin.video.vtm.go/pull/116) ([michaelarnauts](https://github.com/michaelarnauts))
+- Fix kids mode [\#108](https://github.com/michaelarnauts/plugin.video.vtm.go/pull/108) ([michaelarnauts](https://github.com/michaelarnauts))
 
 **Closed issues:**
 
@@ -14,7 +24,11 @@
 
 **Merged pull requests:**
 
-- Fix kids mode [\#108](https://github.com/michaelarnauts/plugin.video.vtm.go/pull/108) ([michaelarnauts](https://github.com/michaelarnauts))
+- Improve test coverage [\#117](https://github.com/michaelarnauts/plugin.video.vtm.go/pull/117) ([michaelarnauts](https://github.com/michaelarnauts))
+- Split menu code into different classes [\#112](https://github.com/michaelarnauts/plugin.video.vtm.go/pull/112) ([michaelarnauts](https://github.com/michaelarnauts))
+- Clean up kids-routing [\#111](https://github.com/michaelarnauts/plugin.video.vtm.go/pull/111) ([michaelarnauts](https://github.com/michaelarnauts))
+- Refactor out Content in favor of Movies, Programs and Episodes [\#109](https://github.com/michaelarnauts/plugin.video.vtm.go/pull/109) ([michaelarnauts](https://github.com/michaelarnauts))
+- Less pylint ignores and more tests [\#105](https://github.com/michaelarnauts/plugin.video.vtm.go/pull/105) ([michaelarnauts](https://github.com/michaelarnauts))
 
 ## [v0.9.1](https://github.com/michaelarnauts/plugin.video.vtm.go/tree/v0.9.1) (2019-10-16)
 
@@ -29,6 +43,15 @@
 - Add API to play a program by date and time  [\#83](https://github.com/michaelarnauts/plugin.video.vtm.go/issues/83)
 - Fetch metadata of programs [\#81](https://github.com/michaelarnauts/plugin.video.vtm.go/issues/81)
 - Integrate with "Mijn lijst" [\#47](https://github.com/michaelarnauts/plugin.video.vtm.go/issues/47)
+- Add caching of metadata [\#104](https://github.com/michaelarnauts/plugin.video.vtm.go/pull/104) ([michaelarnauts](https://github.com/michaelarnauts))
+- Implement playing from EPG with a specified date and time. [\#98](https://github.com/michaelarnauts/plugin.video.vtm.go/pull/98) ([michaelarnauts](https://github.com/michaelarnauts))
+- Integrate My List [\#96](https://github.com/michaelarnauts/plugin.video.vtm.go/pull/96) ([michaelarnauts](https://github.com/michaelarnauts))
+- Use authentication when it is available [\#95](https://github.com/michaelarnauts/plugin.video.vtm.go/pull/95) ([michaelarnauts](https://github.com/michaelarnauts))
+- Implement recommendations [\#94](https://github.com/michaelarnauts/plugin.video.vtm.go/pull/94) ([michaelarnauts](https://github.com/michaelarnauts))
+- Enable reuselanguageinvoker [\#90](https://github.com/michaelarnauts/plugin.video.vtm.go/pull/90) ([michaelarnauts](https://github.com/michaelarnauts))
+- Translate breadcrumbs [\#88](https://github.com/michaelarnauts/plugin.video.vtm.go/pull/88) ([michaelarnauts](https://github.com/michaelarnauts))
+- Add PG classification to metadata [\#87](https://github.com/michaelarnauts/plugin.video.vtm.go/pull/87) ([dagwieers](https://github.com/dagwieers))
+- Add higher resolution channel icons [\#86](https://github.com/michaelarnauts/plugin.video.vtm.go/pull/86) ([michaelarnauts](https://github.com/michaelarnauts))
 
 **Fixed bugs:**
 
@@ -37,21 +60,12 @@
 - Only the part after the last advertisement is played. [\#8](https://github.com/michaelarnauts/plugin.video.vtm.go/issues/8)
 - Live TV is broken due to unimplemented startPTS\_ in inputstream adaptive. [\#1](https://github.com/michaelarnauts/plugin.video.vtm.go/issues/1)
 - login check fails [\#100](https://github.com/michaelarnauts/plugin.video.vtm.go/issues/100)
+- Show correct error messages when geoblocked or when unavailable. [\#91](https://github.com/michaelarnauts/plugin.video.vtm.go/pull/91) ([michaelarnauts](https://github.com/michaelarnauts))
 
 **Merged pull requests:**
 
-- Add caching of metadata [\#104](https://github.com/michaelarnauts/plugin.video.vtm.go/pull/104) ([michaelarnauts](https://github.com/michaelarnauts))
 - General code cleanup [\#99](https://github.com/michaelarnauts/plugin.video.vtm.go/pull/99) ([michaelarnauts](https://github.com/michaelarnauts))
-- Implement playing from EPG with a specified date and time. [\#98](https://github.com/michaelarnauts/plugin.video.vtm.go/pull/98) ([michaelarnauts](https://github.com/michaelarnauts))
-- Integrate My List [\#96](https://github.com/michaelarnauts/plugin.video.vtm.go/pull/96) ([michaelarnauts](https://github.com/michaelarnauts))
-- Use authentication when it is available [\#95](https://github.com/michaelarnauts/plugin.video.vtm.go/pull/95) ([michaelarnauts](https://github.com/michaelarnauts))
-- Implement recommendations [\#94](https://github.com/michaelarnauts/plugin.video.vtm.go/pull/94) ([michaelarnauts](https://github.com/michaelarnauts))
-- Show correct error messages when geoblocked or when unavailable. [\#91](https://github.com/michaelarnauts/plugin.video.vtm.go/pull/91) ([michaelarnauts](https://github.com/michaelarnauts))
-- Enable reuselanguageinvoker [\#90](https://github.com/michaelarnauts/plugin.video.vtm.go/pull/90) ([michaelarnauts](https://github.com/michaelarnauts))
 - Remove show\_movie [\#89](https://github.com/michaelarnauts/plugin.video.vtm.go/pull/89) ([michaelarnauts](https://github.com/michaelarnauts))
-- Translate breadcrumbs [\#88](https://github.com/michaelarnauts/plugin.video.vtm.go/pull/88) ([michaelarnauts](https://github.com/michaelarnauts))
-- Add PG classification to metadata [\#87](https://github.com/michaelarnauts/plugin.video.vtm.go/pull/87) ([dagwieers](https://github.com/dagwieers))
-- Add higher resolution channel icons [\#86](https://github.com/michaelarnauts/plugin.video.vtm.go/pull/86) ([michaelarnauts](https://github.com/michaelarnauts))
 - Add typing docstrings [\#85](https://github.com/michaelarnauts/plugin.video.vtm.go/pull/85) ([michaelarnauts](https://github.com/michaelarnauts))
 
 ## [v0.9.0](https://github.com/michaelarnauts/plugin.video.vtm.go/tree/v0.9.0) (2019-09-19)
@@ -76,6 +90,9 @@
 - Add YouTube support [\#14](https://github.com/michaelarnauts/plugin.video.vtm.go/issues/14)
 - Implement translations [\#6](https://github.com/michaelarnauts/plugin.video.vtm.go/issues/6)
 - Implement search [\#3](https://github.com/michaelarnauts/plugin.video.vtm.go/issues/3)
+- Add more metadata when playing a stream [\#82](https://github.com/michaelarnauts/plugin.video.vtm.go/pull/82) ([michaelarnauts](https://github.com/michaelarnauts))
+- Allow direct playing from epg [\#74](https://github.com/michaelarnauts/plugin.video.vtm.go/pull/74) ([michaelarnauts](https://github.com/michaelarnauts))
+- Implement TV Guide [\#63](https://github.com/michaelarnauts/plugin.video.vtm.go/pull/63) ([michaelarnauts](https://github.com/michaelarnauts))
 - fix geoblocked videoplayer service api [\#71](https://github.com/michaelarnauts/plugin.video.vtm.go/pull/71) ([mediaminister](https://github.com/mediaminister))
 - Rework Kids zone [\#67](https://github.com/michaelarnauts/plugin.video.vtm.go/pull/67) ([dagwieers](https://github.com/dagwieers))
 - Add support for breadcrumbs [\#61](https://github.com/michaelarnauts/plugin.video.vtm.go/pull/61) ([dagwieers](https://github.com/dagwieers))
@@ -109,6 +126,8 @@
 - Live TV crashes Kodi on Linux, halts on Android [\#16](https://github.com/michaelarnauts/plugin.video.vtm.go/issues/16)
 - Handle subtitles [\#7](https://github.com/michaelarnauts/plugin.video.vtm.go/issues/7)
 - On demand streams start in low resolution [\#2](https://github.com/michaelarnauts/plugin.video.vtm.go/issues/2)
+- Don't error out on geoblocked content [\#80](https://github.com/michaelarnauts/plugin.video.vtm.go/pull/80) ([michaelarnauts](https://github.com/michaelarnauts))
+- fix logging [\#70](https://github.com/michaelarnauts/plugin.video.vtm.go/pull/70) ([mediaminister](https://github.com/mediaminister))
 - Various fixes [\#68](https://github.com/michaelarnauts/plugin.video.vtm.go/pull/68) ([dagwieers](https://github.com/dagwieers))
 - support unicode in python2 and python3 Kodi [\#60](https://github.com/michaelarnauts/plugin.video.vtm.go/pull/60) ([mediaminister](https://github.com/mediaminister))
 - delay subtitles taking into account advertisements breaks [\#53](https://github.com/michaelarnauts/plugin.video.vtm.go/pull/53) ([mediaminister](https://github.com/mediaminister))
@@ -124,14 +143,9 @@
 
 **Merged pull requests:**
 
-- Add more metadata when playing a stream [\#82](https://github.com/michaelarnauts/plugin.video.vtm.go/pull/82) ([michaelarnauts](https://github.com/michaelarnauts))
-- Don't error out on geoblocked content [\#80](https://github.com/michaelarnauts/plugin.video.vtm.go/pull/80) ([michaelarnauts](https://github.com/michaelarnauts))
 - Run auth test on travis [\#79](https://github.com/michaelarnauts/plugin.video.vtm.go/pull/79) ([michaelarnauts](https://github.com/michaelarnauts))
 - Don't count Kodi utils for code coverage  [\#77](https://github.com/michaelarnauts/plugin.video.vtm.go/pull/77) ([michaelarnauts](https://github.com/michaelarnauts))
 - Uniformise travis and local checking flow [\#75](https://github.com/michaelarnauts/plugin.video.vtm.go/pull/75) ([michaelarnauts](https://github.com/michaelarnauts))
-- Allow direct playing from epg [\#74](https://github.com/michaelarnauts/plugin.video.vtm.go/pull/74) ([michaelarnauts](https://github.com/michaelarnauts))
-- fix logging [\#70](https://github.com/michaelarnauts/plugin.video.vtm.go/pull/70) ([mediaminister](https://github.com/mediaminister))
-- Implement TV Guide [\#63](https://github.com/michaelarnauts/plugin.video.vtm.go/pull/63) ([michaelarnauts](https://github.com/michaelarnauts))
 - Check translation during tests [\#73](https://github.com/michaelarnauts/plugin.video.vtm.go/pull/73) ([michaelarnauts](https://github.com/michaelarnauts))
 - Dutch translations [\#69](https://github.com/michaelarnauts/plugin.video.vtm.go/pull/69) ([dagwieers](https://github.com/dagwieers))
 - Increase coverage, remove dead code [\#64](https://github.com/michaelarnauts/plugin.video.vtm.go/pull/64) ([dagwieers](https://github.com/dagwieers))
