@@ -529,9 +529,12 @@ class KodiWrapper:
 
     def log(self, message, log_level=LOG_INFO, **kwargs):
         """ Log info messages to Kodi """
-        if not self._debug_logging and log_level in [LOG_DEBUG]:
-            # Don't log when debug_logging is false
+        if not self._debug_logging and log_level in [LOG_DEBUG, LOG_INFO]:
+            # Don't log debug and info messages when we haven't activated it.
             return
+        if self._debug_logging and log_level in [LOG_DEBUG, LOG_INFO]:
+            # Log debug and info messages as LOG_NOTICE if we've explicitly enabled it.
+            log_level = LOG_NOTICE
         if kwargs:
             import string
             message = string.Formatter().vformat(message, (), SafeDict(**kwargs))
