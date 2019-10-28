@@ -34,16 +34,16 @@ class Metadata:
         :type callback: callable
         """
         # Fetch all items from the catalog
-        items = self._vtm_go.get_items('all')
+        items = self._vtm_go.get_items()
         count = len(items)
 
         # Loop over all of them and download the metadata
         for index, item in enumerate(items):
             if isinstance(item, Movie):
-                if not self._vtm_go.get_movie(item.movie_id, only_cache=True):
+                if not self._vtm_go.get_movie(item.movie_id, cache=True):
                     self._vtm_go.get_movie(item.movie_id)
             elif isinstance(item, Program):
-                if not self._vtm_go.get_program(item.program_id, only_cache=True):
+                if not self._vtm_go.get_program(item.program_id, cache=True):
                     self._vtm_go.get_program(item.program_id)
 
             # Update the progress indicator

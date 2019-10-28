@@ -105,6 +105,14 @@ msgctxt "#30054"
 msgid "Browse the TV Guide for [B]{channel}[/B]"
 msgstr "Doorblader de TV-gids voor [B]{channel}[/B]"
 
+msgctxt "#30055"
+msgid "Catalog for [B]{channel}[/B]"
+msgstr "Catalogus voor [B]{channel}[/B]"
+
+msgctxt "#30056"
+msgid "Browse the Catalog for [B]{channel}[/B]"
+msgstr "Doorblader de catalogus voor [B]{channel}[/B]"
+
 
 ### CONTEXT MENU
 
@@ -333,11 +341,7 @@ msgstr "Metadata"
 
 msgctxt "#30829"
 msgid "Periodically refresh metadata in the background"
-msgstr "Vernieuw de locale metdata automatisch in de achtergrond"
-
-msgctxt "#30830"
-msgid "Periodically refresh metadata in the background HELP"
-msgstr "Vernieuw de locale metdata automatisch in de achtergrond HELP"
+msgstr "Vernieuw de metdata automatisch in de achtergrond"
 
 msgctxt "#30831"
 msgid "Update local metadata now"

@@ -41,7 +41,7 @@ class Catalog:
         # Sort categories by default like in VTM GO.
         self._kodi.show_listing(listing, 30003, content='files')
 
-    def show_catalog_category(self, category):
+    def show_catalog_category(self, category=None):
         """ Show a category in the catalog
         :type category: str
         """
@@ -58,6 +58,24 @@ class Catalog:
         # Sort items by label, but don't put folders at the top.
         # Used for A-Z listing or when movies and episodes are mixed.
         self._kodi.show_listing(listing, 30003, content='movies' if category == 'films' else 'tvshows', sort='label')
+
+    def show_catalog_channel(self, channel):
+        """ Show a category in the catalog
+        :type channel: str
+        """
+        try:
+            items = self._vtm_go.get_items()
+        except Exception as ex:
+            self._kodi.show_notification(message=str(ex))
+            raise
+
+        listing = []
+        for item in items:
+            listing.append(self._menu.generate_titleitem(item)) if item.channel == channel else None
+
+        # Sort items by label, but don't put folders at the top.
+        # Used for A-Z listing or when movies and episodes are mixed.
+        self._kodi.show_listing(listing, 30003, content='tvshows', sort='label')
 
     def show_program(self, program):
         """ Show a program from the catalog

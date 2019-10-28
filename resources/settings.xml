@@ -16,7 +16,7 @@
         <setting label="30824" type="bool" id="interface_show_kids_zone" default="true" enable="eq(1,false)"/>
         <setting label="30825" type="bool" id="interface_force_kids_zone" default="false"/>
         <setting label="30827" type="lsep"/> <!-- Metadata -->
-        <setting label="30829" type="bool" id="metadata_update" default="false" subsetting="true"/>
+        <setting label="30829" type="bool" id="metadata_update" default="true" subsetting="true"/>
         <setting label="30831" type="action" option="close" action="RunPlugin(plugin://plugin.video.vtm.go/metadata/update)"/>
         <setting label="30833" type="action" option="close" action="RunPlugin(plugin://plugin.video.vtm.go/metadata/clean)"/>
     </category>
