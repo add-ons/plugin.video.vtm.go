@@ -4,6 +4,7 @@
 from __future__ import absolute_import, division, unicode_literals
 
 from resources.lib.kodiwrapper import TitleItem
+from resources.lib.modules import CHANNELS
 from resources.lib.vtmgo.vtmgo import Movie, Program, Episode, VtmGo
 from resources.lib.vtmgo.vtmgoauth import InvalidLoginException, LoginErrorException
 
@@ -217,7 +218,7 @@ class Menu:
                     'duration': movie.duration,
                     'year': movie.year,
                     'aired': movie.aired,
-                    'studio': movie.channel,
+                    'studio': CHANNELS.get(movie.channel, {}).get('studio_icon'),
                     'mpaa': ', '.join(movie.legal) if hasattr(movie, 'legal') and movie.legal else self._kodi.localize(30216),
                 })
 
@@ -264,7 +265,7 @@ class Menu:
                 info_dict.update({
                     'title': program.name,
                     'plot': self.format_plot(program),
-                    'studio': program.channel,
+                    'studio': CHANNELS.get(program.channel, {}).get('studio_icon'),
                     'mpaa': ', '.join(program.legal) if hasattr(program, 'legal') and program.legal else self._kodi.localize(30216),
                     'season': len(program.seasons),
                 })
