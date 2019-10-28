@@ -90,8 +90,7 @@ class TestRouting(unittest.TestCase):
     def test_play_epg(self):
         import dateutil
         import datetime
-        timestamp = datetime.datetime.now(dateutil.tz.tzlocal())
-        timestamp = timestamp.replace(hour=6, minute=0, second=0)
+        timestamp = datetime.datetime.now(dateutil.tz.tzlocal()).replace(hour=6, minute=0, second=0)
         plugin.run([routing.url_for(plugin.play_epg_datetime, channel='vtm', timestamp=timestamp.isoformat()), '0', ''])
 
     def test_check_credentials(self):

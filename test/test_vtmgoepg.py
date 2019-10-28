@@ -33,6 +33,14 @@ class TestVtmGoEpg(unittest.TestCase):
         # Don't warn that we are not verifying the certificates of VTM GO API.
         warnings.simplefilter("ignore", InsecureRequestWarning)
 
+    def test_get_broadcast(self):
+        import datetime
+        import dateutil
+
+        timestamp = datetime.datetime.now(dateutil.tz.tzlocal()).replace(hour=12, minute=0, second=0)
+        broadcast = self._vtmgoepg.get_broadcast('vtm', timestamp.isoformat())
+        self.assertTrue(broadcast)
+
     def test_get_epg(self):
         from datetime import date
 
