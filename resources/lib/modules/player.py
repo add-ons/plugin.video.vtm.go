@@ -41,11 +41,13 @@ class Player:
             resolved_stream = self._vtm_go_stream.get_stream(category, item)
 
         except StreamGeoblockedException:
-            self._kodi.show_ok_dialog(heading=self._kodi.localize(30709), message=self._kodi.localize(30710))  # Geo-blocked
+            self._kodi.show_ok_dialog(heading=self._kodi.localize(30709), message=self._kodi.localize(30710))  # This video is geo-blocked...
+            self._kodi.end_of_directory()
             return
 
         except StreamUnavailableException:
-            self._kodi.show_ok_dialog(heading=self._kodi.localize(30711), message=self._kodi.localize(30712))  # Unavailable
+            self._kodi.show_ok_dialog(heading=self._kodi.localize(30711), message=self._kodi.localize(30712))  # The video is unavailable...
+            self._kodi.end_of_directory()
             return
 
         info_dict = {

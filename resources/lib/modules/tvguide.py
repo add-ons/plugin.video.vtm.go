@@ -80,20 +80,12 @@ class TvGuide:
                 title = '[B]{title}[/B]'.format(title=title)
 
             if broadcast.title == self.EPG_NO_BROADCAST:
-                path = None
-                is_playable = False
                 title = '[COLOR gray]' + title + '[/COLOR]'
-            else:
-                path = self._kodi.url_for('play_epg_program',
-                                          channel=channel,
-                                          program_type=broadcast.playable_type,
-                                          epg_id=broadcast.uuid,
-                                          airing=epg.uuid if broadcast.airing else None)
-                is_playable = True
 
             listing.append(
                 TitleItem(title=title,
-                          path=path,
+                          path=self._kodi.url_for('play_epg_program', channel=channel, program_type=broadcast.playable_type, epg_id=broadcast.uuid,
+                                                  airing=epg.uuid if broadcast.airing else None),
                           art_dict={
                               'icon': broadcast.image,
                               'thumb': broadcast.image,
@@ -111,7 +103,7 @@ class TvGuide:
                               'width': 1920,
                           },
                           context_menu=context_menu,
-                          is_playable=is_playable)
+                          is_playable=True)
             )
 
         self._kodi.show_listing(listing, 30013, content='episodes')
@@ -124,6 +116,7 @@ class TvGuide:
         details = self._vtm_go_epg.get_details(channel=channel, program_type='episodes', epg_id=program)
         if not details:
             self._kodi.show_ok_dialog(heading=self._kodi.localize(30711), message=self._kodi.localize(30713))  # The requested video was not found in the guide.
+            self._kodi.end_of_directory()
             return
 
         # Show the program with our freshly obtained program_uuid
@@ -138,6 +131,7 @@ class TvGuide:
         broadcast = self._vtm_go_epg.get_broadcast(channel, timestamp)
         if not broadcast:
             self._kodi.show_ok_dialog(heading=self._kodi.localize(30711), message=self._kodi.localize(30713))  # The requested video was not found in the guide.
+            self._kodi.end_of_directory()
             return
 
         self.play_epg_program(channel, broadcast.playable_type, broadcast.uuid)
@@ -161,6 +155,7 @@ class TvGuide:
         details = self._vtm_go_epg.get_details(channel=channel, program_type=program_type, epg_id=epg_id)
         if not details:
             self._kodi.show_ok_dialog(heading=self._kodi.localize(30711), message=self._kodi.localize(30713))  # The requested video was not found in the guide.
+            self._kodi.end_of_directory()
             return
 
         # Play this program
