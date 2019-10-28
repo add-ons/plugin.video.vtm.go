@@ -4,6 +4,7 @@
 from __future__ import absolute_import, division, unicode_literals
 
 from resources.lib.kodiwrapper import TitleItem
+from resources.lib.modules import CHANNELS
 from resources.lib.modules.menu import Menu
 from resources.lib.vtmgo.vtmgo import VtmGo, UnavailableException
 
@@ -69,6 +70,8 @@ class Catalog:
             self._kodi.end_of_directory()
             return
 
+        studio = CHANNELS.get(program_obj.channel, {}).get('studio_icon')
+
         listing = []
 
         # Add an '* All seasons' entry when configured in Kodi
@@ -85,6 +88,7 @@ class Catalog:
                               'title': self._kodi.localize(30204),  # All seasons
                               'tagline': program_obj.description,
                               'set': program_obj.name,
+                              'studio': studio,
                               'mpaa': ', '.join(program_obj.legal) if hasattr(program_obj, 'legal') and program_obj.legal else self._kodi.localize(30216),
                           })
             )
@@ -103,6 +107,7 @@ class Catalog:
                               'title': self._kodi.localize(30205, season=s.number),
                               'tagline': program_obj.description,
                               'set': program_obj.name,
+                              'studio': studio,
                               'mpaa': ', '.join(program_obj.legal) if hasattr(program_obj, 'legal') and program_obj.legal else self._kodi.localize(30216),
                           })
             )

@@ -92,7 +92,7 @@ class Movie:
         :type duration: int
         :type remaining: str
         :type geoblocked: bool
-        :type channel: str
+        :type channel: Optional[str]
         :type legal: str
         :type aired: str
         :type my_list: bool
@@ -356,7 +356,7 @@ class VtmGo:
             channels.append(LiveChannel(
                 key=item.get('seoKey'),
                 channel_id=item.get('channelId'),
-                logo=item.get('channelLogoUrl'),
+                logo=self._parse_channel(item.get('channelLogoUrl')),
                 name=item.get('name'),
                 epg=epg,
             ))
@@ -434,13 +434,6 @@ class VtmGo:
             movie = info.get('movie', {})
             self._kodi.set_cache(['movie', movie_id], movie)
 
-        channel_url = movie.get('channelLogoUrl')
-        if channel_url:
-            import os.path
-            channel = os.path.basename(channel_url).split('-')[0].upper()
-        else:
-            channel = 'VTM GO'
-
         return Movie(
             movie_id=movie.get('id'),
             name=movie.get('name'),
@@ -452,7 +445,7 @@ class VtmGo:
             remaining=movie.get('remainingDaysAvailable'),
             legal=movie.get('legalIcons'),
             aired=movie.get('broadcastTimestamp'),
-            channel=channel,
+            channel=self._parse_channel(movie.get('channelLogoUrl')),
         )
 
     def get_program(self, program_id, only_cache=False):
@@ -473,12 +466,7 @@ class VtmGo:
             program = info.get('program', {})
             self._kodi.set_cache(['program', program_id], program)
 
-        channel_url = program.get('channelLogoUrl')
-        if channel_url:
-            import os.path
-            channel = os.path.basename(channel_url).split('-')[0].upper()
-        else:
-            channel = 'VTM GO'
+        channel = self._parse_channel(program.get('channelLogoUrl'))
 
         seasons = {}
         for item_season in program.get('seasons', []):
@@ -583,6 +571,19 @@ class VtmGo:
                 ))
 
         return items
+
+    @staticmethod
+    def _parse_channel(url):
+        """ Parse the channel logo url, and return an icon that matches resource.images.studios.white
+        :type url: str
+        :rtype str
+        """
+        if not url:
+            return None
+
+        import os.path
+        # The channels id's we use in resources.lib.modules.CHANNELS neatly matches this part in the url.
+        return str(os.path.basename(url).split('-')[0])
 
     def _get_url(self, url):
         """ Makes a GET request for the specified URL.
