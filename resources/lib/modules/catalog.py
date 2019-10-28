@@ -71,7 +71,8 @@ class Catalog:
 
         listing = []
         for item in items:
-            listing.append(self._menu.generate_titleitem(item)) if item.channel == channel else None
+            if item.channel == channel:
+                listing.append(self._menu.generate_titleitem(item))
 
         # Sort items by label, but don't put folders at the top.
         # Used for A-Z listing or when movies and episodes are mixed.
