@@ -159,9 +159,8 @@ class VtmGoEpg:
         response = self._get_url(url)
 
         # Extract data
-        matches = re.search(r'EPG_REDUX_DATA=([^;]+);', response)
+        matches = re.search(r'__EPG_REDUX_DATA__=([^;]+);', response)
         if not matches:
-            self._kodi.log('Got response: {response}', LOG_ERROR, response=response)
             self._kodi.log('Could not parse EPG details.', LOG_ERROR)
             return None
 
