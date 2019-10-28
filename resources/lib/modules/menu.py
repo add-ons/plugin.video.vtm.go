@@ -26,7 +26,7 @@ class Menu:
         listing = []
         listing.append(
             TitleItem(title=self._kodi.localize(30001),  # A-Z
-                      path=self._kodi.url_for('show_catalog_category', kids=kids, category='all'),
+                      path=self._kodi.url_for('show_catalog_all', kids=kids),
                       art_dict=dict(
                           icon='DefaultMovieTitle.png'
                       ),
@@ -203,24 +203,18 @@ class Menu:
                     self._kodi.url_for('mylist_add', kids=self._kodi.kids_mode(), video_type=self._vtm_go.CONTENT_TYPE_MOVIE, content_id=item.movie_id)
                 )]
 
+            art_dict.update({
+                'fanart': item.cover,
+            })
             info_dict.update({
                 'mediatype': 'movie',
+                'plot': self.format_plot(item),
+                'duration': item.duration,
+                'year': item.year,
+                'aired': item.aired,
+                'studio': CHANNELS.get(item.channel, {}).get('studio_icon'),
+                'mpaa': ', '.join(item.legal) if hasattr(item, 'legal') and item.legal else self._kodi.localize(30216),
             })
-
-            # Get movie details from cache
-            movie = self._vtm_go.get_movie(item.movie_id, only_cache=True)
-            if movie:
-                art_dict.update({
-                    'fanart': movie.cover,
-                })
-                info_dict.update({
-                    'plot': self.format_plot(movie),
-                    'duration': movie.duration,
-                    'year': movie.year,
-                    'aired': movie.aired,
-                    'studio': CHANNELS.get(movie.channel, {}).get('studio_icon'),
-                    'mpaa': ', '.join(movie.legal) if hasattr(movie, 'legal') and movie.legal else self._kodi.localize(30216),
-                })
 
             return TitleItem(title=item.name,
                              path=self._kodi.url_for('play', category='movies', item=item.movie_id),
@@ -251,24 +245,18 @@ class Menu:
                     self._kodi.url_for('mylist_add', kids=self._kodi.kids_mode(), video_type=self._vtm_go.CONTENT_TYPE_PROGRAM, content_id=item.program_id)
                 )]
 
+            art_dict.update({
+                'fanart': item.cover,
+                'banner': item.cover,
+            })
             info_dict.update({
                 'mediatype': None,
+                'title': item.name,
+                'plot': self.format_plot(item),
+                'studio': CHANNELS.get(item.channel, {}).get('studio_icon'),
+                'mpaa': ', '.join(item.legal) if hasattr(item, 'legal') and item.legal else self._kodi.localize(30216),
+                'season': len(item.seasons),
             })
-
-            # Get program details from cache
-            program = self._vtm_go.get_program(item.program_id, only_cache=True)
-            if program:
-                art_dict.update({
-                    'fanart': program.cover,
-                    'banner': item.cover,
-                })
-                info_dict.update({
-                    'title': program.name,
-                    'plot': self.format_plot(program),
-                    'studio': CHANNELS.get(program.channel, {}).get('studio_icon'),
-                    'mpaa': ', '.join(program.legal) if hasattr(program, 'legal') and program.legal else self._kodi.localize(30216),
-                    'season': len(program.seasons),
-                })
 
             return TitleItem(title=item.name,
                              path=self._kodi.url_for('show_catalog_program', program=item.program_id),
@@ -313,7 +301,7 @@ class Menu:
             }
 
             # Get program and episode details from cache
-            program = self._vtm_go.get_program(item.program_id, only_cache=True)
+            program = self._vtm_go.get_program(item.program_id, cache=True)
             if program:
                 episode = self._vtm_go.get_episode_from_program(program, item.episode_id)
                 if episode:

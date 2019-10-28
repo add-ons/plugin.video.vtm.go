@@ -104,6 +104,14 @@ msgctxt "#30054"
 msgid "Browse the TV Guide for [B]{channel}[/B]"
 msgstr ""
 
+msgctxt "#30055"
+msgid "Catalog for [B]{channel}[/B]"
+msgstr ""
+
+msgctxt "#30056"
+msgid "Browse the Catalog for [B]{channel}[/B]"
+msgstr ""
+
 
 ### CONTEXT MENU
 
@@ -333,10 +341,6 @@ msgstr ""
 
 msgctxt "#30829"
 msgid "Periodically refresh metadata in the background"
-msgstr ""
-
-msgctxt "#30830"
-msgid "Periodically refresh metadata in the background HELP"
 msgstr ""
 
 msgctxt "#30831"

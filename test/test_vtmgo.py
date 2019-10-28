@@ -51,7 +51,7 @@ class TestVtmGo(unittest.TestCase):
         self.assertTrue(categories)
         # print(categories)
 
-        items = self._vtmgo.get_items('all')
+        items = self._vtmgo.get_items()
         self.assertTrue(items)
         # print(items)
 

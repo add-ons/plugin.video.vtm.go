@@ -133,7 +133,7 @@ class Program:
         self.name = name
         self.description = description if description else ''
         self.cover = cover
-        self.seasons = seasons
+        self.seasons = seasons if seasons else {}
         self.geoblocked = geoblocked
         self.channel = channel
         self.legal = legal
@@ -156,7 +156,7 @@ class Season:
         :type legal: str
         """
         self.number = int(number)
-        self.episodes = episodes
+        self.episodes = episodes if episodes else {}
         self.cover = cover
         self.geoblocked = geoblocked
         self.channel = channel
@@ -257,19 +257,27 @@ class VtmGo:
             items = []
             for item in cat.get('teasers'):
                 if item.get('target', {}).get('type') == self.CONTENT_TYPE_MOVIE:
-                    items.append(Movie(
-                        movie_id=item.get('target', {}).get('id'),
-                        name=item.get('title'),
-                        cover=item.get('imageUrl'),
-                        geoblocked=item.get('geoBlocked'),
-                    ))
+                    movie = self.get_movie(item.get('target', {}).get('id'), cache=True)
+                    if movie:
+                        items.append(movie)
+                    else:
+                        items.append(Movie(
+                            movie_id=item.get('target', {}).get('id'),
+                            name=item.get('title'),
+                            cover=item.get('imageUrl'),
+                            geoblocked=item.get('geoBlocked'),
+                        ))
                 elif item.get('target', {}).get('type') == self.CONTENT_TYPE_PROGRAM:
-                    items.append(Program(
-                        program_id=item.get('target', {}).get('id'),
-                        name=item.get('title'),
-                        cover=item.get('imageUrl'),
-                        geoblocked=item.get('geoBlocked'),
-                    ))
+                    program = self.get_program(item.get('target', {}).get('id'), cache=True)
+                    if program:
+                        items.append(program)
+                    else:
+                        items.append(Program(
+                            program_id=item.get('target', {}).get('id'),
+                            name=item.get('title'),
+                            cover=item.get('imageUrl'),
+                            geoblocked=item.get('geoBlocked'),
+                        ))
 
             categories.append(Category(
                 category_id=cat.get('id'),
@@ -292,20 +300,28 @@ class VtmGo:
         items = []
         for item in result.get('teasers'):
             if item.get('target', {}).get('type') == self.CONTENT_TYPE_MOVIE:
-                items.append(Movie(
-                    movie_id=item.get('target', {}).get('id'),
-                    name=item.get('title'),
-                    geoblocked=item.get('geoBlocked'),
-                    cover=item.get('imageUrl'),
-                ))
+                movie = self.get_movie(item.get('target', {}).get('id'), cache=True)
+                if movie:
+                    items.append(movie)
+                else:
+                    items.append(Movie(
+                        movie_id=item.get('target', {}).get('id'),
+                        name=item.get('title'),
+                        geoblocked=item.get('geoBlocked'),
+                        cover=item.get('imageUrl'),
+                    ))
 
             elif item.get('target', {}).get('type') == self.CONTENT_TYPE_PROGRAM:
-                items.append(Program(
-                    program_id=item.get('target', {}).get('id'),
-                    name=item.get('title'),
-                    geoblocked=item.get('geoBlocked'),
-                    cover=item.get('imageUrl'),
-                ))
+                program = self.get_program(item.get('target', {}).get('id'), cache=True)
+                if program:
+                    items.append(program)
+                else:
+                    items.append(Program(
+                        program_id=item.get('target', {}).get('id'),
+                        name=item.get('title'),
+                        geoblocked=item.get('geoBlocked'),
+                        cover=item.get('imageUrl'),
+                    ))
 
             elif item.get('target', {}).get('type') == self.CONTENT_TYPE_EPISODE:
                 if swimlane == 'continue-watching':
@@ -386,43 +402,63 @@ class VtmGo:
 
         return categories
 
-    def get_items(self, category=None):
+    def get_items(self, category=None, cache=False):
         """ Get a list of all the items in a category.
         :type category: str
+        :type cache: bool
         :rtype list[Union[Movie, Program]]
         """
-        if category and category != 'all':
-            response = self._get_url('/%s/catalog?pageSize=%d&filter=%s' % (self._mode(), 1000, quote(category)))
+        if cache and category is None:
+            # Fetch from cache if asked
+            content = self._kodi.get_cache(['catalog'])
+            if not content:
+                return None
         else:
-            response = self._get_url('/%s/catalog?pageSize=%d' % (self._mode(), 1000))
-        info = json.loads(response)
+            # Fetch from API
+            if category is None:
+                response = self._get_url('/%s/catalog?pageSize=%d' % (self._mode(), 1000))
+                info = json.loads(response)
+                content = info.get('pagedTeasers', {}).get('content', [])
+                self._kodi.set_cache(['catalog'], content)
+            else:
+                response = self._get_url('/%s/catalog?pageSize=%d&filter=%s' % (self._mode(), 1000, quote(category)))
+                info = json.loads(response)
+                content = info.get('pagedTeasers', {}).get('content', [])
 
         items = []
-        for item in info.get('pagedTeasers', {}).get('content', []):
+        for item in content:
             if item.get('target', {}).get('type') == self.CONTENT_TYPE_MOVIE:
-                items.append(Movie(
-                    movie_id=item.get('target', {}).get('id'),
-                    name=item.get('title'),
-                    cover=item.get('imageUrl'),
-                    geoblocked=item.get('geoBlocked'),
-                ))
+                movie = self.get_movie(item.get('target', {}).get('id'), cache=True)
+                if movie:
+                    items.append(movie)
+                else:
+                    items.append(Movie(
+                        movie_id=item.get('target', {}).get('id'),
+                        name=item.get('title'),
+                        cover=item.get('imageUrl'),
+                        geoblocked=item.get('geoBlocked'),
+                    ))
             elif item.get('target', {}).get('type') == self.CONTENT_TYPE_PROGRAM:
-                items.append(Program(
-                    program_id=item.get('target', {}).get('id'),
-                    name=item.get('title'),
-                    cover=item.get('imageUrl'),
-                    geoblocked=item.get('geoBlocked'),
-                ))
+                program = self.get_program(item.get('target', {}).get('id'), cache=True)
+                if program:
+                    items.append(program)
+                else:
+                    items.append(Program(
+                        program_id=item.get('target', {}).get('id'),
+                        name=item.get('title'),
+                        cover=item.get('imageUrl'),
+                        geoblocked=item.get('geoBlocked'),
+                    ))
 
         return items
 
-    def get_movie(self, movie_id, only_cache=False):
+    def get_movie(self, movie_id, cache=False):
         """ Get the details of the specified movie.
         :type movie_id: str
-        :type only_cache: bool
+        :type cache: bool
         :rtype Movie
         """
-        if only_cache:
+        if cache:
             # Fetch from cache if asked
             movie = self._kodi.get_cache(['movie', movie_id])
             if not movie:
@@ -448,13 +484,13 @@ class VtmGo:
             channel=self._parse_channel(movie.get('channelLogoUrl')),
         )
 
-    def get_program(self, program_id, only_cache=False):
+    def get_program(self, program_id, cache=False):
         """ Get the details of the specified program.
         :type program_id: str
-        :type only_cache: bool
+        :type cache: bool
         :rtype Program
         """
-        if only_cache:
+        if cache:
             # Fetch from cache if asked
             program = self._kodi.get_cache(['program', program_id])
             if not program:
@@ -560,15 +596,23 @@ class VtmGo:
         items = []
         for item in results.get('suggestions', []):
             if item.get('type') == self.CONTENT_TYPE_MOVIE:
-                items.append(Movie(
-                    movie_id=item.get('id'),
-                    name=item.get('name'),
-                ))
+                movie = self.get_movie(item.get('id'), cache=True)
+                if movie:
+                    items.append(movie)
+                else:
+                    items.append(Movie(
+                        movie_id=item.get('id'),
+                        name=item.get('name'),
+                    ))
             elif item.get('type') == self.CONTENT_TYPE_PROGRAM:
-                items.append(Program(
-                    program_id=item.get('id'),
-                    name=item.get('name'),
-                ))
+                program = self.get_program(item.get('id'), cache=True)
+                if program:
+                    items.append(program)
+                else:
+                    items.append(Program(
+                        program_id=item.get('id'),
+                        name=item.get('name'),
+                    ))
 
         return items
 

@@ -60,11 +60,25 @@ def show_catalog():
     Catalog(kodi).show_catalog()
 
 
-@routing.route('/catalog/category/<category>')
+@routing.route('/catalog/all')
+def show_catalog_all():
+    """ Show a category in the catalog """
+    from resources.lib.modules.catalog import Catalog
+    Catalog(kodi).show_catalog_category()
+
+
+@routing.route('/catalog/by-category/<category>')
 def show_catalog_category(category):
     """ Show a category in the catalog """
     from resources.lib.modules.catalog import Catalog
     Catalog(kodi).show_catalog_category(category)
+
+
+@routing.route('/catalog/by-channel/<channel>')
+def show_catalog_channel(channel):
+    """ Show a category in the catalog """
+    from resources.lib.modules.catalog import Catalog
+    Catalog(kodi).show_catalog_channel(channel)
 
 
 @routing.route('/catalog/program/<program>')

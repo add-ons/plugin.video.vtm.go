@@ -42,14 +42,22 @@ class Channels:
             fanart = '{path}/resources/logos/{logo}.png'.format(path=self._kodi.get_addon_path(), logo=channel.get('logo'))
 
             context_menu = [(
-                self._kodi.localize(30103),  # Watch live
+                self._kodi.localize(30052, channel=channel.get('label')),  # Watch live channel
                 'XBMC.PlayMedia(%s)' %
                 self._kodi.url_for('play', category='channels', item=channel_info.channel_id)
             ), (
-                self._kodi.localize(30104),  # TV Guide
+                self._kodi.localize(30053, channel=channel.get('label')),  # TV Guide for channel
                 'XBMC.Container.Update(%s)' %
                 self._kodi.url_for('show_tvguide_channel', channel=channel.get('epg'))
             )]
+            if self._kodi.get_setting_as_bool('metadata_update'):
+                context_menu.append(
+                    (
+                        self._kodi.localize(30055, channel=channel.get('label')),  # Catalog for channel
+                        'XBMC.Container.Update(%s)' %
+                        self._kodi.url_for('show_catalog_channel', channel=key)
+                    )
+                )
 
             title = channel.get('label')
             if channel_info and channel_info.epg:
@@ -125,11 +133,22 @@ class Channels:
                       }),
         ]
 
-        # Add YouTube channels
+        if self._kodi.get_setting_as_bool('metadata_update'):
+            listing.append(
+                TitleItem(title=self._kodi.localize(30055, channel=channel.get('label')),
+                          path=self._kodi.url_for('show_catalog_channel', channel=key),
+                          art_dict={
+                              'icon': 'DefaultMovieTitle.png'
+                          },
+                          info_dict={
+                              'plot': self._kodi.localize(30056, channel=channel.get('label')),
+                          }))
+
+            # Add YouTube channels
         if self._kodi.get_cond_visibility('System.HasAddon(plugin.video.youtube)') != 0:
             for youtube in channel.get('youtube', []):
                 listing.append(
-                    TitleItem(title='[B]{channel}[/B] on YouTube'.format(channel=youtube.get('label')),
+                    TitleItem(title=self._kodi.localize(30206, label=youtube.get('label')),
                               path=youtube.get('path'),
                               info_dict={
                                   'plot': self._kodi.localize(30206, label=youtube.get('label')),

@@ -52,6 +52,9 @@ class TestRouting(unittest.TestCase):
         plugin.run([routing.url_for(plugin.show_catalog_category, category='kids'), '0', ''])
         plugin.run([routing.url_for(plugin.show_catalog_category, category='nieuws-actua'), '0', ''])
 
+    def test_catalog_channel_menu(self):
+        plugin.run([routing.url_for(plugin.show_catalog_channel, channel='vtm'), '0', ''])
+
     def test_catalog_program_menu(self):
         plugin.run([routing.url_for(plugin.show_catalog_program, program='e892cf10-5100-42ce-8d59-6b5c03cc2b96'), '0', ''])
 
