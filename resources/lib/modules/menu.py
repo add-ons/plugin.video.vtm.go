@@ -132,10 +132,6 @@ class Menu:
         """
         plot = ''
 
-        if hasattr(obj, 'description'):
-            plot += obj.description
-            plot += '\n\n'
-
         if hasattr(obj, 'epg'):
             if obj.epg:
                 plot += self._kodi.localize(30213,  # Now
@@ -148,6 +144,7 @@ class Menu:
                                             start=obj.epg[1].start.strftime('%H:%M'),
                                             end=obj.epg[1].end.strftime('%H:%M'),
                                             title=obj.epg[1].title) + "\n"
+            plot += '\n'
 
         # Add remaining
         if hasattr(obj, 'remaining') and obj.remaining is not None:
@@ -163,11 +160,16 @@ class Menu:
                 plot += '» ' + self._kodi.localize(30211, months=int(obj.remaining / 30.5)) + "\n"  # X months remaining
             else:
                 plot += '» ' + self._kodi.localize(30212, days=obj.remaining) + "\n"  # X days remaining
+            plot += '\n'
 
         # Add geo-blocked message
         if hasattr(obj, 'geoblocked') and obj.geoblocked:
             plot += self._kodi.localize(30207)  # Geo-blocked
             plot += '\n'
+
+        if hasattr(obj, 'description'):
+            plot += obj.description
+            plot += '\n\n'
 
         return plot.rstrip()
 
@@ -179,10 +181,13 @@ class Menu:
         """
         art_dict = {
             'thumb': item.cover,
+            'cover': item.cover,
         }
         info_dict = {
             'title': item.name,
-            'plot': item.description,
+            'plot': self.format_plot(item),
+            'studio': CHANNELS.get(item.channel, {}).get('studio_icon'),
+            'mpaa': ', '.join(item.legal) if hasattr(item, 'legal') and item.legal else self._kodi.localize(30216),
         }
         prop_dict = {}
 
@@ -204,16 +209,13 @@ class Menu:
                 )]
 
             art_dict.update({
-                'fanart': item.cover,
+                'fanart': item.image,
             })
             info_dict.update({
                 'mediatype': 'movie',
-                'plot': self.format_plot(item),
                 'duration': item.duration,
                 'year': item.year,
                 'aired': item.aired,
-                'studio': CHANNELS.get(item.channel, {}).get('studio_icon'),
-                'mpaa': ', '.join(item.legal) if hasattr(item, 'legal') and item.legal else self._kodi.localize(30216),
             })
 
             return TitleItem(title=item.name,
@@ -246,15 +248,10 @@ class Menu:
                 )]
 
             art_dict.update({
-                'fanart': item.cover,
-                'banner': item.cover,
+                'fanart': item.image,
             })
             info_dict.update({
                 'mediatype': None,
-                'title': item.name,
-                'plot': self.format_plot(item),
-                'studio': CHANNELS.get(item.channel, {}).get('studio_icon'),
-                'mpaa': ', '.join(item.legal) if hasattr(item, 'legal') and item.legal else self._kodi.localize(30216),
                 'season': len(item.seasons),
             })
 
@@ -274,20 +271,18 @@ class Menu:
                 self._kodi.url_for('show_catalog_program', program=item.program_id)
             )]
 
+            art_dict.update({
+                'fanart': item.cover,
+            })
             info_dict.update({
+                'mediatype': 'episode',
                 'tvshowtitle': item.program_name,
-                'title': item.name,
-                'plot': self.format_plot(item),
                 'duration': item.duration,
                 'season': item.season,
                 'episode': item.number,
-                'mediatype': 'episode',
                 'set': item.program_name,
-                'studio': item.channel,
                 'aired': item.aired,
-                'mpaa': ', '.join(item.legal) if hasattr(item, 'legal') and item.legal else self._kodi.localize(30216),
             })
-
             if progress and item.watched:
                 info_dict.update({
                     'playcount': 1,
@@ -299,37 +294,6 @@ class Menu:
                 'height': 1080,
                 'width': 1920,
             }
-
-            # Get program and episode details from cache
-            program = self._vtm_go.get_program(item.program_id, cache=True)
-            if program:
-                episode = self._vtm_go.get_episode_from_program(program, item.episode_id)
-                if episode:
-                    art_dict.update({
-                        'fanart': episode.cover,
-                        'banner': episode.cover,
-                    })
-                    info_dict.update({
-                        'tvshowtitle': program.name,
-                        'title': episode.name,
-                        'plot': self.format_plot(episode),
-                        'duration': episode.duration,
-                        'season': episode.season,
-                        'episode': episode.number,
-                        'set': program.name,
-                        'studio': episode.channel,
-                        'aired': episode.aired,
-                        'mpaa': ', '.join(episode.legal) if hasattr(episode, 'legal') and episode.legal else self._kodi.localize(30216),
-                    })
-
-                    if progress and item.watched:
-                        info_dict.update({
-                            'playcount': 1,
-                        })
-
-                    stream_dict.update({
-                        'duration': episode.duration,
-                    })
 
             # Add progress info
             if progress and not item.watched and item.progress:

@@ -5,9 +5,9 @@ from __future__ import absolute_import, division, unicode_literals
 
 from time import time
 
+from xbmc import Monitor
 from resources.lib.kodiwrapper import KodiWrapper, LOG_INFO
 from resources.lib.vtmgo.vtmgo import VtmGo
-from xbmc import Monitor
 
 
 class BackgroundService(Monitor):
