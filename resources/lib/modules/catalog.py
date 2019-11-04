@@ -250,10 +250,8 @@ class Catalog:
             titleitem = self._menu.generate_titleitem(item, progress=True)
 
             # Add Program Name to title since this list contains episodes from multiple programs
-            title = '%s - %s' % (titleitem.info_dict.get('tvshowtitle'), titleitem.info_dict.get('title'))
-            titleitem.title = title
+            title = '%s - %dx%02d - %s' % (titleitem.info_dict.get('tvshowtitle'), titleitem.info_dict.get('season'), titleitem.info_dict.get('episode'), titleitem.info_dict.get('title'))
             titleitem.info_dict['title'] = title
-
             listing.append(titleitem)
 
         # Sort categories by default like in VTM GO.

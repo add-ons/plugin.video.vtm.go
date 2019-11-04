@@ -81,7 +81,7 @@ class Category:
 class Movie:
     """ Defines a Movie """
 
-    def __init__(self, movie_id=None, name=None, description=None, year=None, cover=None, duration=None, remaining=None, geoblocked=None,
+    def __init__(self, movie_id=None, name=None, description=None, year=None, cover=None, image=None, duration=None, remaining=None, geoblocked=None,
                  channel=None, legal=None, aired=None, my_list=None):
         """
         :type movie_id: str
@@ -89,6 +89,7 @@ class Movie:
         :type description: str
         :type year: int
         :type cover: str
+        :type image: str
         :type duration: int
         :type remaining: str
         :type geoblocked: bool
@@ -102,6 +103,7 @@ class Movie:
         self.description = description if description else ''
         self.year = year
         self.cover = cover
+        self.image = image
         self.duration = duration
         self.remaining = remaining
         self.geoblocked = geoblocked
@@ -117,12 +119,13 @@ class Movie:
 class Program:
     """ Defines a Program """
 
-    def __init__(self, program_id=None, name=None, description=None, cover=None, seasons=None, geoblocked=None, channel=None, legal=None, my_list=None):
+    def __init__(self, program_id=None, name=None, description=None, cover=None, image=None, seasons=None, geoblocked=None, channel=None, legal=None, my_list=None):
         """
         :type program_id: str
         :type name: str
         :type description: str
         :type cover: str
+        :type image: str
         :type seasons: dict[int, Season]
         :type geoblocked: bool
         :type channel: str
@@ -133,6 +136,7 @@ class Program:
         self.name = name
         self.description = description if description else ''
         self.cover = cover
+        self.image = image
         self.seasons = seasons if seasons else {}
         self.geoblocked = geoblocked
         self.channel = channel
@@ -259,23 +263,29 @@ class VtmGo:
                 if item.get('target', {}).get('type') == self.CONTENT_TYPE_MOVIE:
                     movie = self.get_movie(item.get('target', {}).get('id'), cache=True)
                     if movie:
+                        # We have a cover from the overview that we don't have in the details
+                        movie.cover = item.get('imageUrl')
                         items.append(movie)
                     else:
                         items.append(Movie(
                             movie_id=item.get('target', {}).get('id'),
                             name=item.get('title'),
                             cover=item.get('imageUrl'),
+                            image=item.get('imageUrl'),
                             geoblocked=item.get('geoBlocked'),
                         ))
                 elif item.get('target', {}).get('type') == self.CONTENT_TYPE_PROGRAM:
                     program = self.get_program(item.get('target', {}).get('id'), cache=True)
                     if program:
+                        # We have a cover from the overview that we don't have in the details
+                        program.cover = item.get('imageUrl')
                         items.append(program)
                     else:
                         items.append(Program(
                             program_id=item.get('target', {}).get('id'),
                             name=item.get('title'),
                             cover=item.get('imageUrl'),
+                            image=item.get('imageUrl'),
                             geoblocked=item.get('geoBlocked'),
                         ))
 
@@ -302,6 +312,8 @@ class VtmGo:
             if item.get('target', {}).get('type') == self.CONTENT_TYPE_MOVIE:
                 movie = self.get_movie(item.get('target', {}).get('id'), cache=True)
                 if movie:
+                    # We have a cover from the overview that we don't have in the details
+                    movie.cover = item.get('imageUrl')
                     items.append(movie)
                 else:
                     items.append(Movie(
@@ -309,11 +321,14 @@ class VtmGo:
                         name=item.get('title'),
                         geoblocked=item.get('geoBlocked'),
                         cover=item.get('imageUrl'),
+                        image=item.get('imageUrl'),
                     ))
 
             elif item.get('target', {}).get('type') == self.CONTENT_TYPE_PROGRAM:
                 program = self.get_program(item.get('target', {}).get('id'), cache=True)
                 if program:
+                    # We have a cover from the overview that we don't have in the details
+                    program.cover = item.get('imageUrl')
                     items.append(program)
                 else:
                     items.append(Program(
@@ -321,13 +336,16 @@ class VtmGo:
                         name=item.get('title'),
                         geoblocked=item.get('geoBlocked'),
                         cover=item.get('imageUrl'),
+                        image=item.get('imageUrl'),
                     ))
 
             elif item.get('target', {}).get('type') == self.CONTENT_TYPE_EPISODE:
-                if swimlane == 'continue-watching':
-                    title = '%dx%02d' % (item.get('target', {}).get('seasonIndex'), item.get('target', {}).get('episodeIndex'))
+                # We need to fetch the episode, since the overview is lacking the plot
+                episode = self.get_episode(item.get('target', {}).get('id'))
+                if episode:
+                    plot = episode.description
                 else:
-                    title = item.get('title')
+                    plot = None
 
                 items.append(Episode(
                     episode_id=item.get('target', {}).get('id'),
@@ -335,11 +353,13 @@ class VtmGo:
                     program_name=item.get('target', {}).get('programName'),
                     number=item.get('target', {}).get('episodeIndex'),
                     season=item.get('target', {}).get('seasonIndex'),
-                    name=title,
+                    name=item.get('title'),
+                    description=plot,
                     geoblocked=item.get('geoBlocked'),
                     cover=item.get('imageUrl'),
                     progress=item.get('playerPositionSeconds'),
                     watched=False,
+                    remaining=item.get('remainingDaysAvailable'),
                 ))
 
         return items
@@ -430,6 +450,8 @@ class VtmGo:
             if item.get('target', {}).get('type') == self.CONTENT_TYPE_MOVIE:
                 movie = self.get_movie(item.get('target', {}).get('id'), cache=True)
                 if movie:
+                    # We have a cover from the overview that we don't have in the details
+                    movie.cover = item.get('imageUrl')
                     items.append(movie)
                 else:
                     items.append(Movie(
@@ -441,6 +463,8 @@ class VtmGo:
             elif item.get('target', {}).get('type') == self.CONTENT_TYPE_PROGRAM:
                 program = self.get_program(item.get('target', {}).get('id'), cache=True)
                 if program:
+                    # We have a cover from the overview that we don't have in the details
+                    program.cover = item.get('imageUrl')
                     items.append(program)
                 else:
                     items.append(Program(
@@ -476,6 +500,7 @@ class VtmGo:
             description=movie.get('description'),
             duration=movie.get('durationSeconds'),
             cover=movie.get('bigPhotoUrl'),
+            image=movie.get('bigPhotoUrl'),
             year=movie.get('productionYear'),
             geoblocked=movie.get('geoBlocked'),
             remaining=movie.get('remainingDaysAvailable'),
@@ -542,6 +567,7 @@ class VtmGo:
             name=program.get('name'),
             description=program.get('description'),
             cover=program.get('bigPhotoUrl'),
+            image=program.get('bigPhotoUrl'),
             geoblocked=program.get('geoBlocked'),
             seasons=seasons,
             channel=channel,
@@ -581,6 +607,7 @@ class VtmGo:
             season=episode.get('seasonIndex'),
             name=episode.get('name'),
             description=episode.get('description'),
+            geoblocked=episode.get('geoBlocked'),
             cover=episode.get('bigPhotoUrl'),
             progress=episode.get('playerPositionSeconds'),
         )
