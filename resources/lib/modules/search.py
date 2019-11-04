@@ -24,7 +24,7 @@ class Search:
         """
         if not query:
             # Ask for query
-            query = self._kodi.get_search_string(heading=self._kodi.localize(30009))
+            query = self._kodi.get_search_string(heading=self._kodi.localize(30009))  # Search VTM GO
             if not query:
                 self._kodi.end_of_directory()
                 return

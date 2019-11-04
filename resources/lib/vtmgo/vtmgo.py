@@ -505,7 +505,7 @@ class VtmGo:
             geoblocked=movie.get('geoBlocked'),
             remaining=movie.get('remainingDaysAvailable'),
             legal=movie.get('legalIcons'),
-            aired=movie.get('broadcastTimestamp'),
+            # aired=movie.get('broadcastTimestamp'),
             channel=self._parse_channel(movie.get('channelLogoUrl')),
         )
 
@@ -668,7 +668,7 @@ class VtmGo:
 
         self._kodi.log('Sending GET {url}...', LOG_INFO, url=url)
 
-        response = requests.session().get('https://api.vtmgo.be' + url, headers=headers, verify=False, proxies=self._proxies)
+        response = requests.session().get('https://api.vtmgo.be' + url, headers=headers, proxies=self._proxies)
 
         self._kodi.log('Got response (status={code}): {response}', LOG_DEBUG, code=response.status_code, response=response.text)
 
@@ -692,7 +692,7 @@ class VtmGo:
 
         self._kodi.log('Sending PUT {url}...', LOG_INFO, url=url)
 
-        response = requests.session().put('https://api.vtmgo.be' + url, headers=headers, verify=False, proxies=self._proxies)
+        response = requests.session().put('https://api.vtmgo.be' + url, headers=headers, proxies=self._proxies)
 
         self._kodi.log('Got response: {response}', LOG_DEBUG, response=response.text)
 
@@ -716,7 +716,7 @@ class VtmGo:
 
         self._kodi.log('Sending DELETE {url}...', LOG_INFO, url=url)
 
-        response = requests.session().delete('https://api.vtmgo.be' + url, headers=headers, verify=False, proxies=self._proxies)
+        response = requests.session().delete('https://api.vtmgo.be' + url, headers=headers, proxies=self._proxies)
 
         self._kodi.log('Got response: {response}', LOG_DEBUG, response=response.text)
 

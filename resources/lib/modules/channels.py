@@ -42,18 +42,18 @@ class Channels:
             fanart = '{path}/resources/logos/{logo}.png'.format(path=self._kodi.get_addon_path(), logo=channel.get('logo'))
 
             context_menu = [(
-                self._kodi.localize(30052, channel=channel.get('label')),  # Watch live channel
+                self._kodi.localize(30052, channel=channel.get('label')),  # Watch live {channel}
                 'XBMC.PlayMedia(%s)' %
                 self._kodi.url_for('play', category='channels', item=channel_info.channel_id)
             ), (
-                self._kodi.localize(30053, channel=channel.get('label')),  # TV Guide for channel
+                self._kodi.localize(30053, channel=channel.get('label')),  # TV Guide for {channel}
                 'XBMC.Container.Update(%s)' %
                 self._kodi.url_for('show_tvguide_channel', channel=channel.get('epg'))
             )]
             if self._kodi.get_setting_as_bool('metadata_update'):
                 context_menu.append(
                     (
-                        self._kodi.localize(30055, channel=channel.get('label')),  # Catalog for channel
+                        self._kodi.localize(30055, channel=channel.get('label')),  # Catalog for {channel}
                         'XBMC.Container.Update(%s)' %
                         self._kodi.url_for('show_catalog_channel', channel=key)
                     )
@@ -61,7 +61,9 @@ class Channels:
 
             title = channel.get('label')
             if channel_info and channel_info.epg:
-                title += '[COLOR gray] | {title}[/COLOR]'.format(title=channel_info.epg[0].title)
+                title += '[COLOR gray] | {title} ({start} - {end})[/COLOR]'.format(title=channel_info.epg[0].title,
+                                                                                   start=channel_info.epg[0].start.strftime('%H:%M'),
+                                                                                   end=channel_info.epg[0].end.strftime('%H:%M'))
 
             listing.append(
                 TitleItem(title=title,
@@ -96,9 +98,11 @@ class Channels:
         # Fetch EPG from API
         channel_info = self._vtm_go.get_live_channel(key)
 
-        title = self._kodi.localize(30052, channel=channel.get('label'))
+        title = self._kodi.localize(30052, channel=channel.get('label'))  # Watch live {channel}
         if channel_info.epg:
-            title += '[COLOR gray] | {title}[/COLOR]'.format(title=channel_info.epg[0].title)
+            title += '[COLOR gray] | {title} ({start} - {end})[/COLOR]'.format(title=channel_info.epg[0].title,
+                                                                               start=channel_info.epg[0].start.strftime('%H:%M'),
+                                                                               end=channel_info.epg[0].end.strftime('%H:%M'))
 
         # Lookup the high resolution logo based on the channel name
         icon = '{path}/resources/logos/{logo}-white.png'.format(path=self._kodi.get_addon_path(), logo=channel.get('logo'))
@@ -123,19 +127,19 @@ class Channels:
                           'width': 1920,
                       },
                       is_playable=True),
-            TitleItem(title=self._kodi.localize(30053, channel=channel.get('label')),
+            TitleItem(title=self._kodi.localize(30053, channel=channel.get('label')),  # TV Guide for {channel}
                       path=self._kodi.url_for('show_tvguide_channel', channel=channel.get('epg')),
                       art_dict={
                           'icon': 'DefaultAddonTvInfo.png'
                       },
                       info_dict={
-                          'plot': self._kodi.localize(30054, channel=channel.get('label')),
+                          'plot': self._kodi.localize(30054, channel=channel.get('label')),  # Browse the TV Guide for {channel}
                       }),
         ]
 
         if self._kodi.get_setting_as_bool('metadata_update'):
             listing.append(
-                TitleItem(title=self._kodi.localize(30055, channel=channel.get('label')),
+                TitleItem(title=self._kodi.localize(30055, channel=channel.get('label')),  # Catalog for {channel}
                           path=self._kodi.url_for('show_catalog_channel', channel=key),
                           art_dict={
                               'icon': 'DefaultMovieTitle.png'
@@ -148,11 +152,11 @@ class Channels:
         if self._kodi.get_cond_visibility('System.HasAddon(plugin.video.youtube)') != 0:
             for youtube in channel.get('youtube', []):
                 listing.append(
-                    TitleItem(title=self._kodi.localize(30206, label=youtube.get('label')),
+                    TitleItem(title=self._kodi.localize(30206, label=youtube.get('label')),  # Watch {label} on YouTube
                               path=youtube.get('path'),
                               info_dict={
-                                  'plot': self._kodi.localize(30206, label=youtube.get('label')),
+                                  'plot': self._kodi.localize(30206, label=youtube.get('label')),  # Watch {label} on YouTube
                               })
                 )
 
-        self._kodi.show_listing(listing, 30007)
+        self._kodi.show_listing(listing, 30007, sort=['unsorted'])

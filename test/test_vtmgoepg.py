@@ -6,9 +6,6 @@
 from __future__ import absolute_import, division, print_function, unicode_literals
 
 import unittest
-import warnings
-
-from urllib3.exceptions import InsecureRequestWarning
 
 from resources.lib import plugin
 from resources.lib.kodiwrapper import KodiWrapper
@@ -29,9 +26,7 @@ class TestVtmGoEpg(unittest.TestCase):
     def setUp(self):
         # Don't warn that we don't close our HTTPS connections, this is on purpose.
         # warnings.simplefilter("ignore", ResourceWarning)
-
-        # Don't warn that we are not verifying the certificates of VTM GO API.
-        warnings.simplefilter("ignore", InsecureRequestWarning)
+        pass
 
     def test_get_broadcast(self):
         import datetime
@@ -75,7 +70,8 @@ class TestVtmGoEpg(unittest.TestCase):
         if broadcast:
             details = self._vtmgoepg.get_details(channel='vtm', program_type=broadcast.playable_type, epg_id=broadcast.uuid)
             self.assertTrue(details)
-            plugin.run([routing.url_for(plugin.play_epg_program, channel='vtm', program_type=broadcast.playable_type, epg_id=broadcast.uuid, aired='123'), '0', ''])
+            plugin.run(
+                [routing.url_for(plugin.play_epg_program, channel='vtm', program_type=broadcast.playable_type, epg_id=broadcast.uuid, aired='123'), '0', ''])
 
         broadcast = next(b for b in combined_broadcasts if b.playable_type == 'oneoffs')
         if broadcast:
