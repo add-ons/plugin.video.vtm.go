@@ -35,17 +35,18 @@ class TvGuide:
 
             listing.append(
                 TitleItem(title=title,
-                          path=self._kodi.url_for('show_tvguide_detail', channel=channel, date=day.get('date')),
+                          path=self._kodi.url_for('show_tvguide_detail', channel=channel, date=day.get('key')),
                           art_dict={
                               'icon': 'DefaultYear.png',
                               'thumb': 'DefaultYear.png',
                           },
                           info_dict={
                               'plot': None,
+                              'date': day.get('date'),
                           })
             )
 
-        self._kodi.show_listing(listing, 30013, content='files')
+        self._kodi.show_listing(listing, 30013, content='files', sort=['date'])
 
     def show_tvguide_detail(self, channel=None, date=None):
         """ Shows the programs of a specific date in the tv guide
@@ -106,7 +107,7 @@ class TvGuide:
                           is_playable=True)
             )
 
-        self._kodi.show_listing(listing, 30013, content='episodes')
+        self._kodi.show_listing(listing, 30013, content='episodes', sort=['unsorted'])
 
     def show_program_from_epg(self, channel, program):
         """ Show a program based on the channel and information from the EPG

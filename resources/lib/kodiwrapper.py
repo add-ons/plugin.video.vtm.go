@@ -10,11 +10,16 @@ import xbmcplugin
 from xbmcaddon import Addon
 
 SORT_METHODS = dict(
+    unsorted=xbmcplugin.SORT_METHOD_UNSORTED,
     label=xbmcplugin.SORT_METHOD_LABEL_IGNORE_FOLDERS,
     episode=xbmcplugin.SORT_METHOD_EPISODE,
     duration=xbmcplugin.SORT_METHOD_DURATION,
-    unsorted=xbmcplugin.SORT_METHOD_UNSORTED,
+    year=xbmcplugin.SORT_METHOD_VIDEO_YEAR,
+    date=xbmcplugin.SORT_METHOD_DATE,
 )
+DEFAULT_SORT_METHODS = [
+    'unsorted', 'label'
+]
 
 LOG_DEBUG = xbmc.LOGDEBUG
 LOG_INFO = xbmc.LOGINFO
@@ -120,7 +125,7 @@ class KodiWrapper:
         """ Wrapper for routing.redirect() so it also works with urls """
         return self.routing.redirect(url.replace('plugin://' + self._addon_id, ''))
 
-    def show_listing(self, title_items, category=None, sort='unsorted', content=None, cache=True):
+    def show_listing(self, title_items, category=None, sort=None, content=None, cache=True):
         """ Show a virtual directory in Kodi """
         if content:
             # content is one of: files, songs, artists, albums, movies, tvshows, episodes, musicvideos, videos, images, games
@@ -145,10 +150,13 @@ class KodiWrapper:
         xbmcplugin.setPluginCategory(handle=self._handle, category=category_label)
 
         # Add all sort methods to GUI (start with preferred)
-        xbmcplugin.addSortMethod(handle=self._handle, sortMethod=SORT_METHODS[sort])
-        for key in sorted(SORT_METHODS):
-            if key != sort:
-                xbmcplugin.addSortMethod(handle=self._handle, sortMethod=SORT_METHODS[key])
+        if sort is None:
+            sort = DEFAULT_SORT_METHODS
+        elif not isinstance(sort, list):
+            sort = [sort] + DEFAULT_SORT_METHODS
+
+        for key in sort:
+            xbmcplugin.addSortMethod(handle=self._handle, sortMethod=SORT_METHODS[key])
 
         # Add the listings
         listing = []

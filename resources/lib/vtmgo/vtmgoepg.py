@@ -11,6 +11,7 @@ import dateutil.tz
 import requests
 
 from resources.lib.kodiwrapper import LOG_DEBUG, KodiWrapper, LOG_ERROR, LOG_INFO  # pylint: disable=unused-import
+from resources.lib.vtmgo.vtmgo import UnavailableException
 
 
 class EpgChannel:
@@ -214,25 +215,29 @@ class VtmGoEpg:
             if i == -1:
                 dates.append({
                     'title': '%s, %s' % (self._kodi.localize(30301), day.strftime(date_format)),  # Yesterday,
-                    'date': 'yesterday',
+                    'key': 'yesterday',
+                    'date': day.strftime('%d.%m.%Y'),
                     'highlight': False,
                 })
             elif i == 0:
                 dates.append({
                     'title': '%s, %s' % (self._kodi.localize(30302), day.strftime(date_format)),  # Today
-                    'date': 'today',
+                    'key': 'today',
+                    'date': day.strftime('%d.%m.%Y'),
                     'highlight': True,
                 })
             elif i == 1:
                 dates.append({
                     'title': '%s, %s' % (self._kodi.localize(30303), day.strftime(date_format)),  # Tomorrow
-                    'date': 'tomorrow',
+                    'key': 'tomorrow',
+                    'date': day.strftime('%d.%m.%Y'),
                     'highlight': False,
                 })
             else:
                 dates.append({
                     'title': day.strftime(date_format),
-                    'date': day.strftime('%Y-%m-%d'),
+                    'key': day.strftime('%Y-%m-%d'),
+                    'date': day.strftime('%d.%m.%Y'),
                     'highlight': False,
                 })
 
@@ -245,9 +250,9 @@ class VtmGoEpg:
         """
         self._kodi.log('Sending GET {url}...', LOG_INFO, url=url)
 
-        response = self._session.get(url, verify=False)
+        response = self._session.get(url)
 
         if response.status_code != 200:
-            raise Exception('Error %s.' % response.status_code)
+            raise UnavailableException()
 
         return response.text

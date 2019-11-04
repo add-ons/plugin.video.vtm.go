@@ -106,7 +106,7 @@ class Menu:
                               plot=self._kodi.localize(30012),
                           )))
 
-        self._kodi.show_listing(listing)
+        self._kodi.show_listing(listing, sort=['unsorted'])
 
     def check_credentials(self):
         """ Check credentials (called from settings) """
@@ -187,7 +187,7 @@ class Menu:
             'title': item.name,
             'plot': self.format_plot(item),
             'studio': CHANNELS.get(item.channel, {}).get('studio_icon'),
-            'mpaa': ', '.join(item.legal) if hasattr(item, 'legal') and item.legal else self._kodi.localize(30216),
+            'mpaa': ', '.join(item.legal) if hasattr(item, 'legal') and item.legal else self._kodi.localize(30216),  # All ages
         }
         prop_dict = {}
 
@@ -217,16 +217,18 @@ class Menu:
                 'year': item.year,
                 'aired': item.aired,
             })
+            stream_dict = {
+                'codec': 'h264',
+                'duration': item.duration,
+                'height': 1080,
+                'width': 1920,
+            }
 
             return TitleItem(title=item.name,
                              path=self._kodi.url_for('play', category='movies', item=item.movie_id),
                              art_dict=art_dict,
                              info_dict=info_dict,
-                             stream_dict={
-                                 'codec': 'h264',
-                                 'height': 1080,
-                                 'width': 1920,
-                             },
+                             stream_dict=stream_dict,
                              context_menu=context_menu,
                              is_playable=True)
 

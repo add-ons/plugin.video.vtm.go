@@ -57,7 +57,7 @@ class Catalog:
 
         # Sort items by label, but don't put folders at the top.
         # Used for A-Z listing or when movies and episodes are mixed.
-        self._kodi.show_listing(listing, 30003, content='movies' if category == 'films' else 'tvshows', sort='label')
+        self._kodi.show_listing(listing, 30003, content='movies' if category == 'films' else 'tvshows', sort=['label', 'year', 'duration'])
 
     def show_catalog_channel(self, channel):
         """ Show a category in the catalog
@@ -108,14 +108,14 @@ class Catalog:
                               'tagline': program_obj.description,
                               'set': program_obj.name,
                               'studio': studio,
-                              'mpaa': ', '.join(program_obj.legal) if hasattr(program_obj, 'legal') and program_obj.legal else self._kodi.localize(30216),
+                              'mpaa': ', '.join(program_obj.legal) if hasattr(program_obj, 'legal') and program_obj.legal else self._kodi.localize(30216),  # All ages
                           })
             )
 
         # Add the seasons
         for s in program_obj.seasons.values():
             listing.append(
-                TitleItem(title=self._kodi.localize(30205, season=s.number),  # Season X
+                TitleItem(title=self._kodi.localize(30205, season=s.number),  # Season {season}
                           path=self._kodi.url_for('show_catalog_program_season', program=program, season=s.number),
                           art_dict={
                               'thumb': s.cover,
@@ -123,19 +123,19 @@ class Catalog:
                           },
                           info_dict={
                               'tvshowtitle': program_obj.name,
-                              'title': self._kodi.localize(30205, season=s.number),
+                              'title': self._kodi.localize(30205, season=s.number),  # Season {season}
                               'tagline': program_obj.description,
                               'set': program_obj.name,
                               'studio': studio,
-                              'mpaa': ', '.join(program_obj.legal) if hasattr(program_obj, 'legal') and program_obj.legal else self._kodi.localize(30216),
+                              'mpaa': ', '.join(program_obj.legal) if hasattr(program_obj, 'legal') and program_obj.legal else self._kodi.localize(30216),  # All ages
                           })
             )
 
         # Sort by label. Some programs return seasons unordered.
-        self._kodi.show_listing(listing, 30003, content='tvshows', sort='label')
+        self._kodi.show_listing(listing, 30003, content='tvshows', sort=['label'])
 
     def show_program_season(self, program, season):
-        """ Show a program from the catalog
+        """ Show the episodes of a program from the catalog
         :type program: str
         :type season: int
         """
@@ -159,7 +159,7 @@ class Catalog:
                 listing.append(self._menu.generate_titleitem(episode))
 
         # Sort by episode number by default. Takes seasons into account.
-        self._kodi.show_listing(listing, 30003, content='episodes', sort='episode')
+        self._kodi.show_listing(listing, 30003, content='episodes', sort=['episode', 'duration'])
 
     def show_recommendations(self):
         """ Show the recommendations """
@@ -250,7 +250,11 @@ class Catalog:
             titleitem = self._menu.generate_titleitem(item, progress=True)
 
             # Add Program Name to title since this list contains episodes from multiple programs
-            title = '%s - %dx%02d - %s' % (titleitem.info_dict.get('tvshowtitle'), titleitem.info_dict.get('season'), titleitem.info_dict.get('episode'), titleitem.info_dict.get('title'))
+            title = '%s - %dx%02d - %s' % (
+                titleitem.info_dict.get('tvshowtitle'),
+                titleitem.info_dict.get('season'),
+                titleitem.info_dict.get('episode'),
+                titleitem.info_dict.get('title'))
             titleitem.info_dict['title'] = title
             listing.append(titleitem)
 

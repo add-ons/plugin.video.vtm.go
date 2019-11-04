@@ -6,9 +6,6 @@
 from __future__ import absolute_import, division, print_function, unicode_literals
 
 import unittest
-import warnings
-
-from urllib3.exceptions import InsecureRequestWarning
 
 from resources.lib.kodiwrapper import KodiWrapper
 from resources.lib.modules.player import Player
@@ -33,9 +30,7 @@ class TestVtmGo(unittest.TestCase):
     def setUp(self):
         # Don't warn that we don't close our HTTPS connections, this is on purpose.
         # warnings.simplefilter("ignore", ResourceWarning)
-
-        # Don't warn that we are not verifying the certificates of VTM GO API.
-        warnings.simplefilter("ignore", InsecureRequestWarning)
+        pass
 
     def test_login(self):
         token = self._vtmgoauth.get_token()
