@@ -44,16 +44,13 @@ class TestVtmGo(unittest.TestCase):
     def test_get_config(self):
         config = self._vtmgo.get_config()
         self.assertTrue(config)
-        # print(config)
 
     def test_catalog(self):
         categories = self._vtmgo.get_categories()
         self.assertTrue(categories)
-        # print(categories)
 
         items = self._vtmgo.get_items()
         self.assertTrue(items)
-        # print(items)
 
         # Movies
         movie = next(a for a in items if isinstance(a, Movie) and not a.geoblocked)
@@ -81,17 +78,18 @@ class TestVtmGo(unittest.TestCase):
     def test_recommendations(self):
         recommendations = self._vtmgo.get_recommendations()
         self.assertTrue(recommendations)
-        # print(main)
 
     def test_mylist(self):
         mylist = self._vtmgo.get_swimlane('my-list')
         self.assertIsInstance(mylist, list)
-        # print(mylist)
+
+    def test_continuewatching(self):
+        mylist = self._vtmgo.get_swimlane('continue-watching')
+        self.assertIsInstance(mylist, list)
 
     def test_live(self):
         channel = self._vtmgo.get_live_channel('vtm')
         self.assertTrue(channel)
-        # print(items)
 
         try:
             self._player.play('channels', channel.channel_id)

@@ -46,11 +46,10 @@ class TestRouting(unittest.TestCase):
 
     def test_catalog_menu(self):
         plugin.run([routing.url_for(plugin.show_catalog), '0', ''])
+        plugin.run([routing.url_for(plugin.show_catalog_all), '0', ''])
 
     def test_catalog_category_menu(self):
         plugin.run([routing.url_for(plugin.show_catalog_category, category='films'), '0', ''])
-        plugin.run([routing.url_for(plugin.show_catalog_category, category='kids'), '0', ''])
-        plugin.run([routing.url_for(plugin.show_catalog_category, category='nieuws-actua'), '0', ''])
 
     def test_catalog_channel_menu(self):
         plugin.run([routing.url_for(plugin.show_catalog_channel, channel='vtm'), '0', ''])
@@ -91,8 +90,7 @@ class TestRouting(unittest.TestCase):
     def test_play_epg(self):
         import dateutil
         import datetime
-        timestamp = datetime.datetime.now(dateutil.tz.tzlocal())
-        timestamp = timestamp.replace(hour=6, minute=0, second=0)
+        timestamp = datetime.datetime.now(dateutil.tz.tzlocal()).replace(hour=6, minute=0, second=0)
         plugin.run([routing.url_for(plugin.play_epg_datetime, channel='vtm', timestamp=timestamp.isoformat()), '0', ''])
 
     def test_check_credentials(self):
