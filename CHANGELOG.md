@@ -6,20 +6,29 @@
 
 **Implemented enhancements:**
 
+- Add a per-channel program listing [\#120](https://github.com/michaelarnauts/plugin.video.vtm.go/issues/120)
 - Allow hiding specific items from the main menu [\#97](https://github.com/michaelarnauts/plugin.video.vtm.go/issues/97)
 - Add a per-channel program listing [\#52](https://github.com/michaelarnauts/plugin.video.vtm.go/issues/52)
+- Various fixes [\#126](https://github.com/michaelarnauts/plugin.video.vtm.go/pull/126) ([michaelarnauts](https://github.com/michaelarnauts))
+- Small cleanup [\#125](https://github.com/michaelarnauts/plugin.video.vtm.go/pull/125) ([michaelarnauts](https://github.com/michaelarnauts))
+- Improve test coverage [\#123](https://github.com/michaelarnauts/plugin.video.vtm.go/pull/123) ([michaelarnauts](https://github.com/michaelarnauts))
+- Add Catalog to Channel menu [\#122](https://github.com/michaelarnauts/plugin.video.vtm.go/pull/122) ([michaelarnauts](https://github.com/michaelarnauts))
+- Add studio tags like they are in resource.images.studios.white [\#121](https://github.com/michaelarnauts/plugin.video.vtm.go/pull/121) ([michaelarnauts](https://github.com/michaelarnauts))
 - Add settings to hide menu items [\#115](https://github.com/michaelarnauts/plugin.video.vtm.go/pull/115) ([michaelarnauts](https://github.com/michaelarnauts))
 - Consolidate YouTube, TV Guide and Live TV into one Channels menu [\#114](https://github.com/michaelarnauts/plugin.video.vtm.go/pull/114) ([michaelarnauts](https://github.com/michaelarnauts))
 - Add go to program on context menu of episodes [\#110](https://github.com/michaelarnauts/plugin.video.vtm.go/pull/110) ([michaelarnauts](https://github.com/michaelarnauts))
 
 **Fixed bugs:**
 
+- Availability now comes at the end of plot [\#124](https://github.com/michaelarnauts/plugin.video.vtm.go/issues/124)
+- Missing studio icons [\#118](https://github.com/michaelarnauts/plugin.video.vtm.go/issues/118)
 - Kids mode seems to be ignored in some places [\#107](https://github.com/michaelarnauts/plugin.video.vtm.go/issues/107)
 - Various TV Guide fixes [\#116](https://github.com/michaelarnauts/plugin.video.vtm.go/pull/116) ([michaelarnauts](https://github.com/michaelarnauts))
 - Fix kids mode [\#108](https://github.com/michaelarnauts/plugin.video.vtm.go/pull/108) ([michaelarnauts](https://github.com/michaelarnauts))
 
 **Closed issues:**
 
+- Catalogue and Recommendations are largely the same [\#119](https://github.com/michaelarnauts/plugin.video.vtm.go/issues/119)
 - Something is not right with the new 0.9.1 version [\#106](https://github.com/michaelarnauts/plugin.video.vtm.go/issues/106)
 
 **Merged pull requests:**
