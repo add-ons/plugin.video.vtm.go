@@ -1,8 +1,8 @@
 # Change Log
 
-## [Unreleased](https://github.com/michaelarnauts/plugin.video.vtm.go/tree/HEAD)
+## [v0.9.2](https://github.com/michaelarnauts/plugin.video.vtm.go/tree/v0.9.2) (2019-11-18)
 
-[Full Changelog](https://github.com/michaelarnauts/plugin.video.vtm.go/compare/v0.9.1...HEAD)
+[Full Changelog](https://github.com/michaelarnauts/plugin.video.vtm.go/compare/v0.9.1...v0.9.2)
 
 **Implemented enhancements:**
 
