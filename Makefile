@@ -33,9 +33,12 @@ check-translations:
 	@printf "${blue}>>> Running translation checks$(reset)"
 	@msgcmp resources/language/resource.language.nl_nl/strings.po resources/language/resource.language.en_gb/strings.po
 
-check-addon: clean
+check-addon: clean build
 	@printf "${blue}>>> Running addon checks$(reset)"
-	cd /tmp && kodi-addon-checker $(ADDONDIR) --branch=leia
+	$(eval TMPDIR := $(shell mktemp -d))
+	@unzip ../${zip_name} -d ${TMPDIR}
+	cd ${TMPDIR} && kodi-addon-checker --branch=leia
+	@rm -rf ${TMPDIR}
 
 test: test-unit
 
