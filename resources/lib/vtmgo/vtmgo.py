@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 """ VTM GO API """
-# pylint: disable=missing-function-docstring
 
 from __future__ import absolute_import, division, unicode_literals
 

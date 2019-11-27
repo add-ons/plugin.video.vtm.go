@@ -44,7 +44,7 @@ class Dialog:
         return None
 
     @staticmethod
-    def contextmenu(items):  # pylint: disable=useless-return
+    def contextmenu(items):
         ''' A stub implementation for the xbmcgui Dialog class contextmenu() method '''
         print('\033[37;44;1mCONTEXTMENU:\033[35;49;1m \033[37;1m%s\033[39;0m' % (', '.join(items)))
         return -1

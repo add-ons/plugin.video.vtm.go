@@ -175,7 +175,7 @@ def executeJSONRPC(jsonrpccommand):
     return json.dumps(dict(error=dict(code=-1, message='Not implemented'), id=1, jsonrpc='2.0'))
 
 
-def getCondVisibility(string):  # pylint: disable=unused-argument
+def getCondVisibility(string):
     ''' A reimplementation of the xbmc getCondVisibility() function '''
     if string == 'system.platform.android':
         return False
