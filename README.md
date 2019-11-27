@@ -12,6 +12,8 @@
 
 > Note: You will need to create an account on the [VTM GO website](https://vtm.be/vtmgo). This add-on will also play the advertisements that are added to the streams by VTM GO.
 
+## Features
+
 The following features are supported:
 * Watch live TV (VTM, Q2, Vitaya, CAZ, VTM Kids, VTM Kids Jr & QMusic)
 * Watch on-demand content (movies and series)
