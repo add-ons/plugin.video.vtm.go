@@ -64,7 +64,7 @@ class Player:
 
         # Lookup metadata
         try:
-            if category == 'movies':
+            if category == 'movies' or category == 'oneoffs':
                 info_dict.update({'mediatype': 'movie'})
 
                 # Get details
