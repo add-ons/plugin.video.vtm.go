@@ -109,7 +109,7 @@ class VtmGoStream:
                 cookies=self._session.cookies.get_dict()
             )
 
-        if stream_type == 'movies' or stream_type == 'oneoffs':
+        if stream_type in ['movies', 'oneoffs']:
             # Movie or one-off programs
             return ResolvedStream(
                 program=None,
