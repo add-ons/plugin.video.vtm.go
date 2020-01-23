@@ -21,12 +21,10 @@ class Menu:
 
     def show_mainmenu(self):
         """ Show the main menu """
-        kids = self._kodi.kids_mode()
-
         listing = []
         listing.append(
             TitleItem(title=self._kodi.localize(30001),  # A-Z
-                      path=self._kodi.url_for('show_catalog_all', kids=kids),
+                      path=self._kodi.url_for('show_catalog_all'),
                       art_dict=dict(
                           icon='DefaultMovieTitle.png'
                       ),
@@ -35,7 +33,7 @@ class Menu:
                       )))
         listing.append(
             TitleItem(title=self._kodi.localize(30003),  # Catalogue
-                      path=self._kodi.url_for('show_catalog', kids=kids),
+                      path=self._kodi.url_for('show_catalog'),
                       art_dict=dict(
                           icon='DefaultGenre.png'
                       ),
@@ -44,7 +42,7 @@ class Menu:
                       )))
         listing.append(
             TitleItem(title=self._kodi.localize(30007),  # TV Channels
-                      path=self._kodi.url_for('show_channels', kids=kids),
+                      path=self._kodi.url_for('show_channels'),
                       art_dict=dict(
                           icon='DefaultAddonPVRClient.png'
                       ),
@@ -55,7 +53,7 @@ class Menu:
         if self._kodi.get_setting_as_bool('interface_show_recommendations'):
             listing.append(
                 TitleItem(title=self._kodi.localize(30015),  # Recommendations
-                          path=self._kodi.url_for('show_recommendations', kids=kids),
+                          path=self._kodi.url_for('show_recommendations'),
                           art_dict={
                               'icon': 'DefaultFavourites.png'
                           },
@@ -66,7 +64,7 @@ class Menu:
         if self._kodi.get_setting_as_bool('interface_show_mylist'):
             listing.append(
                 TitleItem(title=self._kodi.localize(30017),  # My List
-                          path=self._kodi.url_for('show_mylist', kids=kids),
+                          path=self._kodi.url_for('show_mylist'),
                           art_dict={
                               'icon': 'DefaultPlaylist.png'
                           },
@@ -77,7 +75,7 @@ class Menu:
         if self._kodi.get_setting_as_bool('interface_show_continuewatching'):
             listing.append(
                 TitleItem(title=self._kodi.localize(30019),  # Continue watching
-                          path=self._kodi.url_for('show_continuewatching', kids=kids),
+                          path=self._kodi.url_for('show_continuewatching'),
                           art_dict={
                               'icon': 'DefaultInProgressShows.png'
                           },
@@ -87,7 +85,7 @@ class Menu:
 
         listing.append(
             TitleItem(title=self._kodi.localize(30009),  # Search
-                      path=self._kodi.url_for('show_search', kids=kids),
+                      path=self._kodi.url_for('show_search'),
                       art_dict=dict(
                           icon='DefaultAddonsSearch.png'
                       ),
@@ -95,16 +93,15 @@ class Menu:
                           plot=self._kodi.localize(30010),
                       )))
 
-        if self._kodi.get_setting_as_bool('interface_show_kids_zone') and not kids:
-            listing.append(
-                TitleItem(title=self._kodi.localize(30011),  # Kids Zone
-                          path=self._kodi.url_for('show_main_menu', kids=True),
-                          art_dict=dict(
-                              icon='DefaultUser.png'
-                          ),
-                          info_dict=dict(
-                              plot=self._kodi.localize(30012),
-                          )))
+        listing.append(
+            TitleItem(title=self._kodi.localize(30011, profile=self._kodi.get_setting('profile_name')),  # Switch Profile
+                      path=self._kodi.url_for('select_profile'),
+                      art_dict=dict(
+                          icon='DefaultUser.png'
+                      ),
+                      info_dict=dict(
+                          plot=self._kodi.localize(30010),
+                      )))
 
         self._kodi.show_listing(listing, sort=['unsorted'])
 
@@ -199,13 +196,13 @@ class Menu:
                 context_menu = [(
                     self._kodi.localize(30101),  # Remove from My List
                     'XBMC.Container.Update(%s)' %
-                    self._kodi.url_for('mylist_del', kids=self._kodi.kids_mode(), video_type=self._vtm_go.CONTENT_TYPE_MOVIE, content_id=item.movie_id)
+                    self._kodi.url_for('mylist_del', video_type=self._vtm_go.CONTENT_TYPE_MOVIE, content_id=item.movie_id)
                 )]
             else:
                 context_menu = [(
                     self._kodi.localize(30100),  # Add to My List
                     'XBMC.Container.Update(%s)' %
-                    self._kodi.url_for('mylist_add', kids=self._kodi.kids_mode(), video_type=self._vtm_go.CONTENT_TYPE_MOVIE, content_id=item.movie_id)
+                    self._kodi.url_for('mylist_add', video_type=self._vtm_go.CONTENT_TYPE_MOVIE, content_id=item.movie_id)
                 )]
 
             art_dict.update({
@@ -240,13 +237,13 @@ class Menu:
                 context_menu = [(
                     self._kodi.localize(30101),  # Remove from My List
                     'XBMC.Container.Update(%s)' %
-                    self._kodi.url_for('mylist_del', kids=self._kodi.kids_mode(), video_type=self._vtm_go.CONTENT_TYPE_PROGRAM, content_id=item.program_id)
+                    self._kodi.url_for('mylist_del', video_type=self._vtm_go.CONTENT_TYPE_PROGRAM, content_id=item.program_id)
                 )]
             else:
                 context_menu = [(
                     self._kodi.localize(30100),  # Add to My List
                     'XBMC.Container.Update(%s)' %
-                    self._kodi.url_for('mylist_add', kids=self._kodi.kids_mode(), video_type=self._vtm_go.CONTENT_TYPE_PROGRAM, content_id=item.program_id)
+                    self._kodi.url_for('mylist_add', video_type=self._vtm_go.CONTENT_TYPE_PROGRAM, content_id=item.program_id)
                 )]
 
             art_dict.update({
@@ -267,11 +264,12 @@ class Menu:
         # Episode
         #
         if isinstance(item, Episode):
-            context_menu = [(
-                self._kodi.localize(30102),  # Go to Program
-                'XBMC.Container.Update(%s)' %
-                self._kodi.url_for('show_catalog_program', program=item.program_id)
-            )]
+            context_menu = None
+            # context_menu = [(
+            #     self._kodi.localize(30102),  # Go to Program
+            #     'XBMC.Container.Update(%s)' %
+            #     self._kodi.url_for('show_catalog_program', program=item.program_id)
+            # )]
 
             art_dict.update({
                 'fanart': item.cover,

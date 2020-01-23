@@ -22,7 +22,8 @@ class Channels:
 
     def show_channels(self):
         """ Shows TV channels """
-        kids = self._kodi.kids_mode()
+        product = self._vtm_go.get_product()
+        kids = (product == 'VTM_GO_KIDS')
 
         # Fetch EPG from API
         channel_infos = self._vtm_go.get_live_channels()

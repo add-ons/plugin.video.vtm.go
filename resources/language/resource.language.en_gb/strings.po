@@ -47,11 +47,11 @@ msgid "Search the VTM GO catalogue"
 msgstr ""
 
 msgctxt "#30011"
-msgid "Kids zone"
+msgid "Switch Profile ({profile})"
 msgstr ""
 
 msgctxt "#30012"
-msgid "Go to the Kids zone"
+msgid "Select a different profile to use"
 msgstr ""
 
 msgctxt "#30013"
@@ -321,14 +321,6 @@ msgstr ""
 
 msgctxt "#30823"
 msgid "Show My List"
-msgstr ""
-
-msgctxt "#30824"
-msgid "Show Kids zone"
-msgstr ""
-
-msgctxt "#30825"
-msgid "Force Kids zone"
 msgstr ""
 
 msgctxt "#30826"

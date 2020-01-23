@@ -48,12 +48,12 @@ msgid "Search the VTM GO catalogue"
 msgstr "Doorzoek de VTM catalogus"
 
 msgctxt "#30011"
-msgid "Kids zone"
-msgstr "Kids zone"
+msgid "Switch Profile ({profile})"
+msgstr "Verwissel profiel ({profile})"
 
 msgctxt "#30012"
-msgid "Go to the Kids zone"
-msgstr "Ga naar de Kids zone"
+msgid "Select a different profile to use"
+msgstr "Selecteer een ander profiel om te gebruiken"
 
 msgctxt "#30013"
 msgid "TV guide"
@@ -322,14 +322,6 @@ msgstr "Toon 'Aanbevelingen' menu"
 msgctxt "#30823"
 msgid "Show My List"
 msgstr "Toon 'Mijn lijst' menu"
-
-msgctxt "#30824"
-msgid "Show Kids zone"
-msgstr "Toon 'Kids zone' menu"
-
-msgctxt "#30825"
-msgid "Force Kids zone"
-msgstr "Forceer kids zone"
 
 msgctxt "#30826"
 msgid "Show Continue watching"

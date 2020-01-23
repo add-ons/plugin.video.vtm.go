@@ -9,7 +9,6 @@
         "interface_show_recommendations": "true",
         "interface_show_mylist": "true",
         "interface_show_continuewatching": "true",
-        "interface_show_kids_zone": "true",
         "metadata_update": "true",
         "show_subtitles": "true",
         "max_bandwidth": "0"

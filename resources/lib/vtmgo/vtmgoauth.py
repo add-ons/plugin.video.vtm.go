@@ -88,12 +88,16 @@ class VtmGoAuth:
 
         # Authenticate with VTM GO and store the token
         self._token = self._login()
-        self._kodi.log('Returning token from vtm go', LOG_DEBUG)
+        self._kodi.log('Returning token from VTM GO', LOG_DEBUG)
 
         with self._kodi.open_file(path, 'w') as f:
             f.write(from_unicode(self._token))
 
         return self._token
+
+    def get_profile(self):
+        """ Return the profile that is currently selected. """
+        return self._kodi.get_setting('profile')
 
     def _login(self):
         """ Executes a login and returns the JSON Web Token.
@@ -141,16 +145,16 @@ class VtmGoAuth:
                 raise LoginErrorException(code=101)  # Could not extract authentication code
 
         # Okay, final stage. We now need to use our authorizationCode to get a valid JWT.
-        response = session.post('https://api.vtmgo.be/authorize', json={
+        response = session.post('https://lfvp-api.dpgmedia.net/authorize', json={
             'authorizationCode': code,
             'authorizationCodeCallbackUrl': 'vtmgo://callback/oidc',
             'clientId': 'vtm-go-android',
         }, headers={
-            'x-app-version': '5',
+            'x-app-version': '8',
             'x-persgroep-mobile-app': 'true',
             'x-persgroep-os': 'android',
             'x-persgroep-os-version': '23',
-            'User-Agent': 'VTMGO/6.5.0 (be.vmma.vtm.zenderapp; build:11019; Android 23) okhttp/3.12.1'
+            'User-Agent': 'VTMGO/6.11.3 (be.vmma.vtm.zenderapp; build:11672; Android 23) okhttp/3.14.2'
         }, proxies=self._proxies)
         tokens = json.loads(response.text)
 

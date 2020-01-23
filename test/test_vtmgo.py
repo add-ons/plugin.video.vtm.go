@@ -40,6 +40,10 @@ class TestVtmGo(unittest.TestCase):
         config = self._vtmgo.get_config()
         self.assertTrue(config)
 
+    def test_get_profiles(self):
+        profiles = self._vtmgo.get_profiles()
+        self.assertTrue(profiles)
+
     def test_catalog(self):
         categories = self._vtmgo.get_categories()
         self.assertTrue(categories)

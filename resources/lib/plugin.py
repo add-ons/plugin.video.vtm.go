@@ -14,6 +14,10 @@ kodi = KodiWrapper(globals())
 @routing.route('/')
 def show_main_menu():
     """ Show the main menu """
+    if kodi.get_setting('profile') is None or kodi.get_setting('product') is None:
+        select_profile()
+        return
+
     from resources.lib.modules.menu import Menu
     Menu(kodi).show_mainmenu()
 
@@ -150,6 +154,13 @@ def check_credentials():
     """ Check credentials (called from settings) """
     from resources.lib.modules.menu import Menu
     Menu(kodi).check_credentials()
+
+
+@routing.route('/select-profile')
+def select_profile():
+    """ Select your profile """
+    from resources.lib.modules.profile import Profile
+    Profile(kodi).select_profile()
 
 
 @routing.route('/metadata/update')
