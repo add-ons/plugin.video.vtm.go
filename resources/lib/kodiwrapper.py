@@ -136,16 +136,12 @@ class KodiWrapper:
         if category:
             if not content:
                 category_label = self._addon_name + ' / '
-            if self.kids_mode():
-                category_label += 'KIDS / '
             if isinstance(category, int):
                 category_label += self.localize(category)
             else:
                 category_label += category
         elif not content:
             category_label = self._addon_name
-            if self.kids_mode():
-                category_label += ' / KIDS'
 
         xbmcplugin.setPluginCategory(handle=self._handle, category=category_label)
 
@@ -548,13 +544,3 @@ class KodiWrapper:
             message = string.Formatter().vformat(message, (), SafeDict(**kwargs))
         message = '[{addon}] {message}'.format(addon=self._addon_id, message=message)
         xbmc.log(msg=from_unicode(message), level=log_level)
-
-    def kids_mode(self):
-        """ Returns if kids zone is active """
-        if self.get_setting_as_bool('interface_force_kids_zone'):
-            return True
-
-        if self.routing and 'True' in self.routing.args.get('kids', []):
-            return True
-
-        return None

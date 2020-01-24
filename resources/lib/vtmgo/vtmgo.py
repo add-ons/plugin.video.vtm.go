@@ -7,7 +7,7 @@ import json
 
 import requests
 
-from resources.lib.kodiwrapper import LOG_DEBUG, KodiWrapper, LOG_INFO  # pylint: disable=unused-import
+from resources.lib.kodiwrapper import LOG_DEBUG, LOG_INFO
 from resources.lib.vtmgo.vtmgoauth import VtmGoAuth
 
 try:  # Python 3
@@ -18,6 +18,27 @@ except ImportError:  # Python 2
 
 class UnavailableException(Exception):
     """ Is thrown when an item is unavailable. """
+
+
+class Profile:
+    """ Defines a profile under your account. """
+
+    def __init__(self, key=None, product=None, name=None, gender=None, birthdate=None):
+        """
+        :type key: str
+        :type product: str
+        :type name: str
+        :type gender: str
+        :type birthdate: str
+        """
+        self.key = key
+        self.product = product
+        self.name = name
+        self.gender = gender
+        self.birthdate = birthdate
+
+    def __repr__(self):
+        return "%r" % self.__dict__
 
 
 class LiveChannel:
@@ -118,7 +139,8 @@ class Movie:
 class Program:
     """ Defines a Program """
 
-    def __init__(self, program_id=None, name=None, description=None, cover=None, image=None, seasons=None, geoblocked=None, channel=None, legal=None, my_list=None):
+    def __init__(self, program_id=None, name=None, description=None, cover=None, image=None, seasons=None, geoblocked=None, channel=None, legal=None,
+                 my_list=None):
         """
         :type program_id: str
         :type name: str
@@ -196,9 +218,12 @@ class Episode:
         self.episode_id = episode_id
         self.program_id = program_id
         self.program_name = program_name
-        self.number = int(number)
-        self.season = int(season)
-        self.name = re.compile('^%d. ' % number).sub('', name)  # Strip episode from name
+        self.number = int(number) if number else None
+        self.season = int(season) if season else None
+        if number:
+            self.name = re.compile('^%d. ' % number).sub('', name)  # Strip episode from name
+        else:
+            self.name = name
         self.description = description if description else ''
         self.cover = cover
         self.duration = int(duration) if duration else None
@@ -221,21 +246,24 @@ class VtmGo:
     CONTENT_TYPE_EPISODE = 'EPISODE'
 
     _HEADERS = {
-        'x-app-version': '5',
+        'x-app-version': '8',
         'x-persgroep-mobile-app': 'true',
         'x-persgroep-os': 'android',
         'x-persgroep-os-version': '23',
-        'User-Agent': 'VTMGO/6.8.2 (be.vmma.vtm.zenderapp; build:11215; Android 23) okhttp/3.14.2'
+        'User-Agent': 'VTMGO/6.11.3 (be.vmma.vtm.zenderapp; build:11672; Android 23) okhttp/3.14.2'
     }
 
     def __init__(self, kodi):
-        self._kodi = kodi  # type: KodiWrapper
+        """ Initialise object
+        :type kodi: resources.lib.kodiwrapper.KodiWrapper
+        """
+        self._kodi = kodi
         self._proxies = kodi.get_proxies()
         self._auth = VtmGoAuth(kodi)
 
     def _mode(self):
         """ Return the mode that should be used for API calls """
-        return 'vtmgo-kids' if self._kodi.kids_mode() else 'vtmgo'
+        return 'vtmgo-kids' if self.get_product() == 'VTM_GO_KIDS' else 'vtmgo'
 
     def get_config(self):
         """ Returns the config for the app """
@@ -245,6 +273,23 @@ class VtmGo:
 
         # This contains a player.updateIntervalSeconds that could be used to notify VTM GO about the playing progress
         return info
+
+    def get_profiles(self, products='VTM_GO,VTM_GO_KIDS'):
+        """ Returns the available profiles """
+        response = self._get_url('/profiles', {'products': products})
+        result = json.loads(response)
+
+        profiles = []
+        for profile in result:
+            profiles.append(Profile(
+                key=profile.get('id'),
+                product=profile.get('product'),
+                name=profile.get('name'),
+                gender=profile.get('gender'),
+                birthdate=profile.get('birthDate'),
+            ))
+
+        return profiles
 
     def get_recommendations(self):
         """ Returns the config for the dashboard """
@@ -339,21 +384,15 @@ class VtmGo:
                     ))
 
             elif item.get('target', {}).get('type') == self.CONTENT_TYPE_EPISODE:
-                # We need to fetch the episode, since the overview is lacking the plot
-                episode = self.get_episode(item.get('target', {}).get('id'))
-                if episode:
-                    plot = episode.description
-                else:
-                    plot = None
+                program = self.get_program(item.get('target', {}).get('programId'), cache=True)
+                episode = self.get_episode_from_program(program, item.get('target', {}).get('id')) if program else None
 
                 items.append(Episode(
                     episode_id=item.get('target', {}).get('id'),
                     program_id=item.get('target', {}).get('programId'),
-                    program_name=item.get('target', {}).get('programName'),
-                    number=item.get('target', {}).get('episodeIndex'),
-                    season=item.get('target', {}).get('seasonIndex'),
-                    name=item.get('title'),
-                    description=plot,
+                    program_name=item.get('title'),
+                    name=item.get('label'),
+                    description=episode.description if episode else None,
                     geoblocked=item.get('geoBlocked'),
                     cover=item.get('imageUrl'),
                     progress=item.get('playerPositionSeconds'),
@@ -435,12 +474,12 @@ class VtmGo:
         else:
             # Fetch from API
             if category is None:
-                response = self._get_url('/%s/catalog?pageSize=%d' % (self._mode(), 1000))
+                response = self._get_url('/%s/catalog' % self._mode(), {'pageSize': 1000})
                 info = json.loads(response)
                 content = info.get('pagedTeasers', {}).get('content', [])
                 self._kodi.set_cache(['catalog'], content)
             else:
-                response = self._get_url('/%s/catalog?pageSize=%d&filter=%s' % (self._mode(), 1000, quote(category)))
+                response = self._get_url('/%s/catalog' % self._mode(), {'pageSize': 1000, 'filter': quote(category)})
                 info = json.loads(response)
                 content = info.get('pagedTeasers', {}).get('content', [])
 
@@ -592,22 +631,15 @@ class VtmGo:
         :type episode_id: str
         :rtype Episode
         """
-        # The following API doesn't seem to be available in API version 6 anymore.
-        response = self._get_url('/%s/episodes/%s' % (self._mode(), episode_id))
-        info = json.loads(response)
+        response = self._get_url('/%s/play/episode/%s' % (self._mode(), episode_id))
+        episode = json.loads(response)
 
-        episode = info.get('episode', {})
+        # TODO: episode.get('nextPlayable') contains information for Up Next
 
         return Episode(
             episode_id=episode.get('id'),
-            program_id=episode.get('programId'),
-            program_name=episode.get('programName'),
-            number=episode.get('index'),
-            season=episode.get('seasonIndex'),
-            name=episode.get('name'),
-            description=episode.get('description'),
-            geoblocked=episode.get('geoBlocked'),
-            cover=episode.get('bigPhotoUrl'),
+            name=episode.get('title'),
+            cover=episode.get('posterImageUrl'),
             progress=episode.get('playerPositionSeconds'),
         )
 
@@ -642,6 +674,10 @@ class VtmGo:
 
         return items
 
+    def get_product(self):
+        """ Return the product that is currently selected. """
+        return self._kodi.get_setting('product')
+
     @staticmethod
     def _parse_channel(url):
         """ Parse the channel logo url, and return an icon that matches resource.images.studios.white
@@ -655,7 +691,7 @@ class VtmGo:
         # The channels id's we use in resources.lib.modules.CHANNELS neatly matches this part in the url.
         return str(os.path.basename(url).split('-')[0])
 
-    def _get_url(self, url):
+    def _get_url(self, url, params=None):
         """ Makes a GET request for the specified URL.
         :type url: str
         :rtype str
@@ -665,9 +701,13 @@ class VtmGo:
         if token:
             headers['x-dpp-jwt'] = token
 
+        profile = self._auth.get_profile()
+        if profile:
+            headers['x-dpp-profile'] = profile
+
         self._kodi.log('Sending GET {url}...', LOG_INFO, url=url)
 
-        response = requests.session().get('https://api.vtmgo.be' + url, headers=headers, proxies=self._proxies)
+        response = requests.session().get('https://lfvp-api.dpgmedia.net' + url, params=params, headers=headers, proxies=self._proxies)
 
         self._kodi.log('Got response (status={code}): {response}', LOG_DEBUG, code=response.status_code, response=response.text)
 
@@ -689,9 +729,41 @@ class VtmGo:
         if token:
             headers['x-dpp-jwt'] = token
 
+        profile = self._auth.get_profile()
+        if profile:
+            headers['x-dpp-profile'] = profile
+
         self._kodi.log('Sending PUT {url}...', LOG_INFO, url=url)
 
         response = requests.session().put('https://api.vtmgo.be' + url, headers=headers, proxies=self._proxies)
+
+        self._kodi.log('Got response: {response}', LOG_DEBUG, response=response.text)
+
+        if response.status_code == 404:
+            raise UnavailableException()
+
+        if response.status_code not in [200, 204]:
+            raise Exception('Error %s.' % response.status_code)
+
+        return response.text
+
+    def _post_url(self, url):
+        """ Makes a POST request for the specified URL.
+        :type url: str
+        :rtype str
+        """
+        headers = self._HEADERS
+        token = self._auth.get_token()
+        if token:
+            headers['x-dpp-jwt'] = token
+
+        profile = self._auth.get_profile()
+        if profile:
+            headers['x-dpp-profile'] = profile
+
+        self._kodi.log('Sending POST {url}...', LOG_INFO, url=url)
+
+        response = requests.session().post('https://api.vtmgo.be' + url, headers=headers, proxies=self._proxies)
 
         self._kodi.log('Got response: {response}', LOG_DEBUG, response=response.text)
 
@@ -712,6 +784,10 @@ class VtmGo:
         token = self._auth.get_token()
         if token:
             headers['x-dpp-jwt'] = token
+
+        profile = self._auth.get_profile()
+        if profile:
+            headers['x-dpp-profile'] = profile
 
         self._kodi.log('Sending DELETE {url}...', LOG_INFO, url=url)
 

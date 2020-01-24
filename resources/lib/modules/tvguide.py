@@ -4,7 +4,6 @@
 from __future__ import absolute_import, division, unicode_literals
 
 from resources.lib.kodiwrapper import TitleItem
-from resources.lib.modules.menu import Menu
 from resources.lib.vtmgo.vtmgo import UnavailableException
 from resources.lib.vtmgo.vtmgoepg import VtmGoEpg
 
@@ -16,11 +15,10 @@ class TvGuide:
 
     def __init__(self, kodi):
         """ Initialise object
-        :type kodi: KodiWrapper
+        :type kodi: resources.lib.kodiwrapper.KodiWrapper
         """
         self._kodi = kodi
         self._vtm_go_epg = VtmGoEpg(self._kodi)
-        self._menu = Menu(self._kodi)
 
     def show_tvguide_channel(self, channel):
         """ Shows the dates in the tv guide

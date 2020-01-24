@@ -117,6 +117,7 @@ def addon_settings():
         print('Using credentials from the environment variables ADDON_USERNAME and ADDON_PASSWORD')
         settings[ADDON_ID]['username'] = os.environ.get('ADDON_USERNAME')
         settings[ADDON_ID]['password'] = os.environ.get('ADDON_PASSWORD')
+        settings[ADDON_ID]['profile'] = os.environ.get('ADDON_PROFILE')
     elif os.path.exists('test/userdata/credentials.json'):
         print('Using credentials from test/userdata/credentials.json')
         with open('test/userdata/credentials.json') as f:

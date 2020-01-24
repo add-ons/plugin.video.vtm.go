@@ -14,7 +14,7 @@ class Catalog:
 
     def __init__(self, kodi):
         """ Initialise object
-        :type kodi: KodiWrapper
+        :type kodi: resources.lib.kodiwrapper.KodiWrapper
         """
         self._kodi = kodi
         self._vtm_go = VtmGo(self._kodi)
@@ -32,7 +32,7 @@ class Catalog:
         for cat in categories:
             listing.append(
                 TitleItem(title=cat.title,
-                          path=self._kodi.url_for('show_catalog_category', kids=self._kodi.kids_mode(), category=cat.category_id),
+                          path=self._kodi.url_for('show_catalog_category', category=cat.category_id),
                           info_dict={
                               'plot': '[B]{category}[/B]'.format(category=cat.title),
                           })
@@ -173,7 +173,7 @@ class Catalog:
         for cat in recommendations:
             listing.append(
                 TitleItem(title=cat.title,
-                          path=self._kodi.url_for('show_recommendations_category', kids=self._kodi.kids_mode(), category=cat.category_id),
+                          path=self._kodi.url_for('show_recommendations_category', category=cat.category_id),
                           info_dict={
                               'plot': '[B]{category}[/B]'.format(category=cat.title),
                           })
@@ -250,10 +250,8 @@ class Catalog:
             titleitem = self._menu.generate_titleitem(item, progress=True)
 
             # Add Program Name to title since this list contains episodes from multiple programs
-            title = '%s - %dx%02d - %s' % (
+            title = '%s - %s' % (
                 titleitem.info_dict.get('tvshowtitle'),
-                titleitem.info_dict.get('season'),
-                titleitem.info_dict.get('episode'),
                 titleitem.info_dict.get('title'))
             titleitem.info_dict['title'] = title
             listing.append(titleitem)

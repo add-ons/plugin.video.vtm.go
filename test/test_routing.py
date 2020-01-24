@@ -33,7 +33,6 @@ class TestRouting(unittest.TestCase):
 
     def test_main_menu(self):
         routing.run([routing.url_for(plugin.show_main_menu), '0', ''])
-        routing.run([routing.url_for(plugin.show_main_menu), '0', '?kids=True'])
 
     def test_channels_menu(self):
         plugin.run([routing.url_for(plugin.show_channels), '0', ''])

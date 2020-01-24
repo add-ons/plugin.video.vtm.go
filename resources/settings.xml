@@ -7,14 +7,15 @@
         <setting label="30803" type="text" id="username"/>
         <setting label="30805" type="text" id="password" option="hidden"/>
         <setting label="30807" type="action" option="close" action="RunPlugin(plugin://plugin.video.vtm.go/check-credentials)" enable="!eq(-2,) + !eq(-1,)" subsetting="true"/>
+        <setting               type="text" id="profile" visible="false"/>
+        <setting               type="text" id="profile_name" visible="false"/>
+        <setting               type="text" id="product" visible="false"/>
     </category>
     <category label="30820"> <!-- Interface -->
         <setting label="30821" type="lsep"/> <!-- Features -->
         <setting label="30822" type="bool" id="interface_show_recommendations" default="true"/>
         <setting label="30823" type="bool" id="interface_show_mylist" default="true"/>
         <setting label="30826" type="bool" id="interface_show_continuewatching" default="false" visible="false"/>
-        <setting label="30824" type="bool" id="interface_show_kids_zone" default="true" enable="eq(1,false)"/>
-        <setting label="30825" type="bool" id="interface_force_kids_zone" default="false"/>
         <setting label="30827" type="lsep"/> <!-- Metadata -->
         <setting label="30829" type="bool" id="metadata_update" default="true" subsetting="true"/>
         <setting label="30831" type="action" option="close" action="RunPlugin(plugin://plugin.video.vtm.go/metadata/update)"/>

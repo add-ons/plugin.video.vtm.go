@@ -1,6 +1,5 @@
 codecov
 git+git://github.com/emilsvennesson/script.module.inputstreamhelper.git@master#egg=inputstreamhelper
-kodi-addon-checker
 polib
 pylint
 python-dateutil
