@@ -6,4 +6,5 @@ pylint
 python-dateutil
 requests
 git+git://github.com/dagwieers/kodi-plugin-routing.git@setup#egg=routing
+setuptools >= 41
 tox-travis
