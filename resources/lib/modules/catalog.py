@@ -14,7 +14,7 @@ class Catalog:
 
     def __init__(self, kodi):
         """ Initialise object
-        :type kodi: KodiWrapper
+        :type kodi: resources.lib.kodiwrapper.KodiWrapper
         """
         self._kodi = kodi
         self._vtm_go = VtmGo(self._kodi)

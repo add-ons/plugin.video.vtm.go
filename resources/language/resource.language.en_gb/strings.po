@@ -47,7 +47,7 @@ msgid "Search the VTM GO catalogue"
 msgstr ""
 
 msgctxt "#30011"
-msgid "Switch Profile ({profile})"
+msgid "Switch Profile ([B]{profile}[/B])"
 msgstr ""
 
 msgctxt "#30012"

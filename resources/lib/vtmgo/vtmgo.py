@@ -7,7 +7,7 @@ import json
 
 import requests
 
-from resources.lib.kodiwrapper import LOG_DEBUG, KodiWrapper, LOG_INFO  # pylint: disable=unused-import
+from resources.lib.kodiwrapper import LOG_DEBUG, LOG_INFO
 from resources.lib.vtmgo.vtmgoauth import VtmGoAuth
 
 try:  # Python 3
@@ -254,7 +254,10 @@ class VtmGo:
     }
 
     def __init__(self, kodi):
-        self._kodi = kodi  # type: KodiWrapper
+        """ Initialise object
+        :type kodi: resources.lib.kodiwrapper.KodiWrapper
+        """
+        self._kodi = kodi
         self._proxies = kodi.get_proxies()
         self._auth = VtmGoAuth(kodi)
 
@@ -381,13 +384,15 @@ class VtmGo:
                     ))
 
             elif item.get('target', {}).get('type') == self.CONTENT_TYPE_EPISODE:
-                # TODO: We need to fetch the episode, since the overview is lacking the plot
+                program = self.get_program(item.get('target', {}).get('programId'), cache=True)
+                episode = self.get_episode_from_program(program, item.get('target', {}).get('id')) if program else None
 
                 items.append(Episode(
                     episode_id=item.get('target', {}).get('id'),
+                    program_id=item.get('target', {}).get('programId'),
                     program_name=item.get('title'),
                     name=item.get('label'),
-                    # description=plot,
+                    description=episode.description if episode else None,
                     geoblocked=item.get('geoBlocked'),
                     cover=item.get('imageUrl'),
                     progress=item.get('playerPositionSeconds'),

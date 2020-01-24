@@ -14,7 +14,7 @@ class Menu:
 
     def __init__(self, kodi):
         """ Initialise object
-        :type kodi: KodiWrapper
+        :type kodi: resources.lib.kodiwrapper.KodiWrapper
         """
         self._kodi = kodi
         self._vtm_go = VtmGo(self._kodi)
@@ -264,12 +264,13 @@ class Menu:
         # Episode
         #
         if isinstance(item, Episode):
-            context_menu = None
-            # context_menu = [(
-            #     self._kodi.localize(30102),  # Go to Program
-            #     'XBMC.Container.Update(%s)' %
-            #     self._kodi.url_for('show_catalog_program', program=item.program_id)
-            # )]
+            context_menu = []
+            if item.program_id:
+                context_menu = [(
+                    self._kodi.localize(30102),  # Go to Program
+                    'XBMC.Container.Update(%s)' %
+                    self._kodi.url_for('show_catalog_program', program=item.program_id)
+                )]
 
             art_dict.update({
                 'fanart': item.cover,

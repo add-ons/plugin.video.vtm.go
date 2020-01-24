@@ -9,7 +9,7 @@ import random
 
 import requests
 
-from resources.lib.kodiwrapper import LOG_DEBUG, KodiWrapper, from_unicode, LOG_INFO  # pylint: disable=unused-import
+from resources.lib.kodiwrapper import LOG_DEBUG, from_unicode, LOG_INFO
 
 
 class InvalidLoginException(Exception):
@@ -28,7 +28,10 @@ class VtmGoAuth:
     """ VTM GO Authentication API """
 
     def __init__(self, kodi):
-        self._kodi = kodi  # type: KodiWrapper
+        """ Initialise object
+        :type kodi: resources.lib.kodiwrapper.KodiWrapper
+        """
+        self._kodi = kodi
         self._proxies = kodi.get_proxies()
 
         self._token = None

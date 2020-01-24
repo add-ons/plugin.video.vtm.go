@@ -10,7 +10,9 @@ class Profile:
     """ Code responsible for the refreshing of the metadata """
 
     def __init__(self, kodi):
-        """ Initialise object """
+        """ Initialise object
+        :type kodi: resources.lib.kodiwrapper.KodiWrapper
+        """
         self._kodi = kodi
         self._vtm_go = VtmGo(self._kodi)
 

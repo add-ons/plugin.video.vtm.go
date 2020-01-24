@@ -10,7 +10,7 @@ import dateutil.parser
 import dateutil.tz
 import requests
 
-from resources.lib.kodiwrapper import LOG_DEBUG, KodiWrapper, LOG_ERROR, LOG_INFO  # pylint: disable=unused-import
+from resources.lib.kodiwrapper import LOG_DEBUG, LOG_ERROR, LOG_INFO
 from resources.lib.vtmgo.vtmgo import UnavailableException
 
 
@@ -79,7 +79,10 @@ class VtmGoEpg:
     DETAILS_URL = 'https://vtm.be/tv-gids/{channel}/uitzending/{type}/{uuid}'
 
     def __init__(self, kodi):
-        self._kodi = kodi  # type: KodiWrapper
+        """ Initialise object
+        :type kodi: resources.lib.kodiwrapper.KodiWrapper
+        """
+        self._kodi = kodi
 
         self._session = requests.session()
         self._session.cookies.set('pws', 'functional|analytics|content_recommendation|targeted_advertising|social_media')

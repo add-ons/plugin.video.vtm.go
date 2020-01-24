@@ -9,7 +9,7 @@ from datetime import timedelta
 
 import requests
 
-from resources.lib.kodiwrapper import from_unicode, LOG_DEBUG, LOG_ERROR, KodiWrapper  # pylint: disable=unused-import
+from resources.lib.kodiwrapper import from_unicode, LOG_DEBUG, LOG_ERROR
 
 
 class StreamGeoblockedException(Exception):
@@ -53,7 +53,10 @@ class VtmGoStream:
     _ANVATO_USER_AGENT = 'ANVSDK Android/5.0.39 (Linux; Android 6.0.1; Nexus 5)'
 
     def __init__(self, kodi):
-        self._kodi = kodi  # type: KodiWrapper
+        """ Initialise object
+        :type kodi: resources.lib.kodiwrapper.KodiWrapper
+        """
+        self._kodi = kodi
 
         self._session = requests.session()
 
@@ -445,7 +448,7 @@ class VtmGoStream:
         :type key_url: str
         :type key_type: str
         :type key_headers: dict[str, str]
-        :type key_value: dict[str, str]
+        :type key_value: str
         :rtype str
         """
         try:  # Python 3
