@@ -23,19 +23,23 @@ class UnavailableException(Exception):
 class Profile:
     """ Defines a profile under your account. """
 
-    def __init__(self, key=None, product=None, name=None, gender=None, birthdate=None):
+    def __init__(self, key=None, product=None, name=None, gender=None, birthdate=None, color=None, color2=None):
         """
         :type key: str
         :type product: str
         :type name: str
         :type gender: str
         :type birthdate: str
+        :type color: str
+        :type color2: str
         """
         self.key = key
         self.product = product
         self.name = name
         self.gender = gender
         self.birthdate = birthdate
+        self.color = color
+        self.color2 = color2
 
     def __repr__(self):
         return "%r" % self.__dict__
@@ -279,15 +283,18 @@ class VtmGo:
         response = self._get_url('/profiles', {'products': products})
         result = json.loads(response)
 
-        profiles = []
-        for profile in result:
-            profiles.append(Profile(
+        profiles = [
+            Profile(
                 key=profile.get('id'),
                 product=profile.get('product'),
                 name=profile.get('name'),
                 gender=profile.get('gender'),
                 birthdate=profile.get('birthDate'),
-            ))
+                color=profile.get('color', {}).get('start'),
+                color2=profile.get('color', {}).get('end'),
+            )
+            for profile in result
+        ]
 
         return profiles
 
@@ -676,7 +683,11 @@ class VtmGo:
 
     def get_product(self):
         """ Return the product that is currently selected. """
-        return self._kodi.get_setting('product')
+        profile = self._kodi.get_setting('profile')
+        try:
+            return profile.split(':')[1]
+        except IndexError:
+            return None
 
     @staticmethod
     def _parse_channel(url):

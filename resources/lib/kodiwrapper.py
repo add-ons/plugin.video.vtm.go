@@ -6,8 +6,8 @@ from __future__ import absolute_import, division, unicode_literals
 from contextlib import contextmanager
 
 import xbmc
+import xbmcaddon
 import xbmcplugin
-from xbmcaddon import Addon
 
 SORT_METHODS = dict(
     unsorted=xbmcplugin.SORT_METHOD_UNSORTED,
@@ -28,6 +28,7 @@ LOG_WARNING = xbmc.LOGWARNING
 LOG_ERROR = xbmc.LOGERROR
 LOG_FATAL = xbmc.LOGFATAL
 
+ADDON = xbmcaddon.Addon()
 
 def to_unicode(text, encoding='utf-8'):
     """ Force text to unicode """
@@ -108,10 +109,8 @@ class KodiWrapper:
             self.routing = None
             self._handle = None
             self._url = None
-        self._addon = Addon()
-        self._system_locale_works = None
-        self._addon_name = self._addon.getAddonInfo('name')
-        self._addon_id = self._addon.getAddonInfo('id')
+        self._addon_name = ADDON.getAddonInfo('name')
+        self._addon_id = ADDON.getAddonInfo('id')
         self._global_debug_logging = self.get_global_setting('debug.showloginfo')  # Returns a boolean
         self._debug_logging = self.get_setting_as_bool('debug_logging')
         self._cache_path = self.get_userdata_path() + 'cache/'
@@ -247,41 +246,46 @@ class KodiWrapper:
         from xbmcgui import Dialog
         return Dialog().contextmenu(items)
 
-    def show_ok_dialog(self, heading='', message=''):
+    @staticmethod
+    def show_ok_dialog(heading='', message=''):
         """ Show Kodi's OK dialog """
         from xbmcgui import Dialog
         if not heading:
-            heading = self._addon.getAddonInfo('name')
+            heading = ADDON.getAddonInfo('name')
         return Dialog().ok(heading=heading, line1=message)
 
-    def show_notification(self, heading='', message='', icon='info', time=8000):
+    @staticmethod
+    def show_notification(heading='', message='', icon='info', time=8000):
         """ Show a Kodi notification """
         from xbmcgui import Dialog
         if not heading:
-            heading = self._addon.getAddonInfo('name')
+            heading = ADDON.getAddonInfo('name')
         Dialog().notification(heading=heading, message=message, icon=icon, time=time)
 
-    def show_multiselect(self, heading='', options=None, autoclose=0, preselect=None, use_details=False):
+    @staticmethod
+    def show_multiselect(heading='', options=None, autoclose=0, preselect=None, use_details=False):
         """ Show a Kodi multi-select dialog """
         from xbmcgui import Dialog
         if not heading:
-            heading = self._addon.getAddonInfo('name')
+            heading = ADDON.getAddonInfo('name')
         return Dialog().multiselect(heading=heading, options=options, autoclose=autoclose, preselect=preselect, useDetails=use_details)
 
-    def show_progress(self, heading='', message=''):
+    @staticmethod
+    def show_progress(heading='', message=''):
         """ Show a Kodi progress dialog """
         from xbmcgui import DialogProgress
         if not heading:
-            heading = self._addon.getAddonInfo('name')
+            heading = ADDON.getAddonInfo('name')
         progress = DialogProgress()
         progress.create(heading=heading, line1=message)
         return progress
 
-    def show_progress_background(self, heading='', message=''):
+    @staticmethod
+    def show_progress_background(heading='', message=''):
         """ Show a Kodi progress dialog """
         from xbmcgui import DialogProgressBG
         if not heading:
-            heading = self._addon.getAddonInfo('name')
+            heading = ADDON.getAddonInfo('name')
         progress = DialogProgressBG()
         progress.create(heading=heading, message=message)
         return progress
@@ -300,32 +304,37 @@ class KodiWrapper:
             self.log("Your system does not support locale '{locale}': {error}", LOG_DEBUG, locale=locale_lang, error=exc)
             return False
 
-    def localize(self, string_id, **kwargs):
+    @staticmethod
+    def localize(string_id, **kwargs):
         """ Return the translated string from the .po language files, optionally translating variables """
         if kwargs:
             import string
-            return string.Formatter().vformat(self._addon.getLocalizedString(string_id), (), SafeDict(**kwargs))
+            return string.Formatter().vformat(ADDON.getLocalizedString(string_id), (), SafeDict(**kwargs))
 
-        return self._addon.getLocalizedString(string_id)
+        return ADDON.getLocalizedString(string_id)
 
-    def get_setting(self, setting_id, default=None):
+    @staticmethod
+    def get_setting(setting_id, default=None):
         """ Get an add-on setting """
-        value = to_unicode(self._addon.getSetting(setting_id))
+        value = to_unicode(ADDON.getSetting(setting_id))
         if value == '' and default is not None:
             return default
         return value
 
-    def get_setting_as_bool(self, setting):
+    @classmethod
+    def get_setting_as_bool(cls, setting):
         """ Get an add-on setting as a boolean value """
-        return self.get_setting(setting).lower() == "true"
+        return cls.get_setting(setting).lower() == "true"
 
-    def set_setting(self, setting_id, setting_value):
+    @staticmethod
+    def set_setting(setting_id, setting_value):
         """ Set an add-on setting """
-        return self._addon.setSetting(setting_id, setting_value)
+        return ADDON.setSetting(setting_id, setting_value)
 
-    def open_settings(self):
+    @staticmethod
+    def open_settings():
         """ Open the add-in settings window """
-        self._addon.openSettings()
+        ADDON.openSettings()
 
     @staticmethod
     def get_global_setting(setting):
@@ -465,17 +474,20 @@ class KodiWrapper:
         """ Whether this Kodi version supports DRM decryption using InputStream Adaptive """
         return self.kodi_version() > 17
 
-    def get_userdata_path(self):
+    @staticmethod
+    def get_userdata_path():
         """ Return the profile's userdata path """
-        return to_unicode(xbmc.translatePath(self._addon.getAddonInfo('profile')))
+        return to_unicode(xbmc.translatePath(ADDON.getAddonInfo('profile')))
 
-    def get_addon_path(self):
+    @staticmethod
+    def get_addon_path():
         """ Return the profile's addon path """
-        return to_unicode(xbmc.translatePath(self._addon.getAddonInfo('path')))
+        return to_unicode(xbmc.translatePath(ADDON.getAddonInfo('path')))
 
-    def get_addon_info(self, key):
+    @staticmethod
+    def get_addon_info(key):
         """ Return addon information """
-        return self._addon.getAddonInfo(key)
+        return ADDON.getAddonInfo(key)
 
     @staticmethod
     def listdir(path):
@@ -544,3 +556,7 @@ class KodiWrapper:
             message = string.Formatter().vformat(message, (), SafeDict(**kwargs))
         message = '[{addon}] {message}'.format(addon=self._addon_id, message=message)
         xbmc.log(msg=from_unicode(message), level=log_level)
+
+    def has_credentials(self):
+        """ Whether the add-on has credentials filled in """
+        return bool(self.get_setting('username') and self.get_setting('password'))

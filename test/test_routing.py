@@ -87,9 +87,6 @@ class TestRouting(unittest.TestCase):
         timestamp = datetime.datetime.now(dateutil.tz.tzlocal()).replace(hour=6, minute=0, second=0)
         plugin.run([routing.url_for(plugin.play_epg_datetime, channel='vtm', timestamp=timestamp.isoformat()), '0', ''])
 
-    def test_check_credentials(self):
-        plugin.run([routing.url_for(plugin.check_credentials), '0', ''])
-
     def test_metadata_update(self):
         routing.run([routing.url_for(plugin.metadata_clean), '0', ''])
         routing.run([routing.url_for(plugin.metadata_update), '0', ''])

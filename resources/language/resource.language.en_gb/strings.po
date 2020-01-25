@@ -112,6 +112,10 @@ msgctxt "#30056"
 msgid "Browse the Catalog for [B]{channel}[/B]"
 msgstr ""
 
+msgctxt "#30057"
+msgid "Select Profile"
+msgstr ""
+
 
 ### CONTEXT MENU
 
@@ -292,7 +296,7 @@ msgid "Credentials"
 msgstr ""
 
 msgctxt "#30801"
-msgid "VTM GO login"
+msgid "VTM GO credentials"
 msgstr ""
 
 msgctxt "#30803"
@@ -303,8 +307,16 @@ msgctxt "#30805"
 msgid "Password"
 msgstr ""
 
-msgctxt "#30807"
-msgid "Check your credentials"
+msgctxt "#30809"
+msgid "Profile"
+msgstr ""
+
+msgctxt "#30810"
+msgid "Always use the current profile"
+msgstr ""
+
+msgctxt "#30811"
+msgid "Current profile"
 msgstr ""
 
 msgctxt "#30820"

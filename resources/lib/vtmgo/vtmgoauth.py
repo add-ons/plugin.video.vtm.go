@@ -38,19 +38,14 @@ class VtmGoAuth:
         # self._name = None
         # self._accountId = None
 
-        self.username = self._kodi.get_setting('username')
-        self.password = self._kodi.get_setting('password')
 
-        if self._credentials_changed():
-            self._kodi.log('Clearing auth tokens due to changed credentials', LOG_INFO)
-            self.clear_token()
 
-    def _credentials_changed(self):
+    def has_credentials_changed(self):
         """ Check if credentials have changed """
         old_hash = self._kodi.get_setting('credentials_hash')
         new_hash = ''
-        if self.username or self.password:
-            new_hash = hashlib.md5((self.username + self.password).encode('utf-8')).hexdigest()
+        if self._kodi.get_setting('username') or self._kodi.get_setting('password'):
+            new_hash = hashlib.md5((self._kodi.get_setting('username') + self._kodi.get_setting('password')).encode('utf-8')).hexdigest()
         if new_hash != old_hash:
             self._kodi.set_setting('credentials_hash', new_hash)
             return True
@@ -63,13 +58,14 @@ class VtmGoAuth:
         path = self._kodi.get_userdata_path() + 'token.json'
         if self._kodi.check_if_path_exists(path):
             self._kodi.delete_file(path)
+        self._kodi.set_setting('profile', None)
 
     def get_token(self):
         """ Return a JWT that can be used to authenticate the user.
         :rtype str
         """
         # Don't return a token when we have no password or username.
-        if not self.username or not self.password:
+        if not self._kodi.get_setting('username') or not self._kodi.get_setting('password'):
             self._kodi.log('Skipping since we have no username or password', LOG_INFO)
             return None
 
@@ -100,7 +96,11 @@ class VtmGoAuth:
 
     def get_profile(self):
         """ Return the profile that is currently selected. """
-        return self._kodi.get_setting('profile')
+        profile = self._kodi.get_setting('profile')
+        try:
+            return profile.split(':')[0]
+        except IndexError:
+            return None
 
     def _login(self):
         """ Executes a login and returns the JSON Web Token.
@@ -124,8 +124,8 @@ class VtmGoAuth:
         # Now, send the login details. We will be redirected to vtmgo:// when we succeed. We then can extract an authorizationCode that we need to continue.
         try:
             response = session.post('https://login2.vtm.be/login/emailfirst/password?client_id=vtm-go-android', data={
-                'userName': self.username,
-                'password': self.password,
+                'userName': self._kodi.get_setting('username'),
+                'password': self._kodi.get_setting('password'),
                 'jsEnabled': 'true',
             }, proxies=self._proxies)
 
