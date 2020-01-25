@@ -12,14 +12,32 @@ kodi = KodiWrapper(globals())
 
 
 @routing.route('/')
+def index():
+    """ Show the profile selection, or go to the main menu. """
+    if not kodi.has_credentials() or (kodi.get_setting_as_bool('auto_login') and bool(kodi.get_setting('profile'))):
+        # If we have no credentials, or we have autologin and a profile, go directly to the main menu
+        show_main_menu()
+    else:
+
+        kodi.log('show profile')
+
+        # Ask the user for the profile to use
+        select_profile()
+
+
+@routing.route('/menu')
 def show_main_menu():
     """ Show the main menu """
-    if kodi.get_setting('profile') is None or kodi.get_setting('product') is None:
-        select_profile()
-        return
-
     from resources.lib.modules.menu import Menu
     Menu(kodi).show_mainmenu()
+
+
+@routing.route('/select-profile')
+@routing.route('/select-profile/<key>')
+def select_profile(key=None):
+    """ Select your profile """
+    from resources.lib.modules.authentication import Authentication
+    Authentication(kodi).select_profile(key)
 
 
 @routing.route('/channels')
@@ -147,20 +165,6 @@ def show_search(query=None):
     """ Shows the search dialog """
     from resources.lib.modules.search import Search
     Search(kodi).show_search(query)
-
-
-@routing.route('/check-credentials')
-def check_credentials():
-    """ Check credentials (called from settings) """
-    from resources.lib.modules.menu import Menu
-    Menu(kodi).check_credentials()
-
-
-@routing.route('/select-profile')
-def select_profile():
-    """ Select your profile """
-    from resources.lib.modules.profile import Profile
-    Profile(kodi).select_profile()
 
 
 @routing.route('/metadata/update')

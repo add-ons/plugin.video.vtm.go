@@ -113,6 +113,10 @@ msgctxt "#30056"
 msgid "Browse the Catalog for [B]{channel}[/B]"
 msgstr "Doorblader de catalogus voor [B]{channel}[/B]"
 
+msgctxt "#30057"
+msgid "Select Profile"
+msgstr "Selecteer profiel"
+
 
 ### CONTEXT MENU
 
@@ -242,6 +246,10 @@ msgctxt "#30702"
 msgid "Unknown error while logging in: {code}"
 msgstr "Onbekende fout bij het inloggen: {code}"
 
+msgctxt "#30703"
+msgid "Your account has no profiles defined. Please login on vtm.be/vtmgo and create a profile."
+msgstr "Je account heeft geen profielen. Gelieve in te loggen op vtm.be/vtmgo en een profiel aan te maken."
+
 msgctxt "#30704"
 msgid "This video may be geo-blocked, or your account is already being used currently."
 msgstr "Deze video werd wellicht geografisch geblokkeerd, of je account is reeds in gebruik."
@@ -292,8 +300,8 @@ msgid "Credentials"
 msgstr "Inloggegevens"
 
 msgctxt "#30801"
-msgid "VTM GO login"
-msgstr "VTM GO login"
+msgid "VTM GO credentials"
+msgstr "VTM GO inloggegevens"
 
 msgctxt "#30803"
 msgid "Email address"
@@ -303,9 +311,17 @@ msgctxt "#30805"
 msgid "Password"
 msgstr "Wachtwoord"
 
-msgctxt "#30807"
-msgid "Check your credentials"
-msgstr "Controleer je logingegevens"
+msgctxt "#30809"
+msgid "Profile"
+msgstr "Profile"
+
+msgctxt "#30810"
+msgid "Always use the current profile"
+msgstr "Altijd het huidige profiel gebruiken"
+
+msgctxt "#30811"
+msgid "Current profile"
+msgstr "Huidig profiel"
 
 msgctxt "#30820"
 msgid "Interface"

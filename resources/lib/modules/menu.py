@@ -6,7 +6,6 @@ from __future__ import absolute_import, division, unicode_literals
 from resources.lib.kodiwrapper import TitleItem
 from resources.lib.modules import CHANNELS
 from resources.lib.vtmgo.vtmgo import Movie, Program, Episode, VtmGo
-from resources.lib.vtmgo.vtmgoauth import InvalidLoginException, LoginErrorException
 
 
 class Menu:
@@ -26,7 +25,8 @@ class Menu:
             TitleItem(title=self._kodi.localize(30001),  # A-Z
                       path=self._kodi.url_for('show_catalog_all'),
                       art_dict=dict(
-                          icon='DefaultMovieTitle.png'
+                          icon='DefaultMovieTitle.png',
+                          fanart=self._kodi.get_addon_info('fanart'),
                       ),
                       info_dict=dict(
                           plot=self._kodi.localize(30002),
@@ -35,7 +35,8 @@ class Menu:
             TitleItem(title=self._kodi.localize(30003),  # Catalogue
                       path=self._kodi.url_for('show_catalog'),
                       art_dict=dict(
-                          icon='DefaultGenre.png'
+                          icon='DefaultGenre.png',
+                          fanart=self._kodi.get_addon_info('fanart'),
                       ),
                       info_dict=dict(
                           plot=self._kodi.localize(30004),
@@ -44,7 +45,8 @@ class Menu:
             TitleItem(title=self._kodi.localize(30007),  # TV Channels
                       path=self._kodi.url_for('show_channels'),
                       art_dict=dict(
-                          icon='DefaultAddonPVRClient.png'
+                          icon='DefaultAddonPVRClient.png',
+                          fanart=self._kodi.get_addon_info('fanart'),
                       ),
                       info_dict=dict(
                           plot=self._kodi.localize(30008),
@@ -54,73 +56,50 @@ class Menu:
             listing.append(
                 TitleItem(title=self._kodi.localize(30015),  # Recommendations
                           path=self._kodi.url_for('show_recommendations'),
-                          art_dict={
-                              'icon': 'DefaultFavourites.png'
-                          },
-                          info_dict={
-                              'plot': self._kodi.localize(30016),
-                          }))
+                          art_dict=dict(
+                              icon='DefaultFavourites.png',
+                              fanart=self._kodi.get_addon_info('fanart'),
+                          ),
+                          info_dict=dict(
+                              plot=self._kodi.localize(30016),
+                          )))
 
-        if self._kodi.get_setting_as_bool('interface_show_mylist'):
+        if self._kodi.get_setting_as_bool('interface_show_mylist') and self._kodi.has_credentials():
             listing.append(
                 TitleItem(title=self._kodi.localize(30017),  # My List
                           path=self._kodi.url_for('show_mylist'),
-                          art_dict={
-                              'icon': 'DefaultPlaylist.png'
-                          },
+                          art_dict=dict(
+                              icon='DefaultPlaylist.png',
+                              fanart=self._kodi.get_addon_info('fanart'),
+                          ),
                           info_dict={
                               'plot': self._kodi.localize(30018),
                           }))
 
-        if self._kodi.get_setting_as_bool('interface_show_continuewatching'):
+        if self._kodi.get_setting_as_bool('interface_show_continuewatching') and self._kodi.has_credentials():
             listing.append(
                 TitleItem(title=self._kodi.localize(30019),  # Continue watching
                           path=self._kodi.url_for('show_continuewatching'),
-                          art_dict={
-                              'icon': 'DefaultInProgressShows.png'
-                          },
-                          info_dict={
-                              'plot': self._kodi.localize(30020),
-                          }))
+                          art_dict=dict(
+                              icon='DefaultInProgressShows.png',
+                              fanart=self._kodi.get_addon_info('fanart'),
+                          ),
+                          info_dict=dict(
+                              plot=self._kodi.localize(30020),
+                          )))
 
         listing.append(
             TitleItem(title=self._kodi.localize(30009),  # Search
                       path=self._kodi.url_for('show_search'),
                       art_dict=dict(
-                          icon='DefaultAddonsSearch.png'
-                      ),
-                      info_dict=dict(
-                          plot=self._kodi.localize(30010),
-                      )))
-
-        listing.append(
-            TitleItem(title=self._kodi.localize(30011, profile=self._kodi.get_setting('profile_name')),  # Switch Profile
-                      path=self._kodi.url_for('select_profile'),
-                      art_dict=dict(
-                          icon='DefaultUser.png'
+                          icon='DefaultAddonsSearch.png',
+                          fanart=self._kodi.get_addon_info('fanart'),
                       ),
                       info_dict=dict(
                           plot=self._kodi.localize(30010),
                       )))
 
         self._kodi.show_listing(listing, sort=['unsorted'])
-
-    def check_credentials(self):
-        """ Check credentials (called from settings) """
-        try:
-            from resources.lib.vtmgo.vtmgoauth import VtmGoAuth
-            auth = VtmGoAuth(self._kodi)
-            auth.clear_token()
-            auth.get_token()
-            self._kodi.show_ok_dialog(message=self._kodi.localize(30202))  # Credentials are correct!
-
-        except InvalidLoginException:
-            self._kodi.show_ok_dialog(message=self._kodi.localize(30203))  # Your credentials are not valid!
-
-        except LoginErrorException as e:
-            self._kodi.show_ok_dialog(message=self._kodi.localize(30702, code=e.code))  # Unknown error while logging in: {code}
-
-        self._kodi.open_settings()
 
     def format_plot(self, obj):
         """ Format the plot for a item

@@ -6,8 +6,10 @@ from __future__ import absolute_import, division, unicode_literals
 from time import time
 
 from xbmc import Monitor
+
 from resources.lib.kodiwrapper import KodiWrapper, LOG_INFO
 from resources.lib.vtmgo.vtmgo import VtmGo
+from resources.lib.vtmgo.vtmgoauth import VtmGoAuth
 
 
 class BackgroundService(Monitor):
@@ -17,6 +19,7 @@ class BackgroundService(Monitor):
         Monitor.__init__(self)
         self.kodi = KodiWrapper()
         self.vtm_go = VtmGo(self.kodi)
+        self.vtm_go_auth = VtmGoAuth(self.kodi)
         self.update_interval = 24 * 3600  # Every 24 hours
         self.cache_expiry = 30 * 24 * 3600  # One month
 
@@ -39,6 +42,13 @@ class BackgroundService(Monitor):
         """ Callback when a setting has changed """
         # Refresh our VtmGo instance
         self.vtm_go = VtmGo(self.kodi)
+
+        if self.vtm_go_auth.has_credentials_changed():
+            self.kodi.log('Clearing auth tokens due to changed credentials', LOG_INFO)
+            self.vtm_go_auth.clear_token()
+
+            # Refresh container
+            self.kodi.container_refresh()
 
     def _update_metadata(self):
         """ Update the metadata for the listings. """

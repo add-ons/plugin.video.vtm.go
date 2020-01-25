@@ -6,10 +6,10 @@
         <setting label="30801" type="lsep"/> <!-- VTM GO login -->
         <setting label="30803" type="text" id="username"/>
         <setting label="30805" type="text" id="password" option="hidden"/>
-        <setting label="30807" type="action" option="close" action="RunPlugin(plugin://plugin.video.vtm.go/check-credentials)" enable="!eq(-2,) + !eq(-1,)" subsetting="true"/>
-        <setting               type="text" id="profile" visible="false"/>
-        <setting               type="text" id="profile_name" visible="false"/>
-        <setting               type="text" id="product" visible="false"/>
+        <setting label="30809" type="lsep"/> <!-- Profile -->
+        <setting label="30810" type="bool" id="auto_login" default="false" enable="!eq(-3,) + !eq(-2,)"/>
+        <setting type="text" id="profile" visible="false"/>
+        <setting label="30811" type="text" id="profile_name" enable="false" visible="!eq(-1,)" />
     </category>
     <category label="30820"> <!-- Interface -->
         <setting label="30821" type="lsep"/> <!-- Features -->
