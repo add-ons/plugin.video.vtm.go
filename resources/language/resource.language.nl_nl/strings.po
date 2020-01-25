@@ -246,6 +246,10 @@ msgctxt "#30702"
 msgid "Unknown error while logging in: {code}"
 msgstr "Onbekende fout bij het inloggen: {code}"
 
+msgctxt "#30703"
+msgid "Your account has no profiles defined. Please login on vtm.be/vtmgo and create a profile."
+msgstr "Je account heeft geen profielen. Gelieve in te loggen op vtm.be/vtmgo en een profiel aan te maken."
+
 msgctxt "#30704"
 msgid "This video may be geo-blocked, or your account is already being used currently."
 msgstr "Deze video werd wellicht geografisch geblokkeerd, of je account is reeds in gebruik."

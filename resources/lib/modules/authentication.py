@@ -36,6 +36,8 @@ class Authentication:
 
         # Show warning when you have no profiles
         if len(profiles) == 0:
+            self._kodi.show_ok_dialog(message=self._kodi.localize(30703))  # Your account has no profiles defined. Please login on vtm.be/vtmgo and create a Profile.
+            self._kodi.end_of_directory()
             return
 
         # Select the first profile when you only have one
