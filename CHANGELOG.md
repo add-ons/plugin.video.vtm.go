@@ -1,4 +1,22 @@
-# Change Log
+# Changelog
+
+## [v0.9.3](https://github.com/michaelarnauts/plugin.video.vtm.go/tree/v0.9.3) (2020-01-26)
+
+[Full Changelog](https://github.com/michaelarnauts/plugin.video.vtm.go/compare/v0.9.2...v0.9.3)
+
+**Implemented enhancements:**
+
+- Profile improvements/issues braindump [\#133](https://github.com/michaelarnauts/plugin.video.vtm.go/issues/133)
+- VTM GO now has the notion of profiles [\#129](https://github.com/michaelarnauts/plugin.video.vtm.go/issues/129)
+
+**Fixed bugs:**
+
+- HTTP 426: Upgrade required [\#131](https://github.com/michaelarnauts/plugin.video.vtm.go/issues/131)
+
+**Merged pull requests:**
+
+- Profile improvements [\#134](https://github.com/michaelarnauts/plugin.video.vtm.go/pull/134) ([michaelarnauts](https://github.com/michaelarnauts))
+- Update API [\#132](https://github.com/michaelarnauts/plugin.video.vtm.go/pull/132) ([michaelarnauts](https://github.com/michaelarnauts))
 
 ## [v0.9.2](https://github.com/michaelarnauts/plugin.video.vtm.go/tree/v0.9.2) (2019-11-18)
 
@@ -14,6 +32,7 @@
 - Improve test coverage [\#123](https://github.com/michaelarnauts/plugin.video.vtm.go/pull/123) ([michaelarnauts](https://github.com/michaelarnauts))
 - Add Catalog to Channel menu [\#122](https://github.com/michaelarnauts/plugin.video.vtm.go/pull/122) ([michaelarnauts](https://github.com/michaelarnauts))
 - Add studio tags like they are in resource.images.studios.white [\#121](https://github.com/michaelarnauts/plugin.video.vtm.go/pull/121) ([michaelarnauts](https://github.com/michaelarnauts))
+- Various TV Guide fixes [\#116](https://github.com/michaelarnauts/plugin.video.vtm.go/pull/116) ([michaelarnauts](https://github.com/michaelarnauts))
 - Add settings to hide menu items [\#115](https://github.com/michaelarnauts/plugin.video.vtm.go/pull/115) ([michaelarnauts](https://github.com/michaelarnauts))
 - Consolidate YouTube, TV Guide and Live TV into one Channels menu [\#114](https://github.com/michaelarnauts/plugin.video.vtm.go/pull/114) ([michaelarnauts](https://github.com/michaelarnauts))
 - Add go to program on context menu of episodes [\#110](https://github.com/michaelarnauts/plugin.video.vtm.go/pull/110) ([michaelarnauts](https://github.com/michaelarnauts))
@@ -23,7 +42,6 @@
 - Availability now comes at the end of plot [\#124](https://github.com/michaelarnauts/plugin.video.vtm.go/issues/124)
 - Missing studio icons [\#118](https://github.com/michaelarnauts/plugin.video.vtm.go/issues/118)
 - Kids mode seems to be ignored in some places [\#107](https://github.com/michaelarnauts/plugin.video.vtm.go/issues/107)
-- Various TV Guide fixes [\#116](https://github.com/michaelarnauts/plugin.video.vtm.go/pull/116) ([michaelarnauts](https://github.com/michaelarnauts))
 - Fix kids mode [\#108](https://github.com/michaelarnauts/plugin.video.vtm.go/pull/108) ([michaelarnauts](https://github.com/michaelarnauts))
 
 **Closed issues:**
@@ -103,8 +121,10 @@
 - Allow direct playing from epg [\#74](https://github.com/michaelarnauts/plugin.video.vtm.go/pull/74) ([michaelarnauts](https://github.com/michaelarnauts))
 - Implement TV Guide [\#63](https://github.com/michaelarnauts/plugin.video.vtm.go/pull/63) ([michaelarnauts](https://github.com/michaelarnauts))
 - fix geoblocked videoplayer service api [\#71](https://github.com/michaelarnauts/plugin.video.vtm.go/pull/71) ([mediaminister](https://github.com/mediaminister))
+- Various fixes [\#68](https://github.com/michaelarnauts/plugin.video.vtm.go/pull/68) ([dagwieers](https://github.com/dagwieers))
 - Rework Kids zone [\#67](https://github.com/michaelarnauts/plugin.video.vtm.go/pull/67) ([dagwieers](https://github.com/dagwieers))
 - Add support for breadcrumbs [\#61](https://github.com/michaelarnauts/plugin.video.vtm.go/pull/61) ([dagwieers](https://github.com/dagwieers))
+- support unicode in python2 and python3 Kodi [\#60](https://github.com/michaelarnauts/plugin.video.vtm.go/pull/60) ([mediaminister](https://github.com/mediaminister))
 - Add settings and features [\#59](https://github.com/michaelarnauts/plugin.video.vtm.go/pull/59) ([dagwieers](https://github.com/dagwieers))
 - Add support for translations [\#57](https://github.com/michaelarnauts/plugin.video.vtm.go/pull/57) ([dagwieers](https://github.com/dagwieers))
 - Add description during playback [\#48](https://github.com/michaelarnauts/plugin.video.vtm.go/pull/48) ([michaelarnauts](https://github.com/michaelarnauts))
@@ -112,18 +132,18 @@
 - Add legal \(PG\) info to plot [\#45](https://github.com/michaelarnauts/plugin.video.vtm.go/pull/45) ([dagwieers](https://github.com/dagwieers))
 - Add support for vtm go kids mode [\#44](https://github.com/michaelarnauts/plugin.video.vtm.go/pull/44) ([michaelarnauts](https://github.com/michaelarnauts))
 - Set correct API version since we depend on Leia [\#42](https://github.com/michaelarnauts/plugin.video.vtm.go/pull/42) ([michaelarnauts](https://github.com/michaelarnauts))
+- Assorted fixes [\#41](https://github.com/michaelarnauts/plugin.video.vtm.go/pull/41) ([dagwieers](https://github.com/dagwieers))
 - python3 support, fix unit test and linter warnings [\#40](https://github.com/michaelarnauts/plugin.video.vtm.go/pull/40) ([mediaminister](https://github.com/mediaminister))
 - Add support for geo-blocking [\#36](https://github.com/michaelarnauts/plugin.video.vtm.go/pull/36) ([dagwieers](https://github.com/dagwieers))
 - add inputstreamhelper to auto install Widevine CDM [\#34](https://github.com/michaelarnauts/plugin.video.vtm.go/pull/34) ([mediaminister](https://github.com/mediaminister))
 - separate mpeg dash manifest and api json downloads [\#32](https://github.com/michaelarnauts/plugin.video.vtm.go/pull/32) ([mediaminister](https://github.com/mediaminister))
 - Add proxy support [\#31](https://github.com/michaelarnauts/plugin.video.vtm.go/pull/31) ([dagwieers](https://github.com/dagwieers))
+- Assorted set of fixes [\#30](https://github.com/michaelarnauts/plugin.video.vtm.go/pull/30) ([dagwieers](https://github.com/dagwieers))
 - Add days remaining to plot [\#27](https://github.com/michaelarnauts/plugin.video.vtm.go/pull/27) ([michaelarnauts](https://github.com/michaelarnauts))
 - Fix ordering. [\#25](https://github.com/michaelarnauts/plugin.video.vtm.go/pull/25) ([michaelarnauts](https://github.com/michaelarnauts))
 - Add '\* All seasons' support [\#24](https://github.com/michaelarnauts/plugin.video.vtm.go/pull/24) ([dagwieers](https://github.com/dagwieers))
 - Assorted list of improvements [\#21](https://github.com/michaelarnauts/plugin.video.vtm.go/pull/21) ([dagwieers](https://github.com/dagwieers))
 - Add YouTube support [\#15](https://github.com/michaelarnauts/plugin.video.vtm.go/pull/15) ([dagwieers](https://github.com/dagwieers))
-- Fix renames of variables [\#11](https://github.com/michaelarnauts/plugin.video.vtm.go/pull/11) ([michaelarnauts](https://github.com/michaelarnauts))
-- Fix for sanity and unit tests [\#10](https://github.com/michaelarnauts/plugin.video.vtm.go/pull/10) ([dagwieers](https://github.com/dagwieers))
 
 **Fixed bugs:**
 
@@ -137,14 +157,9 @@
 - On demand streams start in low resolution [\#2](https://github.com/michaelarnauts/plugin.video.vtm.go/issues/2)
 - Don't error out on geoblocked content [\#80](https://github.com/michaelarnauts/plugin.video.vtm.go/pull/80) ([michaelarnauts](https://github.com/michaelarnauts))
 - fix logging [\#70](https://github.com/michaelarnauts/plugin.video.vtm.go/pull/70) ([mediaminister](https://github.com/mediaminister))
-- Various fixes [\#68](https://github.com/michaelarnauts/plugin.video.vtm.go/pull/68) ([dagwieers](https://github.com/dagwieers))
-- support unicode in python2 and python3 Kodi [\#60](https://github.com/michaelarnauts/plugin.video.vtm.go/pull/60) ([mediaminister](https://github.com/mediaminister))
 - delay subtitles taking into account advertisements breaks [\#53](https://github.com/michaelarnauts/plugin.video.vtm.go/pull/53) ([mediaminister](https://github.com/mediaminister))
-- Assorted fixes [\#41](https://github.com/michaelarnauts/plugin.video.vtm.go/pull/41) ([dagwieers](https://github.com/dagwieers))
 - Add check-subscription [\#35](https://github.com/michaelarnauts/plugin.video.vtm.go/pull/35) ([michaelarnauts](https://github.com/michaelarnauts))
-- Assorted set of fixes [\#30](https://github.com/michaelarnauts/plugin.video.vtm.go/pull/30) ([dagwieers](https://github.com/dagwieers))
 - Use pageSize to request 1000 items at once. [\#20](https://github.com/michaelarnauts/plugin.video.vtm.go/pull/20) ([michaelarnauts](https://github.com/michaelarnauts))
-- Various fixes [\#12](https://github.com/michaelarnauts/plugin.video.vtm.go/pull/12) ([michaelarnauts](https://github.com/michaelarnauts))
 
 **Closed issues:**
 
@@ -163,4 +178,4 @@
 
 
 
-\* *This Change Log was automatically generated by [github_changelog_generator](https://github.com/skywinder/Github-Changelog-Generator)*
+\* *This Changelog was automatically generated by [github_changelog_generator](https://github.com/github-changelog-generator/github-changelog-generator)*
