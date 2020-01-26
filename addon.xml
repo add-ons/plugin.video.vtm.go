@@ -26,6 +26,10 @@
         <assets>
             <icon>resources/icon.png</icon>
             <fanart>resources/fanart.png</fanart>
+            <screenshot>resources/screenshot01.jpg</screenshot>
+            <screenshot>resources/screenshot02.jpg</screenshot>
+            <screenshot>resources/screenshot03.jpg</screenshot>
+            <screenshot>resources/screenshot04.jpg</screenshot>
         </assets>
         <reuselanguageinvoker>true</reuselanguageinvoker>
     </extension>
