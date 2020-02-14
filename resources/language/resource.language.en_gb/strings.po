@@ -367,16 +367,32 @@ msgctxt "#30861"
 msgid "Subtitles"
 msgstr ""
 
-msgctxt "#30863"
+msgctxt "#30862"
 msgid "Always show subtitles when available"
 msgstr ""
 
-msgctxt "#30865"
+msgctxt "#30863"
 msgid "Streaming"
 msgstr ""
 
-msgctxt "#30867"
+msgctxt "#30864"
 msgid "Maximum bandwidth (kbps)"
+msgstr ""
+
+msgctxt "#30865"
+msgid "Up Next"
+msgstr ""
+
+msgctxt "#30866"
+msgid "Install Up Next add-on"
+msgstr ""
+
+msgctxt "#30867"
+msgid "Use Up Next to play next episode automatically"
+msgstr ""
+
+msgctxt "#30868"
+msgid "Up Next settings…"
 msgstr ""
 
 msgctxt "#30880"
@@ -392,11 +408,11 @@ msgid "InputStream Helper information"
 msgstr ""
 
 msgctxt "#30885"
-msgid "InputStream Adaptive settings..."
+msgid "InputStream Adaptive settings…"
 msgstr ""
 
 msgctxt "#30887"
-msgid "InputStream Helper settings... [COLOR gray][I](for protected content)[/I][/COLOR]"
+msgid "InputStream Helper settings…"
 msgstr ""
 
 msgctxt "#30889"

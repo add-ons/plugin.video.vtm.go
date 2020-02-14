@@ -336,12 +336,10 @@ class KodiWrapper:
         """ Open the add-in settings window """
         ADDON.openSettings()
 
-    @staticmethod
-    def get_global_setting(setting):
+    def get_global_setting(self, setting):
         """ Get a Kodi setting """
-        import json
-        json_result = xbmc.executeJSONRPC('{"jsonrpc": "2.0", "method": "Settings.GetSettingValue", "params": {"setting": "%s"}, "id": 1}' % setting)
-        return json.loads(json_result).get('result', dict()).get('value')
+        result = self.jsonrpc(method='Settings.GetSettingValue', params=dict(setting=setting))
+        return result.get('result', {}).get('value')
 
     def get_cache(self, key, ttl=None):
         """ Get an item from the cache
@@ -560,3 +558,26 @@ class KodiWrapper:
     def has_credentials(self):
         """ Whether the add-on has credentials filled in """
         return bool(self.get_setting('username') and self.get_setting('password'))
+
+    @staticmethod
+    def jsonrpc(**kwargs):
+        """ Perform JSONRPC calls """
+        from json import dumps, loads
+        if kwargs.get('id') is None:
+            kwargs.update(id=0)
+        if kwargs.get('jsonrpc') is None:
+            kwargs.update(jsonrpc='2.0')
+        return loads(xbmc.executeJSONRPC(dumps(kwargs)))
+
+    def notify(self, sender, message, data):
+        """ Send a notification to Kodi using JSON RPC """
+        result = self.jsonrpc(method='JSONRPC.NotifyAll', params=dict(
+            sender=sender,
+            message=message,
+            data=data,
+        ))
+        if result.get('result') != 'OK':
+            self.log('Failed to send notification: {error}', LOG_ERROR, error=result.get('error').get('message'))
+            return False
+        self.log('Succesfully sent notification')
+        return True

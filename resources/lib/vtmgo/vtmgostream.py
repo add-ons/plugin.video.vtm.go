@@ -23,9 +23,10 @@ class StreamUnavailableException(Exception):
 class ResolvedStream:
     """ Defines a stream that we can play"""
 
-    def __init__(self, program=None, title=None, duration=None, url=None, license_url=None, subtitles=None, cookies=None):
+    def __init__(self, program=None, program_id=None, title=None, duration=None, url=None, license_url=None, subtitles=None, cookies=None):
         """
         :type program: str|None
+        :type program_id: int|None
         :type title: str
         :type duration: str|None
         :type url: str
@@ -34,6 +35,7 @@ class ResolvedStream:
         :type cookies: dict
         """
         self.program = program
+        self.program_id = program_id
         self.title = title
         self.duration = duration
         self.url = url
@@ -104,6 +106,7 @@ class VtmGoStream:
             # TV episode
             return ResolvedStream(
                 program=stream_info['video']['metadata']['program']['title'],
+                program_id=stream_info['video']['metadata']['program']['id'],
                 title=stream_info['video']['metadata']['title'],
                 duration=stream_info['video']['duration'],
                 url=url,
