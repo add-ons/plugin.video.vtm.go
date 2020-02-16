@@ -367,17 +367,33 @@ msgctxt "#30861"
 msgid "Subtitles"
 msgstr "Ondertiteling"
 
-msgctxt "#30863"
+msgctxt "#30862"
 msgid "Always show subtitles when available"
 msgstr "Toon ondertiteling indien beschikbaar"
 
-msgctxt "#30865"
+msgctxt "#30863"
 msgid "Streaming"
 msgstr "Streaming"
 
-msgctxt "#30867"
+msgctxt "#30864"
 msgid "Maximum bandwidth (kbps)"
 msgstr "Maximale bandbreedte (kbps)"
+
+msgctxt "#30865"
+msgid "Up Next"
+msgstr "Up Next"
+
+msgctxt "#30866"
+msgid "Install Up Next add-on"
+msgstr "Installeer de Up Next add-on"
+
+msgctxt "#30867"
+msgid "Use Up Next to play next episode automatically"
+msgstr "Gebruik Up Next om automatisch de volgende aflevering te spelen"
+
+msgctxt "#30868"
+msgid "Up Next settings…"
+msgstr "Up Next instellingen…"
 
 msgctxt "#30880"
 msgid "Expert"
@@ -392,12 +408,12 @@ msgid "InputStream Helper information"
 msgstr "InputStream Helper informatie"
 
 msgctxt "#30885"
-msgid "InputStream Adaptive settings..."
-msgstr "InputStream Adaptive configuratie..."
+msgid "InputStream Adaptive settings…"
+msgstr "InputStream Adaptive configuratie…"
 
 msgctxt "#30887"
-msgid "InputStream Helper settings... [COLOR gray][I](for protected content)[/I][/COLOR]"
-msgstr "InputStream Helper configuratie... [COLOR gray][I](voor beveiligde video's)[/I][/COLOR]"
+msgid "InputStream Helper settings…"
+msgstr "InputStream Helper configuratie…"
 
 msgctxt "#30889"
 msgid "Logging"

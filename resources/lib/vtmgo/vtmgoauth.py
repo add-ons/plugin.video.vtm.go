@@ -38,8 +38,6 @@ class VtmGoAuth:
         # self._name = None
         # self._accountId = None
 
-
-
     def has_credentials_changed(self):
         """ Check if credentials have changed """
         old_hash = self._kodi.get_setting('credentials_hash')

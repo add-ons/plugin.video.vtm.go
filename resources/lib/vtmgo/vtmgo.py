@@ -199,7 +199,7 @@ class Episode:
     """ Defines an Episode """
 
     def __init__(self, episode_id=None, program_id=None, program_name=None, number=None, season=None, name=None, description=None, cover=None, duration=None,
-                 remaining=None, geoblocked=None, channel=None, legal=None, aired=None, progress=None, watched=False):
+                 remaining=None, geoblocked=None, channel=None, legal=None, aired=None, progress=None, watched=False, next_episode=None):
         """
         :type episode_id: str
         :type program_id: str
@@ -217,6 +217,7 @@ class Episode:
         :type aired: str
         :type progress: int
         :type watched: bool
+        :type next_episode: Episode
         """
         import re
         self.episode_id = episode_id
@@ -238,6 +239,7 @@ class Episode:
         self.aired = aired
         self.progress = progress
         self.watched = watched
+        self.next_episode = next_episode
 
     def __repr__(self):
         return "%r" % self.__dict__
@@ -633,21 +635,56 @@ class VtmGo:
 
         return None
 
+    @staticmethod
+    def get_next_episode_from_program(program, season, number):
+        """ Search for the next episode in the program data.
+        :type program: Program
+        :type season: int
+        :type number: int
+        :rtype Episode
+        """
+        # First, try to find a match in the current season
+        for s in program.seasons.values():
+            for e in s.episodes.values():
+                if e.season == season and e.number == number + 1:
+                    return e
+
+        # No match, try to find the first episode of next season
+        for s in program.seasons.values():
+            for e in s.episodes.values():
+                if e.season == season + 1 and e.number == 1:
+                    return e
+
+        # We are playing the last episode
+        return None
+
     def get_episode(self, episode_id):
-        """ Get the details of the specified episode.
+        """ Get some details of the specified episode.
         :type episode_id: str
         :rtype Episode
         """
         response = self._get_url('/%s/play/episode/%s' % (self._mode(), episode_id))
         episode = json.loads(response)
 
-        # TODO: episode.get('nextPlayable') contains information for Up Next
+        # Extract next episode info if available
+        next_playable = episode.get('nextPlayable')
+        if next_playable:
+            next_episode = Episode(
+                episode_id=next_playable['id'],
+                program_name=next_playable['title'],
+                name=next_playable['subtitle'],
+                description=next_playable['description'],
+                cover=next_playable['imageUrl'],
+            )
+        else:
+            next_episode = None
 
         return Episode(
             episode_id=episode.get('id'),
             name=episode.get('title'),
             cover=episode.get('posterImageUrl'),
             progress=episode.get('playerPositionSeconds'),
+            next_episode=next_episode,
         )
 
     def do_search(self, search):
