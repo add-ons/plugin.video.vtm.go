@@ -1,5 +1,18 @@
 # Changelog
 
+## [v0.9.4](https://github.com/michaelarnauts/plugin.video.vtm.go/tree/v0.9.4) (2020-02-16)
+
+[Full Changelog](https://github.com/michaelarnauts/plugin.video.vtm.go/compare/v0.9.3...v0.9.4)
+
+**Implemented enhancements:**
+
+- Add support for "Up Next" [\#49](https://github.com/michaelarnauts/plugin.video.vtm.go/issues/49)
+- Implement Up Next integration [\#138](https://github.com/michaelarnauts/plugin.video.vtm.go/pull/138) ([michaelarnauts](https://github.com/michaelarnauts))
+
+**Merged pull requests:**
+
+- Add screenshots [\#135](https://github.com/michaelarnauts/plugin.video.vtm.go/pull/135) ([michaelarnauts](https://github.com/michaelarnauts))
+
 ## [v0.9.3](https://github.com/michaelarnauts/plugin.video.vtm.go/tree/v0.9.3) (2020-01-26)
 
 [Full Changelog](https://github.com/michaelarnauts/plugin.video.vtm.go/compare/v0.9.2...v0.9.3)
