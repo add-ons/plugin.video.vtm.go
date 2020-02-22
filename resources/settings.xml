@@ -18,8 +18,8 @@
         <setting label="30826" type="bool" id="interface_show_continuewatching" default="false" visible="false"/>
         <setting label="30827" type="lsep"/> <!-- Metadata -->
         <setting label="30829" type="bool" id="metadata_update" default="true" subsetting="true"/>
-        <setting label="30831" type="action" option="close" action="RunPlugin(plugin://plugin.video.vtm.go/metadata/update)"/>
-        <setting label="30833" type="action" option="close" action="RunPlugin(plugin://plugin.video.vtm.go/metadata/clean)"/>
+        <setting label="30831" type="action" action="RunPlugin(plugin://plugin.video.vtm.go/metadata/update)"/>
+        <setting label="30833" type="action" action="RunPlugin(plugin://plugin.video.vtm.go/metadata/clean)"/>
     </category>
     <category label="30860"> <!-- Playback -->
         <setting label="30861" type="lsep"/> <!-- Subtitles -->
