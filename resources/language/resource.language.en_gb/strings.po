@@ -238,7 +238,7 @@ msgstr ""
 
 ### MESSAGES
 msgctxt "#30701"
-msgid "Invalid login details"
+msgid "You need to configure your credentials before you can access the content of VTM GO."
 msgstr ""
 
 msgctxt "#30702"

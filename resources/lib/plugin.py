@@ -14,13 +14,20 @@ kodi = KodiWrapper(globals())
 @routing.route('/')
 def index():
     """ Show the profile selection, or go to the main menu. """
-    if not kodi.has_credentials() or (kodi.get_setting_as_bool('auto_login') and bool(kodi.get_setting('profile'))):
-        # If we have no credentials, or we have autologin and a profile, go directly to the main menu
+    if not kodi.has_credentials():
+        # We need credentials. Open setup.
+        kodi.show_ok_dialog(message=kodi.localize(30701))  # Invalid login details
+        kodi.open_settings()
+
+        # Check if we have credentials now.
+        if kodi.has_credentials():
+            select_profile()
+
+    elif kodi.get_setting_as_bool('auto_login') and bool(kodi.get_setting('profile')):
+        # If we have autologin and a profile, go directly to the main menu
         show_main_menu()
+
     else:
-
-        kodi.log('show profile')
-
         # Ask the user for the profile to use
         select_profile()
 
