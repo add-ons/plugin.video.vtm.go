@@ -19,6 +19,23 @@ class Player:
         self._vtm_go = VtmGo(self._kodi)
         self._vtm_go_stream = VtmGoStream(self._kodi)
 
+    def play_or_live(self, category, item, channel):
+        """ Ask to play the requested item or switch to the live channel
+        :type category: str
+        :type item: str
+        :type channel: str
+        """
+        res = self._kodi.show_context_menu([self._kodi.localize(30103), self._kodi.localize(30105)])  # Watch Live | Play from Catalog
+        if res == -1:  # user has cancelled
+            return
+        if res == 0:  # user selected "Watch Live"
+            # Play live
+            self.play('channels', channel)
+            return
+
+        # Play this program
+        self.play(category, item)
+
     def play(self, category, item):
         """ Play the requested item.
         :type category: string
@@ -42,12 +59,10 @@ class Player:
 
         except StreamGeoblockedException:
             self._kodi.show_ok_dialog(heading=self._kodi.localize(30709), message=self._kodi.localize(30710))  # This video is geo-blocked...
-            self._kodi.end_of_directory()
             return
 
         except StreamUnavailableException:
             self._kodi.show_ok_dialog(heading=self._kodi.localize(30711), message=self._kodi.localize(30712))  # The video is unavailable...
-            self._kodi.end_of_directory()
             return
 
         info_dict = {

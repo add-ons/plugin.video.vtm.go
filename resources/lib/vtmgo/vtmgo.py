@@ -7,7 +7,7 @@ import json
 
 import requests
 
-from resources.lib.kodiwrapper import LOG_DEBUG, LOG_INFO
+from resources.lib.kodiwrapper import LOG_DEBUG
 from resources.lib.vtmgo.vtmgoauth import VtmGoAuth
 
 try:  # Python 3
@@ -753,7 +753,7 @@ class VtmGo:
         if profile:
             headers['x-dpp-profile'] = profile
 
-        self._kodi.log('Sending GET {url}...', LOG_INFO, url=url)
+        self._kodi.log('Sending GET {url}...', url=url)
 
         response = requests.session().get('https://lfvp-api.dpgmedia.net' + url, params=params, headers=headers, proxies=self._proxies)
 
@@ -781,7 +781,7 @@ class VtmGo:
         if profile:
             headers['x-dpp-profile'] = profile
 
-        self._kodi.log('Sending PUT {url}...', LOG_INFO, url=url)
+        self._kodi.log('Sending PUT {url}...', url=url)
 
         response = requests.session().put('https://api.vtmgo.be' + url, headers=headers, proxies=self._proxies)
 
@@ -809,7 +809,7 @@ class VtmGo:
         if profile:
             headers['x-dpp-profile'] = profile
 
-        self._kodi.log('Sending POST {url}...', LOG_INFO, url=url)
+        self._kodi.log('Sending POST {url}...', url=url)
 
         response = requests.session().post('https://api.vtmgo.be' + url, headers=headers, proxies=self._proxies)
 
@@ -837,7 +837,7 @@ class VtmGo:
         if profile:
             headers['x-dpp-profile'] = profile
 
-        self._kodi.log('Sending DELETE {url}...', LOG_INFO, url=url)
+        self._kodi.log('Sending DELETE {url}...', url=url)
 
         response = requests.session().delete('https://api.vtmgo.be' + url, headers=headers, proxies=self._proxies)
 

@@ -75,13 +75,6 @@ def show_tvguide_detail(channel=None, date=None):
     TvGuide(kodi).show_tvguide_detail(channel, date)
 
 
-@routing.route('/tvguide/program/<channel>/<program>')
-def show_program_from_epg(channel, program):
-    """ Show a program based on the channel and information from the EPG """
-    from resources.lib.modules.tvguide import TvGuide
-    TvGuide(kodi).show_program_from_epg(channel, program)
-
-
 @routing.route('/catalog')
 def show_catalog():
     """ Show the catalog """
@@ -195,12 +188,11 @@ def play_epg_datetime(channel, timestamp):
     TvGuide(kodi).play_epg_datetime(channel, timestamp)
 
 
-@routing.route('/play/epg/<channel>/<program_type>/<epg_id>')
-@routing.route('/play/epg/<channel>/<program_type>/<epg_id>/<airing>')
-def play_epg_program(channel, program_type, epg_id, airing=None):
-    """ Play a program based on the channel and information from the EPG """
-    from resources.lib.modules.tvguide import TvGuide
-    TvGuide(kodi).play_epg_program(channel, program_type, epg_id, airing)
+@routing.route('/play/catalog/<category>/<item>/<channel>')
+def play_or_live(category, item, channel):
+    """ Ask to play the requested item or switch to the live channel """
+    from resources.lib.modules.player import Player
+    Player(kodi).play_or_live(category, item, channel)
 
 
 @routing.route('/play/catalog/<category>/<item>')

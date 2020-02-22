@@ -10,7 +10,6 @@ import dateutil.parser
 import dateutil.tz
 import requests
 
-from resources.lib.kodiwrapper import LOG_DEBUG, LOG_ERROR, LOG_INFO
 from resources.lib.vtmgo.vtmgo import UnavailableException
 
 
@@ -39,7 +38,7 @@ class EpgBroadcast:
     """ Defines an EPG broadcast"""
 
     def __init__(self, uuid=None, playable_type=None, title=None, time=None, duration=None, image=None, description=None, live=None, rerun=None, tip=None,
-                 program_uuid=None, playable_uuid=None, airing=None):
+                 program_uuid=None, playable_uuid=None, channel_uuid=None, airing=None):
         """
         :type uuid: str
         :type playable_type: str
@@ -53,6 +52,7 @@ class EpgBroadcast:
         :type tip: str
         :type program_uuid: str
         :type playable_uuid: str
+        :type channel_uuid: str
         :type airing: bool
         """
         self.uuid = uuid
@@ -67,6 +67,7 @@ class EpgBroadcast:
         self.tip = tip
         self.program_uuid = program_uuid
         self.playable_uuid = playable_uuid
+        self.channel_uuid = channel_uuid
         self.airing = airing
 
     def __repr__(self):
@@ -76,7 +77,6 @@ class EpgBroadcast:
 class VtmGoEpg:
     """ VTM GO EPG API """
     EPG_URL = 'https://vtm.be/tv-gids/api/v2/broadcasts/{date}'
-    DETAILS_URL = 'https://vtm.be/tv-gids/{channel}/uitzending/{type}/{uuid}'
 
     def __init__(self, kodi):
         """ Initialise object
@@ -139,41 +139,6 @@ class VtmGoEpg:
 
         return None
 
-    def get_details(self, channel, program_type, epg_id):
-        """ Load the EPG details for the specified program.
-        :type channel: str
-        :type program_type: str
-        :type epg_id: str
-        :rtype: EpgBroadcast
-        """
-        import re
-
-        # Do mapping
-        if program_type == 'episodes':
-            url = self.DETAILS_URL.format(channel=channel, type='aflevering', uuid=epg_id)
-        elif program_type == 'movies':
-            url = self.DETAILS_URL.format(channel=channel, type='film', uuid=epg_id)
-        elif program_type == 'oneoffs':
-            url = self.DETAILS_URL.format(channel=channel, type='oneoff', uuid=epg_id)
-        else:
-            self._kodi.log('Unknown broadcast type {type}.', LOG_ERROR, type=program_type)
-            return None
-
-        # Fetch data
-        response = self._get_url(url)
-
-        # Extract data
-        matches = re.search(r'__EPG_REDUX_DATA__=([^;]+);', response)
-        if not matches:
-            self._kodi.log('Could not parse EPG details.', LOG_ERROR)
-            return None
-
-        data = json.loads(matches.group(1))
-
-        self._kodi.log('Got EPG data: {data}', LOG_DEBUG, data=data)
-
-        return self._parse_broadcast(data['details'][epg_id])
-
     @staticmethod
     def _parse_broadcast(broadcast_json):
         """ Parse the epg data.
@@ -201,6 +166,7 @@ class VtmGoEpg:
             rerun=broadcast_json.get('rerun'),
             tip=broadcast_json.get('tip'),
             program_uuid=broadcast_json.get('programUuid'),
+            channel_uuid=broadcast_json.get('channelUuid'),
             airing=airing,
         )
 
@@ -211,13 +177,13 @@ class VtmGoEpg:
         dates = []
         today = datetime.today()
 
-        # The API provides 2 days in the past and 7 days in the future
-        for i in range(-2, 7):
+        # The API provides 2 days in the past and 8 days in the future
+        for i in range(-2, 8):
             day = today + timedelta(days=i)
 
             if i == -1:
                 dates.append({
-                    'title': '%s, %s' % (self._kodi.localize(30301), day.strftime(date_format)),  # Yesterday,
+                    'title': '%s, %s' % (self._kodi.localize(30301), day.strftime(date_format)),  # Yesterday
                     'key': 'yesterday',
                     'date': day.strftime('%d.%m.%Y'),
                     'highlight': False,
@@ -251,7 +217,7 @@ class VtmGoEpg:
         :type url: str
         :rtype str
         """
-        self._kodi.log('Sending GET {url}...', LOG_INFO, url=url)
+        self._kodi.log('Sending GET {url}...', url=url)
 
         response = self._session.get(url)
 

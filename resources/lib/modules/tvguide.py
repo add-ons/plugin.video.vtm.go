@@ -64,7 +64,7 @@ class TvGuide:
                 context_menu = [(
                     self._kodi.localize(30102),  # Go to Program
                     'XBMC.Container.Update(%s)' %
-                    self._kodi.url_for('show_program_from_epg', channel=channel, program=broadcast.uuid)
+                    self._kodi.url_for('show_catalog_program', channel=channel, program=broadcast.program_uuid)
                 )]
             else:
                 context_menu = None
@@ -77,14 +77,21 @@ class TvGuide:
 
             if broadcast.airing:
                 title = '[B]{title}[/B]'.format(title=title)
+                path = self._kodi.url_for('play_or_live',
+                                          channel=broadcast.channel_uuid,
+                                          category=broadcast.playable_type,
+                                          item=broadcast.playable_uuid)
+            else:
+                path = self._kodi.url_for('play',
+                                          category=broadcast.playable_type,
+                                          item=broadcast.playable_uuid)
 
             if broadcast.title == self.EPG_NO_BROADCAST:
                 title = '[COLOR gray]' + title + '[/COLOR]'
 
             listing.append(
                 TitleItem(title=title,
-                          path=self._kodi.url_for('play_epg_program', channel=channel, program_type=broadcast.playable_type, epg_id=broadcast.uuid,
-                                                  airing=epg.uuid if broadcast.airing else None),
+                          path=path,
                           art_dict={
                               'icon': broadcast.image,
                               'thumb': broadcast.image,
@@ -107,21 +114,6 @@ class TvGuide:
 
         self._kodi.show_listing(listing, 30013, content='episodes', sort=['unsorted'])
 
-    def show_program_from_epg(self, channel, program):
-        """ Show a program based on the channel and information from the EPG
-        :type channel: str
-        :type program: str
-        """
-        details = self._vtm_go_epg.get_details(channel=channel, program_type='episodes', epg_id=program)
-        if not details:
-            self._kodi.show_ok_dialog(heading=self._kodi.localize(30711), message=self._kodi.localize(30713))  # The requested video was not found in the guide.
-            self._kodi.end_of_directory()
-            return
-
-        # Show the program with our freshly obtained program_uuid
-        self._kodi.redirect(
-            self._kodi.url_for('show_catalog_program', program=details.program_uuid).replace('plugin://plugin.video.vtm.go', ''))
-
     def play_epg_datetime(self, channel, timestamp):
         """ Play a program based on the channel and the timestamp when it was aired
         :type channel: str
@@ -133,30 +125,5 @@ class TvGuide:
             self._kodi.end_of_directory()
             return
 
-        self.play_epg_program(channel, broadcast.playable_type, broadcast.uuid)
-
-    def play_epg_program(self, channel, program_type, epg_id, airing=None):
-        """ Play a program based on the channel and information from the EPG
-        :type channel: str
-        :type program_type: str
-        :type epg_id: str
-        :type airing: str
-        """
-        if airing:
-            res = self._kodi.show_context_menu([self._kodi.localize(30103), self._kodi.localize(30105)])  # Watch Live | Play from Catalog
-            if res == -1:  # user has cancelled
-                return
-            if res == 0:  # user selected "Watch Live"
-                self._kodi.redirect(
-                    self._kodi.url_for('play', category='channels', item=airing))
-                return
-
-        details = self._vtm_go_epg.get_details(channel=channel, program_type=program_type, epg_id=epg_id)
-        if not details:
-            self._kodi.show_ok_dialog(heading=self._kodi.localize(30711), message=self._kodi.localize(30713))  # The requested video was not found in the guide.
-            self._kodi.end_of_directory()
-            return
-
-        # Play this program
         self._kodi.redirect(
-            self._kodi.url_for('play', category=details.playable_type, item=details.playable_uuid))
+            self._kodi.url_for('play', category=broadcast.playable_type, item=broadcast.playable_uuid))
