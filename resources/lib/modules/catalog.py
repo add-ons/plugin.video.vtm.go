@@ -118,7 +118,7 @@ class Catalog:
             )
 
         # Add the seasons
-        for s in program_obj.seasons.values():
+        for s in list(program_obj.seasons.values()):
             listing.append(
                 TitleItem(title=self._kodi.localize(30205, season=s.number),  # Season {season}
                           path=self._kodi.url_for('show_catalog_program_season', program=program, season=s.number),
@@ -153,14 +153,14 @@ class Catalog:
 
         if season == -1:
             # Show all seasons
-            seasons = program_obj.seasons.values()
+            seasons = list(program_obj.seasons.values())
         else:
             # Show the season that was selected
             seasons = [program_obj.seasons[season]]
 
         listing = []
         for s in seasons:
-            for episode in s.episodes.values():
+            for episode in list(s.episodes.values()):
                 listing.append(self._menu.generate_titleitem(episode))
 
         # Sort by episode number by default. Takes seasons into account.
