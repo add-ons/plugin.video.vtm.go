@@ -628,8 +628,8 @@ class VtmGo:
         :type episode_id: str
         :rtype Episode
         """
-        for season in program.seasons.values():
-            for episode in season.episodes.values():
+        for season in list(program.seasons.values()):
+            for episode in list(season.episodes.values()):
                 if episode.episode_id == episode_id:
                     return episode
 
@@ -644,14 +644,14 @@ class VtmGo:
         :rtype Episode
         """
         # First, try to find a match in the current season
-        for s in program.seasons.values():
-            for e in s.episodes.values():
+        for s in list(program.seasons.values()):
+            for e in list(s.episodes.values()):
                 if e.season == season and e.number == number + 1:
                     return e
 
         # No match, try to find the first episode of next season
-        for s in program.seasons.values():
-            for e in s.episodes.values():
+        for s in list(program.seasons.values()):
+            for e in list(s.episodes.values()):
                 if e.season == season + 1 and e.number == 1:
                     return e
 

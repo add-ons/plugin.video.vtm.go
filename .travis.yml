@@ -20,7 +20,7 @@ script:
   - make check-pylint
   - make check-tox
   - make check-translations
-#  - make check-addon
+  - if [ "$TRAVIS_PYTHON_VERSION" == "3.8" ]; then pip install kodi-addon-checker && make check-addon; fi
   - make test
 
 after_success:

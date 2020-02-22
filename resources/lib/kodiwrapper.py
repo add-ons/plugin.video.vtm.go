@@ -117,7 +117,7 @@ class KodiWrapper:
 
     def url_for(self, name, *args, **kwargs):
         """ Wrapper for routing.url_for() to lookup by name """
-        kwargs = {k: v for k, v in kwargs.items() if v is not None}  # Strip out empty kwargs
+        kwargs = {k: v for k, v in list(kwargs.items()) if v is not None}  # Strip out empty kwargs
         return self.routing.url_for(self.addon[name], *args, **kwargs)
 
     def redirect(self, url):
