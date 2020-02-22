@@ -89,6 +89,11 @@ class Catalog:
             self._kodi.end_of_directory()
             return
 
+        # Go directly to the season when we have only one season
+        if len(program_obj.seasons) == 1:
+            self.show_program_season(program, list(program_obj.seasons.values())[0].number)
+            return
+
         studio = CHANNELS.get(program_obj.channel, {}).get('studio_icon')
 
         listing = []
