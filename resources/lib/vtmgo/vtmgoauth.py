@@ -133,6 +133,9 @@ class VtmGoAuth:
             if 'errorBlock-OIDC-003' in response.text:  # Wachtwoord is niet correct.
                 raise InvalidLoginException()
 
+            if 'OIDC-999' in response.text:  # Ongeldige login.
+                raise InvalidLoginException()
+
             raise LoginErrorException(code=100)  # Unknown error while logging in
 
         except requests.exceptions.InvalidSchema as e:
