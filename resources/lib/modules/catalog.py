@@ -6,7 +6,7 @@ from __future__ import absolute_import, division, unicode_literals
 from resources.lib.kodiwrapper import TitleItem
 from resources.lib.modules import CHANNELS
 from resources.lib.modules.menu import Menu
-from resources.lib.vtmgo.vtmgo import VtmGo, UnavailableException
+from resources.lib.vtmgo.vtmgo import VtmGo, UnavailableException, CACHE_PREVENT
 
 
 class Catalog:
@@ -83,7 +83,7 @@ class Catalog:
         :type program: str
          """
         try:
-            program_obj = self._vtm_go.get_program(program)
+            program_obj = self._vtm_go.get_program(program, cache=CACHE_PREVENT)  # Use CACHE_PREVENT since we want fresh data
         except UnavailableException:
             self._kodi.show_ok_dialog(message=self._kodi.localize(30717))  # This program is not available in the VTM GO catalogue.
             self._kodi.end_of_directory()
@@ -140,7 +140,7 @@ class Catalog:
         :type season: int
         """
         try:
-            program_obj = self._vtm_go.get_program(program)
+            program_obj = self._vtm_go.get_program(program)  # Use CACHE_AUTO since the data is just refreshed in show_program
         except UnavailableException:
             self._kodi.show_ok_dialog(message=self._kodi.localize(30717))  # This program is not available in the VTM GO catalogue.
             self._kodi.end_of_directory()

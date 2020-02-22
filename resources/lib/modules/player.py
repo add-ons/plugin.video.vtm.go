@@ -82,7 +82,7 @@ class Player:
                 info_dict.update({'mediatype': 'episode'})
 
                 # There is no direct API to get episode details, so we go trough the cached program details
-                program = self._vtm_go.get_program(resolved_stream.program_id, True)
+                program = self._vtm_go.get_program(resolved_stream.program_id)
                 if program:
                     episode_details = self._vtm_go.get_episode_from_program(program, item)
                     if episode_details:

@@ -42,11 +42,9 @@ class Metadata:
         # Loop over all of them and download the metadata
         for index, item in enumerate(items):
             if isinstance(item, Movie):
-                if not self._vtm_go.get_movie(item.movie_id, cache=True):
-                    self._vtm_go.get_movie(item.movie_id)
+                self._vtm_go.get_movie(item.movie_id)
             elif isinstance(item, Program):
-                if not self._vtm_go.get_program(item.program_id, cache=True):
-                    self._vtm_go.get_program(item.program_id)
+                self._vtm_go.get_program(item.program_id)
 
             # Update the progress indicator
             if callback and callback(index, count):

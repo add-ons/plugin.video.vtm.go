@@ -15,6 +15,10 @@ try:  # Python 3
 except ImportError:  # Python 2
     from urllib import quote
 
+CACHE_AUTO = 1  # Allow to use the cache, and query the API if no cache is available
+CACHE_ONLY = 2  # Only use the cache, don't use the API
+CACHE_PREVENT = 3  # Don't use the cache
+
 
 class UnavailableException(Exception):
     """ Is thrown when an item is unavailable. """
@@ -314,7 +318,7 @@ class VtmGo:
             items = []
             for item in cat.get('teasers'):
                 if item.get('target', {}).get('type') == self.CONTENT_TYPE_MOVIE:
-                    movie = self.get_movie(item.get('target', {}).get('id'), cache=True)
+                    movie = self.get_movie(item.get('target', {}).get('id'), cache=CACHE_ONLY)
                     if movie:
                         # We have a cover from the overview that we don't have in the details
                         movie.cover = item.get('imageUrl')
@@ -328,7 +332,7 @@ class VtmGo:
                             geoblocked=item.get('geoBlocked'),
                         ))
                 elif item.get('target', {}).get('type') == self.CONTENT_TYPE_PROGRAM:
-                    program = self.get_program(item.get('target', {}).get('id'), cache=True)
+                    program = self.get_program(item.get('target', {}).get('id'), cache=CACHE_ONLY)
                     if program:
                         # We have a cover from the overview that we don't have in the details
                         program.cover = item.get('imageUrl')
@@ -363,7 +367,7 @@ class VtmGo:
         items = []
         for item in result.get('teasers'):
             if item.get('target', {}).get('type') == self.CONTENT_TYPE_MOVIE:
-                movie = self.get_movie(item.get('target', {}).get('id'), cache=True)
+                movie = self.get_movie(item.get('target', {}).get('id'), cache=CACHE_ONLY)
                 if movie:
                     # We have a cover from the overview that we don't have in the details
                     movie.cover = item.get('imageUrl')
@@ -378,7 +382,7 @@ class VtmGo:
                     ))
 
             elif item.get('target', {}).get('type') == self.CONTENT_TYPE_PROGRAM:
-                program = self.get_program(item.get('target', {}).get('id'), cache=True)
+                program = self.get_program(item.get('target', {}).get('id'), cache=CACHE_ONLY)
                 if program:
                     # We have a cover from the overview that we don't have in the details
                     program.cover = item.get('imageUrl')
@@ -393,7 +397,7 @@ class VtmGo:
                     ))
 
             elif item.get('target', {}).get('type') == self.CONTENT_TYPE_EPISODE:
-                program = self.get_program(item.get('target', {}).get('programId'), cache=True)
+                program = self.get_program(item.get('target', {}).get('programId'), cache=CACHE_ONLY)
                 episode = self.get_episode_from_program(program, item.get('target', {}).get('id')) if program else None
 
                 items.append(Episode(
@@ -469,33 +473,23 @@ class VtmGo:
 
         return categories
 
-    def get_items(self, category=None, cache=False):
+    def get_items(self, category=None):
         """ Get a list of all the items in a category.
         :type category: str
-        :type cache: bool
         :rtype list[Union[Movie, Program]]
         """
-        if cache and category is None:
-            # Fetch from cache if asked
-            content = self._kodi.get_cache(['catalog'])
-            if not content:
-                return None
+        # Fetch from API
+        if category is None:
+            response = self._get_url('/%s/catalog' % self._mode(), {'pageSize': 1000})
         else:
-            # Fetch from API
-            if category is None:
-                response = self._get_url('/%s/catalog' % self._mode(), {'pageSize': 1000})
-                info = json.loads(response)
-                content = info.get('pagedTeasers', {}).get('content', [])
-                self._kodi.set_cache(['catalog'], content)
-            else:
-                response = self._get_url('/%s/catalog' % self._mode(), {'pageSize': 1000, 'filter': quote(category)})
-                info = json.loads(response)
-                content = info.get('pagedTeasers', {}).get('content', [])
+            response = self._get_url('/%s/catalog' % self._mode(), {'pageSize': 1000, 'filter': quote(category)})
+        info = json.loads(response)
+        content = info.get('pagedTeasers', {}).get('content', [])
 
         items = []
         for item in content:
             if item.get('target', {}).get('type') == self.CONTENT_TYPE_MOVIE:
-                movie = self.get_movie(item.get('target', {}).get('id'), cache=True)
+                movie = self.get_movie(item.get('target', {}).get('id'), cache=CACHE_ONLY)
                 if movie:
                     # We have a cover from the overview that we don't have in the details
                     movie.cover = item.get('imageUrl')
@@ -508,7 +502,7 @@ class VtmGo:
                         geoblocked=item.get('geoBlocked'),
                     ))
             elif item.get('target', {}).get('type') == self.CONTENT_TYPE_PROGRAM:
-                program = self.get_program(item.get('target', {}).get('id'), cache=True)
+                program = self.get_program(item.get('target', {}).get('id'), cache=CACHE_ONLY)
                 if program:
                     # We have a cover from the overview that we don't have in the details
                     program.cover = item.get('imageUrl')
@@ -523,18 +517,21 @@ class VtmGo:
 
         return items
 
-    def get_movie(self, movie_id, cache=False):
+    def get_movie(self, movie_id, cache=CACHE_AUTO):
         """ Get the details of the specified movie.
         :type movie_id: str
-        :type cache: bool
+        :type cache: int
         :rtype Movie
         """
-        if cache:
-            # Fetch from cache if asked
+        if cache in [CACHE_AUTO, CACHE_ONLY]:
+            # Try to fetch from cache
             movie = self._kodi.get_cache(['movie', movie_id])
-            if not movie:
+            if movie is None and cache == CACHE_ONLY:
                 return None
         else:
+            movie = None
+
+        if movie is None:
             # Fetch from API
             response = self._get_url('/%s/movies/%s' % (self._mode(), movie_id))
             info = json.loads(response)
@@ -556,18 +553,21 @@ class VtmGo:
             channel=self._parse_channel(movie.get('channelLogoUrl')),
         )
 
-    def get_program(self, program_id, cache=False):
+    def get_program(self, program_id, cache=CACHE_AUTO):
         """ Get the details of the specified program.
         :type program_id: str
-        :type cache: bool
+        :type cache: int
         :rtype Program
         """
-        if cache:
-            # Fetch from cache if asked
+        if cache in [CACHE_AUTO, CACHE_ONLY]:
+            # Try to fetch from cache
             program = self._kodi.get_cache(['program', program_id])
-            if not program:
+            if program is None and cache == CACHE_ONLY:
                 return None
         else:
+            program = None
+
+        if program is None:
             # Fetch from API
             response = self._get_url('/%s/programs/%s' % (self._mode(), program_id))
             info = json.loads(response)
@@ -698,7 +698,7 @@ class VtmGo:
         items = []
         for item in results.get('suggestions', []):
             if item.get('type') == self.CONTENT_TYPE_MOVIE:
-                movie = self.get_movie(item.get('id'), cache=True)
+                movie = self.get_movie(item.get('id'), cache=CACHE_ONLY)
                 if movie:
                     items.append(movie)
                 else:
@@ -707,7 +707,7 @@ class VtmGo:
                         name=item.get('name'),
                     ))
             elif item.get('type') == self.CONTENT_TYPE_PROGRAM:
-                program = self.get_program(item.get('id'), cache=True)
+                program = self.get_program(item.get('id'), cache=CACHE_ONLY)
                 if program:
                     items.append(program)
                 else:
