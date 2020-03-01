@@ -1,5 +1,21 @@
 # Changelog
 
+## [v1.0.0](https://github.com/michaelarnauts/plugin.video.vtm.go/tree/v1.0.0) (2020-03-01)
+
+[Full Changelog](https://github.com/michaelarnauts/plugin.video.vtm.go/compare/v0.9.4...v1.0.0)
+
+**Implemented enhancements:**
+
+- Don't close the settings when updating or clearing the metadata [\#144](https://github.com/michaelarnauts/plugin.video.vtm.go/pull/144) ([michaelarnauts](https://github.com/michaelarnauts))
+- Skip single season selections [\#143](https://github.com/michaelarnauts/plugin.video.vtm.go/pull/143) ([michaelarnauts](https://github.com/michaelarnauts))
+- Cache improvements [\#142](https://github.com/michaelarnauts/plugin.video.vtm.go/pull/142) ([michaelarnauts](https://github.com/michaelarnauts))
+- Require authentication according to VTM GO TOS [\#141](https://github.com/michaelarnauts/plugin.video.vtm.go/pull/141) ([michaelarnauts](https://github.com/michaelarnauts))
+
+**Merged pull requests:**
+
+- Use new EPG API [\#146](https://github.com/michaelarnauts/plugin.video.vtm.go/pull/146) ([michaelarnauts](https://github.com/michaelarnauts))
+- Apply kodi-addon-checker suggestions [\#145](https://github.com/michaelarnauts/plugin.video.vtm.go/pull/145) ([michaelarnauts](https://github.com/michaelarnauts))
+
 ## [v0.9.4](https://github.com/michaelarnauts/plugin.video.vtm.go/tree/v0.9.4) (2020-02-16)
 
 [Full Changelog](https://github.com/michaelarnauts/plugin.video.vtm.go/compare/v0.9.3...v0.9.4)
