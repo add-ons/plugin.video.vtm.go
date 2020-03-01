@@ -17,8 +17,8 @@
         <summary lang="en_GB">Access the VTM GO library</summary>
         <description lang="en_GB">This add-on gives access to all live tv channels and all video-on-demand content available on the VTM GO platform.</description>
         <disclaimer lang="en_GB">This add-on is not officially commissioned/supported by DPG Media and is provided 'as is' without any warranty of any kind. The VTM GO name, VTM GO logo and channel icons are property of DPG Media and are used according to the fair use policy.</disclaimer>
-        <summary lang="nl_NL">Bekijk inhoud van VTM GO library</summary>
-        <description lang="nl_NL">Deze add-on geeft toegang tot alle live tv kanalen en alle video-on-demand content dat beschikbaar is op het VTM GO platform.</description>
+        <summary lang="nl_NL">Bekijk VTM GO</summary>
+        <description lang="nl_NL">Deze add-on geeft toegang tot alle live TV kanalen en alle video-on-demand content dat beschikbaar is op het VTM GO platform.</description>
         <disclaimer lang="nl_NL">Deze add-on wordt niet ondersteund door DPG Media en wordt aangeboden 'as is', zonder enige garantie. De VTM GO naam, VTM GO logo en de kanaallogo's zijn eigendom van DPG Media en worden gebruikt in overeenstemming met de fair use policy.</disclaimer>
         <platform>all</platform>
         <license>GPL-3.0</license>

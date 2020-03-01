@@ -58,7 +58,7 @@ build: clean
 	@echo "Successfully wrote package as: ../$(zip_name)"
 
 release: build
-	rm -rf ../repo-plugins/plugin.video.vtm.go/
+	rm -rf ../repo-plugins/plugin.video.vtm.go/*
 	unzip ../$(zip_name) -d ../repo-plugins/
 
 run:
