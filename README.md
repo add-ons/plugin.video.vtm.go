@@ -19,6 +19,7 @@ This is the preferred way to install this addon, since it allows Kodi to automat
 1. Hit **Install** in the Addon information screen and follow the instructions.
 
 ### Manual installation
+
 You can also download the [latest release](https://github.com/michaelarnauts/plugin.video.vtm.go/releases) or download a [development zip](https://github.com/michaelarnauts/plugin.video.vtm.go/archive/master.zip) from Github for the latest changes.
 
 ## Features
@@ -32,7 +33,17 @@ The following features are supported:
 * Search the catalogue
 * Watch YouTube content from some of the DPG Media channels
 
+## Screenshots
+
+<table>
+  <tr>
+    <td><img src="resources/screenshot01.jpg" width=270></td>
+    <td><img src="resources/screenshot02.jpg" width=270></td>
+    <td><img src="resources/screenshot03.jpg" width=270></td>
+  </tr>
+ </table>
+
 ## Disclaimer
 
 This add-on is not officially commissioned/supported by DPG Media and is provided 'as is' without any warranty of any kind.
-The VTM GO name, VTM GO logo, channel names and icons are property of DPG Media and are used according to the fair use policy. 
+The VTM GO name, VTM GO logo, channel names and icons are property of DPG Media and are used according to the fair use policy.
