@@ -13,6 +13,7 @@
 
 **Merged pull requests:**
 
+- First public release [\#149](https://github.com/michaelarnauts/plugin.video.vtm.go/pull/149) ([michaelarnauts](https://github.com/michaelarnauts))
 - Use new EPG API [\#146](https://github.com/michaelarnauts/plugin.video.vtm.go/pull/146) ([michaelarnauts](https://github.com/michaelarnauts))
 - Apply kodi-addon-checker suggestions [\#145](https://github.com/michaelarnauts/plugin.video.vtm.go/pull/145) ([michaelarnauts](https://github.com/michaelarnauts))
 
