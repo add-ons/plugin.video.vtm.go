@@ -57,6 +57,10 @@ build: clean
 	cd ..; zip -r $(zip_name) $(include_paths) -x $(exclude_files)
 	@echo "Successfully wrote package as: ../$(zip_name)"
 
+release: build
+	rm -rf ../repo-plugins/plugin.video.vtm.go/
+	unzip ../$(zip_name) -d ../repo-plugins/
+
 run:
 	@echo ">>> Run CLI"
 	python test/run.py /
