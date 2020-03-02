@@ -1,8 +1,8 @@
 # Changelog
 
-## [v1.0.0](https://github.com/michaelarnauts/plugin.video.vtm.go/tree/v1.0.0) (2020-03-01)
+## [v1.0.0](https://github.com/michaelarnauts/plugin.video.vtm.go/tree/v1.0.0) (2020-03-02)
 
-[Full Changelog](https://github.com/michaelarnauts/plugin.video.vtm.go/compare/v0.9.4...v1.0.0)
+[Full Changelog](https://github.com/michaelarnauts/plugin.video.vtm.go/compare/v0.9.5...v1.0.0)
 
 **Implemented enhancements:**
 
@@ -13,9 +13,19 @@
 
 **Merged pull requests:**
 
+- Fix channels menu [\#151](https://github.com/michaelarnauts/plugin.video.vtm.go/pull/151) ([mediaminister](https://github.com/mediaminister))
 - First public release [\#149](https://github.com/michaelarnauts/plugin.video.vtm.go/pull/149) ([michaelarnauts](https://github.com/michaelarnauts))
 - Use new EPG API [\#146](https://github.com/michaelarnauts/plugin.video.vtm.go/pull/146) ([michaelarnauts](https://github.com/michaelarnauts))
 - Apply kodi-addon-checker suggestions [\#145](https://github.com/michaelarnauts/plugin.video.vtm.go/pull/145) ([michaelarnauts](https://github.com/michaelarnauts))
+
+## [v0.9.5](https://github.com/michaelarnauts/plugin.video.vtm.go/tree/v0.9.5) (2020-03-02)
+
+[Full Changelog](https://github.com/michaelarnauts/plugin.video.vtm.go/compare/v0.9.4...v0.9.5)
+
+**Closed issues:**
+
+- channels menu not working [\#150](https://github.com/michaelarnauts/plugin.video.vtm.go/issues/150)
+- This addon needs an updated inputstream.adaptive [\#101](https://github.com/michaelarnauts/plugin.video.vtm.go/issues/101)
 
 ## [v0.9.4](https://github.com/michaelarnauts/plugin.video.vtm.go/tree/v0.9.4) (2020-02-16)
 
