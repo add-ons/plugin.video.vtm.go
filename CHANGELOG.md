@@ -1,5 +1,13 @@
 # Changelog
 
+## [v0.9.5](https://github.com/michaelarnauts/plugin.video.vtm.go/tree/v0.9.5) (2020-03-02)
+
+[Full Changelog](https://github.com/michaelarnauts/plugin.video.vtm.go/compare/v0.9.4...v0.9.5)
+
+**Merged pull requests:**
+
+- Fix channels menu [\#151](https://github.com/michaelarnauts/plugin.video.vtm.go/pull/151) ([mediaminister](https://github.com/mediaminister))
+
 ## [v0.9.4](https://github.com/michaelarnauts/plugin.video.vtm.go/tree/v0.9.4) (2020-02-16)
 
 [Full Changelog](https://github.com/michaelarnauts/plugin.video.vtm.go/compare/v0.9.3...v0.9.4)
