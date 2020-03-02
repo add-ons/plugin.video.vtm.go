@@ -36,57 +36,58 @@ class Channels:
                 continue
 
             # Find this channel in the list
-            channel_info = next(c for c in channel_infos if c.key == key)
+            channel_info = next((c for c in channel_infos if c.key == key), None)
 
-            # Lookup the high resolution logo based on the channel name
-            icon = '{path}/resources/logos/{logo}-white.png'.format(path=self._kodi.get_addon_path(), logo=channel.get('logo'))
-            fanart = '{path}/resources/logos/{logo}.png'.format(path=self._kodi.get_addon_path(), logo=channel.get('logo'))
+            if channel_info:
+                # Lookup the high resolution logo based on the channel name
+                icon = '{path}/resources/logos/{logo}-white.png'.format(path=self._kodi.get_addon_path(), logo=channel.get('logo'))
+                fanart = '{path}/resources/logos/{logo}.png'.format(path=self._kodi.get_addon_path(), logo=channel.get('logo'))
 
-            context_menu = [(
-                self._kodi.localize(30052, channel=channel.get('label')),  # Watch live {channel}
-                'XBMC.PlayMedia(%s)' %
-                self._kodi.url_for('play', category='channels', item=channel_info.channel_id)
-            ), (
-                self._kodi.localize(30053, channel=channel.get('label')),  # TV Guide for {channel}
-                'XBMC.Container.Update(%s)' %
-                self._kodi.url_for('show_tvguide_channel', channel=channel.get('epg'))
-            )]
-            if self._kodi.get_setting_as_bool('metadata_update'):
-                context_menu.append(
-                    (
-                        self._kodi.localize(30055, channel=channel.get('label')),  # Catalog for {channel}
-                        'XBMC.Container.Update(%s)' %
-                        self._kodi.url_for('show_catalog_channel', channel=key)
+                context_menu = [(
+                    self._kodi.localize(30052, channel=channel.get('label')),  # Watch live {channel}
+                    'XBMC.PlayMedia(%s)' %
+                    self._kodi.url_for('play', category='channels', item=channel_info.channel_id)
+                ), (
+                    self._kodi.localize(30053, channel=channel.get('label')),  # TV Guide for {channel}
+                    'XBMC.Container.Update(%s)' %
+                    self._kodi.url_for('show_tvguide_channel', channel=channel.get('epg'))
+                )]
+                if self._kodi.get_setting_as_bool('metadata_update'):
+                    context_menu.append(
+                        (
+                            self._kodi.localize(30055, channel=channel.get('label')),  # Catalog for {channel}
+                            'XBMC.Container.Update(%s)' %
+                            self._kodi.url_for('show_catalog_channel', channel=key)
+                        )
                     )
+
+                title = channel.get('label')
+                if channel_info.epg:
+                    title += '[COLOR gray] | {title} ({start} - {end})[/COLOR]'.format(title=channel_info.epg[0].title,
+                                                                                       start=channel_info.epg[0].start.strftime('%H:%M'),
+                                                                                       end=channel_info.epg[0].end.strftime('%H:%M'))
+
+                listing.append(
+                    TitleItem(title=title,
+                              path=self._kodi.url_for('show_channel_menu', channel=key),
+                              art_dict={
+                                  'icon': icon,
+                                  'thumb': icon,
+                                  'fanart': fanart,
+                              },
+                              info_dict={
+                                  'plot': self._menu.format_plot(channel),
+                                  'playcount': 0,
+                                  'mediatype': 'video',
+                                  'studio': channel.get('studio_icon'),
+                              },
+                              stream_dict={
+                                  'codec': 'h264',
+                                  'height': 1080,
+                                  'width': 1920,
+                              },
+                              context_menu=context_menu),
                 )
-
-            title = channel.get('label')
-            if channel_info and channel_info.epg:
-                title += '[COLOR gray] | {title} ({start} - {end})[/COLOR]'.format(title=channel_info.epg[0].title,
-                                                                                   start=channel_info.epg[0].start.strftime('%H:%M'),
-                                                                                   end=channel_info.epg[0].end.strftime('%H:%M'))
-
-            listing.append(
-                TitleItem(title=title,
-                          path=self._kodi.url_for('show_channel_menu', channel=key),
-                          art_dict={
-                              'icon': icon,
-                              'thumb': icon,
-                              'fanart': fanart,
-                          },
-                          info_dict={
-                              'plot': self._menu.format_plot(channel),
-                              'playcount': 0,
-                              'mediatype': 'video',
-                              'studio': channel.get('studio_icon'),
-                          },
-                          stream_dict={
-                              'codec': 'h264',
-                              'height': 1080,
-                              'width': 1920,
-                          },
-                          context_menu=context_menu),
-            )
 
         self._kodi.show_listing(listing, 30007)
 
