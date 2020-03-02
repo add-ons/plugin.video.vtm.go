@@ -74,6 +74,14 @@ CHANNELS = OrderedDict([
         studio_icon='CAZ',
         kids=False,
     )),
+    ('caz2', dict(
+        label='CAZ 2',
+        logo='caz2',
+        epg='caz-2',
+        stream='caz2',
+        studio_icon='CAZ 2',
+        kids=False,
+    )),
     ('vtmkids', dict(
         label='VTM KIDS',
         logo='vtmkids',
