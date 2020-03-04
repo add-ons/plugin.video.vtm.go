@@ -46,7 +46,7 @@ class Metadata:
             elif isinstance(item, Program):
                 self._vtm_go.get_program(item.program_id)
 
-            # Update the progress indicator
+            # Run callback after every item
             if callback and callback(index, count):
                 # Stop when callback returns False
                 return False

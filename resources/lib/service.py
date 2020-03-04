@@ -51,25 +51,17 @@ class BackgroundService(Monitor):
             self.kodi.container_refresh()
 
     def _update_metadata(self):
-        """ Update the metadata for the listings. """
+        """ Update the metadata for the listings """
         from resources.lib.modules.metadata import Metadata
 
         # Clear outdated metadata
         self.kodi.invalidate_cache(self.cache_expiry)
 
-        # Create progress indicator
-        progress = self.kodi.show_progress_background(message=self.kodi.localize(30715))
-        self.kodi.log('Updating metadata in the background')
-
         def update_status(i, total):
-            """ Update the progress indicator """
-            progress.update(int(((i + 1) / total) * 100))
+            """ Allow to cancel the background job """
             return self.abortRequested() or not self.kodi.get_setting_as_bool('metadata_update')
 
         success = Metadata(self.kodi).fetch_metadata(callback=update_status)
-
-        # Close progress indicator
-        progress.close()
 
         # Update metadata_last_updated
         if success:
