@@ -57,7 +57,7 @@ class BackgroundService(Monitor):
         # Clear outdated metadata
         self.kodi.invalidate_cache(self.cache_expiry)
 
-        def update_status(i, total):
+        def update_status(_i, _total):
             """ Allow to cancel the background job """
             return self.abortRequested() or not self.kodi.get_setting_as_bool('metadata_update')
 
