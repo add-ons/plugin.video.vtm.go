@@ -174,13 +174,13 @@ class Menu:
             if item.my_list:
                 context_menu = [(
                     self._kodi.localize(30101),  # Remove from My List
-                    'XBMC.Container.Update(%s)' %
+                    'Container.Update(%s)' %
                     self._kodi.url_for('mylist_del', video_type=self._vtm_go.CONTENT_TYPE_MOVIE, content_id=item.movie_id)
                 )]
             else:
                 context_menu = [(
                     self._kodi.localize(30100),  # Add to My List
-                    'XBMC.Container.Update(%s)' %
+                    'Container.Update(%s)' %
                     self._kodi.url_for('mylist_add', video_type=self._vtm_go.CONTENT_TYPE_MOVIE, content_id=item.movie_id)
                 )]
 
@@ -215,13 +215,13 @@ class Menu:
             if item.my_list:
                 context_menu = [(
                     self._kodi.localize(30101),  # Remove from My List
-                    'XBMC.Container.Update(%s)' %
+                    'Container.Update(%s)' %
                     self._kodi.url_for('mylist_del', video_type=self._vtm_go.CONTENT_TYPE_PROGRAM, content_id=item.program_id)
                 )]
             else:
                 context_menu = [(
                     self._kodi.localize(30100),  # Add to My List
-                    'XBMC.Container.Update(%s)' %
+                    'Container.Update(%s)' %
                     self._kodi.url_for('mylist_add', video_type=self._vtm_go.CONTENT_TYPE_PROGRAM, content_id=item.program_id)
                 )]
 
@@ -247,7 +247,7 @@ class Menu:
             if item.program_id:
                 context_menu = [(
                     self._kodi.localize(30102),  # Go to Program
-                    'XBMC.Container.Update(%s)' %
+                    'Container.Update(%s)' %
                     self._kodi.url_for('show_catalog_program', program=item.program_id)
                 )]
 

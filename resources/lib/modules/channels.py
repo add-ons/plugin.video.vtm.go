@@ -45,18 +45,18 @@ class Channels:
 
                 context_menu = [(
                     self._kodi.localize(30052, channel=channel.get('label')),  # Watch live {channel}
-                    'XBMC.PlayMedia(%s)' %
+                    'PlayMedia(%s)' %
                     self._kodi.url_for('play', category='channels', item=channel_info.channel_id)
                 ), (
                     self._kodi.localize(30053, channel=channel.get('label')),  # TV Guide for {channel}
-                    'XBMC.Container.Update(%s)' %
+                    'Container.Update(%s)' %
                     self._kodi.url_for('show_tvguide_channel', channel=channel.get('epg'))
                 )]
                 if self._kodi.get_setting_as_bool('metadata_update'):
                     context_menu.append(
                         (
                             self._kodi.localize(30055, channel=channel.get('label')),  # Catalog for {channel}
-                            'XBMC.Container.Update(%s)' %
+                            'Container.Update(%s)' %
                             self._kodi.url_for('show_catalog_channel', channel=key)
                         )
                     )

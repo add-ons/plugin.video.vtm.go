@@ -63,7 +63,7 @@ class TvGuide:
             if broadcast.playable_type == 'episodes':
                 context_menu = [(
                     self._kodi.localize(30102),  # Go to Program
-                    'XBMC.Container.Update(%s)' %
+                    'Container.Update(%s)' %
                     self._kodi.url_for('show_catalog_program', channel=channel, program=broadcast.program_uuid)
                 )]
             else:
