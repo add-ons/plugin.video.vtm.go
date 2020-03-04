@@ -26,7 +26,7 @@ You can also download the [latest release](https://github.com/michaelarnauts/plu
 
 The following features are supported:
 * User Profiles with access to the specified catalog (VTM GO or VTM GO Kids)
-* Watch live TV (VTM, Q2, Vitaya, CAZ, VTM Kids, VTM Kids Jr & QMusic)
+* Watch live TV (VTM, Q2, Vitaya, CAZ, CAZ 2, VTM Kids & QMusic)
 * Watch on-demand content (movies and series)
 * Browse the VTM GO recommendations and "My List"
 * Browse a TV Guide
