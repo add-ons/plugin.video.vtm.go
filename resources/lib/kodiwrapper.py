@@ -30,6 +30,7 @@ LOG_FATAL = xbmc.LOGFATAL
 
 ADDON = xbmcaddon.Addon()
 
+
 def to_unicode(text, encoding='utf-8'):
     """ Force text to unicode """
     return text.decode(encoding) if isinstance(text, bytes) else text
@@ -167,7 +168,10 @@ class KodiWrapper:
 
     @staticmethod
     def _generate_listitem(title_item):
-        """ Generate a ListItem from a TitleItem """
+        """ Generate a ListItem from a TitleItem
+        :type title_item: TitleItem
+        :rtype xbmcgui.ListItem
+        """
         from xbmcgui import ListItem
 
         # Three options:
@@ -224,11 +228,6 @@ class KodiWrapper:
         # To support video playback directly from RunPlugin() we need to use xbmc.Player().play instead of
         # setResolvedUrl that only works with PlayMedia() or with internal playable menu items
         xbmcplugin.setResolvedUrl(self._handle, True, listitem=play_item)
-
-        if self.get_setting_as_bool('showsubtitles'):
-            while not xbmc.Player().isPlaying() and not xbmc.Monitor().abortRequested():
-                xbmc.sleep(100)
-            xbmc.Player().showSubtitles(True)
 
     @staticmethod
     def get_search_string(heading='', message=''):
@@ -579,5 +578,104 @@ class KodiWrapper:
         if result.get('result') != 'OK':
             self.log('Failed to send notification: {error}', LOG_ERROR, error=result.get('error').get('message'))
             return False
-        self.log('Succesfully sent notification')
         return True
+
+
+class KodiPlayer(xbmc.Player):
+    """ A custom Player object to check if Playback has started """
+
+    def __init__(self, kodi=None):
+        """ Initialises a custom Player object
+        :type kodi: resources.lib.kodiwrapper.KodiWrapper
+        """
+        xbmc.Player.__init__(self)
+
+        self._kodi = kodi
+        self.__monitor = xbmc.Monitor()
+        self.__playBackEventsTriggered = False
+        self.__playPlayBackEndedEventsTriggered = False
+        self.__pollInterval = 1
+
+    def waitForPlayBack(self, url=None, time_out=30):
+        """ Blocks the call until playback is started. If an url was specified, it will wait
+        for that url to be the active one playing before returning.
+        :type url: str
+        :type time_out: int
+        """
+        self._kodi.log("Player: Waiting for playback", LOG_DEBUG)
+        if self.__is_url_playing(url):
+            self.__playBackEventsTriggered = True
+            self._kodi.log("Player: Already Playing", LOG_DEBUG)
+            return True
+
+        for i in range(0, int(time_out / self.__pollInterval)):
+            if self.__monitor.abortRequested():
+                self._kodi.log("Player: Abort requested (%s)" % i * self.__pollInterval, LOG_DEBUG)
+                return False
+
+            if self.__is_url_playing(url):
+                self._kodi.log("Player: PlayBack started (%s)" % i * self.__pollInterval, LOG_DEBUG)
+                return True
+
+            if self.__playPlayBackEndedEventsTriggered:
+                self._kodi.log("Player: PlayBackEnded triggered while waiting for start.", LOG_WARNING)
+                return False
+
+            self.__monitor.waitForAbort(self.__pollInterval)
+            self._kodi.log("Player: Waiting for an abort (%s)" % i * self.__pollInterval, LOG_DEBUG)
+
+        self._kodi.log("Player: time-out occurred waiting for playback (%s)" % time_out, LOG_WARNING)
+        return False
+
+    def onAVStarted(self):
+        """ Will be called when Kodi has a video or audiostream """
+        self._kodi.log("Player: [onAVStarted] called", LOG_DEBUG)
+        self.__playback_started()
+
+    def onPlayBackEnded(self):
+        """ Will be called when [Kodi] stops playing a file """
+        self._kodi.log("Player: [onPlayBackEnded] called", LOG_DEBUG)
+        self.__playback_stopped()
+
+    def onPlayBackStopped(self):
+        """ Will be called when [user] stops Kodi playing a file """
+        self._kodi.log("Player: [onPlayBackStopped] called", LOG_DEBUG)
+        self.__playback_stopped()
+
+    def onPlayBackError(self):
+        """ Will be called when playback stops due to an error. """
+        self._kodi.log("Player: [onPlayBackError] called", LOG_DEBUG)
+        self.__playback_stopped()
+
+    def __playback_stopped(self):
+        """ Sets the correct flags after playback stopped """
+        self.__playBackEventsTriggered = False
+        self.__playPlayBackEndedEventsTriggered = True
+
+    def __playback_started(self):
+        """ Sets the correct flags after playback started """
+        self.__playBackEventsTriggered = True
+        self.__playPlayBackEndedEventsTriggered = False
+
+    def __is_url_playing(self, url):
+        """ Checks whether the given url is playing
+        :param str url: The url to check for playback.
+        :return: Indication if the url is actively playing or not.
+        :rtype: bool
+        """
+        if not self.isPlaying():
+            self._kodi.log("Player: Not playing", LOG_DEBUG)
+            return False
+
+        if not self.__playBackEventsTriggered:
+            self._kodi.log("Player: Playing but the Kodi events did not yet trigger", LOG_DEBUG)
+            return False
+
+        # We are playing
+        if url is None or url.startswith("plugin://"):
+            self._kodi.log("Player: No valid URL to check playback against: %s" % url, LOG_DEBUG)
+            return True
+
+        playing_file = self.getPlayingFile()
+        self._kodi.log("Player: Checking \n'%s' vs \n'%s'" % (url, playing_file), LOG_DEBUG)
+        return url == playing_file

@@ -3,7 +3,7 @@
 
 from __future__ import absolute_import, division, unicode_literals
 
-from resources.lib.kodiwrapper import TitleItem, LOG_WARNING, to_unicode
+from resources.lib.kodiwrapper import TitleItem, LOG_WARNING, to_unicode, KodiPlayer
 from resources.lib.vtmgo.vtmgo import VtmGo, UnavailableException
 from resources.lib.vtmgo.vtmgostream import VtmGoStream, StreamGeoblockedException, StreamUnavailableException
 
@@ -145,6 +145,16 @@ class Player:
                 is_playable=True,
             ),
             license_key=self._vtm_go_stream.create_license_key(resolved_stream.license_url))
+
+        # Wait for playback to start
+        kodi_player = KodiPlayer(kodi=self._kodi)
+        if not kodi_player.waitForPlayBack(url=resolved_stream.url):
+            # Playback didn't start
+            return
+
+        # Turn on subtitles if needed
+        if resolved_stream.subtitles and self._kodi.get_setting_as_bool('showsubtitles'):
+            kodi_player.showSubtitles(True)
 
         # Send Up Next data
         if upnext_data:
