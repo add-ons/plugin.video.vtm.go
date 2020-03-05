@@ -4,31 +4,28 @@
 
 [Full Changelog](https://github.com/michaelarnauts/plugin.video.vtm.go/compare/v0.9.5...v1.0.0)
 
-**Merged pull requests:**
+**Implemented enhancements:**
 
 - Use xbmc.Player to wait for subtitles and UpNext notification [\#153](https://github.com/michaelarnauts/plugin.video.vtm.go/pull/153) ([michaelarnauts](https://github.com/michaelarnauts))
 - Remove background progress bar [\#152](https://github.com/michaelarnauts/plugin.video.vtm.go/pull/152) ([michaelarnauts](https://github.com/michaelarnauts))
-
-## [v0.9.5](https://github.com/michaelarnauts/plugin.video.vtm.go/tree/v0.9.5) (2020-03-02)
-
-[Full Changelog](https://github.com/michaelarnauts/plugin.video.vtm.go/compare/v0.9.4...v0.9.5)
-
-**Implemented enhancements:**
-
 - Use new EPG API [\#146](https://github.com/michaelarnauts/plugin.video.vtm.go/pull/146) ([michaelarnauts](https://github.com/michaelarnauts))
 - Don't close the settings when updating or clearing the metadata [\#144](https://github.com/michaelarnauts/plugin.video.vtm.go/pull/144) ([michaelarnauts](https://github.com/michaelarnauts))
 - Skip single season selections [\#143](https://github.com/michaelarnauts/plugin.video.vtm.go/pull/143) ([michaelarnauts](https://github.com/michaelarnauts))
 - Cache improvements [\#142](https://github.com/michaelarnauts/plugin.video.vtm.go/pull/142) ([michaelarnauts](https://github.com/michaelarnauts))
 - Require authentication according to VTM GO TOS [\#141](https://github.com/michaelarnauts/plugin.video.vtm.go/pull/141) ([michaelarnauts](https://github.com/michaelarnauts))
 
-**Fixed bugs:**
-
-- Fix channels menu [\#151](https://github.com/michaelarnauts/plugin.video.vtm.go/pull/151) ([mediaminister](https://github.com/mediaminister))
-
 **Merged pull requests:**
 
 - First public release [\#149](https://github.com/michaelarnauts/plugin.video.vtm.go/pull/149) ([michaelarnauts](https://github.com/michaelarnauts))
 - Apply kodi-addon-checker suggestions [\#145](https://github.com/michaelarnauts/plugin.video.vtm.go/pull/145) ([michaelarnauts](https://github.com/michaelarnauts))
+
+## [v0.9.5](https://github.com/michaelarnauts/plugin.video.vtm.go/tree/v0.9.5) (2020-03-02)
+
+[Full Changelog](https://github.com/michaelarnauts/plugin.video.vtm.go/compare/v0.9.4...v0.9.5)
+
+**Fixed bugs:**
+
+- Fix channels menu [\#151](https://github.com/michaelarnauts/plugin.video.vtm.go/pull/151) ([mediaminister](https://github.com/mediaminister))
 
 ## [v0.9.4](https://github.com/michaelarnauts/plugin.video.vtm.go/tree/v0.9.4) (2020-02-16)
 
