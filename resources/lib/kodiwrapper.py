@@ -222,8 +222,13 @@ class KodiWrapper:
             play_item.setProperty('inputstream.adaptive.license_type', 'com.widevine.alpha')
             play_item.setProperty('inputstream.adaptive.license_key', license_key)
 
-        if title_item.subtitles_path:
-            play_item.setSubtitles(title_item.subtitles_path)
+        # Note: Adding the subtitle directly on the ListItem could cause sync issues, therefore
+        # we add the subtitles trough the Player after playback has started.
+        # See https://github.com/michaelarnauts/plugin.video.vtm.go/issues/148
+        # This is probably a Kodi or inputstream.adaptive issue
+
+        # if title_item.subtitles_path:
+        #     play_item.setSubtitles(title_item.subtitles_path)
 
         # To support video playback directly from RunPlugin() we need to use xbmc.Player().play instead of
         # setResolvedUrl that only works with PlayMedia() or with internal playable menu items
