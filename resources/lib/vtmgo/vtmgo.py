@@ -289,15 +289,15 @@ class VtmGo:
         response = self._get_url('/profiles', {'products': products})
         result = json.loads(response)
 
-        def _fix_wrong_encoding(str):
+        def _fix_wrong_encoding(value):
             """ Fix encoding """
             # VTM GO seems to return a wrongfully encoded name sometimes.
             # This can be reproduced by giving a Profile a name with a special character.
             # As soon as there is a kids profile with a special character, it works fine again.
             try:
-                return str.encode('iso-8859-1')
+                return value.encode('iso-8859-1')
             except UnicodeEncodeError:
-                return str
+                return value
 
         profiles = [
             Profile(
