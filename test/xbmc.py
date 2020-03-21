@@ -108,7 +108,11 @@ class Player:
         self._count += 1
         return bool(self._count % 5 != 0)
 
-    def showSubtitles(self, bVisible):
+    def setSubtitles(self, subtitleFile):
+        ''' A stub implementation for the xbmc Player class setSubtitles() method '''
+        return
+
+    def showSubtitles(self, visible):
         ''' A stub implementation for the xbmc Player class showSubtitles() method '''
         return
 

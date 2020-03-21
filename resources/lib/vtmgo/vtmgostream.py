@@ -95,12 +95,12 @@ class VtmGoStream:
         # https://github.com/peak3d/inputstream.adaptive/issues/286
         url = self._redirect_manifest(url)
 
-        # Extract subtitle info from our stream_info.
-        subtitle_info = self._extract_subtitles_from_stream_info(stream_info)
+        # Extract subtitles from our stream_info.
+        subtitles = self._extract_subtitles_from_stream_info(stream_info)
 
         # Delay subtitles taking into account advertisements breaks.
-        if subtitle_info:
-            subtitle_info = self._delay_subtitles(subtitle_info, json_manifest)
+        if subtitles:
+            subtitles = self._delay_subtitles(subtitles, json_manifest)
 
         if stream_type == 'episodes':
             # TV episode
@@ -110,7 +110,7 @@ class VtmGoStream:
                 title=stream_info['video']['metadata']['title'],
                 duration=stream_info['video']['duration'],
                 url=url,
-                subtitles=subtitle_info,
+                subtitles=subtitles,
                 license_url=license_url,
                 cookies=self._session.cookies.get_dict()
             )
@@ -122,7 +122,7 @@ class VtmGoStream:
                 title=stream_info['video']['metadata']['title'],
                 duration=stream_info['video']['duration'],
                 url=url,
-                subtitles=subtitle_info,
+                subtitles=subtitles,
                 license_url=license_url,
                 cookies=self._session.cookies.get_dict()
             )
@@ -139,7 +139,7 @@ class VtmGoStream:
                 title=stream_info['video']['metadata']['title'],
                 duration=None,
                 url=url,
-                subtitles=subtitle_info,
+                subtitles=subtitles,
                 license_url=license_url,
                 cookies=self._session.cookies.get_dict()
             )

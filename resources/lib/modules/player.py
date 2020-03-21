@@ -42,15 +42,7 @@ class Player:
         :type item: string
         """
         # Check if inputstreamhelper is correctly installed
-        try:
-            from inputstreamhelper import Helper
-            is_helper = Helper('mpd', drm='com.widevine.alpha')
-            if not is_helper.check_inputstream():
-                # inputstreamhelper has already shown an error
-                return
-
-        except ImportError:
-            self._kodi.show_ok_dialog(message=self._kodi.localize(30708))  # Please reboot Kodi
+        if not self._check_inputstream():
             return
 
         try:
@@ -152,13 +144,37 @@ class Player:
             # Playback didn't start
             return
 
-        # Turn on subtitles if needed
-        if resolved_stream.subtitles and self._kodi.get_setting_as_bool('showsubtitles'):
-            kodi_player.showSubtitles(True)
+        # Add subtitles
+        if resolved_stream.subtitles:
+            self._kodi.log('Setting subtitles')
+            kodi_player.setSubtitles(resolved_stream.subtitles[0])
+
+            # Turn on subtitles if needed
+            if self._kodi.get_setting_as_bool('showsubtitles'):
+                self._kodi.log('Enabling subtitles')
+                kodi_player.showSubtitles(True)
 
         # Send Up Next data
         if upnext_data:
+            self._kodi.log("Sending Up Next data: %s" % upnext_data)
             self.send_upnext(upnext_data)
+
+    def _check_inputstream(self):
+        """ Check if inputstreamhelper and inputstream.adaptive are fine.
+        :rtype boolean
+        """
+        try:
+            from inputstreamhelper import Helper
+            is_helper = Helper('mpd', drm='com.widevine.alpha')
+            if not is_helper.check_inputstream():
+                # inputstreamhelper has already shown an error
+                return False
+
+        except ImportError:
+            self._kodi.show_ok_dialog(message=self._kodi.localize(30708))  # Please reboot Kodi
+            return False
+
+        return True
 
     @staticmethod
     def generate_upnext(current_episode, next_episode):
@@ -208,8 +224,6 @@ class Player:
         """ Send a message to Up Next with information about the next Episode.
         :type upnext_info: object
         """
-        self._kodi.log("Sending Up Next data: %s" % upnext_info)
-
         from base64 import b64encode
         from json import dumps
         data = [to_unicode(b64encode(dumps(upnext_info).encode()))]
