@@ -3,7 +3,7 @@
 
 from __future__ import absolute_import, division, unicode_literals
 
-from resources.lib.kodiwrapper import TitleItem
+from resources.lib.kodiwrapper import TitleItem, to_unicode
 from resources.lib.vtmgo.vtmgo import VtmGo
 from resources.lib.vtmgo.vtmgoauth import InvalidLoginException, LoginErrorException
 
@@ -89,7 +89,7 @@ class Authentication:
             '#FF0257': 'crimson',
         }
         if color_map.get(profile.color.upper()):
-            title = '[COLOR %s]%s[/COLOR]' % (color_map.get(profile.color), title)
+            title = '[COLOR %s]%s[/COLOR]' % (color_map.get(profile.color), to_unicode(title))
 
         # Append (Kids)
         if profile.product == 'VTM_GO_KIDS':
