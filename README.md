@@ -1,5 +1,5 @@
 [![GitHub release](https://img.shields.io/github/release/add-ons/plugin.video.vtm.go.svg)](https://github.com/add-ons/plugin.video.vtm.go/releases)
-[![Build Status](https://travis-ci.org/add-ons/plugin.video.vtm.go.svg?branch=master)](https://travis-ci.org/add-ons/plugin.video.vtm.go)
+[![Build Status](https://img.shields.io/github/workflow/status/add-ons/plugin.video.vtm.go/CI/master)](https://github.com/add-ons/plugin.video.vtm.go/actions?query=branch%3Amaster)
 [![Codecov status](https://img.shields.io/codecov/c/github/add-ons/plugin.video.vtm.go/master)](https://codecov.io/gh/add-ons/plugin.video.vtm.go/branch/master)
 [![License: GPLv3](https://img.shields.io/badge/License-GPLv3-yellow.svg)](https://opensource.org/licenses/GPL-3.0)
 [![Contributors](https://img.shields.io/github/contributors/add-ons/plugin.video.vtm.go.svg)](https://github.com/add-ons/plugin.video.vtm.go/graphs/contributors)
