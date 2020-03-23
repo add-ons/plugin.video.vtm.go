@@ -174,12 +174,12 @@ class Player:
 
         # You need to configure your credentials before you can access the content of VTM GO.
         confirm = self._kodi.show_yesno_dialog(message=self._kodi.localize(30701))
-        if not confirm:
-            return False
+        if confirm:
+            self._kodi.open_settings()
+            if self._kodi.has_credentials():
+                return True
 
-        self._kodi.open_settings()
-        if self._kodi.has_credentials():
-            return True
+        return False
 
     def _check_inputstream(self):
         """ Check if inputstreamhelper and inputstream.adaptive are fine.
