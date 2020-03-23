@@ -32,6 +32,7 @@ class TestVtmGo(unittest.TestCase):
         # warnings.simplefilter("ignore", ResourceWarning)
         pass
 
+    @unittest.skipUnless(kodi.has_credentials(), 'Skipping since we have no credentials.')
     def test_login(self):
         token = self._vtmgoauth.get_token()
         self.assertTrue(token)
@@ -40,6 +41,7 @@ class TestVtmGo(unittest.TestCase):
         config = self._vtmgo.get_config()
         self.assertTrue(config)
 
+    @unittest.skipUnless(kodi.has_credentials(), 'Skipping since we have no credentials.')
     def test_get_profiles(self):
         profiles = self._vtmgo.get_profiles()
         self.assertTrue(profiles)

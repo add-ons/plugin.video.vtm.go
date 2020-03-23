@@ -25,7 +25,7 @@
         <news>v1.0.0
 - First public release
         </news>
-        <source>https://github.com/michaelarnauts/plugin.video.vtm.go</source>
+        <source>https://github.com/add-ons/plugin.video.vtm.go</source>
         <assets>
             <icon>resources/icon.png</icon>
             <fanart>resources/fanart.png</fanart>
