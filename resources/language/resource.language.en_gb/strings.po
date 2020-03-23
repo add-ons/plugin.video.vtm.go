@@ -421,4 +421,4 @@ msgstr ""
 
 msgctxt "#30891"
 msgid "Enable debug logging"
-msgstr "Activeer debug logging"
+msgstr ""
