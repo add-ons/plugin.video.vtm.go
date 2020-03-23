@@ -25,6 +25,10 @@ class Player:
         :type item: str
         :type channel: str
         """
+        if not self._check_credentials():
+            self._kodi.end_of_directory()
+            return
+
         res = self._kodi.show_context_menu([self._kodi.localize(30103), self._kodi.localize(30105)])  # Watch Live | Play from Catalog
         if res == -1:  # user has cancelled
             return
@@ -41,6 +45,10 @@ class Player:
         :type category: string
         :type item: string
         """
+        if not self._check_credentials():
+            self._kodi.end_of_directory()
+            return
+
         # Check if inputstreamhelper is correctly installed
         if not self._check_inputstream():
             return
@@ -158,6 +166,20 @@ class Player:
         if upnext_data:
             self._kodi.log("Sending Up Next data: %s" % upnext_data)
             self.send_upnext(upnext_data)
+
+    def _check_credentials(self):
+        """ Check if the user has credentials """
+        if self._kodi.has_credentials():
+            return True
+
+        # You need to configure your credentials before you can access the content of VTM GO.
+        confirm = self._kodi.show_yesno_dialog(message=self._kodi.localize(30701))
+        if confirm:
+            self._kodi.open_settings()
+            if self._kodi.has_credentials():
+                return True
+
+        return False
 
     def _check_inputstream(self):
         """ Check if inputstreamhelper and inputstream.adaptive are fine.

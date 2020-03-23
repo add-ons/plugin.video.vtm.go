@@ -259,6 +259,14 @@ class KodiWrapper:
         return Dialog().ok(heading=heading, line1=message)
 
     @staticmethod
+    def show_yesno_dialog(heading='', message=''):
+        """ Show Kodi's YES/NO dialog """
+        from xbmcgui import Dialog
+        if not heading:
+            heading = ADDON.getAddonInfo('name')
+        return Dialog().yesno(heading=heading, line1=message)
+
+    @staticmethod
     def show_notification(heading='', message='', icon='info', time=8000):
         """ Show a Kodi notification """
         from xbmcgui import Dialog
