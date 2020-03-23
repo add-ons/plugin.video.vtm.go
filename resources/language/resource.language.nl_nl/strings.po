@@ -99,11 +99,11 @@ msgstr "Kijk live [B]{channel}[/B]"
 
 msgctxt "#30053"
 msgid "TV Guide for [B]{channel}[/B]"
-msgstr "TV-gids voor [B]{channel}[/B]"
+msgstr "Tv-gids voor [B]{channel}[/B]"
 
 msgctxt "#30054"
 msgid "Browse the TV Guide for [B]{channel}[/B]"
-msgstr "Doorblader de TV-gids voor [B]{channel}[/B]"
+msgstr "Doorblader de tv-gids voor [B]{channel}[/B]"
 
 msgctxt "#30055"
 msgid "Catalog for [B]{channel}[/B]"
@@ -138,7 +138,7 @@ msgstr "Kijk live"
 
 msgctxt "#30104"
 msgid "TV Guide"
-msgstr "TV-gids"
+msgstr "Tv-gids"
 
 msgctxt "#30105"
 msgid "Play from Catalog"
@@ -280,7 +280,7 @@ msgstr "De gevraagde video werd niet gevonden in de tv-gids."
 
 msgctxt "#30714"
 msgid "Local metadata is cleared."
-msgstr "De locale metadata is verwijderd."
+msgstr "De lokale metadata is verwijderd."
 
 msgctxt "#30715"
 msgid "Updating metadata"
@@ -349,15 +349,15 @@ msgstr "Metadata"
 
 msgctxt "#30829"
 msgid "Periodically refresh metadata in the background"
-msgstr "Vernieuw de metdata automatisch in de achtergrond"
+msgstr "Vernieuw de metadata automatisch in de achtergrond"
 
 msgctxt "#30831"
 msgid "Update local metadata now"
-msgstr "De locale metadata nu vernieuwen"
+msgstr "De lokale metadata nu vernieuwen"
 
 msgctxt "#30833"
 msgid "Clear local metadata"
-msgstr "De locale metadata verwijderen"
+msgstr "De lokale metadata verwijderen"
 
 msgctxt "#30860"
 msgid "Playback"
