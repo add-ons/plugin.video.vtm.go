@@ -132,6 +132,7 @@ class Player:
         ''' A stub implementation for the xbmc Player class getPlayingFile() method '''
         return ''
 
+
 class VideoInfoTag:
     ''' A stub implementation of the xbmc VideoInfoTag class '''
 

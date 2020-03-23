@@ -643,17 +643,18 @@ class VtmGo:
         :type number: int
         :rtype Episode
         """
-        # First, try to find a match in the current season
-        for s in list(program.seasons.values()):
-            for e in list(s.episodes.values()):
-                if e.season == season and e.number == number + 1:
-                    return e
+        next_season_episode = None
 
-        # No match, try to find the first episode of next season
-        for s in list(program.seasons.values()):
-            for e in list(s.episodes.values()):
-                if e.season == season + 1 and e.number == 1:
-                    return e
+        # First, try to find a match in the current season
+        for episode in [e for s in list(program.seasons.values()) for e in list(s.episodes.values())]:
+            if episode.season == season and episode.number == number + 1:
+                return episode
+            if episode.season == season + 1 and episode.number == 1:
+                next_season_episode = episode
+
+        # No match, use the first episode of next season
+        if next_season_episode:
+            return next_season_episode
 
         # We are playing the last episode
         return None

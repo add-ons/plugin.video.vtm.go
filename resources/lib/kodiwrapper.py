@@ -605,11 +605,11 @@ class KodiPlayer(xbmc.Player):
 
         self._kodi = kodi
         self.__monitor = xbmc.Monitor()
-        self.__playBackEventsTriggered = False
-        self.__playPlayBackEndedEventsTriggered = False
-        self.__pollInterval = 1
+        self.__playBackEventsTriggered = False  # pylint: disable=invalid-name
+        self.__playPlayBackEndedEventsTriggered = False  # pylint: disable=invalid-name
+        self.__pollInterval = 1  # pylint: disable=invalid-name
 
-    def waitForPlayBack(self, url=None, time_out=30):
+    def waitForPlayBack(self, url=None, time_out=30):  # pylint: disable=invalid-name
         """ Blocks the call until playback is started. If an url was specified, it will wait
         for that url to be the active one playing before returning.
         :type url: str
@@ -640,22 +640,22 @@ class KodiPlayer(xbmc.Player):
         self._kodi.log("Player: time-out occurred waiting for playback (%s)" % time_out, LOG_WARNING)
         return False
 
-    def onAVStarted(self):
+    def onAVStarted(self):  # pylint: disable=invalid-name
         """ Will be called when Kodi has a video or audiostream """
         self._kodi.log("Player: [onAVStarted] called", LOG_DEBUG)
         self.__playback_started()
 
-    def onPlayBackEnded(self):
+    def onPlayBackEnded(self):  # pylint: disable=invalid-name
         """ Will be called when [Kodi] stops playing a file """
         self._kodi.log("Player: [onPlayBackEnded] called", LOG_DEBUG)
         self.__playback_stopped()
 
-    def onPlayBackStopped(self):
+    def onPlayBackStopped(self):  # pylint: disable=invalid-name
         """ Will be called when [user] stops Kodi playing a file """
         self._kodi.log("Player: [onPlayBackStopped] called", LOG_DEBUG)
         self.__playback_stopped()
 
-    def onPlayBackError(self):
+    def onPlayBackError(self):  # pylint: disable=invalid-name
         """ Will be called when playback stops due to an error. """
         self._kodi.log("Player: [onPlayBackError] called", LOG_DEBUG)
         self.__playback_stopped()

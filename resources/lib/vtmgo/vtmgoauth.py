@@ -6,7 +6,6 @@ from __future__ import absolute_import, division, unicode_literals
 import hashlib
 import json
 import random
-
 import requests
 
 from resources.lib.kodiwrapper import LOG_DEBUG, from_unicode, LOG_INFO
@@ -77,8 +76,8 @@ class VtmGoAuth:
         if self._kodi.check_if_path_exists(path):
             self._kodi.log('Returning token from cache', LOG_DEBUG)
 
-            with self._kodi.open_file(path) as f:
-                self._token = f.read()
+            with self._kodi.open_file(path) as fdesc:
+                self._token = fdesc.read()
 
             if self._token:
                 return self._token
@@ -87,8 +86,8 @@ class VtmGoAuth:
         self._token = self._login()
         self._kodi.log('Returning token from VTM GO', LOG_DEBUG)
 
-        with self._kodi.open_file(path, 'w') as f:
-            f.write(from_unicode(self._token))
+        with self._kodi.open_file(path, 'w') as fdesc:
+            fdesc.write(from_unicode(self._token))
 
         return self._token
 
@@ -138,11 +137,11 @@ class VtmGoAuth:
 
             raise LoginErrorException(code=100)  # Unknown error while logging in
 
-        except requests.exceptions.InvalidSchema as e:
+        except requests.exceptions.InvalidSchema as exc:
             # We get back an url like this: vtmgo://callback/oidc?state=yyyyyyyyyyyyyyyyyyyyyy&code=xxxxxxxxxxxxxxxxxxxxxxxxxx-xxxxxxxxxxxxxxxx
             # I found no other way to get this url then by parsing the Exception message. :(
             import re
-            matches = re.search(r"code=([^']+)", str(e))
+            matches = re.search(r"code=([^']+)", str(exc))
             if matches:
                 code = matches.group(1)
             else:
