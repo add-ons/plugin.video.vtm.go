@@ -289,21 +289,11 @@ class VtmGo:
         response = self._get_url('/profiles', {'products': products})
         result = json.loads(response)
 
-        def _fix_wrong_encoding(value):
-            """ Fix encoding """
-            # VTM GO seems to return a wrongfully encoded name sometimes.
-            # This can be reproduced by giving a Profile a name with a special character.
-            # As soon as there is a kids profile with a special character, it works fine again.
-            try:
-                return value.encode('iso-8859-1')
-            except UnicodeEncodeError:
-                return value
-
         profiles = [
             Profile(
                 key=profile.get('id'),
                 product=profile.get('product'),
-                name=_fix_wrong_encoding(profile.get('name')),
+                name=profile.get('name'),
                 gender=profile.get('gender'),
                 birthdate=profile.get('birthDate'),
                 color=profile.get('color', {}).get('start'),
@@ -766,6 +756,10 @@ class VtmGo:
         self._kodi.log('Sending GET {url}...', url=url)
 
         response = requests.session().get('https://lfvp-api.dpgmedia.net' + url, params=params, headers=headers, proxies=self._proxies)
+
+        # Set encoding to UTF-8 if no charset is indicated in http headers (https://github.com/psf/requests/issues/1604)
+        if not response.encoding:
+            response.encoding = 'utf-8'
 
         self._kodi.log('Got response (status={code}): {response}', LOG_DEBUG, code=response.status_code, response=response.text)
 
