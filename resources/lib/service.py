@@ -38,7 +38,7 @@ class BackgroundService(Monitor):
 
         self.kodi.log('Service stopped', LOG_INFO)
 
-    def onSettingsChanged(self):
+    def onSettingsChanged(self):  # pylint: disable=invalid-name
         """ Callback when a setting has changed """
         # Refresh our VtmGo instance
         self.vtm_go = VtmGo(self.kodi)

@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """ Tests for Routing """
 
-# pylint: disable=missing-docstring,no-self-use
+# pylint: disable=invalid-name,missing-docstring,no-self-use
 
 from __future__ import absolute_import, division, print_function, unicode_literals
 

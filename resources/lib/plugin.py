@@ -7,8 +7,8 @@ import routing
 
 from resources.lib.kodiwrapper import KodiWrapper
 
-routing = routing.Plugin()
-kodi = KodiWrapper(globals())
+routing = routing.Plugin()  # pylint: disable=invalid-name
+kodi = KodiWrapper(globals())  # pylint: disable=invalid-name
 
 
 @routing.route('/')

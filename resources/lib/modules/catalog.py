@@ -30,13 +30,13 @@ class Catalog:
 
         listing = []
         for cat in categories:
-            listing.append(
-                TitleItem(title=cat.title,
-                          path=self._kodi.url_for('show_catalog_category', category=cat.category_id),
-                          info_dict={
-                              'plot': '[B]{category}[/B]'.format(category=cat.title),
-                          })
-            )
+            listing.append(TitleItem(
+                title=cat.title,
+                path=self._kodi.url_for('show_catalog_category', category=cat.category_id),
+                info_dict=dict(
+                    plot='[B]{category}[/B]'.format(category=cat.title),
+                ),
+            ))
 
         # Sort categories by default like in VTM GO.
         self._kodi.show_listing(listing, 30003, content='files')
@@ -100,41 +100,41 @@ class Catalog:
 
         # Add an '* All seasons' entry when configured in Kodi
         if self._kodi.get_global_setting('videolibrary.showallitems') is True:
-            listing.append(
-                TitleItem(title='* %s' % self._kodi.localize(30204),  # * All seasons
-                          path=self._kodi.url_for('show_catalog_program_season', program=program, season=-1),
-                          art_dict={
-                              'thumb': program_obj.cover,
-                              'fanart': program_obj.cover,
-                          },
-                          info_dict={
-                              'tvshowtitle': program_obj.name,
-                              'title': self._kodi.localize(30204),  # All seasons
-                              'tagline': program_obj.description,
-                              'set': program_obj.name,
-                              'studio': studio,
-                              'mpaa': ', '.join(program_obj.legal) if hasattr(program_obj, 'legal') and program_obj.legal else self._kodi.localize(30216),  # All ages
-                          })
-            )
+            listing.append(TitleItem(
+                title='* %s' % self._kodi.localize(30204),  # * All seasons
+                path=self._kodi.url_for('show_catalog_program_season', program=program, season=-1),
+                art_dict=dict(
+                    thumb=program_obj.cover,
+                    fanart=program_obj.cover,
+                ),
+                info_dict=dict(
+                    tvshowtitle=program_obj.name,
+                    title=self._kodi.localize(30204),  # All seasons
+                    tagline=program_obj.description,
+                    set=program_obj.name,
+                    studio=studio,
+                    mpaa=', '.join(program_obj.legal) if hasattr(program_obj, 'legal') and program_obj.legal else self._kodi.localize(30216),  # All ages
+                ),
+            ))
 
         # Add the seasons
-        for s in list(program_obj.seasons.values()):
-            listing.append(
-                TitleItem(title=self._kodi.localize(30205, season=s.number),  # Season {season}
-                          path=self._kodi.url_for('show_catalog_program_season', program=program, season=s.number),
-                          art_dict={
-                              'thumb': s.cover,
-                              'fanart': program_obj.cover,
-                          },
-                          info_dict={
-                              'tvshowtitle': program_obj.name,
-                              'title': self._kodi.localize(30205, season=s.number),  # Season {season}
-                              'tagline': program_obj.description,
-                              'set': program_obj.name,
-                              'studio': studio,
-                              'mpaa': ', '.join(program_obj.legal) if hasattr(program_obj, 'legal') and program_obj.legal else self._kodi.localize(30216),  # All ages
-                          })
-            )
+        for season in list(program_obj.seasons.values()):
+            listing.append(TitleItem(
+                title=self._kodi.localize(30205, season=season.number),  # Season {season}
+                path=self._kodi.url_for('show_catalog_program_season', program=program, season=season.number),
+                art_dict=dict(
+                    thumb=season.cover,
+                    fanart=program_obj.cover,
+                ),
+                info_dict=dict(
+                    tvshowtitle=program_obj.name,
+                    title=self._kodi.localize(30205, season=season.number),  # Season {season}
+                    tagline=program_obj.description,
+                    set=program_obj.name,
+                    studio=studio,
+                    mpaa=', '.join(program_obj.legal) if hasattr(program_obj, 'legal') and program_obj.legal else self._kodi.localize(30216),  # All ages
+                ),
+            ))
 
         # Sort by label. Some programs return seasons unordered.
         self._kodi.show_listing(listing, 30003, content='tvshows', sort=['label'])
@@ -158,10 +158,7 @@ class Catalog:
             # Show the season that was selected
             seasons = [program_obj.seasons[season]]
 
-        listing = []
-        for s in seasons:
-            for episode in list(s.episodes.values()):
-                listing.append(self._menu.generate_titleitem(episode))
+        listing = [self._menu.generate_titleitem(e) for s in seasons for e in list(s.episodes.values())]
 
         # Sort by episode number by default. Takes seasons into account.
         self._kodi.show_listing(listing, 30003, content='episodes', sort=['episode', 'duration'])
@@ -176,13 +173,13 @@ class Catalog:
 
         listing = []
         for cat in recommendations:
-            listing.append(
-                TitleItem(title=cat.title,
-                          path=self._kodi.url_for('show_recommendations_category', category=cat.category_id),
-                          info_dict={
-                              'plot': '[B]{category}[/B]'.format(category=cat.title),
-                          })
-            )
+            listing.append(TitleItem(
+                title=cat.title,
+                path=self._kodi.url_for('show_recommendations_category', category=cat.category_id),
+                info_dict=dict(
+                    plot='[B]{category}[/B]'.format(category=cat.title),
+                ),
+            ))
 
         # Sort categories by default like in VTM GO.
         self._kodi.show_listing(listing, 30015, content='files')
