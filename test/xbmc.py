@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 # Copyright: (c) 2019, Dag Wieers (@dagwieers) <dag@wieers.com>
 # GNU General Public License v3.0 (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
-''' This file implements the Kodi xbmc module, either using stubs or alternative functionality '''
+""" This file implements the Kodi xbmc module, either using stubs or alternative functionality """
 
 # pylint: disable=invalid-name,no-self-use,unused-argument
 
@@ -60,113 +60,115 @@ def from_unicode(text, encoding='utf-8'):
 
 
 class Keyboard:
-    ''' A stub implementation of the xbmc Keyboard class '''
+    """ A stub implementation of the xbmc Keyboard class """
 
     def __init__(self, line='', heading=''):
-        ''' A stub constructor for the xbmc Keyboard class '''
+        """ A stub constructor for the xbmc Keyboard class """
 
     def doModal(self, autoclose=0):
-        ''' A stub implementation for the xbmc Keyboard class doModal() method '''
+        """ A stub implementation for the xbmc Keyboard class doModal() method """
 
     def isConfirmed(self):
-        ''' A stub implementation for the xbmc Keyboard class isConfirmed() method '''
+        """ A stub implementation for the xbmc Keyboard class isConfirmed() method """
         return True
 
     def getText(self):
-        ''' A stub implementation for the xbmc Keyboard class getText() method '''
+        """ A stub implementation for the xbmc Keyboard class getText() method """
         return 'test'
 
 
 class Monitor:
-    ''' A stub implementation of the xbmc Monitor class '''
+    """A stub implementation of the xbmc Monitor class"""
 
     def __init__(self, line='', heading=''):
-        ''' A stub constructor for the xbmc Monitor class '''
+        """A stub constructor for the xbmc Monitor class"""
+        self._deadline = time.time() + 10  # 10 seconds
 
     def abortRequested(self):
-        ''' A stub implementation for the xbmc Keyboard class abortRequested() method '''
-        return False
+        """A stub implementation for the xbmc Keyboard class abortRequested() method"""
+        return time.time() > self._deadline
 
     def waitForAbort(self, timeout=None):
-        ''' A stub implementation for the xbmc Keyboard class waitForAbort() method '''
+        """A stub implementation for the xbmc Keyboard class waitForAbort() method"""
+        time.sleep(0.5)
         return False
 
 
 class Player:
-    ''' A stub implementation of the xbmc Player class '''
+    """ A stub implementation of the xbmc Player class """
 
     def __init__(self):
         self._count = 0
 
     def play(self, item='', listitem=None, windowed=False, startpos=-1):
-        ''' A stub implementation for the xbmc Player class play() method '''
+        """ A stub implementation for the xbmc Player class play() method """
         return
 
     def isPlaying(self):
-        ''' A stub implementation for the xbmc Player class isPlaying() method '''
+        """ A stub implementation for the xbmc Player class isPlaying() method """
         # Return True four times out of five
         self._count += 1
         return bool(self._count % 5 != 0)
 
     def setSubtitles(self, subtitleFile):
-        ''' A stub implementation for the xbmc Player class setSubtitles() method '''
+        """ A stub implementation for the xbmc Player class setSubtitles() method """
         return
 
     def showSubtitles(self, visible):
-        ''' A stub implementation for the xbmc Player class showSubtitles() method '''
+        """ A stub implementation for the xbmc Player class showSubtitles() method """
         return
 
     def getTotalTime(self):
-        ''' A stub implementation for the xbmc Player class getTotalTime() method '''
+        """ A stub implementation for the xbmc Player class getTotalTime() method """
         return 0
 
     def getTime(self):
-        ''' A stub implementation for the xbmc Player class getTime() method '''
+        """ A stub implementation for the xbmc Player class getTime() method """
         return 0
 
     def getVideoInfoTag(self):
-        ''' A stub implementation for the xbmc Player class getVideoInfoTag() method '''
+        """ A stub implementation for the xbmc Player class getVideoInfoTag() method """
         return VideoInfoTag()
 
     def getPlayingFile(self):
-        ''' A stub implementation for the xbmc Player class getPlayingFile() method '''
+        """ A stub implementation for the xbmc Player class getPlayingFile() method """
         return ''
 
 
 class VideoInfoTag:
-    ''' A stub implementation of the xbmc VideoInfoTag class '''
+    """ A stub implementation of the xbmc VideoInfoTag class """
 
     def __init__(self):
-        ''' A stub constructor for the xbmc VideoInfoTag class '''
+        """ A stub constructor for the xbmc VideoInfoTag class """
 
     def getSeason(self):
-        ''' A stub implementation for the xbmc VideoInfoTag class getSeason() method '''
+        """ A stub implementation for the xbmc VideoInfoTag class getSeason() method """
         return 0
 
     def getEpisode(self):
-        ''' A stub implementation for the xbmc VideoInfoTag class getEpisode() method '''
+        """ A stub implementation for the xbmc VideoInfoTag class getEpisode() method """
         return 0
 
     def getTVShowTitle(self):
-        ''' A stub implementation for the xbmc VideoInfoTag class getTVShowTitle() method '''
+        """ A stub implementation for the xbmc VideoInfoTag class getTVShowTitle() method """
         return ''
 
     def getPlayCount(self):
-        ''' A stub implementation for the xbmc VideoInfoTag class getPlayCount() method '''
+        """ A stub implementation for the xbmc VideoInfoTag class getPlayCount() method """
         return 0
 
     def getRating(self):
-        ''' A stub implementation for the xbmc VideoInfoTag class getRating() method '''
+        """ A stub implementation for the xbmc VideoInfoTag class getRating() method """
         return 0
 
 
 def executebuiltin(string, wait=False):  # pylint: disable=unused-argument
-    ''' A stub implementation of the xbmc executebuiltin() function '''
+    """ A stub implementation of the xbmc executebuiltin() function """
     return
 
 
 def executeJSONRPC(jsonrpccommand):
-    ''' A reimplementation of the xbmc executeJSONRPC() function '''
+    """ A reimplementation of the xbmc executeJSONRPC() function """
     command = json.loads(jsonrpccommand)
     if command.get('method') == 'Settings.GetSettingValue':
         key = command.get('params').get('setting')
@@ -184,19 +186,19 @@ def executeJSONRPC(jsonrpccommand):
 
 
 def getCondVisibility(string):
-    ''' A reimplementation of the xbmc getCondVisibility() function '''
+    """ A reimplementation of the xbmc getCondVisibility() function """
     if string == 'system.platform.android':
         return False
     return True
 
 
 def getInfoLabel(key):
-    ''' A reimplementation of the xbmc getInfoLabel() function '''
+    """ A reimplementation of the xbmc getInfoLabel() function """
     return INFO_LABELS.get(key)
 
 
 def getLocalizedString(msgctxt):
-    ''' A reimplementation of the xbmc getLocalizedString() function '''
+    """ A reimplementation of the xbmc getLocalizedString() function """
     for entry in PO:
         if entry.msgctxt == '#%s' % msgctxt:
             return entry.msgstr or entry.msgid
@@ -206,12 +208,12 @@ def getLocalizedString(msgctxt):
 
 
 def getRegion(key):
-    ''' A reimplementation of the xbmc getRegion() function '''
+    """ A reimplementation of the xbmc getRegion() function """
     return REGIONS.get(key)
 
 
 def log(msg, level=LOGINFO):
-    ''' A reimplementation of the xbmc log() function '''
+    """ A reimplementation of the xbmc log() function """
     if level in (LOGERROR, LOGFATAL):
         print('\033[31;1m%s: \033[32;0m%s\033[0;39m' % (LOG_MAPPING.get(level), to_unicode(msg)))
         if level == LOGFATAL:
@@ -223,17 +225,17 @@ def log(msg, level=LOGINFO):
 
 
 def setContent(self, content):
-    ''' A stub implementation of the xbmc setContent() function '''
+    """ A stub implementation of the xbmc setContent() function """
     return
 
 
 def sleep(seconds):
-    ''' A reimplementation of the xbmc sleep() function '''
+    """ A reimplementation of the xbmc sleep() function """
     time.sleep(seconds)
 
 
 def translatePath(path):
-    ''' A stub implementation of the xbmc translatePath() function '''
+    """ A stub implementation of the xbmc translatePath() function """
     if path.startswith('special://home'):
         return path.replace('special://home', os.path.join(os.getcwd(), 'test/'))
     if path.startswith('special://masterprofile'):
