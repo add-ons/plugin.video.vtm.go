@@ -24,6 +24,10 @@ class UnavailableException(Exception):
     """ Is thrown when an item is unavailable. """
 
 
+class ApiUpdateRequired(Exception):
+    """ Is thrown when the an API update is required. """
+
+
 class Profile:
     """ Defines a profile under your account. """
 
@@ -260,7 +264,6 @@ class VtmGo:
         'x-persgroep-mobile-app': 'true',
         'x-persgroep-os': 'android',
         'x-persgroep-os-version': '23',
-        'User-Agent': 'VTMGO/6.11.3 (be.vmma.vtm.zenderapp; build:11672; Android 23) okhttp/3.14.2'
     }
 
     def __init__(self, kodi):
@@ -767,6 +770,9 @@ class VtmGo:
         if response.status_code == 404:
             raise UnavailableException()
 
+        if response.status_code == 426:
+            raise ApiUpdateRequired()
+
         if response.status_code not in [200, 204]:
             raise Exception('Error %s.' % response.status_code)
 
@@ -794,6 +800,9 @@ class VtmGo:
 
         if response.status_code == 404:
             raise UnavailableException()
+
+        if response.status_code == 426:
+            raise ApiUpdateRequired()
 
         if response.status_code not in [200, 204]:
             raise Exception('Error %s.' % response.status_code)
@@ -823,6 +832,9 @@ class VtmGo:
         if response.status_code == 404:
             raise UnavailableException()
 
+        if response.status_code == 426:
+            raise ApiUpdateRequired()
+
         if response.status_code not in [200, 204]:
             raise Exception('Error %s.' % response.status_code)
 
@@ -850,6 +862,9 @@ class VtmGo:
 
         if response.status_code == 404:
             raise UnavailableException()
+
+        if response.status_code == 426:
+            raise ApiUpdateRequired()
 
         if response.status_code not in [200, 204]:
             raise Exception('Error %s.' % response.status_code)

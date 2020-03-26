@@ -254,6 +254,10 @@ msgctxt "#30704"
 msgid "This video may be geo-blocked, or your account is already being used currently."
 msgstr "Deze video werd wellicht geografisch geblokkeerd, of je account is reeds in gebruik."
 
+msgctxt "#30705"
+msgid "The VTM GO Service has been updated, but this add-on hasn't been modified yet for these changes. Please check for an update."
+msgstr "De VTM GO Service is geüpdate, maar deze add-on is helaas nog niet aangepast hiervoor. Gelieve te controleren of er een update beschikbaar is."
+
 msgctxt "#30708"
 msgid "Please restart Kodi."
 msgstr "Gelieve Kodi te herstarten."
