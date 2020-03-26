@@ -63,3 +63,4 @@ build: clean
 release: build
 	rm -rf ../repo-plugins/$(name)/*
 	unzip ../$(zip_name) -d ../repo-plugins/
+	rm ../repo-plugins/$(name)/CHANGELOG.md  # Kodi doesn't like our CHANGELOG.md file :(
