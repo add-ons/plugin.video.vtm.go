@@ -157,8 +157,14 @@ class VtmGoAuth:
             'x-persgroep-mobile-app': 'true',
             'x-persgroep-os': 'android',
             'x-persgroep-os-version': '23',
-            'User-Agent': 'VTMGO/6.11.3 (be.vmma.vtm.zenderapp; build:11672; Android 23) okhttp/3.14.2'
         }, proxies=self._proxies)
+
+        if response.status_code == 426:
+            raise LoginErrorException(code=102)  # Update required
+
+        if response.status_code not in [200, 204]:
+            raise Exception('Error %s.' % response.status_code)
+
         tokens = json.loads(response.text)
 
         self._token = tokens.get('jsonWebToken')

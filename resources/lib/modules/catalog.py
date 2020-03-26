@@ -3,10 +3,10 @@
 
 from __future__ import absolute_import, division, unicode_literals
 
-from resources.lib.kodiwrapper import TitleItem
+from resources.lib.kodiwrapper import TitleItem, LOG_ERROR
 from resources.lib.modules import CHANNELS
 from resources.lib.modules.menu import Menu
-from resources.lib.vtmgo.vtmgo import VtmGo, UnavailableException, CACHE_PREVENT
+from resources.lib.vtmgo.vtmgo import VtmGo, UnavailableException, CACHE_PREVENT, ApiUpdateRequired
 
 
 class Catalog:
@@ -24,9 +24,14 @@ class Catalog:
         """ Show the catalog """
         try:
             categories = self._vtm_go.get_categories()
-        except Exception as ex:
-            self._kodi.show_notification(message=str(ex))
-            raise
+        except ApiUpdateRequired:
+            self._kodi.show_ok_dialog(message=self._kodi.localize(30705))  # The VTM GO Service has been updated...
+            return
+
+        except Exception as ex:  # pylint: disable=broad-except
+            self._kodi.log("%s" % ex, LOG_ERROR)
+            self._kodi.show_ok_dialog(message="%s" % ex)
+            return
 
         listing = []
         for cat in categories:
@@ -47,9 +52,14 @@ class Catalog:
         """
         try:
             items = self._vtm_go.get_items(category)
-        except Exception as ex:
-            self._kodi.show_notification(message=str(ex))
-            raise
+        except ApiUpdateRequired:
+            self._kodi.show_ok_dialog(message=self._kodi.localize(30705))  # The VTM GO Service has been updated...
+            return
+
+        except Exception as ex:  # pylint: disable=broad-except
+            self._kodi.log("%s" % ex, LOG_ERROR)
+            self._kodi.show_ok_dialog(message="%s" % ex)
+            return
 
         listing = []
         for item in items:
@@ -65,9 +75,14 @@ class Catalog:
         """
         try:
             items = self._vtm_go.get_items()
-        except Exception as ex:
-            self._kodi.show_notification(message=str(ex))
-            raise
+        except ApiUpdateRequired:
+            self._kodi.show_ok_dialog(message=self._kodi.localize(30705))  # The VTM GO Service has been updated...
+            return
+
+        except Exception as ex:  # pylint: disable=broad-except
+            self._kodi.log("%s" % ex, LOG_ERROR)
+            self._kodi.show_ok_dialog(message="%s" % ex)
+            return
 
         listing = []
         for item in items:
@@ -167,9 +182,14 @@ class Catalog:
         """ Show the recommendations """
         try:
             recommendations = self._vtm_go.get_recommendations()
-        except Exception as ex:
-            self._kodi.show_notification(message=str(ex))
-            raise
+        except ApiUpdateRequired:
+            self._kodi.show_ok_dialog(message=self._kodi.localize(30705))  # The VTM GO Service has been updated...
+            return
+
+        except Exception as ex:  # pylint: disable=broad-except
+            self._kodi.log("%s" % ex, LOG_ERROR)
+            self._kodi.show_ok_dialog(message="%s" % ex)
+            return
 
         listing = []
         for cat in recommendations:
@@ -190,9 +210,14 @@ class Catalog:
         """
         try:
             recommendations = self._vtm_go.get_recommendations()
-        except Exception as ex:
-            self._kodi.show_notification(message=str(ex))
-            raise
+        except ApiUpdateRequired:
+            self._kodi.show_ok_dialog(message=self._kodi.localize(30705))  # The VTM GO Service has been updated...
+            return
+
+        except Exception as ex:  # pylint: disable=broad-except
+            self._kodi.log("%s" % ex, LOG_ERROR)
+            self._kodi.show_ok_dialog(message="%s" % ex)
+            return
 
         listing = []
         for cat in recommendations:
@@ -210,9 +235,14 @@ class Catalog:
         """ Show the items in "My List" """
         try:
             mylist = self._vtm_go.get_swimlane('my-list')
-        except Exception as ex:
-            self._kodi.show_notification(message=str(ex))
-            raise
+        except ApiUpdateRequired:
+            self._kodi.show_ok_dialog(message=self._kodi.localize(30705))  # The VTM GO Service has been updated...
+            return
+
+        except Exception as ex:  # pylint: disable=broad-except
+            self._kodi.log("%s" % ex, LOG_ERROR)
+            self._kodi.show_ok_dialog(message="%s" % ex)
+            return
 
         listing = []
         for item in mylist:
@@ -243,9 +273,14 @@ class Catalog:
         """ Show the items in "Continue Watching" """
         try:
             mylist = self._vtm_go.get_swimlane('continue-watching')
-        except Exception as ex:
-            self._kodi.show_notification(message=str(ex))
-            raise
+        except ApiUpdateRequired:
+            self._kodi.show_ok_dialog(message=self._kodi.localize(30705))  # The VTM GO Service has been updated...
+            return
+
+        except Exception as ex:  # pylint: disable=broad-except
+            self._kodi.log("%s" % ex, LOG_ERROR)
+            self._kodi.show_ok_dialog(message="%s" % ex)
+            return
 
         listing = []
         for item in mylist:

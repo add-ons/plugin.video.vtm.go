@@ -4,7 +4,7 @@
 from __future__ import absolute_import, division, unicode_literals
 
 from resources.lib.kodiwrapper import TitleItem, to_unicode
-from resources.lib.vtmgo.vtmgo import VtmGo
+from resources.lib.vtmgo.vtmgo import VtmGo, ApiUpdateRequired
 from resources.lib.vtmgo.vtmgoauth import InvalidLoginException, LoginErrorException
 
 
@@ -32,6 +32,14 @@ class Authentication:
         except LoginErrorException as exc:
             self._kodi.show_ok_dialog(message=self._kodi.localize(30702, code=exc.code))  # Unknown error while logging in: {code}
             self._kodi.open_settings()
+            return
+
+        except ApiUpdateRequired:
+            self._kodi.show_ok_dialog(message=self._kodi.localize(30705))  # The VTM GO Service has been updated...
+            return
+
+        except Exception as exc:  # pylint: disable=broad-except
+            self._kodi.show_ok_dialog(message="%s" % exc)
             return
 
         # Show warning when you have no profiles
@@ -71,7 +79,6 @@ class Authentication:
         ]
 
         self._kodi.show_listing(listing, sort=['unsorted'], category=30057)  # Select Profile
-        return
 
     @staticmethod
     def _get_profile_name(profile):
