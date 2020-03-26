@@ -45,6 +45,7 @@ jobs:
         env:
           ADDON_USERNAME: ${{ secrets.ADDON_USERNAME }}
           ADDON_PASSWORD: ${{ secrets.ADDON_PASSWORD }}
+          ADDON_PROFILE: ${{ secrets.ADDON_PROFILE }}
         run: |
           coverage run -m unittest discover
       - name: Run addon
