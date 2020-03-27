@@ -9,7 +9,7 @@ import random
 
 import requests
 
-from resources.lib import kodiutils
+from resources.lib.kodiutils import KodiUtils
 
 _LOGGER = logging.getLogger('api-vtmgoauth')
 
@@ -33,7 +33,7 @@ class VtmGoAuth:
 
     def __init__(self):
         """ Initialise VTM GO Authentication API """
-        self._proxies = kodiutils.get_proxies()
+        self._proxies = KodiUtils.get_proxies()
 
         self._token = None
         # self._name = None
@@ -42,14 +42,14 @@ class VtmGoAuth:
     @staticmethod
     def has_credentials():
         """ Returns whether the user has credentials or not. """
-        return bool(kodiutils.get_setting('username') and kodiutils.get_setting('password'))
+        return bool(KodiUtils.get_setting('username') and KodiUtils.get_setting('password'))
 
     @staticmethod
     def clear_tokens():
         """ Remove the cached JWT. """
         _LOGGER.debug('Clearing token cache')
-        kodiutils.delete(kodiutils.get_tokens_path() + VtmGoAuth.TOKEN_FILE)
-        kodiutils.set_setting('profile', None)
+        KodiUtils.delete(KodiUtils.get_tokens_path() + VtmGoAuth.TOKEN_FILE)
+        KodiUtils.set_setting('profile', None)
 
     def get_token(self):
         """ Return a JWT that can be used to authenticate the user.
@@ -66,29 +66,32 @@ class VtmGoAuth:
             return self._token
 
         # Try to load from cache
-        path = kodiutils.get_tokens_path() + VtmGoAuth.TOKEN_FILE
-        if kodiutils.exists(path):
-            _LOGGER.debug('Returning token from cache')
-
-            with kodiutils.open_file(path) as fdesc:
+        path = KodiUtils.get_tokens_path() + VtmGoAuth.TOKEN_FILE
+        if KodiUtils.exists(path):
+            with KodiUtils.open_file(path) as fdesc:
                 self._token = fdesc.read()
 
             if self._token:
+                _LOGGER.debug('Returning token from cache')
                 return self._token
 
         # Authenticate with VTM GO and store the token
         self._token = self._login()
-        _LOGGER.debug('Returning token from VTM GO')
 
-        with kodiutils.open_file(path, 'w') as fdesc:
-            fdesc.write(kodiutils.from_unicode(self._token))
+        # Store token
+        if not KodiUtils.exists(path):
+            KodiUtils.mkdirs(KodiUtils.get_tokens_path())
 
+        with KodiUtils.open_file(path, 'w') as fdesc:
+            fdesc.write(KodiUtils.from_unicode(self._token))
+
+        _LOGGER.debug('Returning token from logging in')
         return self._token
 
     @staticmethod
     def get_profile():
         """ Return the profile that is currently selected. """
-        profile = kodiutils.get_setting('profile')
+        profile = KodiUtils.get_setting('profile')
         try:
             return profile.split(':')[0]
         except IndexError:
@@ -116,8 +119,8 @@ class VtmGoAuth:
         # Now, send the login details. We will be redirected to vtmgo:// when we succeed. We then can extract an authorizationCode that we need to continue.
         try:
             response = session.post('https://login2.vtm.be/login/emailfirst/password?client_id=vtm-go-android', data={
-                'userName': kodiutils.get_setting('username'),
-                'password': kodiutils.get_setting('password'),
+                'userName': KodiUtils.get_setting('username'),
+                'password': KodiUtils.get_setting('password'),
                 'jsEnabled': 'true',
             }, proxies=self._proxies)
 

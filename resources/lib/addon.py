@@ -7,7 +7,8 @@ import logging
 
 import routing
 
-from resources.lib import kodilogging, kodiutils
+from resources.lib import kodilogging
+from resources.lib.kodiutils import KodiUtils
 from resources.lib.vtmgo.vtmgoauth import VtmGoAuth
 
 kodilogging.config()
@@ -19,7 +20,7 @@ _LOGGER = logging.getLogger('addon')
 @routing.route('/')
 def index():
     """ Show the profile selection, or go to the main menu. """
-    if not VtmGoAuth.has_credentials() or (kodiutils.get_setting_bool('auto_login') and bool(kodiutils.get_setting('profile'))):
+    if not VtmGoAuth.has_credentials() or (KodiUtils.get_setting_bool('auto_login') and bool(KodiUtils.get_setting('profile'))):
         # If we have no credentials (browse only mode) or we have autologin and a profile, go directly to the main menu
         show_main_menu()
 

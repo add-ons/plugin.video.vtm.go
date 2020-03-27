@@ -10,7 +10,7 @@ from datetime import timedelta
 
 import requests
 
-from resources.lib import kodiutils
+from resources.lib.kodiutils import KodiUtils
 
 _LOGGER = logging.getLogger('api-vtmgostream')
 
@@ -163,7 +163,7 @@ class VtmGoStream:
                                          'Popcorn-SDK-Version': '2',
                                          'User-Agent': 'Dalvik/2.1.0 (Linux; U; Android 6.0.1; Nexus 5 Build/M4B30Z)',
                                      },
-                                     proxies=kodiutils.get_proxies())
+                                     proxies=KodiUtils.get_proxies())
         _LOGGER.debug('Got response (status=%s): %s', response.status_code, response.text)
 
         if response.status_code == 403:
@@ -243,15 +243,15 @@ class VtmGoStream:
         :rtype list[str]
         """
         import re
-        temp_dir = kodiutils.addon_profile() + 'temp/'
-        if not kodiutils.exists(temp_dir):
-            kodiutils.mkdir(temp_dir)
+        temp_dir = KodiUtils.addon_profile() + 'temp/'
+        if not KodiUtils.exists(temp_dir):
+            KodiUtils.mkdir(temp_dir)
         else:
-            dirs, files = kodiutils.listdir(temp_dir)  # pylint: disable=unused-variable
+            dirs, files = KodiUtils.listdir(temp_dir)  # pylint: disable=unused-variable
             if files:
                 for item in files:
                     if item.endswith('.vtt'):
-                        kodiutils.delete(temp_dir + item)
+                        KodiUtils.delete(temp_dir + item)
         ad_breaks = list()
         delayed_subtitles = list()
         webvtt_timing_regex = re.compile(r'\n(\d{2}:\d{2}:\d{2}\.\d{3}) --> (\d{2}:\d{2}:\d{2}\.\d{3})\s')
@@ -267,8 +267,8 @@ class VtmGoStream:
             output_file = temp_dir + '/' + subtitle.split('/')[-1].split('.')[0] + '.nl-NL.' + subtitle.split('.')[-1]
             webvtt_content = requests.get(subtitle).text
             webvtt_content = webvtt_timing_regex.sub(lambda match: self._delay_webvtt_timing(match, ad_breaks), webvtt_content)
-            with kodiutils.open_file(output_file, 'w') as webvtt_output:
-                webvtt_output.write(kodiutils.from_unicode(webvtt_content))
+            with KodiUtils.open_file(output_file, 'w') as webvtt_output:
+                webvtt_output.write(KodiUtils.from_unicode(webvtt_content))
             delayed_subtitles.append(output_file)
         return delayed_subtitles
 

@@ -5,7 +5,7 @@ from __future__ import absolute_import, division, unicode_literals
 
 import logging
 
-from resources.lib import kodiutils
+from resources.lib.kodiutils import KodiUtils
 from resources.lib.modules.menu import Menu
 from resources.lib.vtmgo.vtmgo import VtmGo
 
@@ -26,17 +26,17 @@ class Search:
         """
         if not query:
             # Ask for query
-            query = kodiutils.get_search_string(heading=kodiutils.localize(30009))  # Search VTM GO
+            query = KodiUtils.get_search_string(heading=KodiUtils.localize(30009))  # Search VTM GO
             if not query:
-                kodiutils.end_of_directory()
+                KodiUtils.end_of_directory()
                 return
 
         # Do search
         try:
             items = self._vtm_go.do_search(query)
         except Exception as ex:  # pylint: disable=broad-except
-            kodiutils.notification(message=str(ex))
-            kodiutils.end_of_directory()
+            KodiUtils.notification(message=str(ex))
+            KodiUtils.end_of_directory()
             return
 
         # Display results
@@ -45,4 +45,4 @@ class Search:
             listing.append(self._menu.generate_titleitem(item))
 
         # Sort like we get our results back.
-        kodiutils.show_listing(listing, 30009, content='tvshows')
+        KodiUtils.show_listing(listing, 30009, content='tvshows')

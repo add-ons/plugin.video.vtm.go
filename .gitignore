@@ -15,7 +15,7 @@ Thumbs.db
 test/userdata/addon_settings.json
 test/userdata/credentials.json
 test/userdata/temp
-test/userdata/token.json
+test/userdata/tokens
 test/userdata/cache
 test/userdata/addon_data
 test/cdm

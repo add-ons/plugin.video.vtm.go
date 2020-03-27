@@ -11,7 +11,7 @@ import dateutil.parser
 import dateutil.tz
 import requests
 
-from resources.lib import kodiutils
+from resources.lib.kodiutils import KodiUtils
 from resources.lib.vtmgo.vtmgo import UnavailableException
 
 _LOGGER = logging.getLogger('api-vtmgoepg')
@@ -184,21 +184,21 @@ class VtmGoEpg:
 
             if i == -1:
                 dates.append({
-                    'title': '%s, %s' % (kodiutils.localize(30301), day.strftime(date_format)),  # Yesterday
+                    'title': '%s, %s' % (KodiUtils.localize(30301), day.strftime(date_format)),  # Yesterday
                     'key': 'yesterday',
                     'date': day.strftime('%d.%m.%Y'),
                     'highlight': False,
                 })
             elif i == 0:
                 dates.append({
-                    'title': '%s, %s' % (kodiutils.localize(30302), day.strftime(date_format)),  # Today
+                    'title': '%s, %s' % (KodiUtils.localize(30302), day.strftime(date_format)),  # Today
                     'key': 'today',
                     'date': day.strftime('%d.%m.%Y'),
                     'highlight': True,
                 })
             elif i == 1:
                 dates.append({
-                    'title': '%s, %s' % (kodiutils.localize(30303), day.strftime(date_format)),  # Tomorrow
+                    'title': '%s, %s' % (KodiUtils.localize(30303), day.strftime(date_format)),  # Tomorrow
                     'key': 'tomorrow',
                     'date': day.strftime('%d.%m.%Y'),
                     'highlight': False,

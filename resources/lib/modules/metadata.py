@@ -5,7 +5,7 @@ from __future__ import absolute_import, division, unicode_literals
 
 import logging
 
-from resources.lib import kodiutils
+from resources.lib.kodiutils import KodiUtils
 from resources.lib.vtmgo.vtmgo import VtmGo, Movie, Program
 
 _LOGGER = logging.getLogger('metadata')
@@ -21,11 +21,11 @@ class Metadata:
     def update(self):
         """ Update the metadata with a foreground progress indicator """
         # Create progress indicator
-        progress = kodiutils.progress(message=kodiutils.localize(30715))  # Updating metadata
+        progress = KodiUtils.progress(message=KodiUtils.localize(30715))  # Updating metadata
 
         def update_status(i, total):
             """ Update the progress indicator """
-            progress.update(int(((i + 1) / total) * 100), kodiutils.localize(30716, index=i + 1, total=total))  # Updating metadata ({index}/{total})
+            progress.update(int(((i + 1) / total) * 100), KodiUtils.localize(30716, index=i + 1, total=total))  # Updating metadata ({index}/{total})
             return progress.iscanceled()
 
         self.fetch_metadata(callback=update_status)
@@ -58,6 +58,6 @@ class Metadata:
     @staticmethod
     def clean():
         """ Clear metadata (called from settings) """
-        kodiutils.invalidate_cache()
-        kodiutils.set_setting('metadata_last_updated', '0')
-        kodiutils.ok_dialog(message=kodiutils.localize(30714))  # Local metadata is cleared
+        KodiUtils.invalidate_cache()
+        KodiUtils.set_setting('metadata_last_updated', '0')
+        KodiUtils.ok_dialog(message=KodiUtils.localize(30714))  # Local metadata is cleared

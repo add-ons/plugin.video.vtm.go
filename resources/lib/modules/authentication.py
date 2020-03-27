@@ -5,7 +5,7 @@ from __future__ import absolute_import, division, unicode_literals
 
 import logging
 
-from resources.lib import kodiutils
+from resources.lib.kodiutils import KodiUtils
 from resources.lib.modules.menu import TitleItem
 from resources.lib.vtmgo.vtmgo import VtmGo, ApiUpdateRequired
 from resources.lib.vtmgo.vtmgoauth import InvalidLoginException, LoginErrorException
@@ -27,28 +27,28 @@ class Authentication:
         try:
             profiles = self._vtm_go.get_profiles()
         except InvalidLoginException:
-            kodiutils.ok_dialog(message=kodiutils.localize(30203))  # Your credentials are not valid!
-            kodiutils.open_settings()
+            KodiUtils.ok_dialog(message=KodiUtils.localize(30203))  # Your credentials are not valid!
+            KodiUtils.open_settings()
             return
 
         except LoginErrorException as exc:
-            kodiutils.ok_dialog(message=kodiutils.localize(30702, code=exc.code))  # Unknown error while logging in: {code}
-            kodiutils.open_settings()
+            KodiUtils.ok_dialog(message=KodiUtils.localize(30702, code=exc.code))  # Unknown error while logging in: {code}
+            KodiUtils.open_settings()
             return
 
         except ApiUpdateRequired:
-            self._kodi.show_ok_dialog(message=self._kodi.localize(30705))  # The VTM GO Service has been updated...
+            KodiUtils.ok_dialog(message=KodiUtils.localize(30705))  # The VTM GO Service has been updated...
             return
 
         except Exception as exc:  # pylint: disable=broad-except
-            self._kodi.show_ok_dialog(message="%s" % exc)
+            KodiUtils.ok_dialog(message="%s" % exc)
             return
 
         # Show warning when you have no profiles
         if not profiles:
             # Your account has no profiles defined. Please login on vtm.be/vtmgo and create a Profile.
-            kodiutils.ok_dialog(message=kodiutils.localize(30703))
-            kodiutils.end_of_directory()
+            KodiUtils.ok_dialog(message=KodiUtils.localize(30703))
+            KodiUtils.end_of_directory()
             return
 
         # Select the first profile when you only have one
@@ -59,17 +59,17 @@ class Authentication:
         if key:
             profile = [x for x in profiles if x.key == key][0]
             _LOGGER.info('Setting profile to %s', profile)
-            kodiutils.set_setting('profile', '%s:%s' % (profile.key, profile.product))
-            kodiutils.set_setting('profile_name', profile.name)
+            KodiUtils.set_setting('profile', '%s:%s' % (profile.key, profile.product))
+            KodiUtils.set_setting('profile_name', profile.name)
 
-            kodiutils.container_update(kodiutils.url_for('show_main_menu'))
+            KodiUtils.container_update(KodiUtils.url_for('show_main_menu'))
             return
 
         # Show profile selection when you have multiple profiles
         listing = [
             TitleItem(
                 title=self._get_profile_name(p),
-                path=kodiutils.url_for('select_profile', key=p.key),
+                path=KodiUtils.url_for('select_profile', key=p.key),
                 art_dict=dict(
                     icon='DefaultUser.png'
                 ),
@@ -80,7 +80,7 @@ class Authentication:
             for p in profiles
         ]
 
-        kodiutils.show_listing(listing, sort=['unsorted'], category=30057)  # Select Profile
+        KodiUtils.show_listing(listing, sort=['unsorted'], category=30057)  # Select Profile
 
     @staticmethod
     def _get_profile_name(profile):
@@ -101,7 +101,7 @@ class Authentication:
             '#FF0257': 'crimson',
         }
         if color_map.get(profile.color.upper()):
-            title = '[COLOR %s]%s[/COLOR]' % (color_map.get(profile.color), kodiutils.to_unicode(title))
+            title = '[COLOR %s]%s[/COLOR]' % (color_map.get(profile.color), KodiUtils.to_unicode(title))
 
         # Append (Kids)
         if profile.product == 'VTM_GO_KIDS':

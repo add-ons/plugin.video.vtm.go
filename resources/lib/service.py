@@ -9,7 +9,8 @@ from time import time
 
 from xbmc import Monitor
 
-from resources.lib import kodilogging, kodiutils
+from resources.lib import kodilogging
+from resources.lib.kodiutils import KodiUtils
 from resources.lib.vtmgo.vtmgoauth import VtmGoAuth
 
 kodilogging.config()
@@ -31,7 +32,7 @@ class BackgroundService(Monitor):
 
         while not self.abortRequested():
             # Update every `update_interval` after the last update
-            if kodiutils.get_setting_bool('metadata_update') and int(kodiutils.get_setting('metadata_last_updated', 0)) + self.update_interval < time():
+            if KodiUtils.get_setting_bool('metadata_update') and int(KodiUtils.get_setting('metadata_last_updated', 0)) + self.update_interval < time():
                 self._update_metadata()
 
             # Stop when abort requested
@@ -48,17 +49,17 @@ class BackgroundService(Monitor):
             VtmGoAuth.clear_tokens()
 
             # Refresh container
-            kodiutils.container_refresh()
+            KodiUtils.container_refresh()
 
     @staticmethod
     def _has_credentials_changed():
         """ Check if credentials have changed """
-        old_hash = kodiutils.get_setting('credentials_hash')
+        old_hash = KodiUtils.get_setting('credentials_hash')
         new_hash = ''
         if VtmGoAuth.has_credentials():
-            new_hash = hashlib.md5((kodiutils.get_setting('username') + kodiutils.get_setting('password')).encode('utf-8')).hexdigest()
+            new_hash = hashlib.md5((KodiUtils.get_setting('username') + KodiUtils.get_setting('password')).encode('utf-8')).hexdigest()
         if new_hash != old_hash:
-            kodiutils.set_setting('credentials_hash', new_hash)
+            KodiUtils.set_setting('credentials_hash', new_hash)
             return True
         return False
 
@@ -67,17 +68,17 @@ class BackgroundService(Monitor):
         from resources.lib.modules.metadata import Metadata
 
         # Clear outdated metadata
-        kodiutils.invalidate_cache(self.cache_expiry)
+        KodiUtils.invalidate_cache(self.cache_expiry)
 
         def update_status(_i, _total):
             """ Allow to cancel the background job """
-            return self.abortRequested() or not kodiutils.get_setting_bool('metadata_update')
+            return self.abortRequested() or not KodiUtils.get_setting_bool('metadata_update')
 
         success = Metadata().fetch_metadata(callback=update_status)
 
         # Update metadata_last_updated
         if success:
-            kodiutils.set_setting('metadata_last_updated', str(int(time())))
+            KodiUtils.set_setting('metadata_last_updated', str(int(time())))
 
 
 def run():

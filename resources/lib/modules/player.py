@@ -5,8 +5,8 @@ from __future__ import absolute_import, division, unicode_literals
 
 import logging
 
-from resources.lib import kodiutils
-from resources.lib.kodiutils import KodiPlayer
+from resources.lib.kodiutils import KodiUtils
+from resources.lib.kodiplayer import KodiPlayer
 from resources.lib.vtmgo.vtmgo import VtmGo, UnavailableException
 from resources.lib.vtmgo.vtmgoauth import VtmGoAuth
 from resources.lib.vtmgo.vtmgostream import VtmGoStream, StreamGeoblockedException, StreamUnavailableException
@@ -29,10 +29,10 @@ class Player:
         :type channel: str
         """
         if not self._check_credentials():
-            kodiutils.end_of_directory()
+            KodiUtils.end_of_directory()
             return
 
-        res = kodiutils.context_menu([kodiutils.localize(30103), kodiutils.localize(30105)])  # Watch Live | Play from Catalog
+        res = KodiUtils.context_menu([KodiUtils.localize(30103), KodiUtils.localize(30105)])  # Watch Live | Play from Catalog
         if res == -1:  # user has cancelled
             return
         if res == 0:  # user selected "Watch Live"
@@ -49,7 +49,7 @@ class Player:
         :type item: string
         """
         if not self._check_credentials():
-            kodiutils.end_of_directory()
+            KodiUtils.end_of_directory()
             return
 
         # Check if inputstreamhelper is correctly installed
@@ -61,11 +61,11 @@ class Player:
             resolved_stream = self._vtm_go_stream.get_stream(category, item)
 
         except StreamGeoblockedException:
-            kodiutils.ok_dialog(heading=kodiutils.localize(30709), message=kodiutils.localize(30710))  # This video is geo-blocked...
+            KodiUtils.ok_dialog(heading=KodiUtils.localize(30709), message=KodiUtils.localize(30710))  # This video is geo-blocked...
             return
 
         except StreamUnavailableException:
-            kodiutils.ok_dialog(heading=kodiutils.localize(30711), message=kodiutils.localize(30712))  # The video is unavailable...
+            KodiUtils.ok_dialog(heading=KodiUtils.localize(30711), message=KodiUtils.localize(30712))  # The video is unavailable...
             return
 
         info_dict = {
@@ -136,7 +136,7 @@ class Player:
             pass
 
         # Play this item
-        kodiutils.play(stream=resolved_stream.url,
+        KodiUtils.play(stream=resolved_stream.url,
                        title=resolved_stream.title,
                        info_dict=info_dict,
                        prop_dict=prop_dict,
@@ -155,7 +155,7 @@ class Player:
             kodi_player.setSubtitles(resolved_stream.subtitles[0])
 
             # Turn on subtitles if needed
-            if kodiutils.get_setting_bool('showsubtitles'):
+            if KodiUtils.get_setting_bool('showsubtitles'):
                 _LOGGER.debug('Enabling subtitles')
                 kodi_player.showSubtitles(True)
 
@@ -171,9 +171,9 @@ class Player:
             return True
 
         # You need to configure your credentials before you can access the content of VTM GO.
-        confirm = kodiutils.yesno_dialog(message=kodiutils.localize(30701))
+        confirm = KodiUtils.yesno_dialog(message=KodiUtils.localize(30701))
         if confirm:
-            kodiutils.open_settings()
+            KodiUtils.open_settings()
             if VtmGoAuth.has_credentials():
                 return True
 
@@ -192,7 +192,7 @@ class Player:
                 return False
 
         except ImportError:
-            kodiutils.ok_dialog(message=kodiutils.localize(30708))  # Please reboot Kodi
+            KodiUtils.ok_dialog(message=KodiUtils.localize(30708))  # Please reboot Kodi
             return False
 
         return True
@@ -248,6 +248,6 @@ class Player:
         """
         from base64 import b64encode
         from json import dumps
-        data = [kodiutils.to_unicode(b64encode(dumps(upnext_info).encode()))]
+        data = [KodiUtils.to_unicode(b64encode(dumps(upnext_info).encode()))]
         sender = '{addon_id}.SIGNAL'.format(addon_id='plugin.video.vtm.go')
-        kodiutils.notify(sender=sender, message='upnext_data', data=data)
+        KodiUtils.notify(sender=sender, message='upnext_data', data=data)

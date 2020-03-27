@@ -8,7 +8,7 @@ import logging
 
 import requests
 
-from resources.lib import kodiutils
+from resources.lib.kodiutils import KodiUtils
 from resources.lib.vtmgo.vtmgoauth import VtmGoAuth
 
 try:  # Python 3
@@ -271,7 +271,7 @@ class VtmGo:
 
     def __init__(self):
         """ Initialise VTM GO Content API """
-        self._proxies = kodiutils.get_proxies()
+        self._proxies = KodiUtils.get_proxies()
         self._auth = VtmGoAuth()
 
         self._session = requests.session()
@@ -318,7 +318,7 @@ class VtmGo:
         categories = []
         for cat in recommendations.get('rows', []):
             if cat.get('rowType') not in ['SWIMLANE_DEFAULT']:
-                _LOGGER.debug('Skipping recommendation {name} with type={type}', name=cat.get('title'), type=cat.get('rowType'))
+                _LOGGER.debug('Skipping recommendation %s with type=%s', cat.get('title'), cat.get('rowType'))
                 continue
 
             items = []
@@ -531,7 +531,7 @@ class VtmGo:
         """
         if cache in [CACHE_AUTO, CACHE_ONLY]:
             # Try to fetch from cache
-            movie = kodiutils.get_cache(['movie', movie_id])
+            movie = KodiUtils.get_cache(['movie', movie_id])
             if movie is None and cache == CACHE_ONLY:
                 return None
         else:
@@ -542,7 +542,7 @@ class VtmGo:
             response = self._get_url('/%s/movies/%s' % (self._mode(), movie_id))
             info = json.loads(response)
             movie = info.get('movie', {})
-            kodiutils.set_cache(['movie', movie_id], movie)
+            KodiUtils.set_cache(['movie', movie_id], movie)
 
         return Movie(
             movie_id=movie.get('id'),
@@ -567,7 +567,7 @@ class VtmGo:
         """
         if cache in [CACHE_AUTO, CACHE_ONLY]:
             # Try to fetch from cache
-            program = kodiutils.get_cache(['program', program_id])
+            program = KodiUtils.get_cache(['program', program_id])
             if program is None and cache == CACHE_ONLY:
                 return None
         else:
@@ -578,7 +578,7 @@ class VtmGo:
             response = self._get_url('/%s/programs/%s' % (self._mode(), program_id))
             info = json.loads(response)
             program = info.get('program', {})
-            kodiutils.set_cache(['program', program_id], program)
+            KodiUtils.set_cache(['program', program_id], program)
 
         channel = self._parse_channel(program.get('channelLogoUrl'))
 
@@ -728,7 +728,7 @@ class VtmGo:
     @staticmethod
     def get_product():
         """ Return the product that is currently selected. """
-        profile = kodiutils.get_setting('profile')
+        profile = KodiUtils.get_setting('profile')
         try:
             return profile.split(':')[1]
         except IndexError:
