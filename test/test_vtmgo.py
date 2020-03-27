@@ -7,13 +7,11 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 
 import unittest
 
-from resources.lib.kodiwrapper import KodiWrapper
 from resources.lib.modules.player import Player
 from resources.lib.vtmgo import vtmgo, vtmgostream, vtmgoauth
 from resources.lib.vtmgo.vtmgo import Movie, Program
+from resources.lib.vtmgo.vtmgoauth import VtmGoAuth
 from resources.lib.vtmgo.vtmgostream import StreamGeoblockedException
-
-kodi = KodiWrapper()
 
 
 class TestVtmGo(unittest.TestCase):
@@ -22,17 +20,17 @@ class TestVtmGo(unittest.TestCase):
     def __init__(self, *args, **kwargs):
         super(TestVtmGo, self).__init__(*args, **kwargs)
 
-        self._vtmgoauth = vtmgoauth.VtmGoAuth(kodi)
-        self._vtmgo = vtmgo.VtmGo(kodi)
-        self._vtmgostream = vtmgostream.VtmGoStream(kodi)
-        self._player = Player(kodi)
+        self._vtmgoauth = vtmgoauth.VtmGoAuth()
+        self._vtmgo = vtmgo.VtmGo()
+        self._vtmgostream = vtmgostream.VtmGoStream()
+        self._player = Player()
 
     def setUp(self):
         # Don't warn that we don't close our HTTPS connections, this is on purpose.
         # warnings.simplefilter("ignore", ResourceWarning)
         pass
 
-    @unittest.skipUnless(kodi.has_credentials(), 'Skipping since we have no credentials.')
+    @unittest.skipUnless(VtmGoAuth.has_credentials(), 'Skipping since we have no credentials.')
     def test_login(self):
         token = self._vtmgoauth.get_token()
         self.assertTrue(token)
@@ -41,7 +39,7 @@ class TestVtmGo(unittest.TestCase):
         config = self._vtmgo.get_config()
         self.assertTrue(config)
 
-    @unittest.skipUnless(kodi.has_credentials(), 'Skipping since we have no credentials.')
+    @unittest.skipUnless(VtmGoAuth.has_credentials(), 'Skipping since we have no credentials.')
     def test_get_profiles(self):
         profiles = self._vtmgo.get_profiles()
         self.assertTrue(profiles)

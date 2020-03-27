@@ -13,7 +13,7 @@ import sys
 # Add current working directory to import paths
 cwd = os.path.abspath(os.path.join(os.path.dirname(os.path.realpath(os.path.realpath(__file__))), os.pardir))
 sys.path.insert(0, cwd)
-from resources.lib import plugin  # noqa: E402  pylint: disable=wrong-import-position
+from resources.lib import addon  # noqa: E402  pylint: disable=wrong-import-position
 
 xbmc = __import__('xbmc')
 xbmcaddon = __import__('xbmcaddon')
@@ -36,5 +36,5 @@ except ValueError:
     path, args = sys.argv[1], ''
 
 print('** Running URI %s with args %s' % (path, args))
-plugin = plugin.routing
+plugin = addon.routing
 plugin.run([path, 0, args])

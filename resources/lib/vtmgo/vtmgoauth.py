@@ -3,12 +3,15 @@
 
 from __future__ import absolute_import, division, unicode_literals
 
-import hashlib
 import json
+import logging
 import random
+
 import requests
 
-from resources.lib.kodiwrapper import LOG_DEBUG, from_unicode, LOG_INFO
+from resources.lib import kodiutils
+
+_LOGGER = logging.getLogger('api-vtmgoauth')
 
 
 class InvalidLoginException(Exception):
@@ -26,57 +29,48 @@ class LoginErrorException(Exception):
 class VtmGoAuth:
     """ VTM GO Authentication API """
 
-    def __init__(self, kodi):
-        """ Initialise object
-        :type kodi: resources.lib.kodiwrapper.KodiWrapper
-        """
-        self._kodi = kodi
-        self._proxies = kodi.get_proxies()
+    TOKEN_FILE = 'token.json'
+
+    def __init__(self):
+        """ Initialise VTM GO Authentication API """
+        self._proxies = kodiutils.get_proxies()
 
         self._token = None
         # self._name = None
         # self._accountId = None
 
-    def has_credentials_changed(self):
-        """ Check if credentials have changed """
-        old_hash = self._kodi.get_setting('credentials_hash')
-        new_hash = ''
-        if self._kodi.get_setting('username') or self._kodi.get_setting('password'):
-            new_hash = hashlib.md5((self._kodi.get_setting('username') + self._kodi.get_setting('password')).encode('utf-8')).hexdigest()
-        if new_hash != old_hash:
-            self._kodi.set_setting('credentials_hash', new_hash)
-            return True
-        return False
+    @staticmethod
+    def has_credentials():
+        """ Returns whether the user has credentials or not. """
+        return bool(kodiutils.get_setting('username') and kodiutils.get_setting('password'))
 
-    def clear_token(self):
+    @staticmethod
+    def clear_tokens():
         """ Remove the cached JWT. """
-        self._kodi.log('Clearing token cache', LOG_DEBUG)
-        self._token = None
-        path = self._kodi.get_userdata_path() + 'token.json'
-        if self._kodi.check_if_path_exists(path):
-            self._kodi.delete_file(path)
-        self._kodi.set_setting('profile', None)
+        _LOGGER.debug('Clearing token cache')
+        kodiutils.delete(kodiutils.get_tokens_path() + VtmGoAuth.TOKEN_FILE)
+        kodiutils.set_setting('profile', None)
 
     def get_token(self):
         """ Return a JWT that can be used to authenticate the user.
         :rtype str
         """
         # Don't return a token when we have no password or username.
-        if not self._kodi.get_setting('username') or not self._kodi.get_setting('password'):
-            self._kodi.log('Skipping since we have no username or password', LOG_INFO)
+        if not self.has_credentials():
+            _LOGGER.info('Skipping since we have no username or password')
             return None
 
         # Return if we already have the token in memory.
         if self._token:
-            self._kodi.log('Returning token from memory', LOG_DEBUG)
+            _LOGGER.debug('Returning token from memory')
             return self._token
 
         # Try to load from cache
-        path = self._kodi.get_userdata_path() + 'token.json'
-        if self._kodi.check_if_path_exists(path):
-            self._kodi.log('Returning token from cache', LOG_DEBUG)
+        path = kodiutils.get_tokens_path() + VtmGoAuth.TOKEN_FILE
+        if kodiutils.exists(path):
+            _LOGGER.debug('Returning token from cache')
 
-            with self._kodi.open_file(path) as fdesc:
+            with kodiutils.open_file(path) as fdesc:
                 self._token = fdesc.read()
 
             if self._token:
@@ -84,16 +78,17 @@ class VtmGoAuth:
 
         # Authenticate with VTM GO and store the token
         self._token = self._login()
-        self._kodi.log('Returning token from VTM GO', LOG_DEBUG)
+        _LOGGER.debug('Returning token from VTM GO')
 
-        with self._kodi.open_file(path, 'w') as fdesc:
-            fdesc.write(from_unicode(self._token))
+        with kodiutils.open_file(path, 'w') as fdesc:
+            fdesc.write(kodiutils.from_unicode(self._token))
 
         return self._token
 
-    def get_profile(self):
+    @staticmethod
+    def get_profile():
         """ Return the profile that is currently selected. """
-        profile = self._kodi.get_setting('profile')
+        profile = kodiutils.get_setting('profile')
         try:
             return profile.split(':')[0]
         except IndexError:
@@ -121,8 +116,8 @@ class VtmGoAuth:
         # Now, send the login details. We will be redirected to vtmgo:// when we succeed. We then can extract an authorizationCode that we need to continue.
         try:
             response = session.post('https://login2.vtm.be/login/emailfirst/password?client_id=vtm-go-android', data={
-                'userName': self._kodi.get_setting('username'),
-                'password': self._kodi.get_setting('password'),
+                'userName': kodiutils.get_setting('username'),
+                'password': kodiutils.get_setting('password'),
                 'jsEnabled': 'true',
             }, proxies=self._proxies)
 

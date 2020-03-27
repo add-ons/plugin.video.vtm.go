@@ -4,12 +4,15 @@
 from __future__ import absolute_import, division, unicode_literals
 
 import json
+import logging
 import random
 from datetime import timedelta
 
 import requests
 
-from resources.lib.kodiwrapper import from_unicode, LOG_DEBUG, LOG_ERROR
+from resources.lib import kodiutils
+
+_LOGGER = logging.getLogger('api-vtmgostream')
 
 
 class StreamGeoblockedException(Exception):
@@ -54,12 +57,8 @@ class VtmGoStream:
     _ANVATO_API_KEY = 'HOydnxEYtxXYY1UfT3ADuevMP7xRjPg6XYNrPLhFISL'
     _ANVATO_USER_AGENT = 'ANVSDK Android/5.0.39 (Linux; Android 6.0.1; Nexus 5)'
 
-    def __init__(self, kodi):
-        """ Initialise object
-        :type kodi: resources.lib.kodiwrapper.KodiWrapper
-        """
-        self._kodi = kodi
-
+    def __init__(self):
+        """ Initialise VTM GO Stream API """
         self._session = requests.session()
 
     def get_stream(self, stream_type, stream_id):
@@ -153,7 +152,7 @@ class VtmGoStream:
         :rtype: dict
         """
         url = 'https://videoplayer-service.api.persgroep.cloud/config/%s/%s' % (strtype, stream_id)
-        self._kodi.log('Getting stream info from {url}', url=url)
+        _LOGGER.info('Getting stream info from %s', url)
         response = self._session.get(url,
                                      params={
                                          'startPosition': '0.0',
@@ -164,9 +163,8 @@ class VtmGoStream:
                                          'Popcorn-SDK-Version': '2',
                                          'User-Agent': 'Dalvik/2.1.0 (Linux; U; Android 6.0.1; Nexus 5 Build/M4B30Z)',
                                      },
-                                     proxies=self._kodi.get_proxies())
-
-        self._kodi.log('Got response: {response}', LOG_DEBUG, response=response.text)
+                                     proxies=kodiutils.get_proxies())
+        _LOGGER.debug('Got response (status=%s): %s', response.status_code, response.text)
 
         if response.status_code == 403:
             error = json.loads(response.text)
@@ -184,7 +182,8 @@ class VtmGoStream:
         info = json.loads(response.text)
         return info
 
-    def _extract_anvato_stream_from_stream_info(self, stream_info):
+    @staticmethod
+    def _extract_anvato_stream_from_stream_info(stream_info):
         """ Extract the anvato stream details.
         :type stream_info: dict
         :rtype dict
@@ -195,10 +194,11 @@ class VtmGoStream:
                 if stream.get('type') == 'anvato':
                     return stream.get('anvato')
         elif stream_info.get('code'):
-            self._kodi.log('VTM GO Videoplayer service API error: {type}', LOG_ERROR, type=stream_info.get('type'))
+            _LOGGER.error('VTM GO Videoplayer service API error: %s', stream_info.get('type'))
         raise Exception('No stream found that we can handle')
 
-    def _extract_subtitles_from_stream_info(self, stream_info):
+    @staticmethod
+    def _extract_subtitles_from_stream_info(stream_info):
         """ Extract a list of the subtitles.
         :type stream_info: dict
         :rtype list[str]
@@ -207,7 +207,7 @@ class VtmGoStream:
         if stream_info.get('video').get('subtitles'):
             for subtitle in stream_info.get('video').get('subtitles'):
                 subtitles.append(subtitle.get('url'))
-                self._kodi.log('Found subtitle url {url}', url=subtitle.get('url'))
+                _LOGGER.debug('Found subtitle url %s', subtitle.get('url'))
         return subtitles
 
     @staticmethod
@@ -243,15 +243,15 @@ class VtmGoStream:
         :rtype list[str]
         """
         import re
-        temp_dir = self._kodi.get_userdata_path() + 'temp/'
-        if not self._kodi.check_if_path_exists(temp_dir):
-            self._kodi.mkdir(temp_dir)
+        temp_dir = kodiutils.addon_profile() + 'temp/'
+        if not kodiutils.exists(temp_dir):
+            kodiutils.mkdir(temp_dir)
         else:
-            dirs, files = self._kodi.listdir(temp_dir)  # pylint: disable=unused-variable
+            dirs, files = kodiutils.listdir(temp_dir)  # pylint: disable=unused-variable
             if files:
                 for item in files:
                     if item.endswith('.vtt'):
-                        self._kodi.delete_file(temp_dir + item)
+                        kodiutils.delete(temp_dir + item)
         ad_breaks = list()
         delayed_subtitles = list()
         webvtt_timing_regex = re.compile(r'\n(\d{2}:\d{2}:\d{2}\.\d{3}) --> (\d{2}:\d{2}:\d{2}\.\d{3})\s')
@@ -267,8 +267,8 @@ class VtmGoStream:
             output_file = temp_dir + '/' + subtitle.split('/')[-1].split('.')[0] + '.nl-NL.' + subtitle.split('.')[-1]
             webvtt_content = requests.get(subtitle).text
             webvtt_content = webvtt_timing_regex.sub(lambda match: self._delay_webvtt_timing(match, ad_breaks), webvtt_content)
-            with self._kodi.open_file(output_file, 'w') as webvtt_output:
-                webvtt_output.write(from_unicode(webvtt_content))
+            with kodiutils.open_file(output_file, 'w') as webvtt_output:
+                webvtt_output.write(kodiutils.from_unicode(webvtt_content))
             delayed_subtitles.append(output_file)
         return delayed_subtitles
 
@@ -278,7 +278,7 @@ class VtmGoStream:
         :rtype dict
         """
         url = 'https://access-prod.apis.anvato.net/anvacks/{key}'.format(key=access_key)
-        self._kodi.log('Getting anvacks from {url}', url=url)
+        _LOGGER.debug('Getting anvacks from %s')
         response = self._session.get(url,
                                      params={
                                          'apikey': self._ANVATO_API_KEY,
@@ -300,7 +300,7 @@ class VtmGoStream:
         :rtype dict
         """
         url = 'https://tkx.apis.anvato.net/rest/v2/server_time'
-        self._kodi.log('Getting servertime from {url} with access_key {access_key}', url=url, access_key=access_key)
+        _LOGGER.debug('Getting servertime from %s with access_key %s', url, access_key)
         response = self._session.get(url,
                                      params={
                                          'anvack': access_key,
@@ -323,8 +323,7 @@ class VtmGoStream:
         :rtype dict
         """
         url = 'https://tkx.apis.anvato.net/rest/v2/mcp/video/{video}'.format(**anvato_info)
-        self._kodi.log('Getting stream info from {url} with access_key {access_key} and token {token}', url=url, access_key=anvato_info['accessKey'],
-                       token=anvato_info['token'])
+        _LOGGER.debug('Getting stream info from %s with access_key %s and token %s', url, anvato_info['accessKey'], anvato_info['token'])
 
         response = self._session.post(url,
                                       json={
@@ -374,7 +373,7 @@ class VtmGoStream:
                                           'User-Agent': self._ANVATO_USER_AGENT,
                                       })
 
-        self._kodi.log('Got response: {response}', LOG_DEBUG, response=response.text)
+        _LOGGER.debug('Got response (status=%s): %s', response.status_code, response.text)
 
         if response.status_code != 200:
             raise Exception('Error %s.' % response.status_code)
@@ -400,7 +399,7 @@ class VtmGoStream:
         :type url: str
         :rtype str
         """
-        self._kodi.log('Downloading text from {url}', url=url)
+        _LOGGER.debug('Downloading text from %s', url)
         response = self._session.get(url,
                                      headers={
                                          'X-Anvato-User-Agent': self._ANVATO_USER_AGENT,
@@ -420,10 +419,10 @@ class VtmGoStream:
         try:
             decoded = json.loads(download)
             if decoded.get('master_m3u8'):
-                self._kodi.log('Followed redirection from {url_from} to {url_to}', url_from=url, url_to=decoded.get('master_m3u8'))
+                _LOGGER.debug('Followed redirection from %s to %s', url, decoded.get('master_m3u8'))
                 return decoded
         except ValueError:
-            self._kodi.log('No manifest url found {url}', LOG_ERROR, url=url)
+            _LOGGER.error('No manifest url found %s', url)
 
         # Fallback to the url like we have it
         return dict(master_m3u8=url)
@@ -439,7 +438,7 @@ class VtmGoStream:
         download = self._download_text(url)
         matches = re.search(r"<Location>([^<]+)</Location>", download)
         if matches:
-            self._kodi.log('Followed redirection from {url_from} to {url_to}', url_from=url, url_to=matches.group(1))
+            _LOGGER.debug('Followed redirection from %s to %s', url, matches.group(1))
             return matches.group(1)
 
         # Fallback to the url like we have it

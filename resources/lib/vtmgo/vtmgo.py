@@ -4,10 +4,11 @@
 from __future__ import absolute_import, division, unicode_literals
 
 import json
+import logging
 
 import requests
 
-from resources.lib.kodiwrapper import LOG_DEBUG
+from resources.lib import kodiutils
 from resources.lib.vtmgo.vtmgoauth import VtmGoAuth
 
 try:  # Python 3
@@ -18,6 +19,8 @@ except ImportError:  # Python 2
 CACHE_AUTO = 1  # Allow to use the cache, and query the API if no cache is available
 CACHE_ONLY = 2  # Only use the cache, don't use the API
 CACHE_PREVENT = 3  # Don't use the cache
+
+_LOGGER = logging.getLogger('api-vtmgo')
 
 
 class UnavailableException(Exception):
@@ -266,13 +269,13 @@ class VtmGo:
         'x-persgroep-os-version': '23',
     }
 
-    def __init__(self, kodi):
-        """ Initialise object
-        :type kodi: resources.lib.kodiwrapper.KodiWrapper
-        """
-        self._kodi = kodi
-        self._proxies = kodi.get_proxies()
-        self._auth = VtmGoAuth(kodi)
+    def __init__(self):
+        """ Initialise VTM GO Content API """
+        self._proxies = kodiutils.get_proxies()
+        self._auth = VtmGoAuth()
+
+        self._session = requests.session()
+        self._session.headers.update(self._HEADERS)
 
     def _mode(self):
         """ Return the mode that should be used for API calls """
@@ -315,7 +318,7 @@ class VtmGo:
         categories = []
         for cat in recommendations.get('rows', []):
             if cat.get('rowType') not in ['SWIMLANE_DEFAULT']:
-                self._kodi.log('Skipping recommendation {name} with type={type}', name=cat.get('title'), type=cat.get('rowType'))
+                _LOGGER.debug('Skipping recommendation {name} with type={type}', name=cat.get('title'), type=cat.get('rowType'))
                 continue
 
             items = []
@@ -528,7 +531,7 @@ class VtmGo:
         """
         if cache in [CACHE_AUTO, CACHE_ONLY]:
             # Try to fetch from cache
-            movie = self._kodi.get_cache(['movie', movie_id])
+            movie = kodiutils.get_cache(['movie', movie_id])
             if movie is None and cache == CACHE_ONLY:
                 return None
         else:
@@ -539,7 +542,7 @@ class VtmGo:
             response = self._get_url('/%s/movies/%s' % (self._mode(), movie_id))
             info = json.loads(response)
             movie = info.get('movie', {})
-            self._kodi.set_cache(['movie', movie_id], movie)
+            kodiutils.set_cache(['movie', movie_id], movie)
 
         return Movie(
             movie_id=movie.get('id'),
@@ -564,7 +567,7 @@ class VtmGo:
         """
         if cache in [CACHE_AUTO, CACHE_ONLY]:
             # Try to fetch from cache
-            program = self._kodi.get_cache(['program', program_id])
+            program = kodiutils.get_cache(['program', program_id])
             if program is None and cache == CACHE_ONLY:
                 return None
         else:
@@ -575,7 +578,7 @@ class VtmGo:
             response = self._get_url('/%s/programs/%s' % (self._mode(), program_id))
             info = json.loads(response)
             program = info.get('program', {})
-            self._kodi.set_cache(['program', program_id], program)
+            kodiutils.set_cache(['program', program_id], program)
 
         channel = self._parse_channel(program.get('channelLogoUrl'))
 
@@ -722,9 +725,10 @@ class VtmGo:
 
         return items
 
-    def get_product(self):
+    @staticmethod
+    def get_product():
         """ Return the product that is currently selected. """
-        profile = self._kodi.get_setting('profile')
+        profile = kodiutils.get_setting('profile')
         try:
             return profile.split(':')[1]
         except IndexError:
@@ -757,15 +761,14 @@ class VtmGo:
         if profile:
             headers['x-dpp-profile'] = profile
 
-        self._kodi.log('Sending GET {url}...', url=url)
-
-        response = requests.session().get('https://lfvp-api.dpgmedia.net' + url, params=params, headers=headers, proxies=self._proxies)
+        _LOGGER.debug('Sending GET %s...', url)
+        response = self._session.get('https://lfvp-api.dpgmedia.net' + url, params=params, headers=headers, proxies=self._proxies)
 
         # Set encoding to UTF-8 if no charset is indicated in http headers (https://github.com/psf/requests/issues/1604)
         if not response.encoding:
             response.encoding = 'utf-8'
 
-        self._kodi.log('Got response (status={code}): {response}', LOG_DEBUG, code=response.status_code, response=response.text)
+        _LOGGER.debug('Got response (status=%s): %s', response.status_code, response.text)
 
         if response.status_code == 404:
             raise UnavailableException()
@@ -792,11 +795,10 @@ class VtmGo:
         if profile:
             headers['x-dpp-profile'] = profile
 
-        self._kodi.log('Sending PUT {url}...', url=url)
+        _LOGGER.debug('Sending PUT %s...', url)
+        response = self._session.put('https://api.vtmgo.be' + url, headers=headers, proxies=self._proxies)
 
-        response = requests.session().put('https://api.vtmgo.be' + url, headers=headers, proxies=self._proxies)
-
-        self._kodi.log('Got response: {response}', LOG_DEBUG, response=response.text)
+        _LOGGER.debug('Got response (status=%s): %s', response.status_code, response.text)
 
         if response.status_code == 404:
             raise UnavailableException()
@@ -823,11 +825,10 @@ class VtmGo:
         if profile:
             headers['x-dpp-profile'] = profile
 
-        self._kodi.log('Sending POST {url}...', url=url)
+        _LOGGER.debug('Sending POST %s...', url)
+        response = self._session.post('https://api.vtmgo.be' + url, headers=headers, proxies=self._proxies)
 
-        response = requests.session().post('https://api.vtmgo.be' + url, headers=headers, proxies=self._proxies)
-
-        self._kodi.log('Got response: {response}', LOG_DEBUG, response=response.text)
+        _LOGGER.debug('Got response (status=%s): %s', response.status_code, response.text)
 
         if response.status_code == 404:
             raise UnavailableException()
@@ -854,11 +855,10 @@ class VtmGo:
         if profile:
             headers['x-dpp-profile'] = profile
 
-        self._kodi.log('Sending DELETE {url}...', url=url)
+        _LOGGER.debug('Sending DELETE %s...', url)
+        response = self._session.delete('https://api.vtmgo.be' + url, headers=headers, proxies=self._proxies)
 
-        response = requests.session().delete('https://api.vtmgo.be' + url, headers=headers, proxies=self._proxies)
-
-        self._kodi.log('Got response: {response}', LOG_DEBUG, response=response.text)
+        _LOGGER.debug('Got response (status=%s): %s', response.status_code, response.text)
 
         if response.status_code == 404:
             raise UnavailableException()

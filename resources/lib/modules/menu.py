@@ -3,112 +3,146 @@
 
 from __future__ import absolute_import, division, unicode_literals
 
-from resources.lib.kodiwrapper import TitleItem
+import logging
+
+from resources.lib import kodiutils
 from resources.lib.modules import CHANNELS
 from resources.lib.vtmgo.vtmgo import Movie, Program, Episode, VtmGo
+from resources.lib.vtmgo.vtmgoauth import VtmGoAuth
+
+_LOGGER = logging.getLogger('menu')
+
+
+class TitleItem:
+    """ This helper object holds all information to be used with Kodi xbmc's ListItem object """
+
+    def __init__(self, title, path=None, art_dict=None, info_dict=None, prop_dict=None, stream_dict=None, context_menu=None, subtitles_path=None,
+                 is_playable=False):
+        """ The constructor for the TitleItem class
+        :type title: str
+        :type path: str
+        :type art_dict: dict
+        :type info_dict: dict
+        :type prop_dict: dict
+        :type stream_dict: dict
+        :type context_menu: list[tuple[str, str]]
+        :type subtitles_path: list[str]
+        :type is_playable: bool
+        """
+        self.title = title
+        self.path = path
+        self.art_dict = art_dict
+        self.info_dict = info_dict
+        self.stream_dict = stream_dict
+        self.prop_dict = prop_dict
+        self.context_menu = context_menu
+        self.subtitles_path = subtitles_path
+        self.is_playable = is_playable
+
+    def __repr__(self):
+        return "%r" % self.__dict__
 
 
 class Menu:
     """ Menu code """
 
-    def __init__(self, kodi):
-        """ Initialise object
-        :type kodi: resources.lib.kodiwrapper.KodiWrapper
-        """
-        self._kodi = kodi
-        self._vtm_go = VtmGo(self._kodi)
+    def __init__(self):
+        """ Initialise object """
+        self._vtm_go = VtmGo()
 
-    def show_mainmenu(self):
+    @staticmethod
+    def show_mainmenu():
         """ Show the main menu """
         listing = []
         listing.append(TitleItem(
-            title=self._kodi.localize(30001),  # A-Z
-            path=self._kodi.url_for('show_catalog_all'),
+            title=kodiutils.localize(30001),  # A-Z
+            path=kodiutils.url_for('show_catalog_all'),
             art_dict=dict(
                 icon='DefaultMovieTitle.png',
-                fanart=self._kodi.get_addon_info('fanart'),
+                fanart=kodiutils.get_addon_info('fanart'),
             ),
             info_dict=dict(
-                plot=self._kodi.localize(30002),
+                plot=kodiutils.localize(30002),
             ),
         ))
         listing.append(TitleItem(
-            title=self._kodi.localize(30003),  # Catalogue
-            path=self._kodi.url_for('show_catalog'),
+            title=kodiutils.localize(30003),  # Catalogue
+            path=kodiutils.url_for('show_catalog'),
             art_dict=dict(
                 icon='DefaultGenre.png',
-                fanart=self._kodi.get_addon_info('fanart'),
+                fanart=kodiutils.get_addon_info('fanart'),
             ),
             info_dict=dict(
-                plot=self._kodi.localize(30004),
+                plot=kodiutils.localize(30004),
             ),
         ))
         listing.append(TitleItem(
-            title=self._kodi.localize(30007),  # TV Channels
-            path=self._kodi.url_for('show_channels'),
+            title=kodiutils.localize(30007),  # TV Channels
+            path=kodiutils.url_for('show_channels'),
             art_dict=dict(
                 icon='DefaultAddonPVRClient.png',
-                fanart=self._kodi.get_addon_info('fanart'),
+                fanart=kodiutils.get_addon_info('fanart'),
             ),
             info_dict=dict(
-                plot=self._kodi.localize(30008),
+                plot=kodiutils.localize(30008),
             ),
         ))
 
-        if self._kodi.get_setting_as_bool('interface_show_recommendations'):
+        if kodiutils.get_setting_bool('interface_show_recommendations'):
             listing.append(TitleItem(
-                title=self._kodi.localize(30015),  # Recommendations
-                path=self._kodi.url_for('show_recommendations'),
+                title=kodiutils.localize(30015),  # Recommendations
+                path=kodiutils.url_for('show_recommendations'),
                 art_dict=dict(
                     icon='DefaultFavourites.png',
-                    fanart=self._kodi.get_addon_info('fanart'),
+                    fanart=kodiutils.get_addon_info('fanart'),
                 ),
                 info_dict=dict(
-                    plot=self._kodi.localize(30016),
+                    plot=kodiutils.localize(30016),
                 ),
             ))
 
-        if self._kodi.get_setting_as_bool('interface_show_mylist') and self._kodi.has_credentials():
+        if kodiutils.get_setting_bool('interface_show_mylist') and VtmGoAuth.has_credentials():
             listing.append(TitleItem(
-                title=self._kodi.localize(30017),  # My List
-                path=self._kodi.url_for('show_mylist'),
+                title=kodiutils.localize(30017),  # My List
+                path=kodiutils.url_for('show_mylist'),
                 art_dict=dict(
                     icon='DefaultPlaylist.png',
-                    fanart=self._kodi.get_addon_info('fanart'),
+                    fanart=kodiutils.get_addon_info('fanart'),
                 ),
                 info_dict=dict(
-                    plot=self._kodi.localize(30018),
+                    plot=kodiutils.localize(30018),
                 ),
             ))
 
-        if self._kodi.get_setting_as_bool('interface_show_continuewatching') and self._kodi.has_credentials():
+        if kodiutils.get_setting_bool('interface_show_continuewatching') and VtmGoAuth.has_credentials():
             listing.append(TitleItem(
-                title=self._kodi.localize(30019),  # Continue watching
-                path=self._kodi.url_for('show_continuewatching'),
+                title=kodiutils.localize(30019),  # Continue watching
+                path=kodiutils.url_for('show_continuewatching'),
                 art_dict=dict(
                     icon='DefaultInProgressShows.png',
-                    fanart=self._kodi.get_addon_info('fanart'),
+                    fanart=kodiutils.get_addon_info('fanart'),
                 ),
                 info_dict=dict(
-                    plot=self._kodi.localize(30020),
+                    plot=kodiutils.localize(30020),
                 ),
             ))
 
         listing.append(TitleItem(
-            title=self._kodi.localize(30009),  # Search
-            path=self._kodi.url_for('show_search'),
+            title=kodiutils.localize(30009),  # Search
+            path=kodiutils.url_for('show_search'),
             art_dict=dict(
                 icon='DefaultAddonsSearch.png',
-                fanart=self._kodi.get_addon_info('fanart'),
+                fanart=kodiutils.get_addon_info('fanart'),
             ),
             info_dict=dict(
-                plot=self._kodi.localize(30010),
+                plot=kodiutils.localize(30010),
             ),
         ))
 
-        self._kodi.show_listing(listing, sort=['unsorted'])
+        kodiutils.show_listing(listing, sort=['unsorted'])
 
-    def format_plot(self, obj):
+    @staticmethod
+    def format_plot(obj):
         """ Format the plot for a item
         :type obj: object
         :rtype str
@@ -117,37 +151,37 @@ class Menu:
 
         if hasattr(obj, 'epg'):
             if obj.epg:
-                plot += self._kodi.localize(30213,  # Now
-                                            start=obj.epg[0].start.strftime('%H:%M'),
-                                            end=obj.epg[0].end.strftime('%H:%M'),
-                                            title=obj.epg[0].title) + "\n"
+                plot += kodiutils.localize(30213,  # Now
+                                           start=obj.epg[0].start.strftime('%H:%M'),
+                                           end=obj.epg[0].end.strftime('%H:%M'),
+                                           title=obj.epg[0].title) + "\n"
 
             if len(obj.epg) > 1:
-                plot += self._kodi.localize(30214,  # Next
-                                            start=obj.epg[1].start.strftime('%H:%M'),
-                                            end=obj.epg[1].end.strftime('%H:%M'),
-                                            title=obj.epg[1].title) + "\n"
+                plot += kodiutils.localize(30214,  # Next
+                                           start=obj.epg[1].start.strftime('%H:%M'),
+                                           end=obj.epg[1].end.strftime('%H:%M'),
+                                           title=obj.epg[1].title) + "\n"
             plot += '\n'
 
         # Add remaining
         if hasattr(obj, 'remaining') and obj.remaining is not None:
             if obj.remaining == 0:
-                plot += '» ' + self._kodi.localize(30208) + "\n"  # Available until midnight
+                plot += '» ' + kodiutils.localize(30208) + "\n"  # Available until midnight
             elif obj.remaining == 1:
-                plot += '» ' + self._kodi.localize(30209) + "\n"  # One more day remaining
+                plot += '» ' + kodiutils.localize(30209) + "\n"  # One more day remaining
             elif obj.remaining / 365 > 5:
                 pass  # If it is available for more than 5 years, do not show
             elif obj.remaining / 365 > 2:
-                plot += '» ' + self._kodi.localize(30210, years=int(obj.remaining / 365)) + "\n"  # X years remaining
+                plot += '» ' + kodiutils.localize(30210, years=int(obj.remaining / 365)) + "\n"  # X years remaining
             elif obj.remaining / 30.5 > 3:
-                plot += '» ' + self._kodi.localize(30211, months=int(obj.remaining / 30.5)) + "\n"  # X months remaining
+                plot += '» ' + kodiutils.localize(30211, months=int(obj.remaining / 30.5)) + "\n"  # X months remaining
             else:
-                plot += '» ' + self._kodi.localize(30212, days=obj.remaining) + "\n"  # X days remaining
+                plot += '» ' + kodiutils.localize(30212, days=obj.remaining) + "\n"  # X days remaining
             plot += '\n'
 
         # Add geo-blocked message
         if hasattr(obj, 'geoblocked') and obj.geoblocked:
-            plot += self._kodi.localize(30207)  # Geo-blocked
+            plot += kodiutils.localize(30207)  # Geo-blocked
             plot += '\n'
 
         if hasattr(obj, 'description'):
@@ -170,7 +204,7 @@ class Menu:
             'title': item.name,
             'plot': self.format_plot(item),
             'studio': CHANNELS.get(item.channel, {}).get('studio_icon'),
-            'mpaa': ', '.join(item.legal) if hasattr(item, 'legal') and item.legal else self._kodi.localize(30216),  # All ages
+            'mpaa': ', '.join(item.legal) if hasattr(item, 'legal') and item.legal else kodiutils.localize(30216),  # All ages
         }
         prop_dict = {}
 
@@ -180,15 +214,15 @@ class Menu:
         if isinstance(item, Movie):
             if item.my_list:
                 context_menu = [(
-                    self._kodi.localize(30101),  # Remove from My List
+                    kodiutils.localize(30101),  # Remove from My List
                     'Container.Update(%s)' %
-                    self._kodi.url_for('mylist_del', video_type=self._vtm_go.CONTENT_TYPE_MOVIE, content_id=item.movie_id)
+                    kodiutils.url_for('mylist_del', video_type=self._vtm_go.CONTENT_TYPE_MOVIE, content_id=item.movie_id)
                 )]
             else:
                 context_menu = [(
-                    self._kodi.localize(30100),  # Add to My List
+                    kodiutils.localize(30100),  # Add to My List
                     'Container.Update(%s)' %
-                    self._kodi.url_for('mylist_add', video_type=self._vtm_go.CONTENT_TYPE_MOVIE, content_id=item.movie_id)
+                    kodiutils.url_for('mylist_add', video_type=self._vtm_go.CONTENT_TYPE_MOVIE, content_id=item.movie_id)
                 )]
 
             art_dict.update({
@@ -209,7 +243,7 @@ class Menu:
 
             return TitleItem(
                 title=item.name,
-                path=self._kodi.url_for('play', category='movies', item=item.movie_id),
+                path=kodiutils.url_for('play', category='movies', item=item.movie_id),
                 art_dict=art_dict,
                 info_dict=info_dict,
                 stream_dict=stream_dict,
@@ -223,15 +257,15 @@ class Menu:
         if isinstance(item, Program):
             if item.my_list:
                 context_menu = [(
-                    self._kodi.localize(30101),  # Remove from My List
+                    kodiutils.localize(30101),  # Remove from My List
                     'Container.Update(%s)' %
-                    self._kodi.url_for('mylist_del', video_type=self._vtm_go.CONTENT_TYPE_PROGRAM, content_id=item.program_id)
+                    kodiutils.url_for('mylist_del', video_type=self._vtm_go.CONTENT_TYPE_PROGRAM, content_id=item.program_id)
                 )]
             else:
                 context_menu = [(
-                    self._kodi.localize(30100),  # Add to My List
+                    kodiutils.localize(30100),  # Add to My List
                     'Container.Update(%s)' %
-                    self._kodi.url_for('mylist_add', video_type=self._vtm_go.CONTENT_TYPE_PROGRAM, content_id=item.program_id)
+                    kodiutils.url_for('mylist_add', video_type=self._vtm_go.CONTENT_TYPE_PROGRAM, content_id=item.program_id)
                 )]
 
             art_dict.update({
@@ -244,7 +278,7 @@ class Menu:
 
             return TitleItem(
                 title=item.name,
-                path=self._kodi.url_for('show_catalog_program', program=item.program_id),
+                path=kodiutils.url_for('show_catalog_program', program=item.program_id),
                 art_dict=art_dict,
                 info_dict=info_dict,
                 context_menu=context_menu,
@@ -257,9 +291,9 @@ class Menu:
             context_menu = []
             if item.program_id:
                 context_menu = [(
-                    self._kodi.localize(30102),  # Go to Program
+                    kodiutils.localize(30102),  # Go to Program
                     'Container.Update(%s)' %
-                    self._kodi.url_for('show_catalog_program', program=item.program_id)
+                    kodiutils.url_for('show_catalog_program', program=item.program_id)
                 )]
 
             art_dict.update({
@@ -295,7 +329,7 @@ class Menu:
 
             return TitleItem(
                 title=info_dict['title'],
-                path=self._kodi.url_for('play', category='episodes', item=item.episode_id),
+                path=kodiutils.url_for('play', category='episodes', item=item.episode_id),
                 art_dict=art_dict,
                 info_dict=info_dict,
                 stream_dict=stream_dict,
