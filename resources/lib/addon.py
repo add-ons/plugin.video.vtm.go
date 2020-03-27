@@ -9,7 +9,6 @@ import routing
 
 from resources.lib import kodilogging
 from resources.lib.kodiutils import KodiUtils
-from resources.lib.vtmgo.vtmgoauth import VtmGoAuth
 
 kodilogging.config()
 routing = routing.Plugin()  # pylint: disable=invalid-name
@@ -20,7 +19,8 @@ _LOGGER = logging.getLogger('addon')
 @routing.route('/')
 def index():
     """ Show the profile selection, or go to the main menu. """
-    if not VtmGoAuth.has_credentials() or (KodiUtils.get_setting_bool('auto_login') and bool(KodiUtils.get_setting('profile'))):
+    from resources.lib.modules.authentication import Authentication
+    if not Authentication.has_credentials() or (KodiUtils.get_setting_bool('auto_login') and bool(KodiUtils.get_setting('profile'))):
         # If we have no credentials (browse only mode) or we have autologin and a profile, go directly to the main menu
         show_main_menu()
 
@@ -33,7 +33,7 @@ def index():
 def show_main_menu():
     """ Show the main menu """
     from resources.lib.modules.menu import Menu
-    Menu().show_mainmenu()
+    Menu(_router).show_mainmenu()
 
 
 @routing.route('/select-profile')
@@ -41,119 +41,119 @@ def show_main_menu():
 def select_profile(key=None):
     """ Select your profile """
     from resources.lib.modules.authentication import Authentication
-    Authentication().select_profile(key)
+    Authentication(_router).select_profile(key)
 
 
 @routing.route('/channels')
 def show_channels():
     """ Shows Live TV channels """
     from resources.lib.modules.channels import Channels
-    Channels().show_channels()
+    Channels(_router).show_channels()
 
 
 @routing.route('/channels/<channel>')
 def show_channel_menu(channel):
     """ Shows Live TV channels """
     from resources.lib.modules.channels import Channels
-    Channels().show_channel_menu(channel)
+    Channels(_router).show_channel_menu(channel)
 
 
 @routing.route('/tvguide/channel/<channel>')
 def show_tvguide_channel(channel):
     """ Shows the dates in the tv guide """
     from resources.lib.modules.tvguide import TvGuide
-    TvGuide().show_tvguide_channel(channel)
+    TvGuide(_router).show_tvguide_channel(channel)
 
 
 @routing.route('/tvguide/channel/<channel>/<date>')
 def show_tvguide_detail(channel=None, date=None):
     """ Shows the programs of a specific date in the tv guide """
     from resources.lib.modules.tvguide import TvGuide
-    TvGuide().show_tvguide_detail(channel, date)
+    TvGuide(_router).show_tvguide_detail(channel, date)
 
 
 @routing.route('/catalog')
 def show_catalog():
     """ Show the catalog """
     from resources.lib.modules.catalog import Catalog
-    Catalog().show_catalog()
+    Catalog(_router).show_catalog()
 
 
 @routing.route('/catalog/all')
 def show_catalog_all():
     """ Show a category in the catalog """
     from resources.lib.modules.catalog import Catalog
-    Catalog().show_catalog_category()
+    Catalog(_router).show_catalog_category()
 
 
 @routing.route('/catalog/by-category/<category>')
 def show_catalog_category(category):
     """ Show a category in the catalog """
     from resources.lib.modules.catalog import Catalog
-    Catalog().show_catalog_category(category)
+    Catalog(_router).show_catalog_category(category)
 
 
 @routing.route('/catalog/by-channel/<channel>')
 def show_catalog_channel(channel):
     """ Show a category in the catalog """
     from resources.lib.modules.catalog import Catalog
-    Catalog().show_catalog_channel(channel)
+    Catalog(_router).show_catalog_channel(channel)
 
 
 @routing.route('/catalog/program/<program>')
 def show_catalog_program(program):
     """ Show a program from the catalog """
     from resources.lib.modules.catalog import Catalog
-    Catalog().show_program(program)
+    Catalog(_router).show_program(program)
 
 
 @routing.route('/program/program/<program>/<season>')
 def show_catalog_program_season(program, season):
     """ Show a program from the catalog """
     from resources.lib.modules.catalog import Catalog
-    Catalog().show_program_season(program, int(season))
+    Catalog(_router).show_program_season(program, int(season))
 
 
 @routing.route('/catalog/recommendations')
 def show_recommendations():
     """ Shows the programs of a specific date in the tv guide """
     from resources.lib.modules.catalog import Catalog
-    Catalog().show_recommendations()
+    Catalog(_router).show_recommendations()
 
 
 @routing.route('/catalog/recommendations/<category>')
 def show_recommendations_category(category):
     """ Show the items in a recommendations category """
     from resources.lib.modules.catalog import Catalog
-    Catalog().show_recommendations_category(category)
+    Catalog(_router).show_recommendations_category(category)
 
 
 @routing.route('/catalog/mylist')
 def show_mylist():
     """ Show the items in "My List" """
     from resources.lib.modules.catalog import Catalog
-    Catalog().show_mylist()
+    Catalog(_router).show_mylist()
 
 
 @routing.route('/catalog/mylist/add/<video_type>/<content_id>')
 def mylist_add(video_type, content_id):
     """ Add an item to "My List" """
     from resources.lib.modules.catalog import Catalog
-    Catalog().mylist_add(video_type, content_id)
+    Catalog(_router).mylist_add(video_type, content_id)
 
 
 @routing.route('/catalog/mylist/del/<video_type>/<content_id>')
 def mylist_del(video_type, content_id):
     """ Remove an item from "My List" """
     from resources.lib.modules.catalog import Catalog
-    Catalog().mylist_del(video_type, content_id)
+    Catalog(_router).mylist_del(video_type, content_id)
 
 
 @routing.route('/catalog/continuewatching')
 def show_continuewatching():
     """ Show the items in "Continue Watching" """
     from resources.lib.modules.catalog import Catalog
-    Catalog().show_continuewatching()
+    Catalog(_router).show_continuewatching()
 
 
 @routing.route('/search')
@@ -161,7 +161,7 @@ def show_continuewatching():
 def show_search(query=None):
     """ Shows the search dialog """
     from resources.lib.modules.search import Search
-    Search().show_search(query)
+    Search(_router).show_search(query)
 
 
 @routing.route('/metadata/update')
@@ -182,23 +182,29 @@ def metadata_clean():
 def play_epg_datetime(channel, timestamp):
     """ Play a program based on the channel and the timestamp when it was aired """
     from resources.lib.modules.tvguide import TvGuide
-    TvGuide().play_epg_datetime(channel, timestamp)
+    TvGuide(_router).play_epg_datetime(channel, timestamp)
 
 
 @routing.route('/play/catalog/<category>/<item>/<channel>')
 def play_or_live(category, item, channel):
     """ Ask to play the requested item or switch to the live channel """
     from resources.lib.modules.player import Player
-    Player().play_or_live(category, item, channel)
+    Player(_router).play_or_live(category, item, channel)
 
 
 @routing.route('/play/catalog/<category>/<item>')
 def play(category, item):
     """ Play the requested item """
     from resources.lib.modules.player import Player
-    Player().play(category, item)
+    Player(_router).play(category, item)
 
 
 def run(params):
     """ Run the routing plugin """
     routing.run(params)
+
+
+def _router(func_name, *args, **kwargs):
+    """Returns a path to the requested function."""
+    func = globals()[func_name]
+    return routing.url_for(func, *args, **kwargs)

@@ -122,3 +122,33 @@ CHANNELS = OrderedDict([
         ]
     )),
 ])
+
+
+class TitleItem:
+    """ This helper object holds all information to be used with Kodi xbmc's ListItem object """
+
+    def __init__(self, title, path=None, art_dict=None, info_dict=None, prop_dict=None, stream_dict=None, context_menu=None, subtitles_path=None,
+                 is_playable=False):
+        """ The constructor for the TitleItem class
+        :type title: str
+        :type path: str
+        :type art_dict: dict
+        :type info_dict: dict
+        :type prop_dict: dict
+        :type stream_dict: dict
+        :type context_menu: list[tuple[str, str]]
+        :type subtitles_path: list[str]
+        :type is_playable: bool
+        """
+        self.title = title
+        self.path = path
+        self.art_dict = art_dict
+        self.info_dict = info_dict
+        self.stream_dict = stream_dict
+        self.prop_dict = prop_dict
+        self.context_menu = context_menu
+        self.subtitles_path = subtitles_path
+        self.is_playable = is_playable
+
+    def __repr__(self):
+        return "%r" % self.__dict__

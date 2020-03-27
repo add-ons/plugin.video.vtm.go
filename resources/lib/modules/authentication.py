@@ -6,7 +6,7 @@ from __future__ import absolute_import, division, unicode_literals
 import logging
 
 from resources.lib.kodiutils import KodiUtils
-from resources.lib.modules.menu import TitleItem
+from resources.lib.modules import TitleItem
 from resources.lib.vtmgo.vtmgo import VtmGo, ApiUpdateRequired
 from resources.lib.vtmgo.vtmgoauth import InvalidLoginException, LoginErrorException
 
@@ -16,9 +16,15 @@ _LOGGER = logging.getLogger('authentication')
 class Authentication:
     """ Code responsible for the Authentication """
 
-    def __init__(self):
+    def __init__(self, router):
         """ Initialise object """
+        self._router = router  # type: callable
         self._vtm_go = VtmGo()
+
+    @staticmethod
+    def has_credentials():
+        """ Returns whether the user has credentials or not. """
+        return bool(KodiUtils.get_setting('username') and KodiUtils.get_setting('password'))
 
     def select_profile(self, key=None):
         """ Show your profiles
@@ -62,14 +68,14 @@ class Authentication:
             KodiUtils.set_setting('profile', '%s:%s' % (profile.key, profile.product))
             KodiUtils.set_setting('profile_name', profile.name)
 
-            KodiUtils.container_update(KodiUtils.url_for('show_main_menu'))
+            KodiUtils.container_update(self._router('show_main_menu'))
             return
 
         # Show profile selection when you have multiple profiles
         listing = [
             TitleItem(
                 title=self._get_profile_name(p),
-                path=KodiUtils.url_for('select_profile', key=p.key),
+                path=self._router('select_profile', key=p.key),
                 art_dict=dict(
                     icon='DefaultUser.png'
                 ),

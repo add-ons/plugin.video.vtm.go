@@ -20,6 +20,10 @@ CACHE_AUTO = 1  # Allow to use the cache, and query the API if no cache is avail
 CACHE_ONLY = 2  # Only use the cache, don't use the API
 CACHE_PREVENT = 3  # Don't use the cache
 
+CONTENT_TYPE_MOVIE = 'MOVIE'
+CONTENT_TYPE_PROGRAM = 'PROGRAM'
+CONTENT_TYPE_EPISODE = 'EPISODE'
+
 _LOGGER = logging.getLogger('api-vtmgo')
 
 
@@ -258,9 +262,6 @@ class Episode:
 
 class VtmGo:
     """ VTM GO API """
-    CONTENT_TYPE_MOVIE = 'MOVIE'
-    CONTENT_TYPE_PROGRAM = 'PROGRAM'
-    CONTENT_TYPE_EPISODE = 'EPISODE'
 
     _HEADERS = {
         'x-app-version': '8',
@@ -323,7 +324,7 @@ class VtmGo:
 
             items = []
             for item in cat.get('teasers'):
-                if item.get('target', {}).get('type') == self.CONTENT_TYPE_MOVIE:
+                if item.get('target', {}).get('type') == CONTENT_TYPE_MOVIE:
                     movie = self.get_movie(item.get('target', {}).get('id'), cache=CACHE_ONLY)
                     if movie:
                         # We have a cover from the overview that we don't have in the details
@@ -337,7 +338,7 @@ class VtmGo:
                             image=item.get('imageUrl'),
                             geoblocked=item.get('geoBlocked'),
                         ))
-                elif item.get('target', {}).get('type') == self.CONTENT_TYPE_PROGRAM:
+                elif item.get('target', {}).get('type') == CONTENT_TYPE_PROGRAM:
                     program = self.get_program(item.get('target', {}).get('id'), cache=CACHE_ONLY)
                     if program:
                         # We have a cover from the overview that we don't have in the details
@@ -372,7 +373,7 @@ class VtmGo:
 
         items = []
         for item in result.get('teasers'):
-            if item.get('target', {}).get('type') == self.CONTENT_TYPE_MOVIE:
+            if item.get('target', {}).get('type') == CONTENT_TYPE_MOVIE:
                 movie = self.get_movie(item.get('target', {}).get('id'), cache=CACHE_ONLY)
                 if movie:
                     # We have a cover from the overview that we don't have in the details
@@ -387,7 +388,7 @@ class VtmGo:
                         image=item.get('imageUrl'),
                     ))
 
-            elif item.get('target', {}).get('type') == self.CONTENT_TYPE_PROGRAM:
+            elif item.get('target', {}).get('type') == CONTENT_TYPE_PROGRAM:
                 program = self.get_program(item.get('target', {}).get('id'), cache=CACHE_ONLY)
                 if program:
                     # We have a cover from the overview that we don't have in the details
@@ -402,7 +403,7 @@ class VtmGo:
                         image=item.get('imageUrl'),
                     ))
 
-            elif item.get('target', {}).get('type') == self.CONTENT_TYPE_EPISODE:
+            elif item.get('target', {}).get('type') == CONTENT_TYPE_EPISODE:
                 program = self.get_program(item.get('target', {}).get('programId'), cache=CACHE_ONLY)
                 episode = self.get_episode_from_program(program, item.get('target', {}).get('id')) if program else None
 
@@ -494,7 +495,7 @@ class VtmGo:
 
         items = []
         for item in content:
-            if item.get('target', {}).get('type') == self.CONTENT_TYPE_MOVIE:
+            if item.get('target', {}).get('type') == CONTENT_TYPE_MOVIE:
                 movie = self.get_movie(item.get('target', {}).get('id'), cache=CACHE_ONLY)
                 if movie:
                     # We have a cover from the overview that we don't have in the details
@@ -507,7 +508,7 @@ class VtmGo:
                         cover=item.get('imageUrl'),
                         geoblocked=item.get('geoBlocked'),
                     ))
-            elif item.get('target', {}).get('type') == self.CONTENT_TYPE_PROGRAM:
+            elif item.get('target', {}).get('type') == CONTENT_TYPE_PROGRAM:
                 program = self.get_program(item.get('target', {}).get('id'), cache=CACHE_ONLY)
                 if program:
                     # We have a cover from the overview that we don't have in the details
@@ -704,7 +705,7 @@ class VtmGo:
 
         items = []
         for item in results.get('suggestions', []):
-            if item.get('type') == self.CONTENT_TYPE_MOVIE:
+            if item.get('type') == CONTENT_TYPE_MOVIE:
                 movie = self.get_movie(item.get('id'), cache=CACHE_ONLY)
                 if movie:
                     items.append(movie)
@@ -713,7 +714,7 @@ class VtmGo:
                         movie_id=item.get('id'),
                         name=item.get('name'),
                     ))
-            elif item.get('type') == self.CONTENT_TYPE_PROGRAM:
+            elif item.get('type') == CONTENT_TYPE_PROGRAM:
                 program = self.get_program(item.get('id'), cache=CACHE_ONLY)
                 if program:
                     items.append(program)

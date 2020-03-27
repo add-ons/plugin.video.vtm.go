@@ -88,127 +88,6 @@ class KodiUtils:
         return cls.to_unicode(xbmc.translatePath(cls.ADDON.getAddonInfo('profile')))
 
     @classmethod
-    def url_for(cls, name, *args, **kwargs):
-        """Wrapper for routing.url_for() to lookup by name"""
-        import resources.lib.addon as addon
-        return addon.routing.url_for(getattr(addon, name), *args, **kwargs)
-
-    @classmethod
-    def show_listing(cls, title_items, category=None, sort=None, content=None, cache=True):
-        """ Show a virtual directory in Kodi """
-
-        if content:
-            # content is one of: files, songs, artists, albums, movies, tvshows, episodes, musicvideos, videos, images, games
-            xbmcplugin.setContent(cls.HANDLE, content=content)
-
-        # Jump through hoops to get a stable breadcrumbs implementation
-        category_label = ''
-        if category:
-            if not content:
-                category_label = cls.addon_name() + ' / '
-            if isinstance(category, int):
-                category_label += cls.localize(category)
-            else:
-                category_label += category
-        elif not content:
-            category_label = cls.addon_name()
-
-        xbmcplugin.setPluginCategory(handle=cls.HANDLE, category=category_label)
-
-        # Add all sort methods to GUI (start with preferred)
-        if sort is None:
-            sort = DEFAULT_SORT_METHODS
-        elif not isinstance(sort, list):
-            sort = [sort] + DEFAULT_SORT_METHODS
-
-        for key in sort:
-            xbmcplugin.addSortMethod(handle=cls.HANDLE, sortMethod=SORT_METHODS[key])
-
-        # Add the listings
-        listing = []
-        for title_item in title_items:
-            # Three options:
-            #  - item is a virtual directory/folder (not playable, path)
-            #  - item is a playable file (playable, path)
-            #  - item is non-actionable item (not playable, no path)
-            is_folder = bool(not title_item.is_playable and title_item.path)
-            is_playable = bool(title_item.is_playable and title_item.path)
-
-            list_item = xbmcgui.ListItem(label=title_item.title, path=title_item.path)
-
-            if title_item.prop_dict:
-                list_item.setProperties(title_item.prop_dict)
-            list_item.setProperty(key='IsPlayable', value='true' if is_playable else 'false')
-
-            list_item.setIsFolder(is_folder)
-
-            if title_item.art_dict:
-                list_item.setArt(title_item.art_dict)
-
-            if title_item.info_dict:
-                # type is one of: video, music, pictures, game
-                list_item.setInfo(type='video', infoLabels=title_item.info_dict)
-
-            if title_item.stream_dict:
-                # type is one of: video, audio, subtitle
-                list_item.addStreamInfo('video', title_item.stream_dict)
-
-            if title_item.context_menu:
-                list_item.addContextMenuItems(title_item.context_menu)
-
-            is_folder = bool(not title_item.is_playable and title_item.path)
-            url = title_item.path if title_item.path else None
-            listing.append((url, list_item, is_folder))
-
-        succeeded = xbmcplugin.addDirectoryItems(cls.HANDLE, listing, len(listing))
-        xbmcplugin.endOfDirectory(cls.HANDLE, succeeded, cacheToDisc=cache)
-
-    @classmethod
-    def play(cls, stream, title=None, art_dict=None, info_dict=None, prop_dict=None, stream_dict=None, license_key=None):
-        """ Play the passed TitleItem.
-        :type stream: string
-        :type title: string
-        :type art_dict: dict
-        :type info_dict: dict
-        :type prop_dict: dict
-        :type stream_dict: dict
-        :type license_key: string
-        """
-
-        play_item = xbmcgui.ListItem(label=title, path=stream)
-        if art_dict:
-            play_item.setArt(art_dict)
-        if info_dict:
-            play_item.setInfo(type='video', infoLabels=info_dict)
-        if prop_dict:
-            play_item.setProperties(prop_dict)
-        if stream_dict:
-            play_item.addStreamInfo('video', stream_dict)
-
-        play_item.setProperty('inputstreamaddon', 'inputstream.adaptive')
-        play_item.setProperty('inputstream.adaptive.max_bandwidth', str(cls.get_max_bandwidth() * 1000))
-        play_item.setProperty('network.bandwidth', str(cls.get_max_bandwidth() * 1000))
-        play_item.setProperty('inputstream.adaptive.manifest_type', 'mpd')
-        play_item.setMimeType('application/dash+xml')
-        play_item.setContentLookup(False)
-
-        if license_key is not None:
-            play_item.setProperty('inputstream.adaptive.license_type', 'com.widevine.alpha')
-            play_item.setProperty('inputstream.adaptive.license_key', license_key)
-
-        # Note: Adding the subtitle directly on the ListItem could cause sync issues, therefore
-        # we add the subtitles trough the Player after playback has started.
-        # See https://github.com/add-ons/plugin.video.vtm.go/issues/148
-        # This is probably a Kodi or inputstream.adaptive issue
-
-        # if title_item.subtitles_path:
-        #     play_item.setSubtitles(title_item.subtitles_path)
-
-        # To support video playback directly from RunPlugin() we need to use xbmc.Player().play instead of
-        # setResolvedUrl that only works with PlayMedia() or with internal playable menu items
-        xbmcplugin.setResolvedUrl(cls.HANDLE, True, listitem=play_item)
-
-    @classmethod
     def get_search_string(cls, heading='', message=''):
         """ Ask the user for a search string """
         search_string = None
@@ -583,32 +462,6 @@ class KodiUtils:
             cls.delete(fullpath)
 
     @classmethod
-    def get_max_bandwidth(cls):
-        """ Get the max bandwidth based on Kodi and add-on settings """
-        addon_max_bandwidth = int(cls.get_setting('max_bandwidth', '0'))
-        global_max_bandwidth = int(cls.get_global_setting('network.bandwidth'))
-        if addon_max_bandwidth != 0 and global_max_bandwidth != 0:
-            return min(addon_max_bandwidth, global_max_bandwidth)
-        if addon_max_bandwidth != 0:
-            return addon_max_bandwidth
-        if global_max_bandwidth != 0:
-            return global_max_bandwidth
-        return 0
-
-    @classmethod
-    def has_socks(cls):
-        """Test if socks is installed, and use a static variable to remember"""
-        if hasattr(cls, 'has_socks_cached'):
-            return getattr(cls, 'has_socks_cached')
-        try:
-            import socks  # noqa: F401; pylint: disable=unused-variable,unused-import
-        except ImportError:
-            cls.has_socks_cached = False
-            return None  # Detect if this is the first run
-        cls.has_socks_cached = True
-        return True
-
-    @classmethod
     def get_proxies(cls):
         """Return a usable proxies dictionary from Kodi proxy settings"""
         usehttpproxy = cls.get_global_setting('network.usehttpproxy')
@@ -620,7 +473,7 @@ class KodiUtils:
         except ValueError:
             httpproxytype = 0
 
-        socks_supported = cls.has_socks()
+        socks_supported = cls._has_socks()
         if httpproxytype != 0 and not socks_supported:
             # Only open the dialog the first time (to avoid multiple popups)
             if socks_supported is None:
@@ -649,3 +502,142 @@ class KodiUtils:
             return None
 
         return dict(http=proxy_address, https=proxy_address)
+
+    @classmethod
+    def _has_socks(cls):
+        """Test if socks is installed, and use a static variable to remember"""
+        if hasattr(cls, 'has_socks_cached'):
+            return getattr(cls, 'has_socks_cached')
+        try:
+            import socks  # noqa: F401; pylint: disable=unused-variable,unused-import
+        except ImportError:
+            cls.has_socks_cached = False
+            return None  # Detect if this is the first run
+        cls.has_socks_cached = True
+        return True
+
+    @classmethod
+    def show_listing(cls, title_items, category=None, sort=None, content=None, cache=True):
+        """ Show a virtual directory in Kodi """
+        if content:
+            # content is one of: files, songs, artists, albums, movies, tvshows, episodes, musicvideos, videos, images, games
+            xbmcplugin.setContent(cls.HANDLE, content=content)
+
+        # Jump through hoops to get a stable breadcrumbs implementation
+        category_label = ''
+        if category:
+            if not content:
+                category_label = cls.addon_name() + ' / '
+            if isinstance(category, int):
+                category_label += cls.localize(category)
+            else:
+                category_label += category
+        elif not content:
+            category_label = cls.addon_name()
+
+        xbmcplugin.setPluginCategory(handle=cls.HANDLE, category=category_label)
+
+        # Add all sort methods to GUI (start with preferred)
+        if sort is None:
+            sort = DEFAULT_SORT_METHODS
+        elif not isinstance(sort, list):
+            sort = [sort] + DEFAULT_SORT_METHODS
+
+        for key in sort:
+            xbmcplugin.addSortMethod(handle=cls.HANDLE, sortMethod=SORT_METHODS[key])
+
+        # Add the listings
+        listing = []
+        for title_item in title_items:
+            # Three options:
+            #  - item is a virtual directory/folder (not playable, path)
+            #  - item is a playable file (playable, path)
+            #  - item is non-actionable item (not playable, no path)
+            is_folder = bool(not title_item.is_playable and title_item.path)
+            is_playable = bool(title_item.is_playable and title_item.path)
+
+            list_item = xbmcgui.ListItem(label=title_item.title, path=title_item.path)
+
+            if title_item.prop_dict:
+                list_item.setProperties(title_item.prop_dict)
+            list_item.setProperty(key='IsPlayable', value='true' if is_playable else 'false')
+
+            list_item.setIsFolder(is_folder)
+
+            if title_item.art_dict:
+                list_item.setArt(title_item.art_dict)
+
+            if title_item.info_dict:
+                # type is one of: video, music, pictures, game
+                list_item.setInfo(type='video', infoLabels=title_item.info_dict)
+
+            if title_item.stream_dict:
+                # type is one of: video, audio, subtitle
+                list_item.addStreamInfo('video', title_item.stream_dict)
+
+            if title_item.context_menu:
+                list_item.addContextMenuItems(title_item.context_menu)
+
+            is_folder = bool(not title_item.is_playable and title_item.path)
+            url = title_item.path if title_item.path else None
+            listing.append((url, list_item, is_folder))
+
+        succeeded = xbmcplugin.addDirectoryItems(cls.HANDLE, listing, len(listing))
+        xbmcplugin.endOfDirectory(cls.HANDLE, succeeded, cacheToDisc=cache)
+
+    @classmethod
+    def play(cls, stream, title=None, art_dict=None, info_dict=None, prop_dict=None, stream_dict=None, license_key=None):
+        """ Play the passed stream by using setContentLookup.
+        :type stream: string
+        :type title: string
+        :type art_dict: dict
+        :type info_dict: dict
+        :type prop_dict: dict
+        :type stream_dict: dict
+        :type license_key: string
+        """
+        play_item = xbmcgui.ListItem(label=title, path=stream)
+        if art_dict:
+            play_item.setArt(art_dict)
+        if info_dict:
+            play_item.setInfo(type='video', infoLabels=info_dict)
+        if prop_dict:
+            play_item.setProperties(prop_dict)
+        if stream_dict:
+            play_item.addStreamInfo('video', stream_dict)
+
+        play_item.setProperty('inputstreamaddon', 'inputstream.adaptive')
+        play_item.setProperty('inputstream.adaptive.max_bandwidth', str(cls._get_max_bandwidth() * 1000))
+        play_item.setProperty('network.bandwidth', str(cls._get_max_bandwidth() * 1000))
+        play_item.setProperty('inputstream.adaptive.manifest_type', 'mpd')
+        play_item.setMimeType('application/dash+xml')
+        play_item.setContentLookup(False)
+
+        if license_key is not None:
+            play_item.setProperty('inputstream.adaptive.license_type', 'com.widevine.alpha')
+            play_item.setProperty('inputstream.adaptive.license_key', license_key)
+
+        # Note: Adding the subtitle directly on the ListItem could cause sync issues, therefore
+        # we add the subtitles trough the Player after playback has started.
+        # See https://github.com/add-ons/plugin.video.vtm.go/issues/148
+        # This is probably a Kodi or inputstream.adaptive issue
+
+        # if title_item.subtitles_path:
+        #     play_item.setSubtitles(title_item.subtitles_path)
+
+        # To support video playback directly from RunPlugin() we need to use xbmc.Player().play instead of
+        # setResolvedUrl that only works with PlayMedia() or with internal playable menu items
+        xbmcplugin.setResolvedUrl(cls.HANDLE, True, listitem=play_item)
+
+    @classmethod
+    def _get_max_bandwidth(cls):
+        """ Get the max bandwidth based on Kodi and add-on settings """
+        addon_max_bandwidth = int(cls.get_setting('max_bandwidth', '0'))
+        global_max_bandwidth = int(cls.get_global_setting('network.bandwidth'))
+        if addon_max_bandwidth != 0 and global_max_bandwidth != 0:
+            return min(addon_max_bandwidth, global_max_bandwidth)
+        if addon_max_bandwidth != 0:
+            return addon_max_bandwidth
+        if global_max_bandwidth != 0:
+            return global_max_bandwidth
+        return 0

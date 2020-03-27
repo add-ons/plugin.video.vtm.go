@@ -15,10 +15,11 @@ _LOGGER = logging.getLogger('search')
 class Search:
     """ Menu code related to search """
 
-    def __init__(self):
+    def __init__(self, router):
         """ Initialise object """
+        self._router = router  # type: callable
         self._vtm_go = VtmGo()
-        self._menu = Menu()
+        self._menu = Menu(router)
 
     def show_search(self, query=None):
         """ Shows the search dialog

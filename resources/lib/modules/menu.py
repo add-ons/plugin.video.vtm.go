@@ -6,57 +6,27 @@ from __future__ import absolute_import, division, unicode_literals
 import logging
 
 from resources.lib.kodiutils import KodiUtils
-from resources.lib.modules import CHANNELS
-from resources.lib.vtmgo.vtmgo import Movie, Program, Episode, VtmGo
-from resources.lib.vtmgo.vtmgoauth import VtmGoAuth
+from resources.lib.modules import CHANNELS, TitleItem
+from resources.lib.modules.authentication import Authentication
+from resources.lib.vtmgo.vtmgo import Movie, Program, Episode, VtmGo, CONTENT_TYPE_MOVIE, CONTENT_TYPE_PROGRAM
 
 _LOGGER = logging.getLogger('menu')
-
-
-class TitleItem:
-    """ This helper object holds all information to be used with Kodi xbmc's ListItem object """
-
-    def __init__(self, title, path=None, art_dict=None, info_dict=None, prop_dict=None, stream_dict=None, context_menu=None, subtitles_path=None,
-                 is_playable=False):
-        """ The constructor for the TitleItem class
-        :type title: str
-        :type path: str
-        :type art_dict: dict
-        :type info_dict: dict
-        :type prop_dict: dict
-        :type stream_dict: dict
-        :type context_menu: list[tuple[str, str]]
-        :type subtitles_path: list[str]
-        :type is_playable: bool
-        """
-        self.title = title
-        self.path = path
-        self.art_dict = art_dict
-        self.info_dict = info_dict
-        self.stream_dict = stream_dict
-        self.prop_dict = prop_dict
-        self.context_menu = context_menu
-        self.subtitles_path = subtitles_path
-        self.is_playable = is_playable
-
-    def __repr__(self):
-        return "%r" % self.__dict__
 
 
 class Menu:
     """ Menu code """
 
-    def __init__(self):
+    def __init__(self, router):
         """ Initialise object """
+        self._router = router  # type: callable
         self._vtm_go = VtmGo()
 
-    @staticmethod
-    def show_mainmenu():
+    def show_mainmenu(self):
         """ Show the main menu """
         listing = []
         listing.append(TitleItem(
             title=KodiUtils.localize(30001),  # A-Z
-            path=KodiUtils.url_for('show_catalog_all'),
+            path=self._router('show_catalog_all'),
             art_dict=dict(
                 icon='DefaultMovieTitle.png',
                 fanart=KodiUtils.get_addon_info('fanart'),
@@ -67,7 +37,7 @@ class Menu:
         ))
         listing.append(TitleItem(
             title=KodiUtils.localize(30003),  # Catalogue
-            path=KodiUtils.url_for('show_catalog'),
+            path=self._router('show_catalog'),
             art_dict=dict(
                 icon='DefaultGenre.png',
                 fanart=KodiUtils.get_addon_info('fanart'),
@@ -78,7 +48,7 @@ class Menu:
         ))
         listing.append(TitleItem(
             title=KodiUtils.localize(30007),  # TV Channels
-            path=KodiUtils.url_for('show_channels'),
+            path=self._router('show_channels'),
             art_dict=dict(
                 icon='DefaultAddonPVRClient.png',
                 fanart=KodiUtils.get_addon_info('fanart'),
@@ -91,7 +61,7 @@ class Menu:
         if KodiUtils.get_setting_bool('interface_show_recommendations'):
             listing.append(TitleItem(
                 title=KodiUtils.localize(30015),  # Recommendations
-                path=KodiUtils.url_for('show_recommendations'),
+                path=self._router('show_recommendations'),
                 art_dict=dict(
                     icon='DefaultFavourites.png',
                     fanart=KodiUtils.get_addon_info('fanart'),
@@ -101,10 +71,10 @@ class Menu:
                 ),
             ))
 
-        if KodiUtils.get_setting_bool('interface_show_mylist') and VtmGoAuth.has_credentials():
+        if KodiUtils.get_setting_bool('interface_show_mylist') and Authentication.has_credentials():
             listing.append(TitleItem(
                 title=KodiUtils.localize(30017),  # My List
-                path=KodiUtils.url_for('show_mylist'),
+                path=self._router('show_mylist'),
                 art_dict=dict(
                     icon='DefaultPlaylist.png',
                     fanart=KodiUtils.get_addon_info('fanart'),
@@ -114,10 +84,10 @@ class Menu:
                 ),
             ))
 
-        if KodiUtils.get_setting_bool('interface_show_continuewatching') and VtmGoAuth.has_credentials():
+        if KodiUtils.get_setting_bool('interface_show_continuewatching') and Authentication.has_credentials():
             listing.append(TitleItem(
                 title=KodiUtils.localize(30019),  # Continue watching
-                path=KodiUtils.url_for('show_continuewatching'),
+                path=self._router('show_continuewatching'),
                 art_dict=dict(
                     icon='DefaultInProgressShows.png',
                     fanart=KodiUtils.get_addon_info('fanart'),
@@ -129,7 +99,7 @@ class Menu:
 
         listing.append(TitleItem(
             title=KodiUtils.localize(30009),  # Search
-            path=KodiUtils.url_for('show_search'),
+            path=self._router('show_search'),
             art_dict=dict(
                 icon='DefaultAddonsSearch.png',
                 fanart=KodiUtils.get_addon_info('fanart'),
@@ -216,13 +186,13 @@ class Menu:
                 context_menu = [(
                     KodiUtils.localize(30101),  # Remove from My List
                     'Container.Update(%s)' %
-                    KodiUtils.url_for('mylist_del', video_type=self._vtm_go.CONTENT_TYPE_MOVIE, content_id=item.movie_id)
+                    self._router('mylist_del', video_type=CONTENT_TYPE_MOVIE, content_id=item.movie_id)
                 )]
             else:
                 context_menu = [(
                     KodiUtils.localize(30100),  # Add to My List
                     'Container.Update(%s)' %
-                    KodiUtils.url_for('mylist_add', video_type=self._vtm_go.CONTENT_TYPE_MOVIE, content_id=item.movie_id)
+                    self._router('mylist_add', video_type=CONTENT_TYPE_MOVIE, content_id=item.movie_id)
                 )]
 
             art_dict.update({
@@ -243,7 +213,7 @@ class Menu:
 
             return TitleItem(
                 title=item.name,
-                path=KodiUtils.url_for('play', category='movies', item=item.movie_id),
+                path=self._router('play', category='movies', item=item.movie_id),
                 art_dict=art_dict,
                 info_dict=info_dict,
                 stream_dict=stream_dict,
@@ -259,13 +229,13 @@ class Menu:
                 context_menu = [(
                     KodiUtils.localize(30101),  # Remove from My List
                     'Container.Update(%s)' %
-                    KodiUtils.url_for('mylist_del', video_type=self._vtm_go.CONTENT_TYPE_PROGRAM, content_id=item.program_id)
+                    self._router('mylist_del', video_type=CONTENT_TYPE_PROGRAM, content_id=item.program_id)
                 )]
             else:
                 context_menu = [(
                     KodiUtils.localize(30100),  # Add to My List
                     'Container.Update(%s)' %
-                    KodiUtils.url_for('mylist_add', video_type=self._vtm_go.CONTENT_TYPE_PROGRAM, content_id=item.program_id)
+                    self._router('mylist_add', video_type=CONTENT_TYPE_PROGRAM, content_id=item.program_id)
                 )]
 
             art_dict.update({
@@ -278,7 +248,7 @@ class Menu:
 
             return TitleItem(
                 title=item.name,
-                path=KodiUtils.url_for('show_catalog_program', program=item.program_id),
+                path=self._router('show_catalog_program', program=item.program_id),
                 art_dict=art_dict,
                 info_dict=info_dict,
                 context_menu=context_menu,
@@ -293,7 +263,7 @@ class Menu:
                 context_menu = [(
                     KodiUtils.localize(30102),  # Go to Program
                     'Container.Update(%s)' %
-                    KodiUtils.url_for('show_catalog_program', program=item.program_id)
+                    self._router('show_catalog_program', program=item.program_id)
                 )]
 
             art_dict.update({
@@ -329,7 +299,7 @@ class Menu:
 
             return TitleItem(
                 title=info_dict['title'],
-                path=KodiUtils.url_for('play', category='episodes', item=item.episode_id),
+                path=self._router('play', category='episodes', item=item.episode_id),
                 art_dict=art_dict,
                 info_dict=info_dict,
                 stream_dict=stream_dict,

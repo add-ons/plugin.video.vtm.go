@@ -6,7 +6,7 @@ from __future__ import absolute_import, division, unicode_literals
 import logging
 
 from resources.lib.kodiutils import KodiUtils
-from resources.lib.modules.menu import TitleItem
+from resources.lib.modules import TitleItem
 from resources.lib.vtmgo.vtmgo import UnavailableException
 from resources.lib.vtmgo.vtmgoepg import VtmGoEpg
 
@@ -18,8 +18,9 @@ class TvGuide:
 
     EPG_NO_BROADCAST = 'Geen Uitzending'
 
-    def __init__(self):
+    def __init__(self, router):
         """ Initialise object """
+        self._router = router  # type: callable
         self._vtm_go_epg = VtmGoEpg()
 
     def show_tvguide_channel(self, channel):
@@ -35,7 +36,7 @@ class TvGuide:
 
             listing.append(TitleItem(
                 title=title,
-                path=KodiUtils.url_for('show_tvguide_detail', channel=channel, date=day.get('key')),
+                path=self._router('show_tvguide_detail', channel=channel, date=day.get('key')),
                 art_dict=dict(
                     icon='DefaultYear.png',
                     thumb='DefaultYear.png',
@@ -66,7 +67,7 @@ class TvGuide:
                 context_menu = [(
                     KodiUtils.localize(30102),  # Go to Program
                     'Container.Update(%s)' %
-                    KodiUtils.url_for('show_catalog_program', channel=channel, program=broadcast.program_uuid)
+                    self._router('show_catalog_program', channel=channel, program=broadcast.program_uuid)
                 )]
             else:
                 context_menu = None
@@ -79,14 +80,14 @@ class TvGuide:
 
             if broadcast.airing:
                 title = '[B]{title}[/B]'.format(title=title)
-                path = KodiUtils.url_for('play_or_live',
-                                         channel=broadcast.channel_uuid,
-                                         category=broadcast.playable_type,
-                                         item=broadcast.playable_uuid)
+                path = self._router('play_or_live',
+                                    channel=broadcast.channel_uuid,
+                                    category=broadcast.playable_type,
+                                    item=broadcast.playable_uuid)
             else:
-                path = KodiUtils.url_for('play',
-                                         category=broadcast.playable_type,
-                                         item=broadcast.playable_uuid)
+                path = self._router('play',
+                                    category=broadcast.playable_type,
+                                    item=broadcast.playable_uuid)
 
             if broadcast.title == self.EPG_NO_BROADCAST:
                 title = '[COLOR gray]' + title + '[/COLOR]'
@@ -128,4 +129,4 @@ class TvGuide:
             return
 
         KodiUtils.container_refresh(
-            KodiUtils.url_for('play', category=broadcast.playable_type, item=broadcast.playable_uuid))
+            self._router('play', category=broadcast.playable_type, item=broadcast.playable_uuid))

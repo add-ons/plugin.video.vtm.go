@@ -5,10 +5,10 @@ from __future__ import absolute_import, division, unicode_literals
 
 import logging
 
-from resources.lib.kodiutils import KodiUtils
 from resources.lib.kodiplayer import KodiPlayer
+from resources.lib.kodiutils import KodiUtils
+from resources.lib.modules.authentication import Authentication
 from resources.lib.vtmgo.vtmgo import VtmGo, UnavailableException
-from resources.lib.vtmgo.vtmgoauth import VtmGoAuth
 from resources.lib.vtmgo.vtmgostream import VtmGoStream, StreamGeoblockedException, StreamUnavailableException
 
 _LOGGER = logging.getLogger('player')
@@ -17,8 +17,9 @@ _LOGGER = logging.getLogger('player')
 class Player:
     """ Code responsible for playing media """
 
-    def __init__(self):
+    def __init__(self, router):
         """ Initialise object """
+        self._router = router  # type: callable
         self._vtm_go = VtmGo()
         self._vtm_go_stream = VtmGoStream()
 
@@ -167,14 +168,14 @@ class Player:
     @staticmethod
     def _check_credentials():
         """ Check if the user has credentials """
-        if VtmGoAuth.has_credentials():
+        if Authentication.has_credentials():
             return True
 
         # You need to configure your credentials before you can access the content of VTM GO.
         confirm = KodiUtils.yesno_dialog(message=KodiUtils.localize(30701))
         if confirm:
             KodiUtils.open_settings()
-            if VtmGoAuth.has_credentials():
+            if Authentication.has_credentials():
                 return True
 
         return False

@@ -7,7 +7,8 @@ import logging
 
 from resources.lib.kodiutils import KodiUtils
 from resources.lib.modules import CHANNELS
-from resources.lib.modules.menu import Menu, TitleItem
+from resources.lib.modules.menu import Menu
+from resources.lib.modules import TitleItem
 from resources.lib.vtmgo.vtmgo import VtmGo, UnavailableException, CACHE_PREVENT, ApiUpdateRequired
 
 _LOGGER = logging.getLogger('catalog')
@@ -16,10 +17,11 @@ _LOGGER = logging.getLogger('catalog')
 class Catalog:
     """ Menu code related to the catalog """
 
-    def __init__(self):
+    def __init__(self, router):
         """ Initialise object """
+        self._router = router  # type: callable
         self._vtm_go = VtmGo()
-        self._menu = Menu()
+        self._menu = Menu(router)
 
     def show_catalog(self):
         """ Show the catalog """
@@ -38,7 +40,7 @@ class Catalog:
         for cat in categories:
             listing.append(TitleItem(
                 title=cat.title,
-                path=KodiUtils.url_for('show_catalog_category', category=cat.category_id),
+                path=self._router('show_catalog_category', category=cat.category_id),
                 info_dict=dict(
                     plot='[B]{category}[/B]'.format(category=cat.title),
                 ),
@@ -118,7 +120,7 @@ class Catalog:
         if KodiUtils.get_global_setting('videolibrary.showallitems') is True:
             listing.append(TitleItem(
                 title='* %s' % KodiUtils.localize(30204),  # * All seasons
-                path=KodiUtils.url_for('show_catalog_program_season', program=program, season=-1),
+                path=self._router('show_catalog_program_season', program=program, season=-1),
                 art_dict=dict(
                     thumb=program_obj.cover,
                     fanart=program_obj.cover,
@@ -137,7 +139,7 @@ class Catalog:
         for season in list(program_obj.seasons.values()):
             listing.append(TitleItem(
                 title=KodiUtils.localize(30205, season=season.number),  # Season {season}
-                path=KodiUtils.url_for('show_catalog_program_season', program=program, season=season.number),
+                path=self._router('show_catalog_program_season', program=program, season=season.number),
                 art_dict=dict(
                     thumb=season.cover,
                     fanart=program_obj.cover,
@@ -196,7 +198,7 @@ class Catalog:
         for cat in recommendations:
             listing.append(TitleItem(
                 title=cat.title,
-                path=KodiUtils.url_for('show_recommendations_category', category=cat.category_id),
+                path=self._router('show_recommendations_category', category=cat.category_id),
                 info_dict=dict(
                     plot='[B]{category}[/B]'.format(category=cat.title),
                 ),

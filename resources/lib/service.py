@@ -11,6 +11,7 @@ from xbmc import Monitor
 
 from resources.lib import kodilogging
 from resources.lib.kodiutils import KodiUtils
+from resources.lib.modules.authentication import Authentication
 from resources.lib.vtmgo.vtmgoauth import VtmGoAuth
 
 kodilogging.config()
@@ -56,7 +57,7 @@ class BackgroundService(Monitor):
         """ Check if credentials have changed """
         old_hash = KodiUtils.get_setting('credentials_hash')
         new_hash = ''
-        if VtmGoAuth.has_credentials():
+        if Authentication.has_credentials():
             new_hash = hashlib.md5((KodiUtils.get_setting('username') + KodiUtils.get_setting('password')).encode('utf-8')).hexdigest()
         if new_hash != old_hash:
             KodiUtils.set_setting('credentials_hash', new_hash)

@@ -39,24 +39,12 @@ class VtmGoAuth:
         # self._name = None
         # self._accountId = None
 
-    @staticmethod
-    def has_credentials():
-        """ Returns whether the user has credentials or not. """
-        return bool(KodiUtils.get_setting('username') and KodiUtils.get_setting('password'))
-
-    @staticmethod
-    def clear_tokens():
-        """ Remove the cached JWT. """
-        _LOGGER.debug('Clearing token cache')
-        KodiUtils.delete(KodiUtils.get_tokens_path() + VtmGoAuth.TOKEN_FILE)
-        KodiUtils.set_setting('profile', None)
-
     def get_token(self):
         """ Return a JWT that can be used to authenticate the user.
         :rtype str
         """
         # Don't return a token when we have no password or username.
-        if not self.has_credentials():
+        if not bool(KodiUtils.get_setting('username') and KodiUtils.get_setting('password')):
             _LOGGER.info('Skipping since we have no username or password')
             return None
 
@@ -87,6 +75,13 @@ class VtmGoAuth:
 
         _LOGGER.debug('Returning token from logging in')
         return self._token
+
+    @classmethod
+    def clear_tokens(cls):
+        """ Remove the cached JWT. """
+        _LOGGER.debug('Clearing authentication tokens')
+        KodiUtils.delete(KodiUtils.get_tokens_path() + 'token.json')
+        KodiUtils.set_setting('profile', None)
 
     @staticmethod
     def get_profile():

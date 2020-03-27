@@ -7,7 +7,8 @@ import logging
 
 from resources.lib.kodiutils import KodiUtils
 from resources.lib.modules import CHANNELS
-from resources.lib.modules.menu import Menu, TitleItem
+from resources.lib.modules.menu import Menu
+from resources.lib.modules import TitleItem
 from resources.lib.vtmgo.vtmgo import VtmGo
 
 _LOGGER = logging.getLogger('channels')
@@ -16,10 +17,11 @@ _LOGGER = logging.getLogger('channels')
 class Channels:
     """ Menu code related to channels """
 
-    def __init__(self):
+    def __init__(self, router):
         """ Initialise object """
+        self._router = router  # type: callable
         self._vtm_go = VtmGo()
-        self._menu = Menu()
+        self._menu = Menu(router)
 
     def show_channels(self):
         """ Shows TV channels """
@@ -47,18 +49,18 @@ class Channels:
                 context_menu = [(
                     KodiUtils.localize(30052, channel=channel.get('label')),  # Watch live {channel}
                     'PlayMedia(%s)' %
-                    KodiUtils.url_for('play', category='channels', item=channel_info.channel_id)
+                    self._router('play', category='channels', item=channel_info.channel_id)
                 ), (
                     KodiUtils.localize(30053, channel=channel.get('label')),  # TV Guide for {channel}
                     'Container.Update(%s)' %
-                    KodiUtils.url_for('show_tvguide_channel', channel=channel.get('epg'))
+                    self._router('show_tvguide_channel', channel=channel.get('epg'))
                 )]
                 if KodiUtils.get_setting_bool('metadata_update'):
                     context_menu.append(
                         (
                             KodiUtils.localize(30055, channel=channel.get('label')),  # Catalog for {channel}
                             'Container.Update(%s)' %
-                            KodiUtils.url_for('show_catalog_channel', channel=key)
+                            self._router('show_catalog_channel', channel=key)
                         )
                     )
 
@@ -70,7 +72,7 @@ class Channels:
 
                 listing.append(TitleItem(
                     title=title,
-                    path=KodiUtils.url_for('show_channel_menu', channel=key),
+                    path=self._router('show_channel_menu', channel=key),
                     art_dict=dict(
                         icon=icon,
                         thumb=icon,
@@ -114,7 +116,7 @@ class Channels:
         listing = [
             TitleItem(
                 title=title,
-                path=KodiUtils.url_for('play', category='channels', item=channel_info.channel_id) + '?.pvr',
+                path=self._router('play', category='channels', item=channel_info.channel_id) + '?.pvr',
                 art_dict=dict(
                     icon=icon,
                     thumb=icon,
@@ -134,7 +136,7 @@ class Channels:
             ),
             TitleItem(
                 title=KodiUtils.localize(30053, channel=channel.get('label')),  # TV Guide for {channel}
-                path=KodiUtils.url_for('show_tvguide_channel', channel=channel.get('epg')),
+                path=self._router('show_tvguide_channel', channel=channel.get('epg')),
                 art_dict=dict(
                     icon='DefaultAddonTvInfo.png',
                 ),
@@ -145,16 +147,17 @@ class Channels:
         ]
 
         if KodiUtils.get_setting_bool('metadata_update'):
-            listing.append(TitleItem(
-                title=KodiUtils.localize(30055, channel=channel.get('label')),  # Catalog for {channel}
-                path=KodiUtils.url_for('show_catalog_channel', channel=key),
-                art_dict=dict(
-                    icon='DefaultMovieTitle.png'
-                ),
-                info_dict=dict(
-                    plot=KodiUtils.localize(30056, channel=channel.get('label')),
-                ),
-            ))
+            pass
+        listing.append(TitleItem(
+            title=KodiUtils.localize(30055, channel=channel.get('label')),  # Catalog for {channel}
+            path=self._router('show_catalog_channel', channel=key),
+            art_dict=dict(
+                icon='DefaultMovieTitle.png'
+            ),
+            info_dict=dict(
+                plot=KodiUtils.localize(30056, channel=channel.get('label')),
+            ),
+        ))
 
         # Add YouTube channels
         if KodiUtils.get_cond_visibility('System.HasAddon(plugin.video.youtube)') != 0:
