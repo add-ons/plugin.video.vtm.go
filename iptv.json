@@ -1,0 +1,5 @@
+{
+  "version": 1,
+  "channels": "plugin://plugin.video.vtm.go/iptv/channels?output=$FILE",
+  "epg": "plugin://plugin.video.vtm.go/iptv/epg?output=$FILE"
+}
