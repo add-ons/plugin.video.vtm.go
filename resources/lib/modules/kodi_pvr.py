@@ -17,10 +17,11 @@ def file_output(routing):
     """ File output decorator """
 
     def decorator(func):
+        """ File output decorator """
 
         @wraps(func)
         def wrapped(*args, **kwargs):
-            # Get output from routing
+            """ Get output from routing """
             output = routing.args['output'][0]
             if not output:
                 raise Exception('No output file supplied')
@@ -30,8 +31,8 @@ def file_output(routing):
                 result = func(*args, **kwargs)
 
                 # Write output to file
-                with open(output, 'w') as f:
-                    json.dump(result, f)
+                with open(output, 'w') as fdesc:
+                    json.dump(result, fdesc)
 
             except Exception as exc:
                 # Remove output file in case something goes wrong
@@ -59,7 +60,10 @@ class KodiPvr:
         """ Write the output of the wrapped function to a file. """
 
         def decorator(func):
+            """ Output-to-file decorator """
+
             def inner(*arg, **kwargs):
+                """ Execute function """
                 try:
                     # Execute function
                     result = func(*arg, **kwargs)
@@ -72,7 +76,7 @@ class KodiPvr:
                     try:
                         # Remove output file
                         os.unlink(filename)
-                    except:  # pylint: disable=broad-except
+                    except:  # pylint: disable=bare-except,broad-except
                         pass
                     raise
 
@@ -90,7 +94,7 @@ class KodiPvr:
         for i, key in enumerate(CHANNELS):  # pylint: disable=unused-variable
             channel = CHANNELS[key]
 
-            logo = '{path}/resources/logos/{logo}.png'.format(path=self._kodi.get_addon_path(), logo=channel.get('logo'))
+            logo = 'special://home/addons/{addon}/resources/logos/{logo}.png'.format(addon=self._kodi.get_addon_id(), logo=channel.get('logo'))
 
             # Find this channel in the list
             channel_info = next((c for c in channel_infos if c.key == key), None)

@@ -5,6 +5,5 @@ test/ export-ignore
 .pylintrc export-ignore
 codecov.yml export-ignore
 Makefile export-ignore
-iptv.json
 requirements.txt export-ignore
 tox.ini export-ignore

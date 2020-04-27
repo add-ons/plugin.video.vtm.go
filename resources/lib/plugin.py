@@ -206,6 +206,7 @@ def iptv_channels():
 
     @KodiPvr.output_to_file(routing.args['output'][0])
     def generate():
+        """ Channel generator """
         return KodiPvr(kodi).get_channels()
 
     generate()
@@ -218,6 +219,7 @@ def iptv_epg():
 
     @KodiPvr.output_to_file(routing.args['output'][0])
     def generate():
+        """ EPG generator """
         return KodiPvr(kodi).get_epg()
 
     generate()
