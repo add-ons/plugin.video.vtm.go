@@ -13,37 +13,6 @@ from resources.lib.vtmgo.vtmgo import VtmGo
 from resources.lib.vtmgo.vtmgoepg import VtmGoEpg
 
 
-def file_output(routing):
-    """ File output decorator """
-
-    def decorator(func):
-        """ File output decorator """
-
-        @wraps(func)
-        def wrapped(*args, **kwargs):
-            """ Get output from routing """
-            output = routing.args['output'][0]
-            if not output:
-                raise Exception('No output file supplied')
-
-            try:
-                # Execute the function
-                result = func(*args, **kwargs)
-
-                # Write output to file
-                with open(output, 'w') as fdesc:
-                    json.dump(result, fdesc)
-
-            except Exception as exc:
-                # Remove output file in case something goes wrong
-                os.unlink(output)
-                raise exc
-
-        return wrapped
-
-    return decorator
-
-
 class KodiPvr:
     """ Code related to the Kodi PVR integration """
 
