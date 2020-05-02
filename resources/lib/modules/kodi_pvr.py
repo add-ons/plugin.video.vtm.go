@@ -6,7 +6,6 @@ from __future__ import absolute_import, division, unicode_literals
 import json
 import os
 from datetime import timedelta
-from functools import wraps
 
 from resources.lib.modules import CHANNELS
 from resources.lib.vtmgo.vtmgo import VtmGo
