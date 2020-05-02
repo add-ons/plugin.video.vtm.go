@@ -418,3 +418,11 @@ msgstr ""
 msgctxt "#30887"
 msgid "InputStream Helper settings…"
 msgstr ""
+
+msgctxt "#30889"
+msgid "Logging"
+msgstr ""
+
+msgctxt "#30891"
+msgid "Enable debug logging"
+msgstr ""
