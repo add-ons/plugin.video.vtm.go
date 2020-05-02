@@ -3,12 +3,15 @@
 
 from __future__ import absolute_import, division, unicode_literals
 
+import logging
 from contextlib import contextmanager
 
 import xbmc
 import xbmcaddon
 import xbmcplugin
 from xbmcgui import DialogProgress
+
+_LOGGER = logging.getLogger('kodiwrapper')
 
 SORT_METHODS = dict(
     unsorted=xbmcplugin.SORT_METHOD_UNSORTED,
@@ -21,13 +24,6 @@ SORT_METHODS = dict(
 DEFAULT_SORT_METHODS = [
     'unsorted', 'label'
 ]
-
-LOG_DEBUG = xbmc.LOGDEBUG
-LOG_INFO = xbmc.LOGINFO
-LOG_NOTICE = xbmc.LOGNOTICE
-LOG_WARNING = xbmc.LOGWARNING
-LOG_ERROR = xbmc.LOGERROR
-LOG_FATAL = xbmc.LOGFATAL
 
 ADDON = xbmcaddon.Addon()
 
@@ -113,8 +109,6 @@ class KodiWrapper:
             self._url = None
         self._addon_name = ADDON.getAddonInfo('name')
         self._addon_id = ADDON.getAddonInfo('id')
-        self._global_debug_logging = self.get_global_setting('debug.showloginfo')  # Returns a boolean
-        self._debug_logging = self.get_setting_as_bool('debug_logging')
         self._cache_path = self.get_userdata_path() + 'cache/'
 
     def url_for(self, name, *args, **kwargs):
@@ -332,7 +326,7 @@ class KodiWrapper:
         except Exception as exc:  # pylint: disable=broad-except
             if locale_lang == 'en_gb':
                 return True
-            self.log("Your system does not support locale '{locale}': {error}", LOG_DEBUG, locale=locale_lang, error=exc)
+            _LOGGER.debug("Your system does not support locale '%s': %s", locale_lang, exc)
             return False
 
     @staticmethod
@@ -391,7 +385,7 @@ class KodiWrapper:
             try:
                 import json
                 value = json.load(fdesc)
-                self.log('Fetching {file} from cache', file=fullpath)
+                _LOGGER.info('Fetching %s from cache', fullpath)
                 return value
             except (ValueError, TypeError):
                 return None
@@ -407,7 +401,7 @@ class KodiWrapper:
         fullpath = self._cache_path + '.'.join(key)
         with self.open_file(fullpath, 'w') as fdesc:
             import json
-            self.log('Storing to cache as {file}', file=fullpath)
+            _LOGGER.info('Storing to cache as %s', fullpath)
             json.dump(data, fdesc)
 
     def invalidate_cache(self, ttl=None):
@@ -528,16 +522,18 @@ class KodiWrapper:
         from xbmcvfs import listdir
         return listdir(path)
 
-    def mkdir(self, path):
+    @staticmethod
+    def mkdir(path):
         """ Create a directory (using xbmcvfs) """
         from xbmcvfs import mkdir
-        self.log("Create directory '{path}'.", LOG_DEBUG, path=path)
+        _LOGGER.debug("Create directory '%s'", path)
         return mkdir(path)
 
-    def mkdirs(self, path):
+    @staticmethod
+    def mkdirs(path):
         """ Create directory including parents (using xbmcvfs) """
         from xbmcvfs import mkdirs
-        self.log("Recursively create directory '{path}'.", LOG_DEBUG, path=path)
+        _LOGGER.debug("Recursively create directory '%s'", path)
         return mkdirs(path)
 
     @staticmethod
@@ -561,34 +557,22 @@ class KodiWrapper:
         from xbmcvfs import Stat
         return Stat(path)
 
-    def delete_file(self, path):
+    @staticmethod
+    def delete_file(path):
         """ Remove a file (using xbmcvfs) """
         from xbmcvfs import delete
-        self.log("Delete file '{path}'.", LOG_DEBUG, path=path)
+        _LOGGER.debug("Delete file '%s'", path)
         return delete(path)
 
-    def container_refresh(self):
+    @staticmethod
+    def container_refresh():
         """ Refresh the current container """
-        self.log('Execute: Container.Refresh', LOG_DEBUG)
+        _LOGGER.debug('Execute: Container.Refresh')
         xbmc.executebuiltin('Container.Refresh')
 
     def end_of_directory(self):
         """ Close a virtual directory, required to avoid a waiting Kodi """
         xbmcplugin.endOfDirectory(handle=self._handle, succeeded=False, updateListing=False, cacheToDisc=False)
-
-    def log(self, message, log_level=LOG_INFO, **kwargs):
-        """ Log info messages to Kodi """
-        if not self._debug_logging and log_level in [LOG_DEBUG, LOG_INFO]:
-            # Don't log debug and info messages when we haven't activated it.
-            return
-        if self._debug_logging and log_level in [LOG_DEBUG, LOG_INFO]:
-            # Log debug and info messages as LOG_NOTICE if we've explicitly enabled it.
-            log_level = LOG_NOTICE
-        if kwargs:
-            import string
-            message = string.Formatter().vformat(message, (), SafeDict(**kwargs))
-        message = '[{addon}] {message}'.format(addon=self._addon_id, message=message)
-        xbmc.log(msg=from_unicode(message), level=log_level)
 
     def has_credentials(self):
         """ Whether the add-on has credentials filled in """
@@ -612,7 +596,7 @@ class KodiWrapper:
             data=data,
         ))
         if result.get('result') != 'OK':
-            self.log('Failed to send notification: {error}', LOG_ERROR, error=result.get('error').get('message'))
+            _LOGGER.error('Failed to send notification: %s', result.get('error').get('message'))
             return False
         return True
 
@@ -638,49 +622,49 @@ class KodiPlayer(xbmc.Player):
         :type url: str
         :type time_out: int
         """
-        self._kodi.log("Player: Waiting for playback", LOG_DEBUG)
+        _LOGGER.debug("Player: Waiting for playback")
         if self.__is_url_playing(url):
             self.__playBackEventsTriggered = True
-            self._kodi.log("Player: Already Playing", LOG_DEBUG)
+            _LOGGER.debug("Player: Already Playing")
             return True
 
         for i in range(0, int(time_out / self.__pollInterval)):
             if self.__monitor.abortRequested():
-                self._kodi.log("Player: Abort requested (%s)" % i * self.__pollInterval, LOG_DEBUG)
+                _LOGGER.debug("Player: Abort requested (%s)" % i * self.__pollInterval)
                 return False
 
             if self.__is_url_playing(url):
-                self._kodi.log("Player: PlayBack started (%s)" % i * self.__pollInterval, LOG_DEBUG)
+                _LOGGER.debug("Player: PlayBack started (%s)" % i * self.__pollInterval)
                 return True
 
             if self.__playPlayBackEndedEventsTriggered:
-                self._kodi.log("Player: PlayBackEnded triggered while waiting for start.", LOG_WARNING)
+                _LOGGER.warning("Player: PlayBackEnded triggered while waiting for start.")
                 return False
 
             self.__monitor.waitForAbort(self.__pollInterval)
-            self._kodi.log("Player: Waiting for an abort (%s)" % i * self.__pollInterval, LOG_DEBUG)
+            _LOGGER.debug("Player: Waiting for an abort (%s)", i * self.__pollInterval)
 
-        self._kodi.log("Player: time-out occurred waiting for playback (%s)" % time_out, LOG_WARNING)
+        _LOGGER.warning("Player: time-out occurred waiting for playback (%s)", time_out)
         return False
 
     def onAVStarted(self):  # pylint: disable=invalid-name
         """ Will be called when Kodi has a video or audiostream """
-        self._kodi.log("Player: [onAVStarted] called", LOG_DEBUG)
+        _LOGGER.debug("Player: [onAVStarted] called")
         self.__playback_started()
 
     def onPlayBackEnded(self):  # pylint: disable=invalid-name
         """ Will be called when [Kodi] stops playing a file """
-        self._kodi.log("Player: [onPlayBackEnded] called", LOG_DEBUG)
+        _LOGGER.debug("Player: [onPlayBackEnded] called")
         self.__playback_stopped()
 
     def onPlayBackStopped(self):  # pylint: disable=invalid-name
         """ Will be called when [user] stops Kodi playing a file """
-        self._kodi.log("Player: [onPlayBackStopped] called", LOG_DEBUG)
+        _LOGGER.debug("Player: [onPlayBackStopped] called")
         self.__playback_stopped()
 
     def onPlayBackError(self):  # pylint: disable=invalid-name
         """ Will be called when playback stops due to an error. """
-        self._kodi.log("Player: [onPlayBackError] called", LOG_DEBUG)
+        _LOGGER.debug("Player: [onPlayBackError] called")
         self.__playback_stopped()
 
     def __playback_stopped(self):
@@ -700,18 +684,18 @@ class KodiPlayer(xbmc.Player):
         :rtype: bool
         """
         if not self.isPlaying():
-            self._kodi.log("Player: Not playing", LOG_DEBUG)
+            _LOGGER.debug("Player: Not playing")
             return False
 
         if not self.__playBackEventsTriggered:
-            self._kodi.log("Player: Playing but the Kodi events did not yet trigger", LOG_DEBUG)
+            _LOGGER.debug("Player: Playing but the Kodi events did not yet trigger")
             return False
 
         # We are playing
         if url is None or url.startswith("plugin://"):
-            self._kodi.log("Player: No valid URL to check playback against: %s" % url, LOG_DEBUG)
+            _LOGGER.debug("Player: No valid URL to check playback against: %s", url)
             return True
 
         playing_file = self.getPlayingFile()
-        self._kodi.log("Player: Checking \n'%s' vs \n'%s'" % (url, playing_file), LOG_DEBUG)
+        _LOGGER.debug("Player: Checking \n'%s' vs \n'%s'", url, playing_file)
         return url == playing_file

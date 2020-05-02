@@ -3,9 +3,13 @@
 
 from __future__ import absolute_import, division, unicode_literals
 
-from resources.lib.kodiwrapper import TitleItem, LOG_WARNING, to_unicode, KodiPlayer
+import logging
+
+from resources.lib.kodiwrapper import TitleItem, to_unicode, KodiPlayer
 from resources.lib.vtmgo.vtmgo import VtmGo, UnavailableException
 from resources.lib.vtmgo.vtmgostream import VtmGoStream, StreamGeoblockedException, StreamUnavailableException
+
+_LOGGER = logging.getLogger('player')
 
 
 class Player:
@@ -125,7 +129,7 @@ class Player:
                 })
 
             else:
-                self._kodi.log('Unknown category %s' % category, LOG_WARNING)
+                _LOGGER.warning('Unknown category %s', category)
 
         except UnavailableException:
             # We continue without details.
@@ -154,17 +158,17 @@ class Player:
 
         # Add subtitles
         if resolved_stream.subtitles:
-            self._kodi.log('Setting subtitles')
+            _LOGGER.debug('Setting subtitles')
             kodi_player.setSubtitles(resolved_stream.subtitles[0])
 
             # Turn on subtitles if needed
             if self._kodi.get_setting_as_bool('showsubtitles'):
-                self._kodi.log('Enabling subtitles')
+                _LOGGER.debug('Enabling subtitles')
                 kodi_player.showSubtitles(True)
 
         # Send Up Next data
         if upnext_data:
-            self._kodi.log("Sending Up Next data: %s" % upnext_data)
+            _LOGGER.debug("Sending Up Next data: %s", upnext_data)
             self.send_upnext(upnext_data)
 
     def _check_credentials(self):

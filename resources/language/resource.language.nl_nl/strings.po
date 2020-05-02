@@ -418,11 +418,3 @@ msgstr "InputStream Adaptive configuratie…"
 msgctxt "#30887"
 msgid "InputStream Helper settings…"
 msgstr "InputStream Helper configuratie…"
-
-msgctxt "#30889"
-msgid "Logging"
-msgstr "Logboek"
-
-msgctxt "#30891"
-msgid "Enable debug logging"
-msgstr "Activeer debug logging"

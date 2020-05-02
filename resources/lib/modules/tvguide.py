@@ -3,9 +3,13 @@
 
 from __future__ import absolute_import, division, unicode_literals
 
+import logging
+
 from resources.lib.kodiwrapper import TitleItem
 from resources.lib.vtmgo.vtmgo import UnavailableException
 from resources.lib.vtmgo.vtmgoepg import VtmGoEpg
+
+_LOGGER = logging.getLogger('tvguide')
 
 
 class TvGuide:
