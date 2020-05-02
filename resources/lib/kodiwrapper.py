@@ -385,7 +385,7 @@ class KodiWrapper:
             try:
                 import json
                 value = json.load(fdesc)
-                _LOGGER.info('Fetching %s from cache', fullpath)
+                _LOGGER.debug('Fetching %s from cache', fullpath)
                 return value
             except (ValueError, TypeError):
                 return None
@@ -401,7 +401,7 @@ class KodiWrapper:
         fullpath = self._cache_path + '.'.join(key)
         with self.open_file(fullpath, 'w') as fdesc:
             import json
-            _LOGGER.info('Storing to cache as %s', fullpath)
+            _LOGGER.debug('Storing to cache as %s', fullpath)
             json.dump(data, fdesc)
 
     def invalidate_cache(self, ttl=None):

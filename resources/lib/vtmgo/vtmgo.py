@@ -317,7 +317,7 @@ class VtmGo:
         categories = []
         for cat in recommendations.get('rows', []):
             if cat.get('rowType') not in ['SWIMLANE_DEFAULT']:
-                _LOGGER.info('Skipping recommendation %s with type %s', cat.get('title'), cat.get('rowType'))
+                _LOGGER.debug('Skipping recommendation %s with type %s', cat.get('title'), cat.get('rowType'))
                 continue
 
             items = []

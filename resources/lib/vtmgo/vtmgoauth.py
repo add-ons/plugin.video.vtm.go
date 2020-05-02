@@ -64,7 +64,7 @@ class VtmGoAuth:
         """
         # Don't return a token when we have no password or username.
         if not self._kodi.get_setting('username') or not self._kodi.get_setting('password'):
-            _LOGGER.info('Skipping since we have no username or password')
+            _LOGGER.debug('Skipping since we have no username or password')
             return None
 
         # Return if we already have the token in memory.

@@ -60,7 +60,7 @@ class Authentication:
         # Save the selected profile
         if key:
             profile = [x for x in profiles if x.key == key][0]
-            _LOGGER.info('Setting profile to %s', profile)
+            _LOGGER.debug('Setting profile to %s', profile)
             self._kodi.set_setting('profile', '%s:%s' % (profile.key, profile.product))
             self._kodi.set_setting('profile_name', profile.name)
 

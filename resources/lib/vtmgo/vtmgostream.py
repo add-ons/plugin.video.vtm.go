@@ -156,7 +156,7 @@ class VtmGoStream:
         :rtype: dict
         """
         url = 'https://videoplayer-service.api.persgroep.cloud/config/%s/%s' % (strtype, stream_id)
-        _LOGGER.info('Getting stream info from %s', url)
+        _LOGGER.debug('Getting stream info from %s', url)
         response = self._session.get(url,
                                      params={
                                          'startPosition': '0.0',
@@ -212,7 +212,7 @@ class VtmGoStream:
         if stream_info.get('video').get('subtitles'):
             for subtitle in stream_info.get('video').get('subtitles'):
                 subtitles.append(subtitle.get('url'))
-                _LOGGER.info('Found subtitle url %s', subtitle.get('url'))
+                _LOGGER.debug('Found subtitle url %s', subtitle.get('url'))
         return subtitles
 
     @staticmethod
@@ -283,7 +283,7 @@ class VtmGoStream:
         :rtype dict
         """
         url = 'https://access-prod.apis.anvato.net/anvacks/{key}'.format(key=access_key)
-        _LOGGER.info('Getting anvacks from %s', url)
+        _LOGGER.debug('Getting anvacks from %s', url)
         response = self._session.get(url,
                                      params={
                                          'apikey': self._ANVATO_API_KEY,
@@ -307,7 +307,7 @@ class VtmGoStream:
         :rtype dict
         """
         url = 'https://tkx.apis.anvato.net/rest/v2/server_time'
-        _LOGGER.info('Getting servertime from %s with access_key %s', url, access_key)
+        _LOGGER.debug('Getting servertime from %s with access_key %s', url, access_key)
         response = self._session.get(url,
                                      params={
                                          'anvack': access_key,
@@ -333,7 +333,7 @@ class VtmGoStream:
         :rtype dict
         """
         url = 'https://tkx.apis.anvato.net/rest/v2/mcp/video/{video}'.format(**anvato_info)
-        _LOGGER.info('Getting stream info from %s with access_key %s and token %s', url, anvato_info['accessKey'], anvato_info['token'])
+        _LOGGER.debug('Getting stream info from %s with access_key %s and token %s', url, anvato_info['accessKey'], anvato_info['token'])
         response = self._session.post(url,
                                       json={
                                           "ads": {
@@ -408,7 +408,7 @@ class VtmGoStream:
         :type url: str
         :rtype str
         """
-        _LOGGER.info('Downloading text from %s', url)
+        _LOGGER.debug('Downloading text from %s', url)
         response = self._session.get(url,
                                      headers={
                                          'X-Anvato-User-Agent': self._ANVATO_USER_AGENT,
@@ -428,7 +428,7 @@ class VtmGoStream:
         try:
             decoded = json.loads(download)
             if decoded.get('master_m3u8'):
-                _LOGGER.info('Followed redirection from %s to %s', url, decoded.get('master_m3u8'))
+                _LOGGER.debug('Followed redirection from %s to %s', url, decoded.get('master_m3u8'))
                 return decoded
         except ValueError:
             _LOGGER.error('No manifest url found at %s', url)
@@ -447,7 +447,7 @@ class VtmGoStream:
         download = self._download_text(url)
         matches = re.search(r"<Location>([^<]+)</Location>", download)
         if matches:
-            _LOGGER.info('Followed redirection from %s to %s', url, matches.group(1))
+            _LOGGER.debug('Followed redirection from %s to %s', url, matches.group(1))
             return matches.group(1)
 
         # Fallback to the url like we have it

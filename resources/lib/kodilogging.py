@@ -25,7 +25,7 @@ class KodiLogHandler(logging.StreamHandler):
             logging.CRITICAL: xbmc.LOGFATAL,
             logging.ERROR: xbmc.LOGERROR,
             logging.WARNING: xbmc.LOGWARNING,
-            logging.INFO: xbmc.LOGINFO,
+            logging.INFO: xbmc.LOGNOTICE,
             logging.DEBUG: xbmc.LOGDEBUG,
             logging.NOTSET: xbmc.LOGNONE,
         }
@@ -33,7 +33,6 @@ class KodiLogHandler(logging.StreamHandler):
         # Map INFO and DEBUG level to LOGNOTICE if debug logging setting has been activated
         # This is for troubleshooting only
         if ADDON.getSetting('debug_logging') == 'true':
-            levels[logging.INFO] = xbmc.LOGNOTICE
             levels[logging.DEBUG] = xbmc.LOGNOTICE
 
         try:
