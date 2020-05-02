@@ -30,7 +30,7 @@ class KodiLogHandler(logging.StreamHandler):
             logging.NOTSET: xbmc.LOGNONE,
         }
 
-        # Map INFO and DEBUG level to LOGNOTICE if debug logging setting has been activated
+        # Map DEBUG level to LOGNOTICE if debug logging setting has been activated
         # This is for troubleshooting only
         if ADDON.getSetting('debug_logging') == 'true':
             levels[logging.DEBUG] = xbmc.LOGNOTICE
