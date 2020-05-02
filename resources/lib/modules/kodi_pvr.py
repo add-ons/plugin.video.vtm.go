@@ -75,7 +75,7 @@ class KodiPvr:
                     stream=self._kodi.url_for('play', category='channels', item=channel_info.channel_id),
                 ))
 
-        return channels
+        return dict(version=1, streams=channels)
 
     def get_epg(self):
         """ Report EPG data """
@@ -100,4 +100,4 @@ class KodiPvr:
                 for broadcast in channel.broadcasts
             ])
 
-        return epg
+        return dict(version=1, epg=epg)
