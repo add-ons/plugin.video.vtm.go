@@ -8,6 +8,7 @@ from contextlib import contextmanager
 import xbmc
 import xbmcaddon
 import xbmcplugin
+from xbmcgui import DialogProgress
 
 SORT_METHODS = dict(
     unsorted=xbmcplugin.SORT_METHOD_UNSORTED,
@@ -250,21 +251,23 @@ class KodiWrapper:
         from xbmcgui import Dialog
         return Dialog().contextmenu(items)
 
-    @staticmethod
-    def show_ok_dialog(heading='', message=''):
-        """ Show Kodi's OK dialog """
+    def show_ok_dialog(self, heading='', message=''):
+        """Show Kodi's OK dialog"""
         from xbmcgui import Dialog
         if not heading:
             heading = ADDON.getAddonInfo('name')
-        return Dialog().ok(heading=heading, line1=message)
+        if self.kodi_version_major() < 19:
+            return Dialog().ok(heading=heading, line1=message)
+        return Dialog().ok(heading=heading, message=message)
 
-    @staticmethod
-    def show_yesno_dialog(heading='', message=''):
-        """ Show Kodi's YES/NO dialog """
+    def show_yesno_dialog(self, heading='', message='', nolabel=None, yeslabel=None, autoclose=0):
+        """Show Kodi's Yes/No dialog"""
         from xbmcgui import Dialog
         if not heading:
             heading = ADDON.getAddonInfo('name')
-        return Dialog().yesno(heading=heading, line1=message)
+        if self.kodi_version_major() < 19:
+            return Dialog().yesno(heading=heading, line1=message, nolabel=nolabel, yeslabel=yeslabel, autoclose=autoclose)
+        return Dialog().yesno(heading=heading, message=message, nolabel=nolabel, yeslabel=yeslabel, autoclose=autoclose)
 
     @staticmethod
     def show_notification(heading='', message='', icon='info', time=8000):
@@ -282,15 +285,31 @@ class KodiWrapper:
             heading = ADDON.getAddonInfo('name')
         return Dialog().multiselect(heading=heading, options=options, autoclose=autoclose, preselect=preselect, useDetails=use_details)
 
-    @staticmethod
-    def show_progress(heading='', message=''):
-        """ Show a Kodi progress dialog """
-        from xbmcgui import DialogProgress
-        if not heading:
-            heading = ADDON.getAddonInfo('name')
-        progress = DialogProgress()
-        progress.create(heading=heading, line1=message)
-        return progress
+    class show_progress(DialogProgress, object):  # pylint: disable=invalid-name,useless-object-inheritance
+        """Show Kodi's Progress dialog"""
+
+        def __init__(self, heading='', message=''):
+            """Initialize and create a progress dialog"""
+            super(KodiWrapper.show_progress, self).__init__()
+            if not heading:
+                heading = ADDON.getAddonInfo('name')
+            self.create(heading, message=message)
+
+        def create(self, heading, message=''):  # pylint: disable=arguments-differ
+            """Create and show a progress dialog"""
+            if KodiWrapper().kodi_version_major() < 19:
+                lines = message.split('\n', 2)
+                line1, line2, line3 = (lines + [None] * (3 - len(lines)))
+                return super(KodiWrapper.show_progress, self).create(heading, line1=line1, line2=line2, line3=line3)
+            return super(KodiWrapper.show_progress, self).create(heading, message=message)
+
+        def update(self, percent, message=''):  # pylint: disable=arguments-differ
+            """Update the progress dialog"""
+            if KodiWrapper().kodi_version_major() < 19:
+                lines = message.split('\n', 2)
+                line1, line2, line3 = (lines + [None] * (3 - len(lines)))
+                return super(KodiWrapper.show_progress, self).update(percent, line1=line1, line2=line2, line3=line3)
+            return super(KodiWrapper.show_progress, self).update(percent, message=message)
 
     @staticmethod
     def show_progress_background(heading='', message=''):
@@ -473,8 +492,12 @@ class KodiWrapper:
 
     @staticmethod
     def kodi_version():
-        """ Returns major Kodi version """
-        return int(xbmc.getInfoLabel('System.BuildVersion').split('.')[0])
+        """Returns full Kodi version as string"""
+        return xbmc.getInfoLabel('System.BuildVersion').split(' ')[0]
+
+    def kodi_version_major(self):
+        """Returns major Kodi version as integer"""
+        return int(self.kodi_version().split('.')[0])
 
     def can_play_drm(self):
         """ Whether this Kodi can do DRM using InputStream Adaptive """
@@ -482,7 +505,7 @@ class KodiWrapper:
 
     def supports_drm(self):
         """ Whether this Kodi version supports DRM decryption using InputStream Adaptive """
-        return self.kodi_version() > 17
+        return self.kodi_version_major() > 17
 
     @staticmethod
     def get_userdata_path():
