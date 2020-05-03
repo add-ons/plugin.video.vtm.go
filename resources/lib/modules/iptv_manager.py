@@ -4,6 +4,7 @@
 from __future__ import absolute_import, division, unicode_literals
 
 import json
+import logging
 import socket
 from datetime import timedelta
 
@@ -11,8 +12,9 @@ from resources.lib.modules import CHANNELS
 from resources.lib.vtmgo.vtmgo import VtmGo
 from resources.lib.vtmgo.vtmgoepg import VtmGoEpg
 
+_LOGGER = logging.getLogger('iptv-manager')
 
-class KodiPvr:
+class IptvManager:
     """ Code related to the Kodi PVR integration """
 
     def __init__(self, kodi):
