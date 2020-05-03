@@ -79,23 +79,23 @@ class KodiPvr:
         """ Report EPG data """
         epg = dict()
 
-        # Fetch epg for today
-        # TODO: yesterday, next days
-        epg_infos = self._vtm_go_epg.get_epgs()
+        # Fetch EPG data
+        for date in ['yesterday', 'today', 'tomorrow']:
+            epg_infos = self._vtm_go_epg.get_epgs(date)
 
-        for channel in epg_infos:
-            key = channel.key
-            if key not in epg.keys():
-                epg[key] = []
+            for channel in epg_infos:
+                key = channel.key
+                if key not in epg.keys():
+                    epg[key] = []
 
-            epg[key].extend([
-                dict(
-                    start=broadcast.time.isoformat(),
-                    stop=(broadcast.time + timedelta(seconds=broadcast.duration)).isoformat(),
-                    title=broadcast.title,
-                    description=broadcast.description,
-                    image=broadcast.image)
-                for broadcast in channel.broadcasts
-            ])
+                epg[key].extend([
+                    dict(
+                        start=broadcast.time.isoformat(),
+                        stop=(broadcast.time + timedelta(seconds=broadcast.duration)).isoformat(),
+                        title=broadcast.title,
+                        description=broadcast.description,
+                        image=broadcast.image)
+                    for broadcast in channel.broadcasts
+                ])
 
         return dict(version=1, epg=epg)
