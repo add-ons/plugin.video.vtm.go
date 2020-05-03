@@ -5,6 +5,7 @@ from __future__ import absolute_import, division, unicode_literals
 
 import json
 import os
+import socket
 from datetime import timedelta
 
 from resources.lib.modules import CHANNELS
@@ -24,11 +25,11 @@ class KodiPvr:
         self._vtm_go_epg = VtmGoEpg(self._kodi)
 
     @staticmethod
-    def output_to_file(filename):
-        """ Write the output of the wrapped function to a file. """
+    def reply(host, port):
+        """ Send the output of the wrapped function to socket. """
 
         def decorator(func):
-            """ Output-to-file decorator """
+            """ Decorator """
 
             def inner(*arg, **kwargs):
                 """ Execute function """
@@ -36,16 +37,14 @@ class KodiPvr:
                     # Execute function
                     result = func(*arg, **kwargs)
 
-                    # Write output to file
-                    with open(filename, 'w') as fdesc:
-                        json.dump(result, fdesc)
+                    # Send output to socket
+                    s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+                    s.connect((host, port))
+                    s.send(json.dumps(result))
+                    s.close()
 
                 except:  # pylint: disable=broad-except
-                    try:
-                        # Remove output file
-                        os.unlink(filename)
-                    except:  # pylint: disable=bare-except,broad-except
-                        pass
+                    # TODO notify in case of an exception
                     raise
 
             return inner

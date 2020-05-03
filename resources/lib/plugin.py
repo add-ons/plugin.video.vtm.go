@@ -204,7 +204,7 @@ def iptv_channels():
     """ Generate channel data for the Kodi PVR integration """
     from resources.lib.modules.kodi_pvr import KodiPvr
 
-    @KodiPvr.output_to_file(routing.args['output'][0])
+    @KodiPvr.reply('127.0.0.1', int(routing.args['port'][0]))
     def generate():
         """ Channel generator """
         return KodiPvr(kodi).get_channels()
@@ -217,7 +217,7 @@ def iptv_epg():
     """ Generate EPG data for the Kodi PVR integration """
     from resources.lib.modules.kodi_pvr import KodiPvr
 
-    @KodiPvr.output_to_file(routing.args['output'][0])
+    @KodiPvr.reply('127.0.0.1', int(routing.args['port'][0]))
     def generate():
         """ EPG generator """
         return KodiPvr(kodi).get_epg()
