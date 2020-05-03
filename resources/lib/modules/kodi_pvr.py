@@ -33,19 +33,18 @@ class KodiPvr:
             def inner(*arg, **kwargs):
                 """ Execute function """
                 # Open connection so the remote end knows we are doing something
-                s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-                s.connect((host, port))
+                sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+                sock.connect((host, port))
 
                 try:
                     # Execute function
                     result = func(*arg, **kwargs)
 
                     # Send result
-                    s.send(json.dumps(result))
-
+                    sock.send(json.dumps(result))
                 finally:
                     # Close our connection
-                    s.close()
+                    sock.close()
 
             return inner
 
