@@ -4,11 +4,13 @@
 from __future__ import absolute_import, division, unicode_literals
 
 import json
+import logging
 
 import requests
 
-from resources.lib.kodiwrapper import LOG_DEBUG
 from resources.lib.vtmgo.vtmgoauth import VtmGoAuth
+
+_LOGGER = logging.getLogger('vtmgo')
 
 try:  # Python 3
     from urllib.parse import quote
@@ -315,7 +317,7 @@ class VtmGo:
         categories = []
         for cat in recommendations.get('rows', []):
             if cat.get('rowType') not in ['SWIMLANE_DEFAULT']:
-                self._kodi.log('Skipping recommendation {name} with type={type}', name=cat.get('title'), type=cat.get('rowType'))
+                _LOGGER.debug('Skipping recommendation %s with type %s', cat.get('title'), cat.get('rowType'))
                 continue
 
             items = []
@@ -757,7 +759,7 @@ class VtmGo:
         if profile:
             headers['x-dpp-profile'] = profile
 
-        self._kodi.log('Sending GET {url}...', url=url)
+        _LOGGER.debug('Sending GET %s...', url)
 
         response = requests.session().get('https://lfvp-api.dpgmedia.net' + url, params=params, headers=headers, proxies=self._proxies)
 
@@ -765,7 +767,7 @@ class VtmGo:
         if not response.encoding:
             response.encoding = 'utf-8'
 
-        self._kodi.log('Got response (status={code}): {response}', LOG_DEBUG, code=response.status_code, response=response.text)
+        _LOGGER.debug('Got response (status=%s): %s', response.status_code, response.text)
 
         if response.status_code == 404:
             raise UnavailableException()
@@ -792,11 +794,11 @@ class VtmGo:
         if profile:
             headers['x-dpp-profile'] = profile
 
-        self._kodi.log('Sending PUT {url}...', url=url)
+        _LOGGER.debug('Sending PUT %s...', url)
 
         response = requests.session().put('https://api.vtmgo.be' + url, headers=headers, proxies=self._proxies)
 
-        self._kodi.log('Got response: {response}', LOG_DEBUG, response=response.text)
+        _LOGGER.debug('Got response (status=%s): %s', response.status_code, response.text)
 
         if response.status_code == 404:
             raise UnavailableException()
@@ -823,11 +825,11 @@ class VtmGo:
         if profile:
             headers['x-dpp-profile'] = profile
 
-        self._kodi.log('Sending POST {url}...', url=url)
+        _LOGGER.debug('Sending POST %s...', url)
 
         response = requests.session().post('https://api.vtmgo.be' + url, headers=headers, proxies=self._proxies)
 
-        self._kodi.log('Got response: {response}', LOG_DEBUG, response=response.text)
+        _LOGGER.debug('Got response (status=%s): %s', response.status_code, response.text)
 
         if response.status_code == 404:
             raise UnavailableException()
@@ -854,11 +856,11 @@ class VtmGo:
         if profile:
             headers['x-dpp-profile'] = profile
 
-        self._kodi.log('Sending DELETE {url}...', url=url)
+        _LOGGER.debug('Sending DELETE %s...', url)
 
         response = requests.session().delete('https://api.vtmgo.be' + url, headers=headers, proxies=self._proxies)
 
-        self._kodi.log('Got response: {response}', LOG_DEBUG, response=response.text)
+        _LOGGER.debug('Got response (status=%s): %s', response.status_code, response.text)
 
         if response.status_code == 404:
             raise UnavailableException()

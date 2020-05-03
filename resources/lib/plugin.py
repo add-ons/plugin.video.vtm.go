@@ -3,12 +3,18 @@
 
 from __future__ import absolute_import, division, unicode_literals
 
+import logging
+
 import routing
 
+from resources.lib import kodilogging
 from resources.lib.kodiwrapper import KodiWrapper
 
+kodilogging.config()
 routing = routing.Plugin()  # pylint: disable=invalid-name
 kodi = KodiWrapper(globals())  # pylint: disable=invalid-name
+
+_LOGGER = logging.getLogger('plugin')
 
 
 @routing.route('/')

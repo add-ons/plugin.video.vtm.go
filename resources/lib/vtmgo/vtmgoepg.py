@@ -4,6 +4,7 @@
 from __future__ import absolute_import, division, unicode_literals
 
 import json
+import logging
 from datetime import datetime, timedelta
 
 import dateutil.parser
@@ -11,6 +12,8 @@ import dateutil.tz
 import requests
 
 from resources.lib.vtmgo.vtmgo import UnavailableException
+
+_LOGGER = logging.getLogger('vtmgoepg')
 
 
 class EpgChannel:
@@ -217,7 +220,7 @@ class VtmGoEpg:
         :type url: str
         :rtype str
         """
-        self._kodi.log('Sending GET {url}...', url=url)
+        _LOGGER.debug('Sending GET %s...', url)
 
         response = self._session.get(url)
 
