@@ -4,7 +4,6 @@
 from __future__ import absolute_import, division, unicode_literals
 
 import json
-import os
 import socket
 from datetime import timedelta
 
@@ -33,19 +32,20 @@ class KodiPvr:
 
             def inner(*arg, **kwargs):
                 """ Execute function """
+                # Open connection so the remote end knows we are doing something
+                s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+                s.connect((host, port))
+
                 try:
                     # Execute function
                     result = func(*arg, **kwargs)
 
-                    # Send output to socket
-                    s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-                    s.connect((host, port))
+                    # Send result
                     s.send(json.dumps(result))
-                    s.close()
 
-                except:  # pylint: disable=broad-except
-                    # TODO notify in case of an exception
-                    raise
+                finally:
+                    # Close our connection
+                    s.close()
 
             return inner
 
