@@ -7,7 +7,7 @@ version = $(shell xmllint --xpath 'string(/addon/@version)' addon.xml)
 git_branch = $(shell git rev-parse --abbrev-ref HEAD)
 git_hash = $(shell git rev-parse --short HEAD)
 zip_name = $(name)-$(version)-$(git_branch)-$(git_hash).zip
-include_files = addon.xml CHANGELOG.md iptv.json LICENSE plugin.py README.md resources/ service.py
+include_files = addon.xml CHANGELOG.md LICENSE plugin.py README.md resources/ service.py
 include_paths = $(patsubst %,$(name)/%,$(include_files))
 exclude_files = \*.new \*.orig \*.pyc \*.pyo
 
