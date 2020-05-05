@@ -14,45 +14,35 @@ from resources.lib.vtmgo.vtmgoepg import VtmGoEpg
 
 _LOGGER = logging.getLogger('iptv-manager')
 
-class IptvManager:
+
+class IPTVManager:
     """ Code related to the Kodi PVR integration """
 
-    def __init__(self, kodi):
+    def __init__(self, kodi, port):
         """ Initialise object
         :type kodi: resources.lib.kodiwrapper.KodiWrapper
         """
         self._kodi = kodi
         self._vtm_go = VtmGo(self._kodi)
         self._vtm_go_epg = VtmGoEpg(self._kodi)
+        self.port = port
 
-    @staticmethod
-    def reply(host, port):
-        """ Send the output of the wrapped function to socket. """
+    def via_socket(func):  # pylint: disable=no-self-argument
+        """Send the output of the wrapped function to socket"""
 
-        def decorator(func):
-            """ Decorator """
+        def send(self):
+            """Decorator to send over a socket"""
+            sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            sock.connect(('127.0.0.1', self.port))
+            try:
+                sock.send(json.dumps(func(self)))  # pylint: disable=not-callable
+            finally:
+                sock.close()
 
-            def inner(*arg, **kwargs):
-                """ Execute function """
-                # Open connection so the remote end knows we are doing something
-                sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-                sock.connect((host, port))
+        return send
 
-                try:
-                    # Execute function
-                    result = func(*arg, **kwargs)
-
-                    # Send result
-                    sock.send(json.dumps(result))
-                finally:
-                    # Close our connection
-                    sock.close()
-
-            return inner
-
-        return decorator
-
-    def get_channels(self):
+    @via_socket
+    def send_channels(self):
         """ Report channel data """
         channels = []
 
@@ -77,7 +67,8 @@ class IptvManager:
 
         return dict(version=1, streams=channels)
 
-    def get_epg(self):
+    @via_socket
+    def send_epg(self):
         """ Report EPG data """
         epg = dict()
 

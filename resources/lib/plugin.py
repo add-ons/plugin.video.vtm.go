@@ -202,27 +202,15 @@ def play(category, item):
 @routing.route('/iptv/channels')
 def iptv_channels():
     """ Generate channel data for the Kodi PVR integration """
-    from resources.lib.modules.iptv_manager import IptvManager
-
-    @IptvManager.reply('127.0.0.1', int(routing.args['port'][0]))
-    def generate():
-        """ Channel generator """
-        return IptvManager(kodi).get_channels()
-
-    generate()
+    from resources.lib.modules.iptvmanager import IPTVManager
+    IPTVManager(kodi, int(routing.args['port'][0])).send_channels()
 
 
 @routing.route('/iptv/epg')
 def iptv_epg():
     """ Generate EPG data for the Kodi PVR integration """
-    from resources.lib.modules.iptv_manager import IptvManager
-
-    @IptvManager.reply('127.0.0.1', int(routing.args['port'][0]))
-    def generate():
-        """ EPG generator """
-        return IptvManager(kodi).get_epg()
-
-    generate()
+    from resources.lib.modules.iptvmanager import IPTVManager
+    IPTVManager(kodi, int(routing.args['port'][0])).send_epg()
 
 
 def run(params):
