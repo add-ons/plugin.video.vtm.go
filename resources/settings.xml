@@ -3,8 +3,8 @@
     <setting id="credentials_hash" visible="false"/>
     <setting id="metadata_last_updated" visible="false"/>
     <setting id="iptv.enabled" default="true" visible="false"/>
-    <setting id="iptv.channels_uri" default="plugin://plugin.video.vtm.go/iptv/channels?port=$PORT" visible="false"/>
-    <setting id="iptv.epg_uri" default="plugin://plugin.video.vtm.go/iptv/epg?port=$PORT" visible="false"/>
+    <setting id="iptv.channels_uri" default="plugin://plugin.video.vtm.go/iptv/channels" visible="false"/>
+    <setting id="iptv.epg_uri" default="plugin://plugin.video.vtm.go/iptv/epg" visible="false"/>
     <category label="30800"> <!-- Credentials -->
         <setting label="30801" type="lsep"/> <!-- VTM GO login -->
         <setting label="30803" type="text" id="username"/>
