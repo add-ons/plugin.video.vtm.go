@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 """ VTM GO EPG API """
-
 from __future__ import absolute_import, division, unicode_literals
 
 import json
@@ -97,15 +96,7 @@ class VtmGoEpg:
         :type date: str
         :rtype: EpgChannel
         """
-        if date is None:
-            # Fetch today when no date is specified
-            date = datetime.today().strftime('%Y-%m-%d')
-        elif date == 'yesterday':
-            date = (datetime.today() + timedelta(days=-1)).strftime('%Y-%m-%d')
-        elif date == 'today':
-            date = datetime.today().strftime('%Y-%m-%d')
-        elif date == 'tomorrow':
-            date = (datetime.today() + timedelta(days=1)).strftime('%Y-%m-%d')
+        date = self._parse_date(date)
 
         response = self._get_url(self.EPG_URL.format(date=date))
         epg = json.loads(response)
@@ -122,6 +113,42 @@ class VtmGoEpg:
                 )
 
         raise Exception('Channel %s not found in the EPG' % channel)
+
+    def get_epgs(self, date=None):
+        """ Load EPG information for the specified date.
+        :type date: str
+        :rtype: EpgChannel[]
+        """
+        date = self._parse_date(date)
+
+        response = self._get_url(self.EPG_URL.format(date=date))
+        epg = json.loads(response)
+
+        # We get an EPG for all channels
+        return [
+            EpgChannel(
+                name=epg_channel.get('name'),
+                key=epg_channel.get('seoKey'),
+                logo=epg_channel.get('channelLogoUrl'),
+                uuid=epg_channel.get('uuid'),
+                broadcasts=[self._parse_broadcast(broadcast) for broadcast in epg_channel.get('broadcasts', [])]
+            )
+            for epg_channel in epg.get('channels', [])
+        ]
+
+    @staticmethod
+    def _parse_date(date):
+        """ Parse the passed date to a real date """
+        if date is None:
+            # Fetch today when no date is specified
+            return datetime.today().strftime('%Y-%m-%d')
+        if date == 'yesterday':
+            return (datetime.today() + timedelta(days=-1)).strftime('%Y-%m-%d')
+        if date == 'today':
+            return datetime.today().strftime('%Y-%m-%d')
+        if date == 'tomorrow':
+            return (datetime.today() + timedelta(days=1)).strftime('%Y-%m-%d')
+        return date
 
     def get_broadcast(self, channel, timestamp):
         """ Load EPG information for the specified channel and date.

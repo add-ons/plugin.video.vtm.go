@@ -516,6 +516,10 @@ class KodiWrapper:
         """ Return addon information """
         return ADDON.getAddonInfo(key)
 
+    def get_addon_id(self):
+        """ Return the profile's addon id """
+        return self.get_addon_info('id')
+
     @staticmethod
     def listdir(path):
         """ Return all files in a directory (using xbmcvfs)"""
