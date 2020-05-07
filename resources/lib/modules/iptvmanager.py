@@ -61,6 +61,7 @@ class IPTVManager:
                 channels.append(dict(
                     id=channel.get('epg'),
                     name=channel.get('label'),
+                    preset=channel.get('iptv_preset'),
                     logo=logo,
                     stream=self._kodi.url_for('play', category='channels', item=channel_info.channel_id),
                 ))

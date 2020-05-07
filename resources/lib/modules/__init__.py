@@ -15,6 +15,7 @@ CHANNELS = OrderedDict([
         label='VTM',
         logo='vtm',
         epg='vtm',
+        iptv_preset=3,
         studio_icon='VTM',
         kids=False,
         youtube=[
@@ -42,6 +43,7 @@ CHANNELS = OrderedDict([
         label='Q2',
         logo='q2',
         epg='q2',
+        iptv_preset=7,
         studio_icon='Q2',
         kids=False,
         youtube=[
@@ -57,6 +59,7 @@ CHANNELS = OrderedDict([
         label='Vitaya',
         logo='vitaya',
         epg='vitaya',
+        iptv_preset=10,
         studio_icon='Vitaya',
         kids=False,
         youtube=[
@@ -72,6 +75,7 @@ CHANNELS = OrderedDict([
         label='CAZ',
         logo='caz',
         epg='caz',
+        iptv_preset=8,
         stream='caz',
         studio_icon='CAZ',
         kids=False,
@@ -80,6 +84,7 @@ CHANNELS = OrderedDict([
         label='CAZ 2',
         logo='caz2',
         epg='caz-2',
+        iptv_preset=9,
         stream='caz2',
         studio_icon='CAZ 2',
         kids=False,
@@ -88,6 +93,7 @@ CHANNELS = OrderedDict([
         label='VTM KIDS',
         logo='vtmkids',
         epg='vtm-kids',
+        iptv_preset=13,
         studio_icon='VTM Kids',
         kids=True,
         youtube=[
@@ -99,17 +105,11 @@ CHANNELS = OrderedDict([
             ),
         ]
     )),
-    ('vtmkidsjr', dict(
-        label='VTM KIDS Jr',
-        logo='vtmkidsjr',
-        epg='vtm-kids-jr',
-        studio_icon='VTM Kids Jr',
-        kids=True,
-    )),
     ('qmusic', dict(
         label='QMusic',
         logo='qmusic',
         epg='qmusic',
+        iptv_preset=920,
         studio_icon='Q Music',
         kids=False,
         youtube=[
