@@ -1,4 +1,4 @@
-export PYTHONPATH := $(CURDIR):$(CURDIR)/test
+export PYTHONPATH := $(CURDIR):$(CURDIR)/tests
 PYTHON := python
 
 # Collect information to build as sensible package name
@@ -22,7 +22,7 @@ check: check-pylint check-tox check-translations
 
 check-pylint:
 	@echo ">>> Running pylint checks"
-	@$(PYTHON) -m pylint *.py resources/lib/ test/
+	@$(PYTHON) -m pylint *.py resources/lib/ tests/
 
 check-tox:
 	@echo ">>> Running tox checks"
@@ -51,7 +51,7 @@ clean:
 	@find . -name '*.pyc' -type f -delete
 	@find . -name '*.pyo' -type f -delete
 	@find . -name '__pycache__' -type d -delete
-	@rm -rf .pytest_cache/ .tox/ test/cdm test/userdata/temp
+	@rm -rf .pytest_cache/ .tox/ tests/cdm tests/userdata/temp
 	@rm -f *.log .coverage
 
 build: clean
