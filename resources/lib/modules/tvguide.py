@@ -15,8 +15,6 @@ _LOGGER = logging.getLogger('tvguide')
 class TvGuide:
     """ Menu code related to the TV Guide """
 
-    EPG_NO_BROADCAST = 'Geen Uitzending'
-
     def __init__(self, kodi):
         """ Initialise object
         :type kodi: resources.lib.kodiwrapper.KodiWrapper
@@ -89,9 +87,6 @@ class TvGuide:
                 path = self._kodi.url_for('play',
                                           category=broadcast.playable_type,
                                           item=broadcast.playable_uuid)
-
-            if broadcast.title == self.EPG_NO_BROADCAST:
-                title = '[COLOR gray]' + title + '[/COLOR]'
 
             listing.append(TitleItem(
                 title=title,

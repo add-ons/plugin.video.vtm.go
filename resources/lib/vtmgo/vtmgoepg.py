@@ -80,6 +80,8 @@ class VtmGoEpg:
     """ VTM GO EPG API """
     EPG_URL = 'https://vtm.be/tv-gids/api/v2/broadcasts/{date}'
 
+    EPG_NO_BROADCAST = 'Geen uitzending'
+
     def __init__(self, kodi):
         """ Initialise object
         :type kodi: resources.lib.kodiwrapper.KodiWrapper
@@ -109,7 +111,11 @@ class VtmGoEpg:
                     key=epg_channel.get('seoKey'),
                     logo=epg_channel.get('channelLogoUrl'),
                     uuid=epg_channel.get('uuid'),
-                    broadcasts=[self._parse_broadcast(broadcast) for broadcast in epg_channel.get('broadcasts', [])]
+                    broadcasts=[
+                        self._parse_broadcast(broadcast)
+                        for broadcast in epg_channel.get('broadcasts', [])
+                        if broadcast.get('title', '') != self.EPG_NO_BROADCAST
+                    ]
                 )
 
         raise Exception('Channel %s not found in the EPG' % channel)
@@ -131,7 +137,11 @@ class VtmGoEpg:
                 key=epg_channel.get('seoKey'),
                 logo=epg_channel.get('channelLogoUrl'),
                 uuid=epg_channel.get('uuid'),
-                broadcasts=[self._parse_broadcast(broadcast) for broadcast in epg_channel.get('broadcasts', [])]
+                broadcasts=[
+                    self._parse_broadcast(broadcast)
+                    for broadcast in epg_channel.get('broadcasts', [])
+                    if broadcast.get('title', '') != self.EPG_NO_BROADCAST
+                ]
             )
             for epg_channel in epg.get('channels', [])
         ]
