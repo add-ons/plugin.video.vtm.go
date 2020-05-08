@@ -76,10 +76,10 @@ def global_settings():
     ''' Use the global_settings file '''
     import json
     try:
-        with open('test/userdata/global_settings.json') as f:
+        with open('tests/userdata/global_settings.json') as f:
             settings = json.load(f)
     except OSError as e:
-        print("Error: Cannot use 'test/userdata/global_settings.json' : %s" % e)
+        print("Error: Cannot use 'tests/userdata/global_settings.json' : %s" % e)
         settings = {
             'locale.language': 'resource.language.en_gb',
             'network.bandwidth': 0,
@@ -106,10 +106,10 @@ def addon_settings():
     ''' Use the addon_settings file '''
     import json
     try:
-        with open('test/userdata/addon_settings.json') as f:
+        with open('tests/userdata/addon_settings.json') as f:
             settings = json.load(f)
     except OSError as e:
-        print("Error: Cannot use 'test/userdata/addon_settings.json' : %s" % e)
+        print("Error: Cannot use 'tests/userdata/addon_settings.json' : %s" % e)
         settings = {}
 
     # Read credentials from environment or credentials.json
@@ -118,13 +118,13 @@ def addon_settings():
         settings[ADDON_ID]['username'] = os.environ.get('ADDON_USERNAME')
         settings[ADDON_ID]['password'] = os.environ.get('ADDON_PASSWORD')
         settings[ADDON_ID]['profile'] = os.environ.get('ADDON_PROFILE')
-    elif os.path.exists('test/userdata/credentials.json'):
-        print('Using credentials from test/userdata/credentials.json')
-        with open('test/userdata/credentials.json') as f:
+    elif os.path.exists('tests/userdata/credentials.json'):
+        print('Using credentials from tests/userdata/credentials.json')
+        with open('tests/userdata/credentials.json') as f:
             credentials = json.load(f)
         settings[ADDON_ID].update(credentials)
     else:
-        print("Error: Cannot use 'test/userdata/credentials.json'")
+        print("Error: Cannot use 'tests/userdata/credentials.json'")
     return settings
 
 
