@@ -7,17 +7,15 @@ from collections import OrderedDict
 
 # key         = id used in the VTM GO API
 # label       = Label to show in the UI
-# logo        = File in resources/logos/
 # epg         = id used in the EPG API
 # studio_icon = filename used in resource.images.studios.white
 CHANNELS = OrderedDict([
     ('vtm', dict(
         label='VTM',
-        logo='vtm',
         epg='vtm',
         iptv_preset=3,
+        iptv_id='vtm.be',
         studio_icon='VTM',
-        kids=False,
         youtube=[
             dict(
                 # VTM: https://www.youtube.com/user/VTMvideo
@@ -41,11 +39,10 @@ CHANNELS = OrderedDict([
     )),
     ('q2', dict(
         label='Q2',
-        logo='q2',
         epg='q2',
         iptv_preset=7,
+        iptv_id='q2.be',
         studio_icon='Q2',
-        kids=False,
         youtube=[
             dict(
                 # Q2: https://www.youtube.com/user/2BEvideokanaal
@@ -57,11 +54,10 @@ CHANNELS = OrderedDict([
     )),
     ('vitaya', dict(
         label='Vitaya',
-        logo='vitaya',
         epg='vitaya',
         iptv_preset=10,
+        iptv_id='vitaya.be',
         studio_icon='Vitaya',
-        kids=False,
         youtube=[
             dict(
                 # Vitaya: https://www.youtube.com/user/VITAYAvideokanaal
@@ -73,29 +69,26 @@ CHANNELS = OrderedDict([
     )),
     ('caz', dict(
         label='CAZ',
-        logo='caz',
         epg='caz',
         iptv_preset=8,
+        iptv_id='caz.be',
         stream='caz',
         studio_icon='CAZ',
-        kids=False,
     )),
     ('caz2', dict(
         label='CAZ 2',
-        logo='caz2',
         epg='caz-2',
         iptv_preset=9,
+        iptv_id='caz2.be',
         stream='caz2',
         studio_icon='CAZ 2',
-        kids=False,
     )),
     ('vtmkids', dict(
         label='VTM KIDS',
-        logo='vtmkids',
         epg='vtm-kids',
         iptv_preset=13,
+        iptv_id='vtmkids.be',
         studio_icon='VTM Kids',
-        kids=True,
         youtube=[
             dict(
                 # VTM KIDS: https://www.youtube.com/channel/UCJgZKD2qpa7mY2BtIgpNR2Q
@@ -105,13 +98,27 @@ CHANNELS = OrderedDict([
             ),
         ]
     )),
+    ('vtmnieuws', dict(
+        label='VTM Nieuws',
+        epg=None,
+        iptv_preset=803,
+        iptv_id='vtmnieuws.be',
+        studio_icon='VTM Nieuws',
+        youtube=[
+            dict(
+                # VTM Nieuws: https://www.youtube.com/channel/UCm1v16r82bhI5jwur14dK9w
+                label='VTM Nieuws',
+                logo='vtm',
+                path='plugin://plugin.video.youtube/channel/UCm1v16r82bhI5jwur14dK9w/',
+            ),
+        ]
+    )),
     ('qmusic', dict(
         label='QMusic',
-        logo='qmusic',
         epg='qmusic',
-        iptv_preset=920,
+        iptv_preset=930,
+        iptv_id='qmusic.be',
         studio_icon='Q Music',
-        kids=False,
         youtube=[
             dict(
                 # Q-Music: https://www.youtube.com/user/qmusic

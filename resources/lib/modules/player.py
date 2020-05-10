@@ -63,10 +63,12 @@ class Player:
 
         except StreamGeoblockedException:
             self._kodi.show_ok_dialog(heading=self._kodi.localize(30709), message=self._kodi.localize(30710))  # This video is geo-blocked...
+            self._kodi.end_of_directory()
             return
 
         except StreamUnavailableException:
             self._kodi.show_ok_dialog(heading=self._kodi.localize(30711), message=self._kodi.localize(30712))  # The video is unavailable...
+            self._kodi.end_of_directory()
             return
 
         info_dict = {

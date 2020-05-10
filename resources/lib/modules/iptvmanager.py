@@ -44,45 +44,51 @@ class IPTVManager:
     @via_socket
     def send_channels(self):
         """ Report channel data """
-        channels = []
+        # Fetch EPG from API
+        channels = self._vtm_go.get_live_channels()
 
-        # Fetch channels from API
-        channel_infos = self._vtm_go.get_live_channels()
+        results = []
+        for channel in channels:
+            channel_data = CHANNELS.get(channel.key)
 
-        for i, key in enumerate(CHANNELS):  # pylint: disable=unused-variable
-            channel = CHANNELS[key]
+            if not channel_data:
+                _LOGGER.warning('Skipping %s since we don\'t know this channel', channel.key)
+                continue
 
-            logo = 'special://home/addons/{addon}/resources/logos/{logo}.png'.format(addon=self._kodi.get_addon_id(), logo=channel.get('logo'))
+            results.append(dict(
+                name=channel_data.get('label') if channel_data else channel.name,
+                id=channel_data.get('iptv_id'),
+                preset=channel_data.get('iptv_preset'),
+                logo='special://home/addons/{addon}/resources/logos/{logo}.png'.format(addon=self._kodi.get_addon_id(), logo=channel.key)
+                if channel_data else channel.logo,
+                stream=self._kodi.url_for('play', category='channels', item=channel.channel_id),
+            ))
 
-            # Find this channel in the list
-            channel_info = next((c for c in channel_infos if c.key == key), None)
-
-            if channel_info:
-                channels.append(dict(
-                    id=channel.get('epg'),
-                    name=channel.get('label'),
-                    preset=channel.get('iptv_preset'),
-                    logo=logo,
-                    stream=self._kodi.url_for('play', category='channels', item=channel_info.channel_id),
-                ))
-
-        return dict(version=1, streams=channels)
+        return dict(version=1, streams=results)
 
     @via_socket
     def send_epg(self):
         """ Report EPG data """
-        epg = dict()
+        results = dict()
 
         # Fetch EPG data
         for date in ['yesterday', 'today', 'tomorrow']:
-            epg_infos = self._vtm_go_epg.get_epgs(date)
 
-            for channel in epg_infos:
-                key = channel.key
-                if key not in epg.keys():
-                    epg[key] = []
+            channels = self._vtm_go_epg.get_epgs(date)
+            for channel in channels:
+                # Lookup channel data in our own CHANNELS dict
+                channel_data = next((c for c in CHANNELS.values() if c.get('epg') == channel.key), None)
+                if not channel_data:
+                    _LOGGER.warning('Skipping EPG for %s since we don\'t know this channel', channel.key)
+                    continue
 
-                epg[key].extend([
+                key = channel_data.get('iptv_id')
+
+                # Create channel in dict if it doesn't exists
+                if key not in results.keys():
+                    results[key] = []
+
+                results[key].extend([
                     dict(
                         start=broadcast.time.isoformat(),
                         stop=(broadcast.time + timedelta(seconds=broadcast.duration)).isoformat(),
@@ -92,4 +98,4 @@ class IPTVManager:
                     for broadcast in channel.broadcasts
                 ])
 
-        return dict(version=1, epg=epg)
+        return dict(version=1, epg=results)
