@@ -29,10 +29,6 @@ class Player:
         :type item: str
         :type channel: str
         """
-        if not self._check_credentials():
-            self._kodi.end_of_directory()
-            return
-
         res = self._kodi.show_context_menu([self._kodi.localize(30103), self._kodi.localize(30105)])  # Watch Live | Play from Catalog
         if res == -1:  # user has cancelled
             return
@@ -55,6 +51,7 @@ class Player:
 
         # Check if inputstreamhelper is correctly installed
         if not self._check_inputstream():
+            self._kodi.end_of_directory()
             return
 
         try:
@@ -135,7 +132,7 @@ class Player:
 
         except UnavailableException:
             # We continue without details.
-            # This allows to play some programs that don't have metadata yet.
+            # This allows to play some programs that don't have metadata (yet).
             pass
 
         # Play this item
