@@ -58,12 +58,13 @@ class Profile:
 class LiveChannel:
     """ Defines a tv channel that can be streamed live """
 
-    def __init__(self, key=None, channel_id=None, name=None, logo=None, epg=None, geoblocked=False):
+    def __init__(self, key=None, channel_id=None, name=None, logo=None, background=None, epg=None, geoblocked=False):
         """
         :type key: str
         :type channel_id: str
         :type name: str
         :type logo: str
+        :type background: str
         :type epg: list[LiveChannelEpg]
         :type geoblocked: bool
         """
@@ -71,6 +72,7 @@ class LiveChannel:
         self.channel_id = channel_id
         self.name = name
         self.logo = logo
+        self.background = background
         self.epg = epg
         self.geoblocked = geoblocked
 
@@ -448,7 +450,8 @@ class VtmGo:
             channels.append(LiveChannel(
                 key=item.get('seoKey'),
                 channel_id=item.get('channelId'),
-                logo=self._parse_channel(item.get('channelLogoUrl')),
+                logo=item.get('channelLogoUrl'),
+                background=item.get('channelPosterUrl'),
                 name=item.get('name'),
                 epg=epg,
             ))
