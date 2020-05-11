@@ -5,10 +5,13 @@ from __future__ import absolute_import, division, unicode_literals
 
 from collections import OrderedDict
 
-# key         = id used in the VTM GO API
+# key         = ID used in the VTM GO API, name of the logo file
 # label       = Label to show in the UI
-# epg         = id used in the EPG API
+# epg         = ID used in the EPG API
 # studio_icon = filename used in resource.images.studios.white
+# iptv_preset = Channel Number to use when exporting to IPTV Manager
+# iptv_id     = Channel ID to use when exporting to IPTV Manager
+
 CHANNELS = OrderedDict([
     ('vtm', dict(
         label='VTM',
@@ -37,25 +40,10 @@ CHANNELS = OrderedDict([
             ),
         ]
     )),
-    ('q2', dict(
-        label='Q2',
-        epg='q2',
-        iptv_preset=7,
-        iptv_id='q2.be',
-        studio_icon='Q2',
-        youtube=[
-            dict(
-                # Q2: https://www.youtube.com/user/2BEvideokanaal
-                label='Q2',
-                logo='q2',
-                path='plugin://plugin.video.youtube/user/2BEvideokanaal/',
-            ),
-        ]
-    )),
     ('vitaya', dict(
         label='Vitaya',
         epg='vitaya',
-        iptv_preset=10,
+        iptv_preset=7,
         iptv_id='vitaya.be',
         studio_icon='Vitaya',
         youtube=[
@@ -67,10 +55,25 @@ CHANNELS = OrderedDict([
             ),
         ]
     )),
+    ('q2', dict(
+        label='Q2',
+        epg='q2',
+        iptv_preset=8,
+        iptv_id='q2.be',
+        studio_icon='Q2',
+        youtube=[
+            dict(
+                # Q2: https://www.youtube.com/user/2BEvideokanaal
+                label='Q2',
+                logo='q2',
+                path='plugin://plugin.video.youtube/user/2BEvideokanaal/',
+            ),
+        ]
+    )),
     ('caz', dict(
         label='CAZ',
         epg='caz',
-        iptv_preset=8,
+        iptv_preset=9,
         iptv_id='caz.be',
         stream='caz',
         studio_icon='CAZ',
@@ -78,7 +81,7 @@ CHANNELS = OrderedDict([
     ('caz2', dict(
         label='CAZ 2',
         epg='caz-2',
-        iptv_preset=9,
+        iptv_preset=10,
         iptv_id='caz2.be',
         stream='caz2',
         studio_icon='CAZ 2',
@@ -98,6 +101,21 @@ CHANNELS = OrderedDict([
             ),
         ]
     )),
+    ('qmusic', dict(
+        label='QMusic',
+        epg='qmusic',
+        iptv_preset=20,
+        iptv_id='qmusic.be',
+        studio_icon='Q Music',
+        youtube=[
+            dict(
+                # Q-Music: https://www.youtube.com/channel/UCCDccz7bJ9XdwTBkEX1qKlg
+                label='QMusic',
+                logo='qmusic',
+                path='plugin://plugin.video.youtube/channel/UCCDccz7bJ9XdwTBkEX1qKlg/',
+            ),
+        ]
+    )),
     ('vtmnieuws', dict(
         label='VTM Nieuws',
         epg=None,
@@ -110,21 +128,6 @@ CHANNELS = OrderedDict([
                 label='VTM Nieuws',
                 logo='vtm',
                 path='plugin://plugin.video.youtube/channel/UCm1v16r82bhI5jwur14dK9w/',
-            ),
-        ]
-    )),
-    ('qmusic', dict(
-        label='QMusic',
-        epg='qmusic',
-        iptv_preset=930,
-        iptv_id='qmusic.be',
-        studio_icon='Q Music',
-        youtube=[
-            dict(
-                # Q-Music: https://www.youtube.com/user/qmusic
-                label='QMusic',
-                logo='qmusic',
-                path='plugin://plugin.video.youtube/user/qmusic/',
             ),
         ]
     )),
