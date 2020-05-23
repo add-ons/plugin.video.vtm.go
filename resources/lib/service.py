@@ -8,10 +8,12 @@ from time import time
 
 from xbmc import Monitor
 
+from resources.lib import kodilogging
 from resources.lib.kodiwrapper import KodiWrapper
 from resources.lib.vtmgo.vtmgo import VtmGo
 from resources.lib.vtmgo.vtmgoauth import VtmGoAuth
 
+kodilogging.config()
 _LOGGER = logging.getLogger('service')
 
 
