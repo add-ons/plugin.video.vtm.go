@@ -62,6 +62,7 @@ class IPTVManager:
                 logo='special://home/addons/{addon}/resources/logos/{logo}.png'.format(addon=self._kodi.get_addon_id(), logo=channel.key)
                 if channel_data else channel.logo,
                 stream=self._kodi.url_for('play', category='channels', item=channel.channel_id),
+                vod=self._kodi.url_for('play_epg_datetime', channel=channel.key, timestamp='{date}'),
             ))
 
         return dict(version=1, streams=results)
