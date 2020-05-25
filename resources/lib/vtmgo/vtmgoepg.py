@@ -167,7 +167,7 @@ class VtmGoEpg:
         :rtype: EpgBroadcast
         """
         # Parse to a real datetime
-        timestamp = dateutil.parser.parse(timestamp)
+        timestamp = dateutil.parser.parse(timestamp).replace(tzinfo=dateutil.tz.gettz('CET'))
 
         # Load guide info for this date
         epg = self.get_epg(channel=channel, date=timestamp.strftime('%Y-%m-%d'))
