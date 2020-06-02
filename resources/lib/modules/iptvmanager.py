@@ -35,7 +35,7 @@ class IPTVManager:
             sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
             sock.connect(('127.0.0.1', self.port))
             try:
-                sock.send(json.dumps(func(self)))  # pylint: disable=not-callable
+                sock.send(json.dumps(func(self)).encode())  # pylint: disable=not-callable
             finally:
                 sock.close()
 
@@ -95,7 +95,10 @@ class IPTVManager:
                         stop=(broadcast.time + timedelta(seconds=broadcast.duration)).isoformat(),
                         title=broadcast.title,
                         description=broadcast.description,
-                        image=broadcast.image)
+                        image=broadcast.image,
+                        stream=self._kodi.url_for('play',
+                                                  category=broadcast.playable_type,
+                                                  item=broadcast.playable_uuid) if broadcast.playable_uuid else None)
                     for broadcast in channel.broadcasts
                 ])
 
