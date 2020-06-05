@@ -206,7 +206,10 @@ class KodiWrapper:
         :type license_key: string
         """
         play_item = self._generate_listitem(title_item)
-        play_item.setProperty('inputstreamaddon', 'inputstream.adaptive')
+        if self.kodi_version_major() < 19:
+            play_item.setProperty('inputstreamaddon', 'inputstream.adaptive')
+        else:
+            play_item.setProperty('inputstream', 'inputstream.adaptive')
         play_item.setProperty('inputstream.adaptive.max_bandwidth', str(self.get_max_bandwidth() * 1000))
         play_item.setProperty('network.bandwidth', str(self.get_max_bandwidth() * 1000))
         play_item.setProperty('inputstream.adaptive.manifest_type', 'mpd')
