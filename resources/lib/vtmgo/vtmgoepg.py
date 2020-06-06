@@ -40,7 +40,7 @@ class EpgBroadcast:
     """ Defines an EPG broadcast"""
 
     def __init__(self, uuid=None, playable_type=None, title=None, time=None, duration=None, image=None, description=None, live=None, rerun=None, tip=None,
-                 program_uuid=None, playable_uuid=None, channel_uuid=None, airing=None):
+                 program_uuid=None, playable_uuid=None, channel_uuid=None, airing=None, genre=None):
         """
         :type uuid: str
         :type playable_type: str
@@ -56,6 +56,7 @@ class EpgBroadcast:
         :type playable_uuid: str
         :type channel_uuid: str
         :type airing: bool
+        :type genre: str
         """
         self.uuid = uuid
         self.playable_type = playable_type
@@ -71,6 +72,7 @@ class EpgBroadcast:
         self.playable_uuid = playable_uuid
         self.channel_uuid = channel_uuid
         self.airing = airing
+        self.genre = genre
 
     def __repr__(self):
         return "%r" % self.__dict__
@@ -193,6 +195,12 @@ class VtmGoEpg:
         start = dateutil.parser.parse(broadcast_json.get('fromIso') + 'Z').astimezone(dateutil.tz.gettz('CET'))
         airing = bool(start <= timestamp < (start + timedelta(seconds=duration)))
 
+        # Genre
+        if broadcast_json.get('subGenres'):
+            genre = broadcast_json.get('subGenres', [])[0]
+        else:
+            genre = broadcast_json.get('genre')
+
         return EpgBroadcast(
             uuid=broadcast_json.get('uuid'),
             playable_type=broadcast_json.get('playableType'),
@@ -208,6 +216,7 @@ class VtmGoEpg:
             program_uuid=broadcast_json.get('programUuid'),
             channel_uuid=broadcast_json.get('channelUuid'),
             airing=airing,
+            genre=genre,
         )
 
     def get_dates(self, date_format):
