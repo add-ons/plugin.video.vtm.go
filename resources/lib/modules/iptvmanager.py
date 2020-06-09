@@ -95,6 +95,10 @@ class IPTVManager:
                         stop=(broadcast.time + timedelta(seconds=broadcast.duration)).isoformat(),
                         title=broadcast.title,
                         description=broadcast.description,
+                        # subtitle=None,  # Not available in the API
+                        # season=None,  # Not available in the API
+                        # epsiode=None,  # Not available in the API
+                        genre=broadcast.genre,
                         image=broadcast.image,
                         stream=self._kodi.url_for('play',
                                                   category=broadcast.playable_type,
