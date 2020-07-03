@@ -9,6 +9,7 @@ import logging
 import requests
 
 from resources.lib.vtmgo.vtmgoauth import VtmGoAuth
+from resources.lib.vtmgo.vtmgostream import VtmGoStream
 
 _LOGGER = logging.getLogger('vtmgo')
 
@@ -277,6 +278,7 @@ class VtmGo:
         self._kodi = kodi
         self._proxies = kodi.get_proxies()
         self._auth = VtmGoAuth(kodi)
+        self._stream = VtmGoStream(kodi)
 
     def _mode(self):
         """ Return the mode that should be used for API calls """

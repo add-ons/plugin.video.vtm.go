@@ -5,7 +5,7 @@ from __future__ import absolute_import, division, unicode_literals
 
 import logging
 
-from resources.lib.kodiwrapper import TitleItem, to_unicode, KodiPlayer
+from resources.lib.kodiwrapper import TitleItem
 from resources.lib.vtmgo.vtmgo import VtmGo, UnavailableException
 from resources.lib.vtmgo.vtmgostream import VtmGoStream, StreamGeoblockedException, StreamUnavailableException
 
@@ -80,8 +80,6 @@ class Player:
             'duration': resolved_stream.duration,
         }
 
-        upnext_data = None
-
         # Lookup metadata
         try:
             if category in ['movies', 'oneoffs']:
@@ -109,13 +107,6 @@ class Player:
                             'season': episode_details.season,
                             'episode': episode_details.number,
                         })
-
-                        # Lookup the next episode
-                        next_episode_details = self._vtm_go.get_next_episode_from_program(program, episode_details.season, episode_details.number)
-
-                        # Create the data for Up Next
-                        if next_episode_details:
-                            upnext_data = self.generate_upnext(episode_details, next_episode_details)
 
             elif category == 'channels':
                 info_dict.update({'mediatype': 'episode'})
@@ -149,27 +140,6 @@ class Player:
             ),
             license_key=self._vtm_go_stream.create_license_key(resolved_stream.license_url))
 
-        # Wait for playback to start
-        kodi_player = KodiPlayer(kodi=self._kodi)
-        if not kodi_player.waitForPlayBack(url=resolved_stream.url):
-            # Playback didn't start
-            return
-
-        # Add subtitles
-        if resolved_stream.subtitles:
-            _LOGGER.debug('Setting subtitles')
-            kodi_player.setSubtitles(resolved_stream.subtitles[0])
-
-            # Turn on subtitles if needed
-            if self._kodi.get_setting_as_bool('showsubtitles'):
-                _LOGGER.debug('Enabling subtitles')
-                kodi_player.showSubtitles(True)
-
-        # Send Up Next data
-        if upnext_data:
-            _LOGGER.debug("Sending Up Next data: %s", upnext_data)
-            self.send_upnext(upnext_data)
-
     def _check_credentials(self):
         """ Check if the user has credentials """
         if self._kodi.has_credentials():
@@ -200,57 +170,3 @@ class Player:
             return False
 
         return True
-
-    @staticmethod
-    def generate_upnext(current_episode, next_episode):
-        """ Construct the data for Up Next.
-        :type current_episode: resources.lib.vtmgo.vtmgo.Episode
-        :type next_episode: resources.lib.vtmgo.vtmgo.Episode
-        """
-        upnext_info = dict(
-            current_episode=dict(
-                episodeid=current_episode.episode_id,
-                tvshowid=current_episode.program_id,
-                title=current_episode.name,
-                art={
-                    'thumb': current_episode.cover,
-                },
-                season=current_episode.season,
-                episode=current_episode.number,
-                showtitle=current_episode.program_name,
-                plot=current_episode.description,
-                playcount=None,
-                rating=None,
-                firstaired=current_episode.aired[:10] if current_episode.aired else '',
-                runtime=current_episode.duration,
-            ),
-            next_episode=dict(
-                episodeid=next_episode.episode_id,
-                tvshowid=next_episode.program_id,
-                title=next_episode.name,
-                art={
-                    'thumb': next_episode.cover,
-                },
-                season=next_episode.season,
-                episode=next_episode.number,
-                showtitle=next_episode.program_name,
-                plot=next_episode.description,
-                playcount=None,
-                rating=None,
-                firstaired=next_episode.aired[:10] if next_episode.aired else '',
-                runtime=next_episode.duration,
-            ),
-            play_url='plugin://plugin.video.vtm.go/play/catalog/episodes/%s' % next_episode.episode_id,
-        )
-
-        return upnext_info
-
-    def send_upnext(self, upnext_info):
-        """ Send a message to Up Next with information about the next Episode.
-        :type upnext_info: object
-        """
-        from base64 import b64encode
-        from json import dumps
-        data = [to_unicode(b64encode(dumps(upnext_info).encode()))]
-        sender = '{addon_id}.SIGNAL'.format(addon_id='plugin.video.vtm.go')
-        self._kodi.notify(sender=sender, message='upnext_data', data=data)
