@@ -9,10 +9,9 @@ from time import time
 from xbmc import getInfoLabel, Monitor, Player
 
 from resources.lib import kodilogging
-from resources.lib.kodiwrapper import KodiWrapper, to_unicode
+from resources.lib.kodiwrapper import KodiWrapper
 from resources.lib.vtmgo.vtmgo import VtmGo
 from resources.lib.vtmgo.vtmgoauth import VtmGoAuth
-from resources.lib.vtmgo.vtmgostream import VtmGoStream
 
 kodilogging.config()
 _LOGGER = logging.getLogger('service')
@@ -73,6 +72,7 @@ class BackgroundService(Monitor):
         # Update metadata_last_updated
         if success:
             self._kodi.set_setting('metadata_last_updated', str(int(time())))
+
 
 class PlayerMonitor(Player):
     """ A custom Player object to check subtitles """
@@ -187,76 +187,6 @@ class PlayerMonitor(Player):
         _LOGGER.debug('Player: No subtitle path')
         return None
 
-
-    def __send_upnext(self, episode_id, season, episode):
-        """ Send a message to Up Next with information about the next Episode.
-        :type string: episode_id
-        :type season: int
-        :type episode: int
-        """
-        from base64 import b64encode
-        from json import dumps
-
-        # Get episode details from episode_id
-        program_id = self._vtm_go_stream.get_stream('episodes', episode_id).program_id
-        program = self._vtm_go.get_program(program_id)
-        episode_details = self._vtm_go.get_episode_from_program(program, episode_id)
-
-        # Lookup the next episode
-        next_episode_details = self._vtm_go.get_next_episode_from_program(program, season, episode)
-
-        # Create the info for Up Next
-        if next_episode_details:
-            upnext_info = self.__generate_upnext(episode_details, next_episode_details)
-
-        data = [to_unicode(b64encode(dumps(upnext_info).encode()))]
-        sender = '{addon_id}.SIGNAL'.format(addon_id='plugin.video.vtm.go')
-        _LOGGER.debug('Sending Up Next data: %s', upnext_info)
-        self._kodi.notify(sender=sender, message='upnext_data', data=data)
-
-    @staticmethod
-    def __generate_upnext(current_episode, next_episode):
-        """ Construct the data for Up Next.
-        :type current_episode: resources.lib.vtmgo.vtmgo.Episode
-        :type next_episode: resources.lib.vtmgo.vtmgo.Episode
-        """
-        upnext_info = dict(
-            current_episode=dict(
-                episodeid=current_episode.episode_id,
-                tvshowid=current_episode.program_id,
-                title=current_episode.name,
-                art={
-                    'thumb': current_episode.cover,
-                },
-                season=current_episode.season,
-                episode=current_episode.number,
-                showtitle=current_episode.program_name,
-                plot=current_episode.description,
-                playcount=None,
-                rating=None,
-                firstaired=current_episode.aired[:10] if current_episode.aired else '',
-                runtime=current_episode.duration,
-            ),
-            next_episode=dict(
-                episodeid=next_episode.episode_id,
-                tvshowid=next_episode.program_id,
-                title=next_episode.name,
-                art={
-                    'thumb': next_episode.cover,
-                },
-                season=next_episode.season,
-                episode=next_episode.number,
-                showtitle=next_episode.program_name,
-                plot=next_episode.description,
-                playcount=None,
-                rating=None,
-                firstaired=next_episode.aired[:10] if next_episode.aired else '',
-                runtime=next_episode.duration,
-            ),
-            play_url='plugin://plugin.video.vtm.go/play/catalog/episodes/%s' % next_episode.episode_id,
-        )
-
-        return upnext_info
 
 def run():
     """ Run the BackgroundService """
