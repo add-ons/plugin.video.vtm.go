@@ -1,4 +1,6 @@
-export PYTHONPATH := $(CURDIR):$(CURDIR)/tests
+export KODI_HOME := $(CURDIR)/tests/home
+export KODI_INTERACTIVE := 0
+export KODI_STUB_RPC_RESPONSES := $(CURDIR)/tests/rpc
 PYTHON := python
 
 # Collect information to build as sensible package name

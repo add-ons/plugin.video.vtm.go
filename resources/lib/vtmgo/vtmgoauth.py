@@ -5,6 +5,7 @@ from __future__ import absolute_import, division, unicode_literals
 
 import hashlib
 import logging
+import os
 import re
 
 import requests
@@ -53,7 +54,7 @@ class VtmGoAuth:
         """ Remove the cached JWT. """
         _LOGGER.debug('Clearing token cache')
         self._token = None
-        path = self._kodi.get_userdata_path() + 'token.json'
+        path = os.path.join(self._kodi.get_userdata_path(), 'token.json')
         if self._kodi.check_if_path_exists(path):
             self._kodi.delete_file(path)
         self._kodi.set_setting('profile', None)
@@ -73,7 +74,7 @@ class VtmGoAuth:
             return self._token
 
         # Try to load from cache
-        path = self._kodi.get_userdata_path() + 'token.json'
+        path = os.path.join(self._kodi.get_userdata_path(), 'token.json')
         if self._kodi.check_if_path_exists(path):
             _LOGGER.debug('Returning token from cache')
 
