@@ -114,6 +114,10 @@ class Player:
         """ A stub implementation for the xbmc Player class setSubtitles() method """
         return
 
+    def setSubtitleStream(self, iStream):
+        """ A stub implementation for the xbmc Player class setSubtitleStream() method """
+        return
+
     def showSubtitles(self, visible):
         """ A stub implementation for the xbmc Player class showSubtitles() method """
         return
@@ -132,6 +136,14 @@ class Player:
 
     def getPlayingFile(self):
         """ A stub implementation for the xbmc Player class getPlayingFile() method """
+        return ''
+
+    def getAvailableSubtitleStreams(self):
+        """ A stub implementation for the xbmc Player class getAvailableSubtitleStreams() method """
+        return []
+
+    def getSubtitles(self):
+        """ A stub implementation for the xbmc Player class getSubtitles() method """
         return ''
 
 

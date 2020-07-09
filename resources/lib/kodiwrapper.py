@@ -344,7 +344,7 @@ class KodiWrapper:
     @staticmethod
     def get_setting(setting_id, default=None):
         """ Get an add-on setting """
-        value = to_unicode(ADDON.getSetting(setting_id))
+        value = to_unicode(xbmcaddon.Addon().getSetting(setting_id))
         if value == '' and default is not None:
             return default
         return value

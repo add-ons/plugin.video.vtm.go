@@ -5,7 +5,7 @@ from __future__ import absolute_import, division, unicode_literals
 
 import logging
 
-from resources.lib.kodiwrapper import TitleItem, to_unicode, KodiPlayer
+from resources.lib.kodiwrapper import KodiPlayer, TitleItem, to_unicode
 from resources.lib.vtmgo.vtmgo import VtmGo, UnavailableException
 from resources.lib.vtmgo.vtmgostream import VtmGoStream, StreamGeoblockedException, StreamUnavailableException
 
@@ -154,16 +154,6 @@ class Player:
         if not kodi_player.waitForPlayBack(url=resolved_stream.url):
             # Playback didn't start
             return
-
-        # Add subtitles
-        if resolved_stream.subtitles:
-            _LOGGER.debug('Setting subtitles')
-            kodi_player.setSubtitles(resolved_stream.subtitles[0])
-
-            # Turn on subtitles if needed
-            if self._kodi.get_setting_as_bool('showsubtitles'):
-                _LOGGER.debug('Enabling subtitles')
-                kodi_player.showSubtitles(True)
 
         # Send Up Next data
         if upnext_data:

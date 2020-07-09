@@ -102,8 +102,7 @@ class VtmGoStream:
         subtitles = self._extract_subtitles_from_stream_info(stream_info)
 
         # Delay subtitles taking into account advertisements breaks.
-        if subtitles:
-            subtitles = self._delay_subtitles(subtitles, json_manifest)
+        subtitles = self._delay_subtitles(subtitles, json_manifest)
 
         if stream_type == 'episodes':
             # TV episode
@@ -206,12 +205,17 @@ class VtmGoStream:
     def _extract_subtitles_from_stream_info(stream_info):
         """ Extract a list of the subtitles.
         :type stream_info: dict
-        :rtype list[str]
+        :rtype list[dict]
         """
         subtitles = list()
         if stream_info.get('video').get('subtitles'):
-            for subtitle in stream_info.get('video').get('subtitles'):
-                subtitles.append(subtitle.get('url'))
+            for idx, subtitle in enumerate(stream_info.get('video').get('subtitles')):
+                program = stream_info.get('video').get('metadata').get('program')
+                if program:
+                    name = '{} - {}_{}'.format(program.get('title'), stream_info.get('video').get('metadata').get('title'), idx)
+                else:
+                    name = '{}_{}'.format(stream_info.get('video').get('metadata').get('title'), idx)
+                subtitles.append(dict(name=name, url=subtitle.get('url')))
                 _LOGGER.debug('Found subtitle url %s', subtitle.get('url'))
         return subtitles
 
@@ -247,16 +251,22 @@ class VtmGoStream:
         :type json_manifest: dict
         :rtype list[str]
         """
-        import re
+        # Clean up old subtitles
         temp_dir = self._kodi.get_userdata_path() + 'temp/'
+        _, files = self._kodi.listdir(temp_dir)
+        if files:
+            for item in files:
+                if item.endswith('.vtt'):
+                    self._kodi.delete_file(temp_dir + item)
+
+        # Return if there are no subtitles available
+        if not subtitles:
+            return None
+
+        import re
         if not self._kodi.check_if_path_exists(temp_dir):
             self._kodi.mkdir(temp_dir)
-        else:
-            dirs, files = self._kodi.listdir(temp_dir)  # pylint: disable=unused-variable
-            if files:
-                for item in files:
-                    if item.endswith('.vtt'):
-                        self._kodi.delete_file(temp_dir + item)
+
         ad_breaks = list()
         delayed_subtitles = list()
         webvtt_timing_regex = re.compile(r'\n(\d{2}:\d{2}:\d{2}\.\d{3}) --> (\d{2}:\d{2}:\d{2}\.\d{3})\s')
@@ -269,8 +279,8 @@ class VtmGoStream:
             )
 
         for subtitle in subtitles:
-            output_file = temp_dir + '/' + subtitle.split('/')[-1].split('.')[0] + '.nl-NL.' + subtitle.split('.')[-1]
-            webvtt_content = requests.get(subtitle).text
+            output_file = temp_dir + '/' + subtitle.get('name') + '.' + subtitle.get('url').split('.')[-1]
+            webvtt_content = requests.get(subtitle.get('url')).text
             webvtt_content = webvtt_timing_regex.sub(lambda match: self._delay_webvtt_timing(match, ad_breaks), webvtt_content)
             with self._kodi.open_file(output_file, 'w') as webvtt_output:
                 webvtt_output.write(from_unicode(webvtt_content))
