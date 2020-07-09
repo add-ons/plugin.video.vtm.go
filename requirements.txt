@@ -5,4 +5,5 @@ python-dateutil
 requests
 git+git://github.com/dagwieers/kodi-plugin-routing.git@setup#egg=routing
 tox
-sakee
+# sakee
+git+git://github.com/michaelarnauts/kodi.emulator.ascii.git@player-implementation#egg=sakee
