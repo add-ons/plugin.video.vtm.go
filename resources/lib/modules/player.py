@@ -156,7 +156,7 @@ class Player:
             return
 
         # Send Up Next data
-        if upnext_data:
+        if upnext_data and self._kodi.get_setting_as_bool('useupnext'):
             _LOGGER.debug("Sending Up Next data: %s", upnext_data)
             self.send_upnext(upnext_data)
 

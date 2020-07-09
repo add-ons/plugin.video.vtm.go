@@ -7,6 +7,8 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 
 import unittest
 
+import xbmc
+
 from resources.lib.kodiwrapper import KodiWrapper
 from resources.lib.modules.player import Player
 from resources.lib.vtmgo import vtmgo, vtmgostream, vtmgoauth
@@ -31,6 +33,9 @@ class TestVtmGo(unittest.TestCase):
         # Don't warn that we don't close our HTTPS connections, this is on purpose.
         # warnings.simplefilter("ignore", ResourceWarning)
         pass
+
+    def tearDown(self):
+        xbmc.Player.stop()
 
     @unittest.skipUnless(kodi.has_credentials(), 'Skipping since we have no credentials.')
     def test_login(self):
