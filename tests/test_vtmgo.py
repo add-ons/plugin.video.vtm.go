@@ -35,7 +35,7 @@ class TestVtmGo(unittest.TestCase):
         pass
 
     def tearDown(self):
-        xbmc.Player.stop()
+        xbmc.Player().stop()
 
     @unittest.skipUnless(kodi.has_credentials(), 'Skipping since we have no credentials.')
     def test_login(self):

@@ -28,7 +28,7 @@ class TestRouting(unittest.TestCase):
         pass
 
     def tearDown(self):
-        xbmc.Player.stop()
+        xbmc.Player().stop()
 
     def test_main_menu(self):
         routing.run([routing.url_for(plugin.show_main_menu), '0', ''])

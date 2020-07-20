@@ -31,7 +31,7 @@ class TestVtmGoEpg(unittest.TestCase):
         pass
 
     def tearDown(self):
-        xbmc.Player.stop()
+        xbmc.Player().stop()
 
     def test_get_broadcast(self):
         import datetime
