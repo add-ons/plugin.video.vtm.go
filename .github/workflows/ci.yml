@@ -9,6 +9,9 @@ jobs:
     env:
       PYTHONIOENCODING: utf-8
       PYTHONPATH: ${{ github.workspace }}/resources/lib:${{ github.workspace }}/tests
+      KODI_HOME: ${{ github.workspace }}/tests/home
+      KODI_INTERACTIVE: 0
+      KODI_STUB_RPC_RESPONSES: ${{ github.workspace }}/tests/rpc
     strategy:
       fail-fast: false
       matrix:
@@ -39,7 +42,7 @@ jobs:
           ADDON_USERNAME: ${{ secrets.ADDON_USERNAME }}
           ADDON_PROFILE: ${{ secrets.ADDON_PROFILE }}
       - name: Run addon service
-        run: coverage run -a service.py
+        run: timeout --preserve-status -s SIGINT 10 coverage run -a service.py
         env:
           ADDON_PASSWORD: ${{ secrets.ADDON_PASSWORD }}
           ADDON_USERNAME: ${{ secrets.ADDON_USERNAME }}

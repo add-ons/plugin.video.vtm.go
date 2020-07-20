@@ -15,12 +15,6 @@ cwd = os.path.abspath(os.path.join(os.path.dirname(os.path.realpath(os.path.real
 sys.path.insert(0, cwd)
 from resources.lib import plugin  # noqa: E402  pylint: disable=wrong-import-position
 
-xbmc = __import__('xbmc')
-xbmcaddon = __import__('xbmcaddon')
-xbmcgui = __import__('xbmcgui')
-xbmcplugin = __import__('xbmcplugin')
-xbmcvfs = __import__('xbmcvfs')
-
 if len(sys.argv) <= 1:
     print("%s: URI argument missing\nTry '%s plugin://plugin.video.vtm.go/' to test." % (sys.argv[0], sys.argv[0]))
     sys.exit(1)

@@ -146,7 +146,7 @@ class PlayerMonitor(Player):
             _LOGGER.debug('Player: Disabling subtitles')
             self.showSubtitles(False)
 
-    def onPlayBackSeek(self, seekTime, seekOffset):  # pylint: disable=invalid-name, unused-argument
+    def onPlayBackSeek(self, time, seekOffset):  # pylint: disable=invalid-name, unused-argument, redefined-outer-name
         """ Will be called when user seeks to a time """
         if not self.__listen:
             return

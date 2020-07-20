@@ -12,9 +12,4 @@ Thumbs.db
 
 .coverage
 .tox/
-tests/userdata/credentials.json
-tests/userdata/temp
-tests/userdata/token.json
-tests/userdata/cache
-tests/userdata/addon_data
-tests/cdm
+tests/home/userdata/addon_data

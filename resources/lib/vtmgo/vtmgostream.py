@@ -5,6 +5,7 @@ from __future__ import absolute_import, division, unicode_literals
 
 import json
 import logging
+import os
 import random
 from datetime import timedelta
 
@@ -252,7 +253,7 @@ class VtmGoStream:
         :rtype list[str]
         """
         # Clean up old subtitles
-        temp_dir = self._kodi.get_userdata_path() + 'temp/'
+        temp_dir = os.path.join(self._kodi.get_userdata_path(), 'temp')
         _, files = self._kodi.listdir(temp_dir)
         if files:
             for item in files:
@@ -300,7 +301,6 @@ class VtmGoStream:
                                      },
                                      headers={
                                          'X-Anvato-User-Agent': self._ANVATO_USER_AGENT,
-                                         'User-Agent': self._ANVATO_USER_AGENT,
                                      })
 
         _LOGGER.debug('Got response (status=%s): %s', response.status_code, response.text)

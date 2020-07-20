@@ -4,6 +4,7 @@
 from __future__ import absolute_import, division, unicode_literals
 
 import logging
+import os
 from contextlib import contextmanager
 
 import xbmc
@@ -109,7 +110,7 @@ class KodiWrapper:
             self._url = None
         self._addon_name = ADDON.getAddonInfo('name')
         self._addon_id = ADDON.getAddonInfo('id')
-        self._cache_path = self.get_userdata_path() + 'cache/'
+        self._cache_path = os.path.join(self.get_userdata_path(), 'cache')
 
     def url_for(self, name, *args, **kwargs):
         """ Wrapper for routing.url_for() to lookup by name """
@@ -254,7 +255,7 @@ class KodiWrapper:
         if not heading:
             heading = ADDON.getAddonInfo('name')
         if self.kodi_version_major() < 19:
-            return Dialog().ok(heading=heading, line1=message)
+            return Dialog().ok(heading=heading, line1=message)  # pylint: disable=unexpected-keyword-arg,no-value-for-parameter
         return Dialog().ok(heading=heading, message=message)
 
     def show_yesno_dialog(self, heading='', message='', nolabel=None, yeslabel=None, autoclose=0):
@@ -263,7 +264,7 @@ class KodiWrapper:
         if not heading:
             heading = ADDON.getAddonInfo('name')
         if self.kodi_version_major() < 19:
-            return Dialog().yesno(heading=heading, line1=message, nolabel=nolabel, yeslabel=yeslabel, autoclose=autoclose)
+            return Dialog().yesno(heading=heading, line1=message, nolabel=nolabel, yeslabel=yeslabel, autoclose=autoclose)  # pylint: disable=unexpected-keyword-arg,no-value-for-parameter
         return Dialog().yesno(heading=heading, message=message, nolabel=nolabel, yeslabel=yeslabel, autoclose=autoclose)
 
     @staticmethod
@@ -297,7 +298,7 @@ class KodiWrapper:
             if KodiWrapper().kodi_version_major() < 19:
                 lines = message.split('\n', 2)
                 line1, line2, line3 = (lines + [None] * (3 - len(lines)))
-                return super(KodiWrapper.show_progress, self).create(heading, line1=line1, line2=line2, line3=line3)
+                return super(KodiWrapper.show_progress, self).create(heading, line1=line1, line2=line2, line3=line3)  # pylint: disable=unexpected-keyword-arg,no-value-for-parameter
             return super(KodiWrapper.show_progress, self).create(heading, message=message)
 
         def update(self, percent, message=''):  # pylint: disable=arguments-differ
@@ -305,7 +306,7 @@ class KodiWrapper:
             if KodiWrapper().kodi_version_major() < 19:
                 lines = message.split('\n', 2)
                 line1, line2, line3 = (lines + [None] * (3 - len(lines)))
-                return super(KodiWrapper.show_progress, self).update(percent, line1=line1, line2=line2, line3=line3)
+                return super(KodiWrapper.show_progress, self).update(percent, line1=line1, line2=line2, line3=line3)  # pylint: disable=unexpected-keyword-arg,no-value-for-parameter
             return super(KodiWrapper.show_progress, self).update(percent, message=message)
 
     @staticmethod
@@ -376,7 +377,7 @@ class KodiWrapper:
         """
         import time
 
-        fullpath = self._cache_path + '.'.join(key)
+        fullpath = os.path.join(self._cache_path, '.'.join(key))
 
         if not self.check_if_path_exists(fullpath):
             return None
@@ -401,7 +402,7 @@ class KodiWrapper:
         if not self.check_if_path_exists(self._cache_path):
             self.mkdirs(self._cache_path)
 
-        fullpath = self._cache_path + '.'.join(key)
+        fullpath = os.path.join(self._cache_path, '.'.join(key))
         with self.open_file(fullpath, 'w') as fdesc:
             import json
             _LOGGER.debug('Storing to cache as %s', fullpath)
@@ -415,7 +416,7 @@ class KodiWrapper:
         import time
         now = time.mktime(time.localtime())
         for filename in files:
-            fullpath = self._cache_path + filename
+            fullpath = os.path.join(self._cache_path, filename)
             if ttl and now - self.stat_file(fullpath).st_mtime() < ttl:
                 continue
             self.delete_file(fullpath)

@@ -1,8 +1,8 @@
 coverage
-git+git://github.com/emilsvennesson/script.module.inputstreamhelper.git@master#egg=inputstreamhelper
 polib
 pylint
 python-dateutil
 requests
 git+git://github.com/dagwieers/kodi-plugin-routing.git@setup#egg=routing
 tox
+sakee

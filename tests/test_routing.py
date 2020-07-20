@@ -7,14 +7,10 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 
 import unittest
 
+import xbmc
+
 from resources.lib import plugin
 from resources.lib.kodiwrapper import KodiWrapper
-
-xbmc = __import__('xbmc')
-xbmcaddon = __import__('xbmcaddon')
-xbmcgui = __import__('xbmcgui')
-xbmcplugin = __import__('xbmcplugin')
-xbmcvfs = __import__('xbmcvfs')
 
 routing = plugin.routing
 kodi = KodiWrapper(globals())
@@ -30,6 +26,9 @@ class TestRouting(unittest.TestCase):
         # Don't warn that we don't close our HTTPS connections, this is on purpose.
         # warnings.simplefilter("ignore", ResourceWarning)
         pass
+
+    def tearDown(self):
+        xbmc.Player().stop()
 
     def test_main_menu(self):
         routing.run([routing.url_for(plugin.show_main_menu), '0', ''])
@@ -85,10 +84,6 @@ class TestRouting(unittest.TestCase):
         import datetime
         timestamp = datetime.datetime.now().replace(hour=6, minute=0, second=0)
         plugin.run([routing.url_for(plugin.play_epg_datetime, channel='vtm', timestamp=timestamp.isoformat()), '0', ''])
-
-    def test_metadata_update(self):
-        routing.run([routing.url_for(plugin.metadata_clean), '0', ''])
-        routing.run([routing.url_for(plugin.metadata_update), '0', ''])
 
 
 if __name__ == '__main__':
