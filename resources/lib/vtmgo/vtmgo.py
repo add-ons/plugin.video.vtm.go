@@ -118,8 +118,7 @@ class Movie:
     """ Defines a Movie """
 
     def __init__(self, movie_id=None, name=None, description=None, year=None, cover=None, image=None, duration=None,
-                 remaining=None, geoblocked=None,
-                 channel=None, legal=None, aired=None, my_list=None):
+                 remaining=None, geoblocked=None, channel=None, legal=None, aired=None, my_list=None):
         """
         :type movie_id: str
         :type name: str
@@ -157,8 +156,7 @@ class Program:
     """ Defines a Program """
 
     def __init__(self, program_id=None, name=None, description=None, cover=None, image=None, seasons=None,
-                 geoblocked=None, channel=None, legal=None,
-                 my_list=None):
+                 geoblocked=None, channel=None, legal=None, my_list=None):
         """
         :type program_id: str
         :type name: str
@@ -213,9 +211,8 @@ class Episode:
     """ Defines an Episode """
 
     def __init__(self, episode_id=None, program_id=None, program_name=None, number=None, season=None, name=None,
-                 description=None, cover=None, duration=None,
-                 remaining=None, geoblocked=None, channel=None, legal=None, aired=None, progress=None, watched=False,
-                 next_episode=None):
+                 description=None, cover=None, duration=None, remaining=None, geoblocked=None, channel=None, legal=None,
+                 aired=None, progress=None, watched=False, next_episode=None):
         """
         :type episode_id: str
         :type program_id: str
@@ -629,8 +626,8 @@ class VtmGo:
             seasons[item_season.get('index')] = Season(
                 number=item_season.get('index'),
                 episodes=episodes,
-                cover=item_season.get('episodes', [{}])[0].get('bigPhotoUrl') if episodes else program.get(
-                    'bigPhotoUrl'),
+                cover=item_season.get('episodes', [{}])[0].get('bigPhotoUrl')
+                if episodes else program.get('bigPhotoUrl'),
                 geoblocked=program.get('geoBlocked'),
                 channel=channel,
                 legal=program.get('legalIcons'),
