@@ -91,7 +91,7 @@ class VtmGoAuth:
 
         # Make sure the path exists
         if not self._kodi.check_if_path_exists(userdata_path):
-            self._kodi.mkdir(userdata_path)
+            self._kodi.mkdirs(userdata_path)
 
         with self._kodi.open_file(path, 'w') as fdesc:
             fdesc.write(from_unicode(self._token))
