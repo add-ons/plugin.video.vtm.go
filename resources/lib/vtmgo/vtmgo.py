@@ -795,15 +795,15 @@ class VtmGo:
             # Retry the same request
             return self._request('PUT', url, params=params)
 
-    def _post_url(self, url, params=None, json=None):
+    def _post_url(self, url, params=None, data=None):
         """ Makes a POST request for the specified URL.
         :type url: str
         :type params: dict
-        :type json: dict
+        :type data: dict
         :rtype str
         """
         try:
-            return self._request('POST', url, params=params, json=json)
+            return self._request('POST', url, params=params, data=data)
         except InvalidLoginException:
             self._auth.clear_token()
             self._authenticate()
@@ -824,18 +824,18 @@ class VtmGo:
             # Retry the same request
             return self._request('DELETE', url, params=params)
 
-    def _request(self, method, url, params=None, json=None):
+    def _request(self, method, url, params=None, data=None):
         """ Makes a request for the specified URL.
         :type url: str
         :type params: dict
-        :type json: dict
+        :type data: dict
         :rtype str
         """
         _LOGGER.debug('Sending %s %s...', method, url)
         response = self._session.request(method,
                                          self.API_ENDPOINT + url,
                                          params=params,
-                                         json=json)
+                                         json=data)
 
         # Set encoding to UTF-8 if no charset is indicated in http headers (https://github.com/psf/requests/issues/1604)
         if not response.encoding:
