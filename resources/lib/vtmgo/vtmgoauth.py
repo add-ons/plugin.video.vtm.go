@@ -53,16 +53,17 @@ class VtmGoAuth:
     def clear_token(self):
         """ Remove the cached JWT. """
         _LOGGER.debug('Clearing token cache')
-        self._token = None
         path = os.path.join(self._kodi.get_userdata_path(), 'token.json')
         if self._kodi.check_if_path_exists(path):
             self._kodi.delete_file(path)
-        self._kodi.set_setting('profile', None)
+        self._token = None
 
     def get_token(self):
         """ Return a JWT that can be used to authenticate the user.
         :rtype str
         """
+        userdata_path = self._kodi.get_userdata_path()
+
         # Don't return a token when we have no password or username.
         if not self._kodi.get_setting('username') or not self._kodi.get_setting('password'):
             _LOGGER.debug('Skipping since we have no username or password')
@@ -74,7 +75,7 @@ class VtmGoAuth:
             return self._token
 
         # Try to load from cache
-        path = os.path.join(self._kodi.get_userdata_path(), 'token.json')
+        path = os.path.join(userdata_path, 'token.json')
         if self._kodi.check_if_path_exists(path):
             _LOGGER.debug('Returning token from cache')
 
@@ -88,6 +89,10 @@ class VtmGoAuth:
         self._token = self._login()
         _LOGGER.debug('Returning token from VTM GO')
 
+        # Make sure the path exists
+        if not self._kodi.check_if_path_exists(userdata_path):
+            self._kodi.mkdir(userdata_path)
+
         with self._kodi.open_file(path, 'w') as fdesc:
             fdesc.write(from_unicode(self._token))
 
@@ -98,7 +103,7 @@ class VtmGoAuth:
         profile = self._kodi.get_setting('profile')
         try:
             return profile.split(':')[0]
-        except IndexError:
+        except (IndexError, AttributeError):
             return None
 
     def _login(self):
