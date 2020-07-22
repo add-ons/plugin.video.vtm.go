@@ -1,5 +1,35 @@
 # Changelog
 
+## [v1.1.0](https://github.com/add-ons/plugin.video.vtm.go/tree/v1.1.0) (2020-07-22)
+
+[Full Changelog](https://github.com/add-ons/plugin.video.vtm.go/compare/v1.0.2...v1.1.0)
+
+**Implemented enhancements:**
+
+- Make authentication more robust [\#192](https://github.com/add-ons/plugin.video.vtm.go/pull/192) ([michaelarnauts](https://github.com/michaelarnauts))
+- Add Integrations menu to settings [\#188](https://github.com/add-ons/plugin.video.vtm.go/pull/188) ([michaelarnauts](https://github.com/michaelarnauts))
+- Pass genre to IPTV Manager [\#186](https://github.com/add-ons/plugin.video.vtm.go/pull/186) ([michaelarnauts](https://github.com/michaelarnauts))
+- Support new inputstream api in Kodi 19 [\#185](https://github.com/add-ons/plugin.video.vtm.go/pull/185) ([mediaminister](https://github.com/mediaminister))
+- Adds IPTV Manager support for Matrix [\#184](https://github.com/add-ons/plugin.video.vtm.go/pull/184) ([michaelarnauts](https://github.com/michaelarnauts))
+- Improve subtitle behaviour using PlayerMonitor [\#183](https://github.com/add-ons/plugin.video.vtm.go/pull/183) ([mediaminister](https://github.com/mediaminister))
+- Add support for playing from the Guide with IPTV Manager [\#181](https://github.com/add-ons/plugin.video.vtm.go/pull/181) ([michaelarnauts](https://github.com/michaelarnauts))
+- Show all channels that we get from VTM GO [\#179](https://github.com/add-ons/plugin.video.vtm.go/pull/179) ([michaelarnauts](https://github.com/michaelarnauts))
+- Remove 'Geen uitzending' from EPG [\#177](https://github.com/add-ons/plugin.video.vtm.go/pull/177) ([michaelarnauts](https://github.com/michaelarnauts))
+- Add channel presets for IPTV Manager [\#176](https://github.com/add-ons/plugin.video.vtm.go/pull/176) ([michaelarnauts](https://github.com/michaelarnauts))
+- Use python logging interface [\#175](https://github.com/add-ons/plugin.video.vtm.go/pull/175) ([michaelarnauts](https://github.com/michaelarnauts))
+- Add compatibility for Kodi 19 Python API [\#172](https://github.com/add-ons/plugin.video.vtm.go/pull/172) ([mediaminister](https://github.com/mediaminister))
+- Add support for IPTV Manager [\#171](https://github.com/add-ons/plugin.video.vtm.go/pull/171) ([michaelarnauts](https://github.com/michaelarnauts))
+
+**Fixed bugs:**
+
+- Fix data transfers over 1 MB to IPTV Manager [\#187](https://github.com/add-ons/plugin.video.vtm.go/pull/187) ([michaelarnauts](https://github.com/michaelarnauts))
+- Fix logging in BackgroundService [\#182](https://github.com/add-ons/plugin.video.vtm.go/pull/182) ([mediaminister](https://github.com/mediaminister))
+
+**Merged pull requests:**
+
+- Use sake for Kodi stubs [\#191](https://github.com/add-ons/plugin.video.vtm.go/pull/191) ([michaelarnauts](https://github.com/michaelarnauts))
+- Automated testing fixes [\#178](https://github.com/add-ons/plugin.video.vtm.go/pull/178) ([michaelarnauts](https://github.com/michaelarnauts))
+
 ## [v1.0.2](https://github.com/add-ons/plugin.video.vtm.go/tree/v1.0.2) (2020-05-02)
 
 [Full Changelog](https://github.com/add-ons/plugin.video.vtm.go/compare/v1.0.1...v1.0.2)
