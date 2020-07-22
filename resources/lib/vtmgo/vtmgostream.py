@@ -266,7 +266,7 @@ class VtmGoStream:
 
         import re
         if not self._kodi.check_if_path_exists(temp_dir):
-            self._kodi.mkdir(temp_dir)
+            self._kodi.mkdirs(temp_dir)
 
         ad_breaks = list()
         delayed_subtitles = list()

@@ -9,7 +9,9 @@
 Thumbs.db
 *~
 .cache
-
 .coverage
 .tox/
+
+# Testing
 tests/home/userdata/addon_data
+.env
