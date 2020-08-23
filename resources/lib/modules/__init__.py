@@ -40,6 +40,44 @@ CHANNELS = OrderedDict([
             ),
         ]
     )),
+    ('vtm2', dict(
+        label='VTM 2',
+        epg='vtm2',
+        iptv_preset=7,
+        iptv_id='vtm2.be',
+        studio_icon='VTM 2',
+        youtube=[
+            dict(
+                # VTM 2: https://www.youtube.com/user/2BEvideokanaal
+                label='VTM 2',
+                logo='vtm2',
+                path='plugin://plugin.video.youtube/user/2BEvideokanaal/',
+            ),
+        ]
+    )),
+    ('vtm3', dict(
+        label='VTM 3',
+        epg='vtm3',
+        iptv_preset=8,
+        iptv_id='vtm3.be',
+        studio_icon='VTM 3',
+        youtube=[
+            dict(
+                # VTM 3: https://www.youtube.com/user/VITAYAvideokanaal
+                label='VTM 3',
+                logo='vtm3',
+                path='plugin://plugin.video.youtube/user/VITAYAvideokanaal/',
+            ),
+        ]
+    )),
+    ('vtm4', dict(
+        label='VTM 4',
+        epg='vtm4',
+        iptv_preset=9,
+        iptv_id='vtm4.be',
+        stream='vtm4',
+        studio_icon='VTM 4',
+    )),
     ('vitaya', dict(
         label='Vitaya',
         epg='vitaya',
