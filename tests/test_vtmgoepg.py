@@ -45,7 +45,7 @@ class TestVtmGoEpg(unittest.TestCase):
         from datetime import date
 
         # Get list of EPG for today
-        epg = self._vtmgoepg.get_epg(channel='vitaya')
+        epg = self._vtmgoepg.get_epg(channel='vtm3')
         self.assertTrue(epg)
 
         epg = self._vtmgoepg.get_epg(channel='vtm', date=date.today().strftime('%Y-%m-%d'))
@@ -60,7 +60,7 @@ class TestVtmGoEpg(unittest.TestCase):
         self.assertTrue(epg_yesterday)
 
         # Get list of EPG for today
-        epg_today = self._vtmgoepg.get_epg(channel='caz', date='today')
+        epg_today = self._vtmgoepg.get_epg(channel='vtm4', date='today')
         self.assertTrue(epg_today)
 
         combined_broadcasts = epg_today.broadcasts + epg_tomorrow.broadcasts + epg_yesterday.broadcasts
