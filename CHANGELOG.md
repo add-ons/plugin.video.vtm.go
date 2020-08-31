@@ -1,5 +1,19 @@
 # Changelog
 
+## [v1.1.1](https://github.com/add-ons/plugin.video.vtm.go/tree/v1.1.1) (2020-08-31)
+
+[Full Changelog](https://github.com/add-ons/plugin.video.vtm.go/compare/v1.1.0...v1.1.1)
+
+**Implemented enhancements:**
+
+- Disable super-with-arguments pylint warnings [\#200](https://github.com/add-ons/plugin.video.vtm.go/pull/200) ([mediaminister](https://github.com/mediaminister))
+- VTM rebranding [\#198](https://github.com/add-ons/plugin.video.vtm.go/pull/198) ([mediaminister](https://github.com/mediaminister))
+
+**Fixed bugs:**
+
+- Debug [\#199](https://github.com/add-ons/plugin.video.vtm.go/pull/199) ([mediaminister](https://github.com/mediaminister))
+- Fix paths in Windows [\#197](https://github.com/add-ons/plugin.video.vtm.go/pull/197) ([mediaminister](https://github.com/mediaminister))
+
 ## [v1.1.0](https://github.com/add-ons/plugin.video.vtm.go/tree/v1.1.0) (2020-07-22)
 
 [Full Changelog](https://github.com/add-ons/plugin.video.vtm.go/compare/v1.0.2...v1.1.0)
@@ -166,12 +180,12 @@
 
 **Implemented enhancements:**
 
-- Implement TV Guide [\#63](https://github.com/add-ons/plugin.video.vtm.go/pull/63) ([michaelarnauts](https://github.com/michaelarnauts))
 - Add more metadata when playing a stream [\#82](https://github.com/add-ons/plugin.video.vtm.go/pull/82) ([michaelarnauts](https://github.com/michaelarnauts))
 - Allow direct playing from epg [\#74](https://github.com/add-ons/plugin.video.vtm.go/pull/74) ([michaelarnauts](https://github.com/michaelarnauts))
 - fix geoblocked videoplayer service api [\#71](https://github.com/add-ons/plugin.video.vtm.go/pull/71) ([mediaminister](https://github.com/mediaminister))
 - Various fixes [\#68](https://github.com/add-ons/plugin.video.vtm.go/pull/68) ([dagwieers](https://github.com/dagwieers))
 - Rework Kids zone [\#67](https://github.com/add-ons/plugin.video.vtm.go/pull/67) ([dagwieers](https://github.com/dagwieers))
+- Implement TV Guide [\#63](https://github.com/add-ons/plugin.video.vtm.go/pull/63) ([michaelarnauts](https://github.com/michaelarnauts))
 - Add support for breadcrumbs [\#61](https://github.com/add-ons/plugin.video.vtm.go/pull/61) ([dagwieers](https://github.com/dagwieers))
 - support unicode in python2 and python3 Kodi [\#60](https://github.com/add-ons/plugin.video.vtm.go/pull/60) ([mediaminister](https://github.com/mediaminister))
 - Add settings and features [\#59](https://github.com/add-ons/plugin.video.vtm.go/pull/59) ([dagwieers](https://github.com/dagwieers))
