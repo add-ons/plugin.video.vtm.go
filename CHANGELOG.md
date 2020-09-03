@@ -1,5 +1,13 @@
 # Changelog
 
+## [v1.1.2](https://github.com/add-ons/plugin.video.vtm.go/tree/v1.1.2) (2020-09-03)
+
+[Full Changelog](https://github.com/add-ons/plugin.video.vtm.go/compare/v1.1.1...v1.1.2)
+
+**Fixed bugs:**
+
+- Fix search [\#206](https://github.com/add-ons/plugin.video.vtm.go/pull/206) ([michaelarnauts](https://github.com/michaelarnauts))
+
 ## [v1.1.1](https://github.com/add-ons/plugin.video.vtm.go/tree/v1.1.1) (2020-08-31)
 
 [Full Changelog](https://github.com/add-ons/plugin.video.vtm.go/compare/v1.1.0...v1.1.1)
