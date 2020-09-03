@@ -340,33 +340,10 @@ class VtmGo:
             items = []
             for item in cat.get('teasers'):
                 if item.get('target', {}).get('type') == self.CONTENT_TYPE_MOVIE:
-                    movie = self.get_movie(item.get('target', {}).get('id'), cache=CACHE_ONLY)
-                    if movie:
-                        # We have a cover from the overview that we don't have in the details
-                        movie.cover = item.get('imageUrl')
-                        items.append(movie)
-                    else:
-                        items.append(Movie(
-                            movie_id=item.get('target', {}).get('id'),
-                            name=item.get('title'),
-                            cover=item.get('imageUrl'),
-                            image=item.get('imageUrl'),
-                            geoblocked=item.get('geoBlocked'),
-                        ))
+                    items.append(self._parse_movie_teaser(item))
+
                 elif item.get('target', {}).get('type') == self.CONTENT_TYPE_PROGRAM:
-                    program = self.get_program(item.get('target', {}).get('id'), cache=CACHE_ONLY)
-                    if program:
-                        # We have a cover from the overview that we don't have in the details
-                        program.cover = item.get('imageUrl')
-                        items.append(program)
-                    else:
-                        items.append(Program(
-                            program_id=item.get('target', {}).get('id'),
-                            name=item.get('title'),
-                            cover=item.get('imageUrl'),
-                            image=item.get('imageUrl'),
-                            geoblocked=item.get('geoBlocked'),
-                        ))
+                    items.append(self._parse_program_teaser(item))
 
             categories.append(Category(
                 category_id=cat.get('id'),
@@ -389,51 +366,13 @@ class VtmGo:
         items = []
         for item in result.get('teasers'):
             if item.get('target', {}).get('type') == self.CONTENT_TYPE_MOVIE:
-                movie = self.get_movie(item.get('target', {}).get('id'), cache=CACHE_ONLY)
-                if movie:
-                    # We have a cover from the overview that we don't have in the details
-                    movie.cover = item.get('imageUrl')
-                    items.append(movie)
-                else:
-                    items.append(Movie(
-                        movie_id=item.get('target', {}).get('id'),
-                        name=item.get('title'),
-                        geoblocked=item.get('geoBlocked'),
-                        cover=item.get('imageUrl'),
-                        image=item.get('imageUrl'),
-                    ))
+                items.append(self._parse_movie_teaser(item))
 
             elif item.get('target', {}).get('type') == self.CONTENT_TYPE_PROGRAM:
-                program = self.get_program(item.get('target', {}).get('id'), cache=CACHE_ONLY)
-                if program:
-                    # We have a cover from the overview that we don't have in the details
-                    program.cover = item.get('imageUrl')
-                    items.append(program)
-                else:
-                    items.append(Program(
-                        program_id=item.get('target', {}).get('id'),
-                        name=item.get('title'),
-                        geoblocked=item.get('geoBlocked'),
-                        cover=item.get('imageUrl'),
-                        image=item.get('imageUrl'),
-                    ))
+                items.append(self._parse_program_teaser(item))
 
             elif item.get('target', {}).get('type') == self.CONTENT_TYPE_EPISODE:
-                program = self.get_program(item.get('target', {}).get('programId'), cache=CACHE_ONLY)
-                episode = self.get_episode_from_program(program, item.get('target', {}).get('id')) if program else None
-
-                items.append(Episode(
-                    episode_id=item.get('target', {}).get('id'),
-                    program_id=item.get('target', {}).get('programId'),
-                    program_name=item.get('title'),
-                    name=item.get('label'),
-                    description=episode.description if episode else None,
-                    geoblocked=item.get('geoBlocked'),
-                    cover=item.get('imageUrl'),
-                    progress=item.get('playerPositionSeconds'),
-                    watched=False,
-                    remaining=item.get('remainingDaysAvailable'),
-                ))
+                items.append(self._parse_episode_teaser(item))
 
         return items
 
@@ -512,31 +451,10 @@ class VtmGo:
         items = []
         for item in content:
             if item.get('target', {}).get('type') == self.CONTENT_TYPE_MOVIE:
-                movie = self.get_movie(item.get('target', {}).get('id'), cache=CACHE_ONLY)
-                if movie:
-                    # We have a cover from the overview that we don't have in the details
-                    movie.cover = item.get('imageUrl')
-                    items.append(movie)
-                else:
-                    items.append(Movie(
-                        movie_id=item.get('target', {}).get('id'),
-                        name=item.get('title'),
-                        cover=item.get('imageUrl'),
-                        geoblocked=item.get('geoBlocked'),
-                    ))
+                items.append(self._parse_movie_teaser(item))
+
             elif item.get('target', {}).get('type') == self.CONTENT_TYPE_PROGRAM:
-                program = self.get_program(item.get('target', {}).get('id'), cache=CACHE_ONLY)
-                if program:
-                    # We have a cover from the overview that we don't have in the details
-                    program.cover = item.get('imageUrl')
-                    items.append(program)
-                else:
-                    items.append(Program(
-                        program_id=item.get('target', {}).get('id'),
-                        name=item.get('title'),
-                        cover=item.get('imageUrl'),
-                        geoblocked=item.get('geoBlocked'),
-                    ))
+                items.append(self._parse_program_teaser(item))
 
         return items
 
@@ -724,32 +642,10 @@ class VtmGo:
         for category in results.get('results', []):
             for item in category.get('teasers'):
                 if item.get('target', {}).get('type') == self.CONTENT_TYPE_MOVIE:
-                    movie = self.get_movie(item.get('target', {}).get('id'), cache=CACHE_ONLY)
-                    if movie:
-                        # We have a cover from the overview that we don't have in the details
-                        movie.cover = item.get('imageUrl')
-                        items.append(movie)
-                    else:
-                        items.append(Movie(
-                            movie_id=item.get('target', {}).get('id'),
-                            name=item.get('title'),
-                            cover=item.get('imageUrl'),
-                            geoblocked=item.get('geoBlocked'),
-                        ))
-                elif item.get('target', {}).get('type') == self.CONTENT_TYPE_PROGRAM:
-                    program = self.get_program(item.get('target', {}).get('id'), cache=CACHE_ONLY)
-                    if program:
-                        # We have a cover from the overview that we don't have in the details
-                        program.cover = item.get('imageUrl')
-                        items.append(program)
-                    else:
-                        items.append(Program(
-                            program_id=item.get('target', {}).get('id'),
-                            name=item.get('title'),
-                            cover=item.get('imageUrl'),
-                            geoblocked=item.get('geoBlocked'),
-                        ))
+                    items.append(self._parse_movie_teaser(item))
 
+                elif item.get('target', {}).get('type') == self.CONTENT_TYPE_PROGRAM:
+                    items.append(self._parse_program_teaser(item))
         return items
 
     def get_product(self):
@@ -759,6 +655,65 @@ class VtmGo:
             return profile.split(':')[1]
         except (IndexError, AttributeError):
             return None
+
+    def _parse_movie_teaser(self, item):
+        """ Parse the movie json and return an Movie instance.
+        :type item: dict
+        :rtype Movie
+        """
+        movie = self.get_movie(item.get('target', {}).get('id'), cache=CACHE_ONLY)
+        if movie:
+            # We have a cover from the overview that we don't have in the details
+            movie.cover = item.get('imageUrl')
+            return movie
+
+        return Movie(
+            movie_id=item.get('target', {}).get('id'),
+            name=item.get('title'),
+            cover=item.get('imageUrl'),
+            image=item.get('imageUrl'),
+            geoblocked=item.get('geoBlocked'),
+        )
+
+    def _parse_program_teaser(self, item):
+        """ Parse the program json and return an Program instance.
+        :type item: dict
+        :rtype Program
+        """
+        program = self.get_program(item.get('target', {}).get('id'), cache=CACHE_ONLY)
+        if program:
+            # We have a cover from the overview that we don't have in the details
+            program.cover = item.get('imageUrl')
+            return program
+
+        return Program(
+            program_id=item.get('target', {}).get('id'),
+            name=item.get('title'),
+            cover=item.get('imageUrl'),
+            image=item.get('imageUrl'),
+            geoblocked=item.get('geoBlocked'),
+        )
+
+    def _parse_episode_teaser(self, item):
+        """ Parse the episode json and return an Episode instance.
+        :type item: dict
+        :rtype Episode
+        """
+        program = self.get_program(item.get('target', {}).get('programId'), cache=CACHE_ONLY)
+        episode = self.get_episode_from_program(program, item.get('target', {}).get('id')) if program else None
+
+        return Episode(
+            episode_id=item.get('target', {}).get('id'),
+            program_id=item.get('target', {}).get('programId'),
+            program_name=item.get('title'),
+            name=item.get('label'),
+            description=episode.description if episode else None,
+            geoblocked=item.get('geoBlocked'),
+            cover=item.get('imageUrl'),
+            progress=item.get('playerPositionSeconds'),
+            watched=False,
+            remaining=item.get('remainingDaysAvailable'),
+        )
 
     @staticmethod
     def _parse_channel(url):
