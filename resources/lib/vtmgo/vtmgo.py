@@ -717,29 +717,38 @@ class VtmGo:
         :type search: str
         :rtype list[Union[Movie, Program]]
         """
-        response = self._get_url('/%s/autocomplete/?maxItems=%d&keywords=%s' % (self._mode(), 50, quote(search)))
+        response = self._get_url('/%s/search/?query=%s' % (self._mode(), quote(search)))
         results = json.loads(response)
 
         items = []
-        for item in results.get('suggestions', []):
-            if item.get('type') == self.CONTENT_TYPE_MOVIE:
-                movie = self.get_movie(item.get('id'), cache=CACHE_ONLY)
-                if movie:
-                    items.append(movie)
-                else:
-                    items.append(Movie(
-                        movie_id=item.get('id'),
-                        name=item.get('name'),
-                    ))
-            elif item.get('type') == self.CONTENT_TYPE_PROGRAM:
-                program = self.get_program(item.get('id'), cache=CACHE_ONLY)
-                if program:
-                    items.append(program)
-                else:
-                    items.append(Program(
-                        program_id=item.get('id'),
-                        name=item.get('name'),
-                    ))
+        for category in results.get('results', []):
+            for item in category.get('teasers'):
+                if item.get('target', {}).get('type') == self.CONTENT_TYPE_MOVIE:
+                    movie = self.get_movie(item.get('target', {}).get('id'), cache=CACHE_ONLY)
+                    if movie:
+                        # We have a cover from the overview that we don't have in the details
+                        movie.cover = item.get('imageUrl')
+                        items.append(movie)
+                    else:
+                        items.append(Movie(
+                            movie_id=item.get('target', {}).get('id'),
+                            name=item.get('title'),
+                            cover=item.get('imageUrl'),
+                            geoblocked=item.get('geoBlocked'),
+                        ))
+                elif item.get('target', {}).get('type') == self.CONTENT_TYPE_PROGRAM:
+                    program = self.get_program(item.get('target', {}).get('id'), cache=CACHE_ONLY)
+                    if program:
+                        # We have a cover from the overview that we don't have in the details
+                        program.cover = item.get('imageUrl')
+                        items.append(program)
+                    else:
+                        items.append(Program(
+                            program_id=item.get('target', {}).get('id'),
+                            name=item.get('title'),
+                            cover=item.get('imageUrl'),
+                            geoblocked=item.get('geoBlocked'),
+                        ))
 
         return items
 

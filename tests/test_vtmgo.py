@@ -93,6 +93,10 @@ class TestVtmGo(unittest.TestCase):
         mylist = self._vtmgo.get_swimlane('continue-watching')
         self.assertIsInstance(mylist, list)
 
+    def test_search(self):
+        results = self._vtmgo.do_search('telefacts')
+        self.assertIsInstance(results, list)
+
     def test_live(self):
         channel = self._vtmgo.get_live_channel('vtm')
         self.assertTrue(channel)
