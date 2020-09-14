@@ -7,6 +7,7 @@ import logging
 
 import xbmc
 import xbmcaddon
+from resources.lib.kodiwrapper import KodiWrapper
 
 ADDON = xbmcaddon.Addon()
 
@@ -18,6 +19,12 @@ class KodiLogHandler(logging.StreamHandler):
         logging.StreamHandler.__init__(self)
         formatter = logging.Formatter("[{}] [%(name)s] %(message)s".format(ADDON.getAddonInfo("id")))
         self.setFormatter(formatter)
+        self._kodi = KodiWrapper()
+        # xbmc.LOGNOTICE is deprecated in Kodi 19 Matrix
+        if self._kodi.kodi_version_major() > 18:
+            self.info_level = xbmc.LOGINFO
+        else:
+            self.info_level = xbmc.LOGNOTICE
 
     def emit(self, record):
         """ Emit a log message """
@@ -25,15 +32,15 @@ class KodiLogHandler(logging.StreamHandler):
             logging.CRITICAL: xbmc.LOGFATAL,
             logging.ERROR: xbmc.LOGERROR,
             logging.WARNING: xbmc.LOGWARNING,
-            logging.INFO: xbmc.LOGNOTICE,
+            logging.INFO: self.info_level,
             logging.DEBUG: xbmc.LOGDEBUG,
             logging.NOTSET: xbmc.LOGNONE,
         }
 
-        # Map DEBUG level to LOGNOTICE if debug logging setting has been activated
+        # Map DEBUG level to info_level if debug logging setting has been activated
         # This is for troubleshooting only
         if ADDON.getSetting('debug_logging') == 'true':
-            levels[logging.DEBUG] = xbmc.LOGNOTICE
+            levels[logging.DEBUG] = self.info_level
 
         try:
             xbmc.log(self.format(record), levels[record.levelno])
