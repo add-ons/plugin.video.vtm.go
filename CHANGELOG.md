@@ -1,5 +1,16 @@
 # Changelog
 
+## [v1.1.3](https://github.com/add-ons/plugin.video.vtm.go/tree/v1.1.3) (2020-10-02)
+
+[Full Changelog](https://github.com/add-ons/plugin.video.vtm.go/compare/v1.1.2...v1.1.3)
+
+**Fixed bugs:**
+
+- Fix authentication due to cookie changes [\#212](https://github.com/add-ons/plugin.video.vtm.go/pull/212) ([michaelarnauts](https://github.com/michaelarnauts))
+- Use a uuid as a cookie for the EPG [\#211](https://github.com/add-ons/plugin.video.vtm.go/pull/211) ([michaelarnauts](https://github.com/michaelarnauts))
+- Fix EPG [\#210](https://github.com/add-ons/plugin.video.vtm.go/pull/210) ([mediaminister](https://github.com/mediaminister))
+- Fix credentials and profile not properly saved [\#207](https://github.com/add-ons/plugin.video.vtm.go/pull/207) ([michaelarnauts](https://github.com/michaelarnauts))
+
 ## [v1.1.2](https://github.com/add-ons/plugin.video.vtm.go/tree/v1.1.2) (2020-09-03)
 
 [Full Changelog](https://github.com/add-ons/plugin.video.vtm.go/compare/v1.1.1...v1.1.2)
