@@ -91,8 +91,7 @@ class VtmGoEpg:
         self._kodi = kodi
 
         self._session = requests.session()
-        self._session.cookies.set('pws', 'functional|analytics|content_recommendation|targeted_advertising|social_media')
-        self._session.cookies.set('pwv', '1')
+        self._session.cookies.set('authId', '')
 
     def get_epg(self, channel, date=None):
         """ Load EPG information for the specified channel and date.
