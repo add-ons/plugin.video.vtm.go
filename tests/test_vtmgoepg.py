@@ -69,10 +69,10 @@ class TestVtmGoEpg(unittest.TestCase):
         if broadcast:
             plugin.run([routing.url_for(plugin.show_catalog_program, program=broadcast.program_uuid), '0', ''])
 
-        broadcast = next(b for b in combined_broadcasts if b.playable_type == 'movies')
-        if broadcast:
-            plugin.run(
-                [routing.url_for(plugin.play, category=broadcast.playable_type, item=broadcast.playable_uuid), '0', ''])
+        # broadcast = next(b for b in combined_broadcasts if b.playable_type == 'movies')
+        # if broadcast:
+        #     plugin.run(
+        #         [routing.url_for(plugin.play, category=broadcast.playable_type, item=broadcast.playable_uuid), '0', ''])
 
 
 if __name__ == '__main__':
