@@ -7,29 +7,27 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 
 import unittest
 
-from resources.lib.kodiwrapper import KodiWrapper
-from resources.lib.vtmgo import vtmgo, vtmgoauth
+from resources.lib import kodiutils
+from resources.lib.vtmgo import vtmgoauth
 
-kodi = KodiWrapper()
-
-
+@unittest.skipUnless(kodiutils.get_setting('username') and kodiutils.get_setting('password'), 'Skipping since we have no credentials.')
 class TestAuth(unittest.TestCase):
     """ Tests for VTM GO Auth """
 
-    def __init__(self, *args, **kwargs):
-        super(TestAuth, self).__init__(*args, **kwargs)
+    @classmethod
+    def setUpClass(cls):
+        cls._vtmgoauth = vtmgoauth.VtmGoAuth(kodiutils.get_setting('username'),
+                                             kodiutils.get_setting('password'),
+                                             'VTM',
+                                             kodiutils.get_setting('profile'),
+                                             kodiutils.get_tokens_path())
 
-        self._vtmgoauth = vtmgoauth.VtmGoAuth(kodi)
-        self._vtmgo = vtmgo.VtmGo(kodi)
-
-    @unittest.skipUnless(kodi.has_credentials(), 'Skipping since we have no credentials.')
     def test_login(self):
-        token = self._vtmgoauth.get_token()
+        token = self._vtmgoauth.login()
         self.assertTrue(token)
 
-    @unittest.skipUnless(kodi.has_credentials(), 'Skipping since we have no credentials.')
     def test_get_profiles(self):
-        profiles = self._vtmgo.get_profiles()
+        profiles = self._vtmgoauth.get_profiles()
         self.assertTrue(profiles)
 
 

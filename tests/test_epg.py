@@ -9,12 +9,11 @@ import unittest
 
 import xbmc
 
-from resources.lib import plugin
-from resources.lib.kodiwrapper import KodiWrapper
+from resources.lib import kodiutils
+from resources.lib import addon
 from resources.lib.vtmgo import vtmgoepg
 
-kodi = KodiWrapper()
-routing = plugin.routing
+routing = addon.routing
 
 
 class TestEpg(unittest.TestCase):
@@ -23,7 +22,7 @@ class TestEpg(unittest.TestCase):
     def __init__(self, *args, **kwargs):
         super(TestEpg, self).__init__(*args, **kwargs)
 
-        self._vtmgoepg = vtmgoepg.VtmGoEpg(kodi)
+        self._vtmgoepg = vtmgoepg.VtmGoEpg()
 
     def setUp(self):
         # Don't warn that we don't close our HTTPS connections, this is on purpose.
@@ -41,6 +40,7 @@ class TestEpg(unittest.TestCase):
         broadcast = self._vtmgoepg.get_broadcast('vtm', timestamp.isoformat())
         self.assertTrue(broadcast)
 
+    @unittest.skipUnless(kodiutils.get_setting('username') and kodiutils.get_setting('password'), 'Skipping since we have no credentials.')
     def test_get_epg(self):
         from datetime import date
 
@@ -67,12 +67,12 @@ class TestEpg(unittest.TestCase):
 
         broadcast = next(b for b in combined_broadcasts if b.playable_type == 'episodes')
         if broadcast:
-            plugin.run([routing.url_for(plugin.show_catalog_program, program=broadcast.program_uuid), '0', ''])
+            addon.run([routing.url_for(addon.show_catalog_program, program=broadcast.program_uuid), '0', ''])
 
         # broadcast = next(b for b in combined_broadcasts if b.playable_type == 'movies')
         # if broadcast:
-        #     plugin.run(
-        #         [routing.url_for(plugin.play, category=broadcast.playable_type, item=broadcast.playable_uuid), '0', ''])
+        #     addon.run(
+        #         [routing.url_for(addon.play, category=broadcast.playable_type, item=broadcast.playable_uuid), '0', ''])
 
 
 if __name__ == '__main__':

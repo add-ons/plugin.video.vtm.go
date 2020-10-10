@@ -1,6 +1,5 @@
 export KODI_HOME := $(CURDIR)/tests/home
 export KODI_INTERACTIVE := 0
-export KODI_STUB_RPC_RESPONSES := $(CURDIR)/tests/rpc
 PYTHON := python
 
 # Collect information to build as sensible package name
@@ -9,13 +8,11 @@ version = $(shell xmllint --xpath 'string(/addon/@version)' addon.xml)
 git_branch = $(shell git rev-parse --abbrev-ref HEAD)
 git_hash = $(shell git rev-parse --short HEAD)
 zip_name = $(name)-$(version)-$(git_branch)-$(git_hash).zip
-include_files = addon.xml CHANGELOG.md LICENSE plugin.py README.md resources/ service.py
+include_files = addon_entry.py addon.xml CHANGELOG.md LICENSE README.md resources/ service_entry.py
 include_paths = $(patsubst %,$(name)/%,$(include_files))
 exclude_files = \*.new \*.orig \*.pyc \*.pyo
 
 languages = $(filter-out en_gb, $(patsubst resources/language/resource.language.%, %, $(wildcard resources/language/*)))
-
-.PHONY: check test
 
 all: check test build
 zip: build
@@ -47,11 +44,10 @@ test: test-unit
 
 test-unit:
 	@echo ">>> Running unit tests"
-	@$(PYTHON) -m unittest discover -v -b -f
+	@$(PYTHON) -m pytest tests
 
 clean:
-	@find . -name '*.pyc' -type f -delete
-	@find . -name '*.pyo' -type f -delete
+	@find . -name '*.py[cod]' -type f -delete
 	@find . -name '__pycache__' -type d -delete
 	@rm -rf .pytest_cache/ .tox/ tests/cdm tests/userdata/temp
 	@rm -f *.log .coverage
@@ -65,4 +61,3 @@ build: clean
 release: build
 	rm -rf ../repo-plugins/$(name)/*
 	unzip ../$(zip_name) -d ../repo-plugins/
-	rm ../repo-plugins/$(name)/CHANGELOG.md  # Kodi doesn't like our CHANGELOG.md file :(

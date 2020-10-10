@@ -9,25 +9,27 @@ import unittest
 
 import xbmc
 
-from resources.lib.kodiwrapper import KodiWrapper
+from resources.lib import kodiutils
 from resources.lib.modules.player import Player
 from resources.lib.vtmgo import vtmgo, vtmgostream, vtmgoauth
-from resources.lib.vtmgo.vtmgo import Movie, Program
+from resources.lib.vtmgo import Movie, Program
 from resources.lib.vtmgo.vtmgostream import StreamGeoblockedException
 
-kodi = KodiWrapper()
 
-
+@unittest.skipUnless(kodiutils.get_setting('username') and kodiutils.get_setting('password'), 'Skipping since we have no credentials.')
 class TestApi(unittest.TestCase):
     """ Tests for VTM GO API """
 
-    def __init__(self, *args, **kwargs):
-        super(TestApi, self).__init__(*args, **kwargs)
-
-        self._vtmgoauth = vtmgoauth.VtmGoAuth(kodi)
-        self._vtmgo = vtmgo.VtmGo(kodi)
-        self._vtmgostream = vtmgostream.VtmGoStream(kodi)
-        self._player = Player(kodi)
+    @classmethod
+    def setUpClass(cls):
+        cls._vtmgoauth = vtmgoauth.VtmGoAuth(kodiutils.get_setting('username'),
+                                             kodiutils.get_setting('password'),
+                                             'VTM',
+                                             kodiutils.get_setting('profile'),
+                                             kodiutils.get_tokens_path())
+        cls._vtmgo = vtmgo.VtmGo(cls._vtmgoauth)
+        cls._vtmgostream = vtmgostream.VtmGoStream()
+        cls._player = Player()
 
     def tearDown(self):
         xbmc.Player().stop()
