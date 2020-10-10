@@ -1,5 +1,13 @@
 # Changelog
 
+## [v1.1.4](https://github.com/add-ons/plugin.video.vtm.go/tree/v1.1.4) (2020-10-10)
+
+[Full Changelog](https://github.com/add-ons/plugin.video.vtm.go/compare/v1.1.3...v1.1.4)
+
+**Fixed bugs:**
+
+- Fix authentication [\#216](https://github.com/add-ons/plugin.video.vtm.go/pull/216) ([michaelarnauts](https://github.com/michaelarnauts))
+
 ## [v1.1.3](https://github.com/add-ons/plugin.video.vtm.go/tree/v1.1.3) (2020-10-02)
 
 [Full Changelog](https://github.com/add-ons/plugin.video.vtm.go/compare/v1.1.2...v1.1.3)
