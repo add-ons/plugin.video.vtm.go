@@ -18,38 +18,23 @@ from resources.lib.vtmgo.vtmgostream import StreamGeoblockedException
 kodi = KodiWrapper()
 
 
-class TestVtmGo(unittest.TestCase):
+class TestApi(unittest.TestCase):
     """ Tests for VTM GO API """
 
     def __init__(self, *args, **kwargs):
-        super(TestVtmGo, self).__init__(*args, **kwargs)
+        super(TestApi, self).__init__(*args, **kwargs)
 
         self._vtmgoauth = vtmgoauth.VtmGoAuth(kodi)
         self._vtmgo = vtmgo.VtmGo(kodi)
         self._vtmgostream = vtmgostream.VtmGoStream(kodi)
         self._player = Player(kodi)
 
-    def setUp(self):
-        # Don't warn that we don't close our HTTPS connections, this is on purpose.
-        # warnings.simplefilter("ignore", ResourceWarning)
-        pass
-
     def tearDown(self):
         xbmc.Player().stop()
-
-    @unittest.skipUnless(kodi.has_credentials(), 'Skipping since we have no credentials.')
-    def test_login(self):
-        token = self._vtmgoauth.get_token()
-        self.assertTrue(token)
 
     def test_get_config(self):
         config = self._vtmgo.get_config()
         self.assertTrue(config)
-
-    @unittest.skipUnless(kodi.has_credentials(), 'Skipping since we have no credentials.')
-    def test_get_profiles(self):
-        profiles = self._vtmgo.get_profiles()
-        self.assertTrue(profiles)
 
     def test_catalog(self):
         categories = self._vtmgo.get_categories()
