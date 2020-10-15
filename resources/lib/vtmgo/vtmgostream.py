@@ -251,8 +251,8 @@ class VtmGoStream:
         _, files = kodiutils.listdir(temp_dir)
         if files:
             for item in files:
-                if item.endswith('.vtt'):
-                    kodiutils.delete(temp_dir + item)
+                if kodiutils.to_unicode(item).endswith('.vtt'):
+                    kodiutils.delete(temp_dir + kodiutils.to_unicode(item))
 
         # Return if there are no subtitles available
         if not subtitles:
