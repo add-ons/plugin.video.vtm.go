@@ -40,8 +40,12 @@ jobs:
         run: make check-translations
       - name: Run unit tests
         run: coverage run -m unittest discover
-      - name: Run addon service
-        run: timeout --preserve-status -s SIGINT 10 coverage run -a service.py
+#      - name: Run addon service
+#        run: timeout --preserve-status -s SIGINT 10 coverage run -a service_entry.py
+#        env:
+#          ADDON_PASSWORD: ${{ secrets.ADDON_PASSWORD }}
+#          ADDON_USERNAME: ${{ secrets.ADDON_USERNAME }}
+#          ADDON_PROFILE: ${{ secrets.ADDON_PROFILE }}
       - name: Upload code coverage to CodeCov
         uses: codecov/codecov-action@v1
         continue-on-error: true

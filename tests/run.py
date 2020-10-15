@@ -1,22 +1,22 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-# Copyright: (c) 2019, Dag Wieers (@dagwieers) <dag@wieers.com>
-# GNU General Public License v3.0 (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
-""" Run any Kodi VTM GO plugin:// URL on the commandline """
+""" Run any Kodi plugin:// URL on the commandline """
 
 # pylint: disable=invalid-name
 
 from __future__ import absolute_import, division, print_function, unicode_literals
+
 import os
 import sys
 
 # Add current working directory to import paths
 cwd = os.path.abspath(os.path.join(os.path.dirname(os.path.realpath(os.path.realpath(__file__))), os.pardir))
 sys.path.insert(0, cwd)
-from resources.lib import plugin  # noqa: E402  pylint: disable=wrong-import-position
+from resources.lib import addon  # noqa: E402  pylint: disable=wrong-import-position
 
 if len(sys.argv) <= 1:
-    print("%s: URI argument missing\nTry '%s plugin://plugin.video.vtm.go/' to test." % (sys.argv[0], sys.argv[0]))
+    print(
+        "%s: URI argument missing\nTry '%s plugin://plugin.video.vtm.go/' to test." % (sys.argv[0], sys.argv[0]))
     sys.exit(1)
 
 # Also support bare paths like /recent/2
@@ -30,5 +30,5 @@ except ValueError:
     path, args = sys.argv[1], ''
 
 print('** Running URI %s with args %s' % (path, args))
-plugin = plugin.routing
+plugin = addon.routing
 plugin.run([path, 0, args])

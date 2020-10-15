@@ -6,13 +6,14 @@
         <import addon="script.module.pysocks" version="1.6.8" optional="true"/>
         <import addon="script.module.requests" version="2.22.0"/>
         <import addon="script.module.routing" version="0.2.0"/>
+        <import addon="script.module.pyjwt" version="1.6.4"/>
         <import addon="script.module.inputstreamhelper" version="0.3.4"/>
         <import addon="inputstream.adaptive" version="2.4.3"/>
     </requires>
-    <extension point="xbmc.python.pluginsource" library="plugin.py">
+    <extension point="xbmc.python.pluginsource" library="addon_entry.py">
         <provides>video</provides>
     </extension>
-    <extension point="xbmc.service" library="service.py"/>
+    <extension point="xbmc.service" library="service_entry.py"/>
     <extension point="xbmc.addon.metadata">
         <summary lang="en_GB">Access the VTM GO library</summary>
         <description lang="en_GB">This add-on gives access to all live tv channels and all video-on-demand content available on the VTM GO platform.</description>
