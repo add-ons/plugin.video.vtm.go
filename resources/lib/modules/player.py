@@ -6,9 +6,10 @@ from __future__ import absolute_import, division, unicode_literals
 import logging
 
 from resources.lib import kodiutils
+from resources.lib.kodiplayer import KodiPlayer
 from resources.lib.vtmgo.vtmgo import VtmGo, UnavailableException
-from resources.lib.vtmgo.vtmgostream import VtmGoStream, StreamGeoblockedException, StreamUnavailableException
 from resources.lib.vtmgo.vtmgoauth import VtmGoAuth
+from resources.lib.vtmgo.vtmgostream import VtmGoStream, StreamGeoblockedException, StreamUnavailableException
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -144,7 +145,7 @@ class Player:
         kodiutils.play(resolved_stream.url, license_key, resolved_stream.title, {}, info_dict, prop_dict, stream_dict)
 
         # Wait for playback to start
-        kodi_player = kodiutils.KodiPlayer()
+        kodi_player = KodiPlayer()
         if not kodi_player.waitForPlayBack(url=resolved_stream.url):
             # Playback didn't start
             return
