@@ -181,7 +181,7 @@ class PlayerMonitor(Player):
         if kodiutils.exists(temp_path):
             _, files = kodiutils.listdir(temp_path)
         if files and len(files) == 1:
-            return temp_path + files[0]
+            return temp_path + kodiutils.to_unicode(files[0])
         _LOGGER.debug('Player: No subtitle path')
         return None
 

@@ -684,7 +684,7 @@ def invalidate_cache(ttl=None):
     import time
     now = time.mktime(time.localtime())
     for filename in files:
-        filepath = os.path.join(fullpath, filename)
+        filepath = os.path.join(fullpath, to_unicode(filename))
         if ttl and now - xbmcvfs.Stat(filepath).st_mtime() < ttl:
             continue
         xbmcvfs.delete(filepath)
