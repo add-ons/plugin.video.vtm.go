@@ -75,6 +75,7 @@ class TestRouting(unittest.TestCase):
     def test_search_menu(self):
         addon.run([routing.url_for(addon.show_search), '0', ''])
         addon.run([routing.url_for(addon.show_search, query='nieuws'), '0', ''])
+        addon.run([routing.url_for(addon.show_search, query='Loïc'), '0', ''])
 
     def test_tvguide_menu(self):
         addon.run([routing.url_for(addon.show_tvguide_channel, channel='vtm'), '0', ''])
