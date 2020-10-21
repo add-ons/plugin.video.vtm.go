@@ -4,9 +4,22 @@
 
 [Full Changelog](https://github.com/add-ons/plugin.video.vtm.go/compare/v1.1.4...v1.1.5)
 
+**Implemented enhancements:**
+
+- Move to kodiutils [\#214](https://github.com/add-ons/plugin.video.vtm.go/pull/214) ([mediaminister](https://github.com/mediaminister))
+
 **Fixed bugs:**
 
-- Fix authentication [\#224](https://github.com/add-ons/plugin.video.vtm.go/pull/224) ([mediaminister](https://github.com/mediaminister))
+- Fix My List [\#227](https://github.com/add-ons/plugin.video.vtm.go/pull/227) ([michaelarnauts](https://github.com/michaelarnauts))
+- Ensure listdir items are unicode [\#222](https://github.com/add-ons/plugin.video.vtm.go/pull/222) ([dagwieers](https://github.com/dagwieers))
+
+**Merged pull requests:**
+
+- Use previous sakee version [\#226](https://github.com/add-ons/plugin.video.vtm.go/pull/226) ([mediaminister](https://github.com/mediaminister))
+- Prepare for v1.1.5 [\#225](https://github.com/add-ons/plugin.video.vtm.go/pull/225) ([mediaminister](https://github.com/mediaminister))
+- Fix VTM GO authentication [\#224](https://github.com/add-ons/plugin.video.vtm.go/pull/224) ([mediaminister](https://github.com/mediaminister))
+- Fix for upcoming UpNext release [\#220](https://github.com/add-ons/plugin.video.vtm.go/pull/220) ([michaelarnauts](https://github.com/michaelarnauts))
+- Run some checks every 4 hours [\#219](https://github.com/add-ons/plugin.video.vtm.go/pull/219) ([michaelarnauts](https://github.com/michaelarnauts))
 
 ## [v1.1.4](https://github.com/add-ons/plugin.video.vtm.go/tree/v1.1.4) (2020-10-10)
 
