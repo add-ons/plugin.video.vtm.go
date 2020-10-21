@@ -107,11 +107,15 @@ class VtmGo:
 
     def add_mylist(self, video_type, content_id):
         """ Add an item to My List """
-        util.http_put('/%s/userData/myList/%s/%s' % (self._mode(), video_type, content_id))
+        util.http_put(API_ENDPOINT + '/%s/userData/myList/%s/%s' % (self._mode(), video_type, content_id),
+                      token=self._tokens.jwt_token,
+                      profile=self._tokens.profile)
 
     def del_mylist(self, video_type, content_id):
         """ Delete an item from My List """
-        util.http_delete('/%s/userData/myList/%s/%s' % (self._mode(), video_type, content_id))
+        util.http_delete(API_ENDPOINT + '/%s/userData/myList/%s/%s' % (self._mode(), video_type, content_id),
+                         token=self._tokens.jwt_token,
+                         profile=self._tokens.profile)
 
     def get_live_channels(self):
         """ Get a list of all the live tv channels.
