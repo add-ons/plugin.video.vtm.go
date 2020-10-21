@@ -7,9 +7,6 @@ jobs:
     name: Checks
     runs-on: ubuntu-latest
     env:
-      ADDON_USERNAME: ${{ secrets.ADDON_USERNAME }}
-      ADDON_PASSWORD: ${{ secrets.ADDON_PASSWORD }}
-      ADDON_PROFILE: ${{ secrets.ADDON_PROFILE }}
       PYTHONIOENCODING: utf-8
       PYTHONPATH: ${{ github.workspace }}/resources/lib:${{ github.workspace }}/tests
       KODI_HOME: ${{ github.workspace }}/tests/home
@@ -27,6 +24,10 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
       - name: TEST Authentication
+        env:
+          ADDON_USERNAME: ${{ secrets.ADDON_USERNAME }}
+          ADDON_PASSWORD: ${{ secrets.ADDON_PASSWORD }}
+          ADDON_PROFILE: ${{ secrets.ADDON_PROFILE }}
         run: python -m unittest -v test_auth
       - name: TEST TV guide
         run: python -m unittest -v test_epg.TestEpg.test_get_epg
