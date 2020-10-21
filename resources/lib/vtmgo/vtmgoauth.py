@@ -156,7 +156,7 @@ class VtmGoAuth:
         response.raise_for_status()
 
         # Send login credentials
-        response = util.http_post('https://login2.vtm.be/login/emailfirst/password?client_id=vtm-go-web', form={
+        response = util.http_post('https://login2.vtm.be/login?client_id=vtm-go-web', form={
             'userName': kodiutils.get_setting('username'),
             'password': kodiutils.get_setting('password'),
             'jsEnabled': 'true',
