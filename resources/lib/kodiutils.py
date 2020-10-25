@@ -112,7 +112,11 @@ def addon_path():
 
 def addon_profile():
     """Cache and return add-on profile"""
-    return to_unicode(xbmc.translatePath(ADDON.getAddonInfo('profile')))
+    if kodi_version_major() >= 19:
+        translate_path = xbmcvfs.translatePath
+    else:
+        translate_path = xbmc.translatePath
+    return to_unicode(translate_path(ADDON.getAddonInfo('profile')))
 
 
 def url_for(name, *args, **kwargs):
@@ -312,7 +316,7 @@ def set_locale():
     """Load the proper locale for date strings, only once"""
     if hasattr(set_locale, 'cached'):
         return getattr(set_locale, 'cached')
-    from locale import Error, LC_ALL, setlocale
+    from locale import LC_ALL, Error, setlocale
     locale_lang = get_global_setting('locale.language').split('.')[-1]
     locale_lang = locale_lang[:-2] + locale_lang[-2:].upper()
     # NOTE: setlocale() only works if the platform supports the Kodi configured locale
@@ -645,9 +649,10 @@ def get_cache(key, ttl=None):
 
     fdesc = xbmcvfs.File(fullpath, 'r')
 
+    import json
     try:
-        import json
         value = json.load(fdesc)
+        fdesc.close()
         _LOGGER.debug('Fetching %s from cache', fullpath)
         return value
     except (ValueError, TypeError):
@@ -670,7 +675,7 @@ def set_cache(key, data):
     _LOGGER.debug('Storing to cache as %s', fullpath)
     json.dump(data, fdesc)
 
-    # fdesc.close()
+    fdesc.close()
 
 
 def invalidate_cache(ttl=None):

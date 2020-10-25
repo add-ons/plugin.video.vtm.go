@@ -9,8 +9,8 @@ import unittest
 
 import xbmc
 
-from resources.lib import kodiutils
 from resources.lib import addon
+from resources.lib import kodiutils
 from resources.lib.vtmgo import vtmgoepg
 
 routing = addon.routing
@@ -19,15 +19,9 @@ routing = addon.routing
 class TestEpg(unittest.TestCase):
     """ Tests for VTM GO EPG API """
 
-    def __init__(self, *args, **kwargs):
-        super(TestEpg, self).__init__(*args, **kwargs)
-
-        self._vtmgoepg = vtmgoepg.VtmGoEpg()
-
-    def setUp(self):
-        # Don't warn that we don't close our HTTPS connections, this is on purpose.
-        # warnings.simplefilter("ignore", ResourceWarning)
-        pass
+    @classmethod
+    def setUpClass(cls):
+        cls._vtmgoepg = vtmgoepg.VtmGoEpg()
 
     def tearDown(self):
         xbmc.Player().stop()
@@ -63,11 +57,11 @@ class TestEpg(unittest.TestCase):
         epg_today = self._vtmgoepg.get_epg(channel='vtm4', date='today')
         self.assertTrue(epg_today)
 
-        combined_broadcasts = epg_today.broadcasts + epg_tomorrow.broadcasts + epg_yesterday.broadcasts
+        # combined_broadcasts = epg_today.broadcasts + epg_tomorrow.broadcasts + epg_yesterday.broadcasts
 
-        broadcast = next(b for b in combined_broadcasts if b.playable_type == 'episodes')
-        if broadcast:
-            addon.run([routing.url_for(addon.show_catalog_program, program=broadcast.program_uuid), '0', ''])
+        # broadcast = next(b for b in combined_broadcasts if b.playable_type == 'episodes')
+        # if broadcast:
+        #     addon.run([routing.url_for(addon.show_catalog_program, program=broadcast.program_uuid), '0', ''])
 
         # broadcast = next(b for b in combined_broadcasts if b.playable_type == 'movies')
         # if broadcast:

@@ -8,7 +8,9 @@ import logging
 import requests
 from requests import HTTPError
 
-from resources.lib.vtmgo.exceptions import InvalidTokenException, InvalidLoginException
+from resources.lib.vtmgo.exceptions import (InvalidLoginException,
+                                            InvalidTokenException,
+                                            UnavailableException)
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -41,6 +43,8 @@ def http_get(url, params=None, token=None, profile=None, headers=None, proxies=N
             raise InvalidTokenException
         if ex.response.status_code == 403:
             raise InvalidLoginException
+        if ex.response.status_code == 404:
+            raise UnavailableException
         raise
 
 
@@ -146,7 +150,8 @@ def _request(method, url, params=None, form=None, data=None, token=None, profile
     if not response.encoding:
         response.encoding = 'utf-8'
 
-    _LOGGER.debug('Got response (status=%s): %s', response.status_code, response.text)
+    # Log only the first 1KB of the response
+    _LOGGER.debug('Got response (status=%s): %s', response.status_code, response.text[:1024])
 
     # Raise a generic HTTPError exception when we got an non-okay status code.
     response.raise_for_status()

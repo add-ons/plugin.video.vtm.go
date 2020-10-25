@@ -7,8 +7,10 @@ import json
 import logging
 
 from resources.lib import kodiutils
-from resources.lib.vtmgo import (API_ENDPOINT, Category, Movie, Program, Episode, Season, LiveChannelEpg, LiveChannel,
-                                 CONTENT_TYPE_MOVIE, CONTENT_TYPE_PROGRAM, CONTENT_TYPE_EPISODE, util)
+from resources.lib.vtmgo import (API_ENDPOINT, CONTENT_TYPE_EPISODE,
+                                 CONTENT_TYPE_MOVIE, CONTENT_TYPE_PROGRAM,
+                                 Category, Episode, LiveChannel,
+                                 LiveChannelEpg, Movie, Program, Season, util)
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -20,10 +22,6 @@ except ImportError:  # Python 2
 CACHE_AUTO = 1  # Allow to use the cache, and query the API if no cache is available
 CACHE_ONLY = 2  # Only use the cache, don't use the API
 CACHE_PREVENT = 3  # Don't use the cache
-
-
-class UnavailableException(Exception):
-    """ Is thrown when an item is unavailable. """
 
 
 class ApiUpdateRequired(Exception):
@@ -476,5 +474,6 @@ class VtmGo:
             return None
 
         import os.path
+
         # The channels id's we use in resources.lib.modules.CHANNELS neatly matches this part in the url.
         return str(os.path.basename(url).split('-')[0])

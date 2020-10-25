@@ -7,12 +7,14 @@ import json
 import logging
 import os
 import re
-from uuid import uuid4
 from hashlib import md5
+from uuid import uuid4
 
 from resources.lib import kodiutils
 from resources.lib.vtmgo import API_ENDPOINT, Profile, util
-from resources.lib.vtmgo.exceptions import InvalidLoginException, LoginErrorException, NoLoginException
+from resources.lib.vtmgo.exceptions import (InvalidLoginException,
+                                            LoginErrorException,
+                                            NoLoginException)
 
 try:  # Python 3
     import jwt
