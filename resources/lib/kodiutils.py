@@ -540,6 +540,11 @@ def get_addon_info(key):
     return to_unicode(ADDON.getAddonInfo(key))
 
 
+def execute_builtin(function):
+    """ Execute a Kodi Builtin """
+    xbmc.executebuiltin(function)
+
+
 def container_refresh(url=None):
     """Refresh the current container or (re)load a container by URL"""
     if url:

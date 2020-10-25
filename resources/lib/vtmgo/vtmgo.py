@@ -7,9 +7,7 @@ import json
 import logging
 
 from resources.lib import kodiutils
-from resources.lib.vtmgo import (API_ENDPOINT, CONTENT_TYPE_EPISODE,
-                                 CONTENT_TYPE_MOVIE, CONTENT_TYPE_PROGRAM,
-                                 Category, Episode, LiveChannel,
+from resources.lib.vtmgo import (API_ENDPOINT, Category, Episode, LiveChannel,
                                  LiveChannelEpg, Movie, Program, Season, util)
 
 _LOGGER = logging.getLogger(__name__)
@@ -22,6 +20,10 @@ except ImportError:  # Python 2
 CACHE_AUTO = 1  # Allow to use the cache, and query the API if no cache is available
 CACHE_ONLY = 2  # Only use the cache, don't use the API
 CACHE_PREVENT = 3  # Don't use the cache
+
+CONTENT_TYPE_MOVIE = 'MOVIE'
+CONTENT_TYPE_PROGRAM = 'PROGRAM'
+CONTENT_TYPE_EPISODE = 'EPISODE'
 
 
 class ApiUpdateRequired(Exception):
@@ -49,9 +51,13 @@ class VtmGo:
         # This contains a player.updateIntervalSeconds that could be used to notify VTM GO about the playing progress
         return info
 
-    def get_recommendations(self):
-        """ Returns the config for the dashboard """
-        response = util.http_get(API_ENDPOINT + '/%s/main' % self._mode(),
+    def get_recommendations(self, storefront):
+        """ Returns the config for the dashboard.
+
+         :param str storefront:         The ID of the listing.
+         :rtype: list[Category]
+         """
+        response = util.http_get(API_ENDPOINT + '/%s/storefronts/%s' % (self._mode(), storefront),
                                  token=self._tokens.jwt_token,
                                  profile=self._tokens.profile)
         recommendations = json.loads(response.text)

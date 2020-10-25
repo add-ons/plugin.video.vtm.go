@@ -13,7 +13,6 @@
     </category>
     <category label="30820"> <!-- Interface -->
         <setting label="30821" type="lsep"/> <!-- Features -->
-        <setting label="30822" type="bool" id="interface_show_recommendations" default="true"/>
         <setting label="30823" type="bool" id="interface_show_mylist" default="true"/>
         <setting label="30826" type="bool" id="interface_show_continuewatching" default="false" visible="false"/>
         <setting label="30827" type="lsep"/> <!-- Metadata -->

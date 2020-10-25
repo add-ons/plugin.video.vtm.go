@@ -11,8 +11,8 @@ import xbmc
 
 from resources.lib import kodiutils
 from resources.lib.modules.player import Player
-from resources.lib.vtmgo import vtmgo, vtmgostream, vtmgoauth
 from resources.lib.vtmgo import Movie, Program
+from resources.lib.vtmgo import vtmgo, vtmgostream, vtmgoauth, STOREFRONT_MAIN, STOREFRONT_MOVIES, STOREFRONT_SERIES
 from resources.lib.vtmgo.vtmgostream import StreamGeoblockedException
 
 
@@ -69,8 +69,14 @@ class TestApi(unittest.TestCase):
             pass
 
     def test_recommendations(self):
-        recommendations = self._vtmgo.get_recommendations()
-        self.assertTrue(recommendations)
+        main_recommendations = self._vtmgo.get_recommendations(STOREFRONT_MAIN)
+        self.assertIsInstance(main_recommendations, list)
+
+        movie_recommendations = self._vtmgo.get_recommendations(STOREFRONT_MOVIES)
+        self.assertIsInstance(movie_recommendations, list)
+
+        serie_recommendations = self._vtmgo.get_recommendations(STOREFRONT_SERIES)
+        self.assertIsInstance(serie_recommendations, list)
 
     def test_mylist(self):
         mylist = self._vtmgo.get_swimlane('my-list')

@@ -27,7 +27,6 @@ _LOGGER = logging.getLogger(__name__)
 
 class AccountStorage:
     """ Data storage for account info """
-    login_token = ''
     jwt_token = ''
     profile = ''
     product = ''

@@ -11,6 +11,7 @@ import xbmc
 
 from resources.lib import kodiutils
 from resources.lib import addon
+from resources.lib.vtmgo import STOREFRONT_MAIN
 
 routing = addon.routing
 
@@ -60,8 +61,7 @@ class TestRouting(unittest.TestCase):
 
     @unittest.skipUnless(kodiutils.get_setting('username') and kodiutils.get_setting('password'), 'Skipping since we have no credentials.')
     def test_catalog_recommendations_menu(self):
-        addon.run([routing.url_for(addon.show_recommendations), '0', ''])
-        addon.run([routing.url_for(addon.show_recommendations_category, category='775de6ef-003d-4571-8a6e-8433be0ef379'), '0', ''])
+        addon.run([routing.url_for(addon.show_recommendations, storefront=STOREFRONT_MAIN), '0', ''])
 
     @unittest.skipUnless(kodiutils.get_setting('username') and kodiutils.get_setting('password'), 'Skipping since we have no credentials.')
     def test_catalog_mylist_menu(self):
