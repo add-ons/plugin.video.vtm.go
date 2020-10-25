@@ -6,8 +6,10 @@ from __future__ import absolute_import, division, unicode_literals
 import logging
 
 import routing
+from requests import HTTPError
 
 from resources.lib import kodilogging, kodiutils
+from resources.lib.vtmgo.exceptions import InvalidLoginException, LoginErrorException
 
 kodilogging.config()
 routing = routing.Plugin()  # pylint: disable=invalid-name
@@ -18,13 +20,39 @@ _LOGGER = logging.getLogger('plugin')
 @routing.route('/')
 def index():
     """ Show the profile selection, or go to the main menu. """
-    if not kodiutils.has_credentials() or (kodiutils.get_setting_bool('auto_login') and bool(kodiutils.get_setting('profile'))):
-        # If we have no credentials (browse only mode) or we have autologin and a profile, go directly to the main menu
-        show_main_menu()
+    while True:
+        if not kodiutils.has_credentials():
+            if not kodiutils.yesno_dialog(message=kodiutils.localize(30701)):  # You need to configure your credentials...
+                # We have no credentials
+                kodiutils.end_of_directory()
+                kodiutils.execute_builtin('ActivateWindow(Home)')
+                return
 
-    else:
-        # Ask the user for the profile to use
-        select_profile()
+            kodiutils.open_settings()
+        else:
+            break
+
+    try:
+        if kodiutils.get_setting_bool('auto_login') and kodiutils.get_setting('profile'):
+            # We have a profile
+            show_main_menu()
+
+        else:
+            # Ask the user for the profile to use
+            select_profile()
+
+    except InvalidLoginException:
+        kodiutils.ok_dialog(message=kodiutils.localize(30203))  # Your credentials are not valid!
+        kodiutils.open_settings()
+        kodiutils.end_of_directory()
+
+    except LoginErrorException as exc:
+        kodiutils.ok_dialog(message=kodiutils.localize(30702, code=exc.code))  # Unknown error while logging in: {code}
+        kodiutils.end_of_directory()
+
+    except HTTPError as exc:
+        kodiutils.ok_dialog(message=kodiutils.localize(30702, code='HTTP %d' % exc.response.status_code))  # Unknown error while logging in: {code}
+        kodiutils.end_of_directory()
 
 
 @routing.route('/menu')

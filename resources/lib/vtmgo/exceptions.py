@@ -16,14 +16,6 @@ class InvalidLoginException(Exception):
     """ Is thrown when the credentials are invalid. """
 
 
-class NoStreamzSubscriptionException(Exception):
-    """ Is thrown when you don't have an subscription. """
-
-
-class NoTelenetSubscriptionException(Exception):
-    """ Is thrown when you don't have an subscription. """
-
-
 class LoginErrorException(Exception):
     """ Is thrown when we could not login. """
 
