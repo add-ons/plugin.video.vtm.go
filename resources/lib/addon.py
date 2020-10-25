@@ -7,8 +7,7 @@ import logging
 
 import routing
 
-from resources.lib import kodiutils
-from resources.lib import kodilogging
+from resources.lib import kodilogging, kodiutils
 
 kodilogging.config()
 routing = routing.Plugin()  # pylint: disable=invalid-name

@@ -6,10 +6,9 @@ from __future__ import absolute_import, division, unicode_literals
 import logging
 from time import time
 
-from xbmc import getInfoLabel, Monitor, Player
+from xbmc import Monitor, Player, getInfoLabel
 
-from resources.lib import kodilogging
-from resources.lib import kodiutils
+from resources.lib import kodilogging, kodiutils
 from resources.lib.vtmgo.vtmgo import VtmGo
 from resources.lib.vtmgo.vtmgoauth import VtmGoAuth
 

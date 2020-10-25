@@ -7,7 +7,8 @@ import logging
 
 from resources.lib import kodiutils
 from resources.lib.modules import CHANNELS
-from resources.lib.vtmgo import CONTENT_TYPE_MOVIE, CONTENT_TYPE_PROGRAM, Movie, Program, Episode
+from resources.lib.vtmgo import (CONTENT_TYPE_MOVIE, CONTENT_TYPE_PROGRAM,
+                                 Episode, Movie, Program)
 
 _LOGGER = logging.getLogger(__name__)
 

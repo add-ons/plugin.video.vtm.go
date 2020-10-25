@@ -446,6 +446,7 @@ class VtmGoStream:
         :rtype str
         """
         import re
+
         # Follow when a <Location>url</Location> tag is found.
         # https://github.com/peak3d/inputstream.adaptive/issues/286
         download = self._download_text(url)
@@ -467,9 +468,9 @@ class VtmGoStream:
         :rtype str
         """
         try:  # Python 3
-            from urllib.parse import urlencode, quote
+            from urllib.parse import quote, urlencode
         except ImportError:  # Python 2
-            from urllib import urlencode, quote
+            from urllib import quote, urlencode
 
         header = ''
         if key_headers:
