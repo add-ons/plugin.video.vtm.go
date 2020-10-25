@@ -10,6 +10,7 @@ import unittest
 from resources.lib import kodiutils
 from resources.lib.vtmgo import vtmgoauth
 
+
 @unittest.skipUnless(kodiutils.get_setting('username') and kodiutils.get_setting('password'), 'Skipping since we have no credentials.')
 class TestAuth(unittest.TestCase):
     """ Tests for VTM GO Auth """

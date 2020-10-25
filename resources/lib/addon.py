@@ -112,18 +112,18 @@ def show_catalog_program_season(program, season):
     Catalog().show_program_season(program, int(season))
 
 
-@routing.route('/catalog/recommendations')
-def show_recommendations():
-    """ Shows the programs of a specific date in the tv guide """
+@routing.route('/catalog/recommendations/<storefront>')
+def show_recommendations(storefront):
+    """ Shows the recommendations of a storefront """
     from resources.lib.modules.catalog import Catalog
-    Catalog().show_recommendations()
+    Catalog().show_recommendations(storefront)
 
 
-@routing.route('/catalog/recommendations/<category>')
-def show_recommendations_category(category):
+@routing.route('/catalog/recommendations/<storefront>/<category>')
+def show_recommendations_category(storefront, category):
     """ Show the items in a recommendations category """
     from resources.lib.modules.catalog import Catalog
-    Catalog().show_recommendations_category(category)
+    Catalog().show_recommendations_category(storefront, category)
 
 
 @routing.route('/catalog/mylist')

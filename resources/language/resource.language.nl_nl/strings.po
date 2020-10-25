@@ -16,20 +16,20 @@ msgid "Alphabetically sorted list of programs"
 msgstr "Volledige lijst van programma's"
 
 msgctxt "#30003"
-msgid "Catalogue"
-msgstr "Catalogus"
+msgid "Movies"
+msgstr "Films"
 
 msgctxt "#30004"
-msgid "TV Shows and Movies listed by category"
-msgstr "Programma's en films per categorie"
+msgid "Browse through the movie-catalogue"
+msgstr "Doorblader de filmcatalogus"
 
 msgctxt "#30005"
-msgid "Live TV"
-msgstr "Live tv"
+msgid "Series"
+msgstr "Programma's"
 
 msgctxt "#30006"
-msgid "Watch TV channels live via Internet"
-msgstr "Bekijk tv-kanalen live via Internet"
+msgid "Browse through the series-catalogue"
+msgstr "Doorblader de programmacatalogus"
 
 msgctxt "#30007"
 msgid "Channels"
@@ -86,6 +86,14 @@ msgstr "Verder kijken"
 msgctxt "#30020"
 msgid "Continue watching where you left off"
 msgstr "Kijk verder waar je gebleven was"
+
+msgctxt "#30021"
+msgid "Kids"
+msgstr "Kids"
+
+msgctxt "#30022"
+msgid "Show the VTM GO recommendations for Kids"
+msgstr "Bekijk de VTM GO aanbevelingen voor kinderen"
 
 
 ### SUBMENUS
@@ -334,10 +342,6 @@ msgstr "Interface"
 msgctxt "#30821"
 msgid "Features"
 msgstr "Functionaliteit"
-
-msgctxt "#30822"
-msgid "Show recommendations"
-msgstr "Toon 'Aanbevelingen' menu"
 
 msgctxt "#30823"
 msgid "Show My List"

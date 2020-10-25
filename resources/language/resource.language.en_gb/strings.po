@@ -15,19 +15,19 @@ msgid "Alphabetically sorted list of programs"
 msgstr ""
 
 msgctxt "#30003"
-msgid "Catalogue"
+msgid "Movies"
 msgstr ""
 
 msgctxt "#30004"
-msgid "TV Shows and Movies listed by category"
+msgid "Browse through the movie-catalogue"
 msgstr ""
 
 msgctxt "#30005"
-msgid "Live TV"
+msgid "Series"
 msgstr ""
 
 msgctxt "#30006"
-msgid "Watch TV channels live via Internet"
+msgid "Browse through the series-catalogue"
 msgstr ""
 
 msgctxt "#30007"
@@ -84,6 +84,14 @@ msgstr ""
 
 msgctxt "#30020"
 msgid "Continue watching where you left off"
+msgstr ""
+
+msgctxt "#30021"
+msgid "Kids"
+msgstr ""
+
+msgctxt "#30022"
+msgid "Show the VTM GO recommendations for Kids"
 msgstr ""
 
 
@@ -333,10 +341,6 @@ msgstr ""
 
 msgctxt "#30821"
 msgid "Features"
-msgstr ""
-
-msgctxt "#30822"
-msgid "Show recommendations"
 msgstr ""
 
 msgctxt "#30823"
