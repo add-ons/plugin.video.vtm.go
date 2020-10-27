@@ -1,7 +1,7 @@
 name: Status
 on:
   schedule:
-    - cron:  '13 */1 * * *'
+    - cron:  '13 */4 * * *'
 jobs:
   tests:
     name: Checks
