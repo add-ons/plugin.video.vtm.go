@@ -397,8 +397,8 @@ msgid "Up Next"
 msgstr "Up Next"
 
 msgctxt "#30862"
-msgid "Install Up Next add-on"
-msgstr "Installeer de Up Next add-on"
+msgid "Install Up Next add-on…"
+msgstr "Installeer de Up Next add-on…"
 
 msgctxt "#30863"
 msgid "Enable Up Next integration"
