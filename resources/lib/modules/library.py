@@ -23,10 +23,10 @@ class Library:
     def __init__(self):
         """ Initialise object """
         self._auth = VtmGoAuth(kodiutils.get_setting('username'),
-                          kodiutils.get_setting('password'),
-                          kodiutils.get_setting('loginprovider'),
-                          kodiutils.get_setting('profile'),
-                          kodiutils.get_tokens_path())
+                               kodiutils.get_setting('password'),
+                               kodiutils.get_setting('loginprovider'),
+                               kodiutils.get_setting('profile'),
+                               kodiutils.get_tokens_path())
         self._api = VtmGo(self._auth)
 
     def show_library_movies(self, movie=None):
@@ -87,7 +87,7 @@ class Library:
                 title_item = Menu.generate_titleitem(item)
                 # title_item.path = kodiutils.url_for('library_tvshows', program=item.program_id, episode=item.episode_id)
                 title_item.path = 'plugin://plugin.video.vtm.go/library/tvshows/?program={program_id}&episode={episode_id}'.format(program_id=item.program_id,
-                                                                                                                                    episode_id=item.episode_id)
+                                                                                                                                   episode_id=item.episode_id)
                 listing.append(title_item)
 
         # Sort by episode number by default. Takes seasons into account.
