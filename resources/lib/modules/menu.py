@@ -218,7 +218,8 @@ class Menu:
 
         return plot.rstrip()
 
-    def generate_titleitem(self, item, progress=False):
+    @classmethod
+    def generate_titleitem(cls, item, progress=False):
         """ Generate a TitleItem based on a Movie, Program or Episode.
         :type item: Union[Movie, Program, Episode]
         :type progress: bool
@@ -230,7 +231,7 @@ class Menu:
         }
         info_dict = {
             'title': item.name,
-            'plot': self.format_plot(item),
+            'plot': cls.format_plot(item),
             'studio': CHANNELS.get(item.channel, {}).get('studio_icon'),
             'mpaa': ', '.join(item.legal) if hasattr(item, 'legal') and item.legal else kodiutils.localize(30216),  # All ages
         }
@@ -275,6 +276,7 @@ class Menu:
                 art_dict=art_dict,
                 info_dict=info_dict,
                 stream_dict=stream_dict,
+                prop_dict=prop_dict,
                 context_menu=context_menu,
                 is_playable=True,
             )
@@ -300,8 +302,11 @@ class Menu:
                 'fanart': item.image,
             })
             info_dict.update({
-                'mediatype': None,
+                'mediatype': 'tvshow',
                 'season': len(item.seasons),
+            })
+            prop_dict.update({
+                'hash': item.content_hash,
             })
 
             return kodiutils.TitleItem(
@@ -309,6 +314,7 @@ class Menu:
                 path=kodiutils.url_for('show_catalog_program', program=item.program_id),
                 art_dict=art_dict,
                 info_dict=info_dict,
+                prop_dict=prop_dict,
                 context_menu=context_menu,
             )
 

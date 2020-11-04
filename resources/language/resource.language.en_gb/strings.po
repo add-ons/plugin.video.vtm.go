@@ -423,6 +423,46 @@ msgctxt "#30869"
 msgid "IPTV Manager settings…"
 msgstr ""
 
+msgctxt "#30870"
+msgid "Kodi Library"
+msgstr ""
+
+msgctxt "#30871"
+msgid "Indexing"
+msgstr ""
+
+msgctxt "#30872"
+msgid "Add video locations to the Kodi Library… [COLOR gray](See README.md)[/COLOR]"
+msgstr ""
+
+msgctxt "#30873"
+msgid "Index the following movies"
+msgstr ""
+
+msgctxt "#30874"
+msgid "Index the following series"
+msgstr ""
+
+msgctxt "#30875"
+msgid "Full catalog"
+msgstr ""
+
+msgctxt "#30876"
+msgid "Items on 'My List' only"
+msgstr ""
+
+msgctxt "#30877"
+msgid "Maintenance"
+msgstr ""
+
+msgctxt "#30878"
+msgid "Refresh Library…"
+msgstr ""
+
+msgctxt "#30879"
+msgid "Clean Library…"
+msgstr ""
+
 msgctxt "#30880"
 msgid "Expert"
 msgstr ""

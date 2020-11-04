@@ -100,6 +100,13 @@ class TestApi(unittest.TestCase):
             # TODO: fix this
             pass
 
+    def test_mylist_ids(self):
+        mylist = self._vtmgo.get_mylist_ids()
+        self.assertIsInstance(mylist, list)
+
+    def test_catalog_ids(self):
+        mylist = self._vtmgo.get_catalog_ids()
+        self.assertIsInstance(mylist, list)
 
 if __name__ == '__main__':
     unittest.main()

@@ -225,6 +225,14 @@ def play(stream, license_key=None, title=None, art_dict=None, info_dict=None, pr
     xbmcplugin.setResolvedUrl(routing.handle, True, listitem=play_item)
 
 
+def library_return_status(success):
+    """Notify Kodi about the status of a listitem."""
+    from resources.lib.addon import routing
+
+    _LOGGER.debug('Returning status %s', success)
+    xbmcplugin.setResolvedUrl(routing.handle, success, listitem=xbmcgui.ListItem())
+
+
 def get_search_string(heading='', message=''):
     """Ask the user for a search string"""
     search_string = None
@@ -667,12 +675,19 @@ def get_cache(key, ttl=None):
 def set_cache(key, data):
     """ Store an item in the cache
     :type key: list[str]
-    :type data: str
+    :type data: any
     """
-    if not xbmcvfs.exists(get_cache_path()):
-        xbmcvfs.mkdirs(get_cache_path())
+    fullpath = get_cache_path() + '/'
 
-    fullpath = os.path.join(get_cache_path(), '.'.join(key))
+    if not xbmcvfs.exists(fullpath):
+        xbmcvfs.mkdirs(fullpath)
+
+    fullpath = os.path.join(fullpath, '.'.join(key))
+
+    if data is None:
+        # Remove from cache
+        xbmcvfs.delete(fullpath)
+        return
 
     fdesc = xbmcvfs.File(fullpath, 'w')
 
@@ -685,7 +700,7 @@ def set_cache(key, data):
 
 def invalidate_cache(ttl=None):
     """ Clear the cache """
-    fullpath = get_cache_path()
+    fullpath = get_cache_path() + '/'
 
     if not xbmcvfs.exists(fullpath):
         return

@@ -26,6 +26,15 @@
         <setting label="30843" type="lsep"/> <!-- Streaming -->
         <setting label="30844" type="select" id="max_bandwidth" default="0" values="0|256|512|1024|1536|2048|2560|3072|4096|6144|8192|10240|15360|20480|25600|30720"/>
     </category>
+    <category label="30870"> <!-- Kodi Library -->
+        <setting label="30871" type="lsep"/> <!-- Indexing -->
+        <setting label="30872" type="action" action="RunPlugin(plugin://plugin.video.vtm.go/library/configure)" option="close"/>
+        <setting label="30873" type="select" id="library_movies" default="1" lvalues="30875|30876"/>
+        <setting label="30874" type="select" id="library_tvshows" default="1" lvalues="30875|30876"/>
+        <setting label="30877" type="lsep"/> <!-- Maintenance -->
+        <setting label="30878" type="action" action="RunPlugin(plugin://plugin.video.vtm.go/library/update)"/>
+        <setting label="30879" type="action" action="RunPlugin(plugin://plugin.video.vtm.go/library/clean)"/>
+    </category>
     <category label="30860"> <!-- Integrations -->
         <setting label="30861" type="lsep"/> <!-- Up Next -->
         <setting label="30862" type="action" action="InstallAddon(service.upnext)" option="close" visible="!System.HasAddon(service.upnext)"/>

@@ -12,6 +12,8 @@
     </requires>
     <extension point="xbmc.python.pluginsource" library="addon_entry.py">
         <provides>video</provides>
+        <medialibraryscanpath content="movies">library/movies/</medialibraryscanpath>
+        <medialibraryscanpath content="tvshows">library/tvshows/</medialibraryscanpath>
     </extension>
     <extension point="xbmc.service" library="service_entry.py"/>
     <extension point="xbmc.addon.metadata">

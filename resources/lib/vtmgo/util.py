@@ -10,7 +10,7 @@ from requests import HTTPError
 
 from resources.lib.vtmgo.exceptions import (InvalidLoginException,
                                             InvalidTokenException,
-                                            UnavailableException)
+                                            UnavailableException, LimitReachedException)
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -38,13 +38,15 @@ def http_get(url, params=None, token=None, profile=None, headers=None, proxies=N
     """
     try:
         return _request('GET', url=url, params=params, token=token, profile=profile, headers=headers, proxies=proxies)
-    except HTTPError as ex:
-        if ex.response.status_code == 401:
-            raise InvalidTokenException
-        if ex.response.status_code == 403:
-            raise InvalidLoginException
-        if ex.response.status_code == 404:
-            raise UnavailableException
+    except HTTPError as exc:
+        if exc.response.status_code == 401:
+            raise InvalidTokenException(exc)
+        if exc.response.status_code == 403:
+            raise InvalidLoginException(exc)
+        if exc.response.status_code == 404:
+            raise UnavailableException(exc)
+        if exc.response.status_code == 429:
+            raise LimitReachedException(exc)
         raise
 
 
@@ -64,11 +66,15 @@ def http_post(url, params=None, form=None, data=None, token=None, profile=None, 
     """
     try:
         return _request('POST', url=url, params=params, form=form, data=data, token=token, profile=profile, headers=headers, proxies=proxies)
-    except HTTPError as ex:
-        if ex.response.status_code == 401:
-            raise InvalidTokenException
-        if ex.response.status_code == 403:
-            raise InvalidLoginException
+    except HTTPError as exc:
+        if exc.response.status_code == 401:
+            raise InvalidTokenException(exc)
+        if exc.response.status_code == 403:
+            raise InvalidLoginException(exc)
+        if exc.response.status_code == 404:
+            raise UnavailableException(exc)
+        if exc.response.status_code == 429:
+            raise LimitReachedException(exc)
         raise
 
 
@@ -88,11 +94,13 @@ def http_put(url, params=None, form=None, data=None, token=None, profile=None, h
     """
     try:
         return _request('PUT', url=url, params=params, form=form, data=data, token=token, profile=profile, headers=headers, proxies=proxies)
-    except HTTPError as ex:
-        if ex.response.status_code == 401:
-            raise InvalidTokenException
-        if ex.response.status_code == 403:
-            raise InvalidLoginException
+    except HTTPError as exc:
+        if exc.response.status_code == 401:
+            raise InvalidTokenException(exc)
+        if exc.response.status_code == 403:
+            raise InvalidLoginException(exc)
+        if exc.response.status_code == 404:
+            raise UnavailableException(exc)
         raise
 
 
@@ -110,11 +118,13 @@ def http_delete(url, params=None, token=None, profile=None, headers=None, proxie
     """
     try:
         return _request('DELETE', url=url, params=params, token=token, profile=profile, headers=headers, proxies=proxies)
-    except HTTPError as ex:
-        if ex.response.status_code == 401:
-            raise InvalidTokenException
-        if ex.response.status_code == 403:
-            raise InvalidLoginException
+    except HTTPError as exc:
+        if exc.response.status_code == 401:
+            raise InvalidTokenException(exc)
+        if exc.response.status_code == 403:
+            raise InvalidLoginException(exc)
+        if exc.response.status_code == 404:
+            raise UnavailableException(exc)
         raise
 
 
@@ -133,7 +143,10 @@ def _request(method, url, params=None, form=None, data=None, token=None, profile
     :returns:                       The HTTP Response object.
     :rtype: requests.Response
     """
-    _LOGGER.debug('Sending %s %s... (%s)', method, url, form or data)
+    if form or data:
+        _LOGGER.debug('Sending %s %s: %s', method, url, form or data)
+    else:
+        _LOGGER.debug('Sending %s %s', method, url)
 
     if headers is None:
         headers = {}
