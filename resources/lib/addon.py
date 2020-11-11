@@ -140,6 +140,74 @@ def show_catalog_program_season(program, season):
     Catalog().show_program_season(program, int(season))
 
 
+@routing.route('/library/movies/')
+def library_movies():
+    """ Show a list of all movies for integration into the Kodi Library """
+    from resources.lib.modules.library import Library
+
+    # Library seems to have issues with folder mode
+    movie = routing.args.get('movie', [])[0] if routing.args.get('movie') else None
+
+    if 'check_exists' in routing.args.get('kodi_action', []):
+        Library().check_library_movie(movie)
+        return
+
+    if 'refresh_info' in routing.args.get('kodi_action', []):
+        Library().show_library_movies(movie)
+        return
+
+    if movie:
+        play('movies', movie)
+    else:
+        Library().show_library_movies()
+
+
+@routing.route('/library/tvshows/')
+def library_tvshows():
+    """ Show a list of all tv series for integration into the Kodi Library """
+    from resources.lib.modules.library import Library
+
+    # Library seems to have issues with folder mode
+    program = routing.args.get('program', [])[0] if routing.args.get('program') else None
+    episode = routing.args.get('episode', [])[0] if routing.args.get('episode') else None
+
+    if 'check_exists' in routing.args.get('kodi_action', []):
+        Library().check_library_tvshow(program)
+        return
+
+    if 'refresh_info' in routing.args.get('kodi_action', []):
+        Library().show_library_tvshows(program)
+        return
+
+    if episode:
+        play('episodes', episode)
+    elif program:
+        Library().show_library_tvshows_program(program)
+    else:
+        Library().show_library_tvshows()
+
+
+@routing.route('/library/configure')
+def library_configure():
+    """ Show information on how to enable the library integration """
+    from resources.lib.modules.library import Library
+    Library().configure()
+
+
+@routing.route('/library/update')
+def library_update():
+    """ Refresh the library. """
+    from resources.lib.modules.library import Library
+    Library().update()
+
+
+@routing.route('/library/clean')
+def library_clean():
+    """ Clean the library. """
+    from resources.lib.modules.library import Library
+    Library().clean()
+
+
 @routing.route('/catalog/recommendations/<storefront>')
 def show_recommendations(storefront):
     """ Shows the recommendations of a storefront """
@@ -167,12 +235,18 @@ def mylist_add(video_type, content_id):
     from resources.lib.modules.catalog import Catalog
     Catalog().mylist_add(video_type, content_id)
 
+    from resources.lib.modules.library import Library
+    Library().mylist_added(video_type, content_id)
+
 
 @routing.route('/catalog/mylist/del/<video_type>/<content_id>')
 def mylist_del(video_type, content_id):
     """ Remove an item from "My List" """
     from resources.lib.modules.catalog import Catalog
     Catalog().mylist_del(video_type, content_id)
+
+    from resources.lib.modules.library import Library
+    Library().mylist_removed(video_type, content_id)
 
 
 @routing.route('/catalog/continuewatching')

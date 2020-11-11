@@ -424,6 +424,46 @@ msgctxt "#30869"
 msgid "IPTV Manager settings…"
 msgstr "IPTV Manager instellingen…"
 
+msgctxt "#30870"
+msgid "Kodi Library"
+msgstr "Kodi-bibliotheek"
+
+msgctxt "#30871"
+msgid "Indexing"
+msgstr "Indexeren"
+
+msgctxt "#30872"
+msgid "Add video locations to the Kodi Library… [COLOR gray](See README.md)[/COLOR]"
+msgstr "Videolocaties toevoegen aan de Kodi-bibliotheek… [COLOR gray](Zie README.md)[/COLOR]"
+
+msgctxt "#30873"
+msgid "Index the following movies"
+msgstr "Indexeer de volgende films"
+
+msgctxt "#30874"
+msgid "Index the following series"
+msgstr "Indexeer de volgende series"
+
+msgctxt "#30875"
+msgid "Full catalog"
+msgstr "Volledige catalogus"
+
+msgctxt "#30876"
+msgid "Items on 'My List' only"
+msgstr "Enkel items op 'Mijn lijst'"
+
+msgctxt "#30877"
+msgid "Maintenance"
+msgstr "Onderhoud"
+
+msgctxt "#30878"
+msgid "Refresh Library…"
+msgstr "Verniew bibliotheek…"
+
+msgctxt "#30879"
+msgid "Clean Library…"
+msgstr "Bibliotheek opkuisen…"
+
 msgctxt "#30880"
 msgid "Expert"
 msgstr "Expert"
