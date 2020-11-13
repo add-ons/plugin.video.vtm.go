@@ -112,7 +112,7 @@ def addon_path():
 
 def addon_profile():
     """Cache and return add-on profile"""
-    if kodi_version_major() >= 19:
+    if hasattr(xbmcvfs, 'translatePath'):
         translate_path = xbmcvfs.translatePath
     else:
         translate_path = xbmc.translatePath
