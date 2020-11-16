@@ -37,5 +37,4 @@ De volgende features worden ondersteund:
 
 ## Disclaimer
 
-This add-on is not officially commissioned/supported by DPG Media and is provided 'as is' without any warranty of any kind.
-The VTM GO name, VTM GO logo, channel names and icons are property of DPG Media and are used according to the fair use policy.
+Deze add-on wordt niet ondersteund door DPG Media en wordt aangeboden 'as is', zonder enige garantie. De VTM GO naam, VTM GO logo en de kanaallogo's zijn eigendom van DPG Media en worden gebruikt in overeenstemming met de fair use policy.
