@@ -108,5 +108,6 @@ class TestApi(unittest.TestCase):
         mylist = self._vtmgo.get_catalog_ids()
         self.assertIsInstance(mylist, list)
 
+
 if __name__ == '__main__':
     unittest.main()
