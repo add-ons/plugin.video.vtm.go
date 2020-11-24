@@ -8,6 +8,7 @@ import logging
 from resources.lib import kodiutils
 from resources.lib.modules import CHANNELS
 from resources.lib.modules.menu import Menu
+from resources.lib.vtmgo import Category, STOREFRONT_MOVIES, STOREFRONT_SERIES
 from resources.lib.vtmgo.exceptions import UnavailableException
 from resources.lib.vtmgo.vtmgo import CACHE_PREVENT, ApiUpdateRequired, VtmGo
 from resources.lib.vtmgo.vtmgoauth import VtmGoAuth
@@ -75,7 +76,7 @@ class Catalog:
 
         # Sort items by label, but don't put folders at the top.
         # Used for A-Z listing or when movies and episodes are mixed.
-        kodiutils.show_listing(listing, 30003, content='movies' if category == 'films' else 'tvshows', sort=['label', 'year', 'duration'])
+        kodiutils.show_listing(listing, 30003, content='files', sort=['label', 'year', 'duration'])
 
     def show_catalog_channel(self, channel):
         """ Show a category in the catalog
@@ -160,7 +161,7 @@ class Catalog:
             ))
 
         # Sort by label. Some programs return seasons unordered.
-        kodiutils.show_listing(listing, 30003, content='tvshows', sort=['label'])
+        kodiutils.show_listing(listing, program_obj.name, content='tvshows', sort=['label'])
 
     def show_program_season(self, program, season):
         """ Show the episodes of a program from the catalog
@@ -184,7 +185,7 @@ class Catalog:
         listing = [self._menu.generate_titleitem(e) for s in seasons for e in list(s.episodes.values())]
 
         # Sort by episode number by default. Takes seasons into account.
-        kodiutils.show_listing(listing, 30003, content='episodes', sort=['episode', 'duration'])
+        kodiutils.show_listing(listing, program_obj.name, content='episodes', sort=['episode', 'duration'])
 
     def show_recommendations(self, storefront):
         """ Show the recommendations.
@@ -192,7 +193,7 @@ class Catalog:
         :type storefront: str
         """
         try:
-            recommendations = self._vtm_go.get_recommendations(storefront)
+            results = self._vtm_go.get_storefront(storefront)
         except ApiUpdateRequired:
             kodiutils.ok_dialog(message=kodiutils.localize(30705))  # The VTM GO Service has been updated...
             return
@@ -203,17 +204,26 @@ class Catalog:
             return
 
         listing = []
-        for cat in recommendations:
-            listing.append(kodiutils.TitleItem(
-                title=cat.title,
-                path=kodiutils.url_for('show_recommendations_category', storefront=storefront, category=cat.category_id),
-                info_dict=dict(
-                    plot='[B]{category}[/B]'.format(category=cat.title),
-                ),
-            ))
+        for item in results:
+            if isinstance(item, Category):
+                listing.append(kodiutils.TitleItem(
+                    title=item.title,
+                    path=kodiutils.url_for('show_recommendations_category', storefront=storefront, category=item.category_id),
+                    info_dict=dict(
+                        plot='[B]{category}[/B]'.format(category=item.title),
+                    ),
+                ))
+            else:
+                listing.append(self._menu.generate_titleitem(item))
 
-        # Sort categories by default like in VTM GO.
-        kodiutils.show_listing(listing, 30015, content='files')
+        if storefront == STOREFRONT_SERIES:
+            label = 30005  # Series
+        elif storefront == STOREFRONT_MOVIES:
+            label = 30003  # Movies
+        else:
+            label = 30015  # Recommendations
+
+        kodiutils.show_listing(listing, label, content='files')
 
     def show_recommendations_category(self, storefront, category):
         """ Show the items in a recommendations category.
@@ -222,7 +232,7 @@ class Catalog:
         :type category: str
         """
         try:
-            recommendations = self._vtm_go.get_recommendations(storefront)
+            result = self._vtm_go.get_storefront_category(storefront, category)
         except ApiUpdateRequired:
             kodiutils.ok_dialog(message=kodiutils.localize(30705))  # The VTM GO Service has been updated...
             return
@@ -233,16 +243,17 @@ class Catalog:
             return
 
         listing = []
-        for cat in recommendations:
-            # Only show the requested category
-            if cat.category_id != category:
-                continue
+        for item in result.content:
+            listing.append(self._menu.generate_titleitem(item))
 
-            for item in cat.content:
-                listing.append(self._menu.generate_titleitem(item))
+        if storefront == STOREFRONT_SERIES:
+            content = 'tvshows'
+        elif storefront == STOREFRONT_MOVIES:
+            content = 'movies'
+        else:
+            content = 'files'
 
-        # Sort categories by default like in VTM GO.
-        kodiutils.show_listing(listing, 30015, content='tvshows')
+        kodiutils.show_listing(listing, result.title, content=content, sort=['unsorted', 'label', 'year', 'duration'])
 
     def show_mylist(self):
         """ Show the items in "My List" """
@@ -262,8 +273,7 @@ class Catalog:
             item.my_list = True
             listing.append(self._menu.generate_titleitem(item))
 
-        # Sort categories by default like in VTM GO.
-        kodiutils.show_listing(listing, 30017, content='tvshows')
+        kodiutils.show_listing(listing, 30017, content='files', sort=['unsorted', 'label', 'year', 'duration'])
 
     def mylist_add(self, video_type, content_id):
         """ Add an item to "My List"
