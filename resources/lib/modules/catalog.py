@@ -8,7 +8,7 @@ import logging
 from resources.lib import kodiutils
 from resources.lib.modules import CHANNELS
 from resources.lib.modules.menu import Menu
-from resources.lib.vtmgo import Category, STOREFRONT_MOVIES, STOREFRONT_SERIES
+from resources.lib.vtmgo import STOREFRONT_MOVIES, STOREFRONT_SERIES, Category
 from resources.lib.vtmgo.exceptions import UnavailableException
 from resources.lib.vtmgo.vtmgo import CACHE_PREVENT, ApiUpdateRequired, VtmGo
 from resources.lib.vtmgo.vtmgoauth import VtmGoAuth
@@ -27,7 +27,6 @@ class Catalog:
                                kodiutils.get_setting('profile'),
                                kodiutils.get_tokens_path())
         self._vtm_go = VtmGo(self._auth)
-        self._menu = Menu()
 
     def show_catalog(self):
         """ Show the catalog """
@@ -72,7 +71,7 @@ class Catalog:
 
         listing = []
         for item in items:
-            listing.append(self._menu.generate_titleitem(item))
+            listing.append(Menu.generate_titleitem(item))
 
         # Sort items by label, but don't put folders at the top.
         # Used for A-Z listing or when movies and episodes are mixed.
@@ -96,7 +95,7 @@ class Catalog:
         listing = []
         for item in items:
             if item.channel == channel:
-                listing.append(self._menu.generate_titleitem(item))
+                listing.append(Menu.generate_titleitem(item))
 
         # Sort items by label, but don't put folders at the top.
         # Used for A-Z listing or when movies and episodes are mixed.
@@ -182,7 +181,7 @@ class Catalog:
             # Show the season that was selected
             seasons = [program_obj.seasons[season]]
 
-        listing = [self._menu.generate_titleitem(e) for s in seasons for e in list(s.episodes.values())]
+        listing = [Menu.generate_titleitem(e) for s in seasons for e in list(s.episodes.values())]
 
         # Sort by episode number by default. Takes seasons into account.
         kodiutils.show_listing(listing, program_obj.name, content='episodes', sort=['episode', 'duration'])
@@ -214,7 +213,7 @@ class Catalog:
                     ),
                 ))
             else:
-                listing.append(self._menu.generate_titleitem(item))
+                listing.append(Menu.generate_titleitem(item))
 
         if storefront == STOREFRONT_SERIES:
             label = 30005  # Series
@@ -244,7 +243,7 @@ class Catalog:
 
         listing = []
         for item in result.content:
-            listing.append(self._menu.generate_titleitem(item))
+            listing.append(Menu.generate_titleitem(item))
 
         if storefront == STOREFRONT_SERIES:
             content = 'tvshows'
@@ -271,7 +270,7 @@ class Catalog:
         listing = []
         for item in mylist:
             item.my_list = True
-            listing.append(self._menu.generate_titleitem(item))
+            listing.append(Menu.generate_titleitem(item))
 
         kodiutils.show_listing(listing, 30017, content='files', sort=['unsorted', 'label', 'year', 'duration'])
 
@@ -307,7 +306,7 @@ class Catalog:
 
         listing = []
         for item in mylist:
-            titleitem = self._menu.generate_titleitem(item, progress=True)
+            titleitem = Menu.generate_titleitem(item, progress=True)
 
             # Add Program Name to title since this list contains episodes from multiple programs
             title = '%s - %s' % (

@@ -8,9 +8,7 @@ import logging
 import requests
 from requests import HTTPError
 
-from resources.lib.vtmgo.exceptions import (InvalidLoginException,
-                                            InvalidTokenException,
-                                            UnavailableException, LimitReachedException)
+from resources.lib.vtmgo.exceptions import InvalidLoginException, InvalidTokenException, LimitReachedException, UnavailableException
 
 _LOGGER = logging.getLogger(__name__)
 

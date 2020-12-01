@@ -8,8 +8,7 @@ import json
 import logging
 
 from resources.lib import kodiutils
-from resources.lib.vtmgo import (API_ENDPOINT, Category, Episode, LiveChannel,
-                                 LiveChannelEpg, Movie, Program, Season, util)
+from resources.lib.vtmgo import API_ENDPOINT, Category, Episode, LiveChannel, LiveChannelEpg, Movie, Program, Season, util
 
 _LOGGER = logging.getLogger(__name__)
 
