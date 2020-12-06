@@ -17,11 +17,11 @@ De volgende features worden ondersteund:
 
 * Kijk live TV (VTM, VTM 2, VTM 3, VTM 4, CAZ 2, VTM Kids & QMusic)
 * Kijk on-demand content (films en series)
-* Doorblader de VTM GO aanbevelingen and "Mijn lijst"
+* Doorblader de VTM GO aanbevelingen en "Mijn lijst"
 * Bekijk en speel rechtstreeks vanaf de TV gids
 * Doorzoek de catalogus
 * Bekijk YouTube-filmpjes van enkele DPG Media kanalen
-* Gebruikersprofielen (VTM GO or VTM GO Kids)
+* Gebruikersprofielen (VTM GO of VTM GO Kids)
 * Integratie met [IPTV Manager](https://github.com/add-ons/service.iptv.manager)
 * Integratie met Kodi bibliotheek
 
