@@ -5,7 +5,7 @@ on:
 jobs:
   tests:
     name: Add-on testing
-    runs-on: ubuntu-latest
+    runs-on: ${{ matrix.os }}
     env:
       ADDON_USERNAME: ${{ secrets.ADDON_USERNAME }}
       ADDON_PASSWORD: ${{ secrets.ADDON_PASSWORD }}
