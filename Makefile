@@ -71,7 +71,7 @@ build: clean
 # You first need to run sudo gem install github_changelog_generator for this
 release:
 ifneq ($(release),)
-	@github_changelog_generator -u add-ons -p plugin.video.vtm.go --no-issues --exclude-labels duplicate,question,invalid,wontfix release --future-release v$(release);
+	@github_changelog_generator -u add-ons -p plugin.video.vtm.go --no-issues --future-release v$(release);
 
 	@echo "cd /addon/@version\nset $$release\nsave\nbye" | xmllint --shell addon.xml; \
 	date=$(shell date '+%Y-%m-%d'); \
