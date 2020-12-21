@@ -15,3 +15,6 @@ Thumbs.db
 # Testing
 tests/home/userdata/addon_data
 .env
+
+Pipfile
+Pipfile.lock
