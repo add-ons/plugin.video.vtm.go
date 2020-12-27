@@ -9,6 +9,7 @@ from time import time
 from xbmc import Monitor, Player, getInfoLabel
 
 from resources.lib import kodilogging, kodiutils
+from resources.lib.modules.proxy import Proxy
 from resources.lib.vtmgo.exceptions import NoLoginException
 
 kodilogging.config()
@@ -21,12 +22,17 @@ class BackgroundService(Monitor):
     def __init__(self):
         Monitor.__init__(self)
         self._player = PlayerMonitor()
+        self._proxy_thread = None
         self.update_interval = 24 * 3600  # Every 24 hours
         self.cache_expiry = 30 * 24 * 3600  # One month
 
     def run(self):
         """ Background loop for maintenance tasks """
         _LOGGER.debug('Service started')
+
+        if kodiutils.get_setting_bool('manifest_proxy'):
+            _LOGGER.debug('Starting Manifest Proxy...')
+            self._proxy_thread = Proxy.start()
 
         while not self.abortRequested():
             # Update every `update_interval` after the last update
@@ -36,6 +42,11 @@ class BackgroundService(Monitor):
             # Stop when abort requested
             if self.waitForAbort(10):
                 break
+
+        # Wait for the proxy thread to stop
+        if self._proxy_thread and self._proxy_thread.is_alive():
+            _LOGGER.debug('Stopping Manifest Proxy...')
+            Proxy.stop()
 
         _LOGGER.debug('Service stopped')
 
