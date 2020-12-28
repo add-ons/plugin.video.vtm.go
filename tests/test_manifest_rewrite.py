@@ -17,10 +17,12 @@ class TestManifestRewrite(unittest.TestCase):
     """ Tests for VTM GO API """
 
     def test_rewrite(self):
-
         self.maxDiff = None
-
-        tests = [('manifest_01_input.txt', 'manifest_01_output.txt')]
+        tests = [
+            ('manifest_01_input.txt', 'manifest_01_output.txt'),  # Uses SegmentTemplates
+            ('manifest_02_input.txt', 'manifest_02_output.txt'),  # Uses SegmentLists
+            ('manifest_03_input.txt', 'manifest_03_output.txt'),  # Uses a combination of SegmentTemplates and SegmentLists
+        ]
 
         for test_input, test_output in tests:
             with open('tests/proxy/' + test_input, 'r') as fdesc:
@@ -28,8 +30,6 @@ class TestManifestRewrite(unittest.TestCase):
 
             with open('tests/proxy/' + test_output, 'r') as fdesc:
                 manifest_output = fdesc.read()
-
-            self.assertNotEqual(manifest_input, manifest_output)
 
             manifest_modified = Proxy.modify_manifest(manifest_input)
             self.assertEqual(manifest_modified, manifest_output)

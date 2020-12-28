@@ -10,6 +10,7 @@ This Proxy is used to workaround an Inputstream Adaptive bug. For more info, see
 from __future__ import absolute_import, division, unicode_literals
 
 import logging
+import re
 import threading
 
 import requests
@@ -97,24 +98,30 @@ class Proxy(BaseHTTPRequestHandler):
     def modify_manifest(manifest):
         """ Modify the manifest so Inputstream Adaptive can handle it. """
 
-        # We will be removing all the BaseURL tags from the manifest, and prefixing them in the SegmentTemplate's.
-        # This is definetly not the prettiest way to do this, but it gets the job done with a fraction of the memory
-        # compared to parsing the XML.
+        def repl(matchobj):
+            """ Modify an AdaptationSet. We will be removing the BaseURL and prefixing it with the URL's in all SegmentTemplates. """
+            adaptationset = matchobj.group(0)
 
-        output = ''
-        current_base_url = None
-        for line in manifest.splitlines(True):
-            if '<BaseURL>' in line:
-                current_base_url = line.replace(r'<BaseURL>', '').replace(r'</BaseURL>', '').strip()
-                continue  # Don't write this line to the output
+            # Only process AdaptationSets that use a SegmentTemplate
+            if '<SegmentTemplate' not in adaptationset:
+                return adaptationset
 
-            if '<SegmentTemplate' in line:
-                output += line \
-                    .replace('initialization="', 'initialization="' + current_base_url) \
-                    .replace('media="', 'media="' + current_base_url)
-                continue
+            # Extract BaseURL
+            match = re.search(r'<BaseURL>(.*?)</BaseURL>', adaptationset)
+            if not match:
+                return adaptationset
+            base_url = match.group(1)
 
-            # Don't modify this line, just write it to the output
-            output += line
+            # Remove BaseURL
+            adaptationset = re.sub(r'\s*?<BaseURL>.*?</BaseURL>', '', adaptationset)
+
+            # Prefix BaseURL on initialization=" and media=" tags
+            adaptationset = re.sub(r'(<SegmentTemplate[^>]*?initialization=\")([^\"]*)(\"[^>]*?>)', r'\1' + base_url + r'\2\3', adaptationset)
+            adaptationset = re.sub(r'(<SegmentTemplate[^>]*?media=\")([^\"]*)(\"[^>]*?>)', r'\1' + base_url + r'\2\3', adaptationset)
+
+            return adaptationset
+
+        # Process all AdaptationSets
+        output = re.sub(r'<AdaptationSet[^>]*>(.*?)</AdaptationSet>', repl, manifest, flags=re.DOTALL)
 
         return output

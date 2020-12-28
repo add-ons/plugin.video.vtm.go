@@ -1,0 +1,91 @@
+<?xml version="1.0"?>
+<MPD xmlns="urn:mpeg:dash:schema:mpd:2011" xmlns:cenc="urn:mpeg:cenc:2013" xmlns:mspr="urn:microsoft:playready" minBufferTime="PT1.500000S" type="static" mediaPresentationDuration="PT0H3M46.600S" anvatoCdnProvider="akamai" profiles="urn:mpeg:dash:profile:isoff-on-demand:2011">
+  <Period duration="PT0H0M15.070S" id="1">
+    <AdaptationSet contentType="video" segmentAlignment="true" bitstreamSwitching="true">
+      <BaseURL>https://dcs-jite.cdn.anvato.net/prod/v98/media/</BaseURL>
+      <SegmentTemplate initialization="$RepresentationID$-init-video.mp4" media="$RepresentationID$-$Number$-video.mp4" startNumber="1" timescale="1000" duration="9590"/>
+      <Representation id="96530E9E30784944AB5AC59AF45634F5/4200000/fmp4" mimeType="video/mp4" codecs="avc1.64001e" bandwidth="4200000" width="1920" height="1080" frameRate="60/2"/>
+      <Representation id="0E84E1AABAE646138FC3777F5A7EA128/2200000/fmp4" mimeType="video/mp4" codecs="avc1.64001e" bandwidth="2200000" width="1280" height="720" frameRate="60/2"/>
+      <Representation id="2195F4DE65E944039B45090D8003DF61/1600000/fmp4" mimeType="video/mp4" codecs="avc1.64001e" bandwidth="1600000" width="960" height="540" frameRate="60/2"/>
+      <Representation id="E79E2A5E2FDD4213BFDF444C6F299DDE/1000000/fmp4" mimeType="video/mp4" codecs="avc1.64001e" bandwidth="1000000" width="640" height="360" frameRate="60/2"/>
+      <Representation id="42E0BC1CA05C496380DA617160069F76/350000/fmp4" mimeType="video/mp4" codecs="avc1.64001e" bandwidth="350000" width="448" height="252" frameRate="60/2"/>
+      <Representation id="71E321DD8F0D4DFB81E2DEA7148EE544/120000/fmp4" mimeType="video/mp4" codecs="avc1.64001e" bandwidth="120000" width="320" height="180" frameRate="60/2"/>
+    </AdaptationSet>
+    <AdaptationSet contentType="audio" segmentAlignment="true" bitstreamSwitching="true">
+      <AudioChannelConfiguration schemeIdUri="urn:mpeg:dash:23003:3:audio_channel_configuration:2011" value="2"/>
+      <BaseURL>https://dcs-jite.cdn.anvato.net/prod/v98/media/</BaseURL>
+      <SegmentTemplate initialization="$RepresentationID$-init-audio.mp4" media="$RepresentationID$-$Number$-audio.mp4" startNumber="1" timescale="1000" duration="9590"/>
+      <Representation id="96530E9E30784944AB5AC59AF45634F5/4200000/fmp4" mimeType="audio/mp4" codecs="mp4a.40.2" bandwidth="64000"/>
+    </AdaptationSet>
+  </Period>
+  <Period duration="PT0H0M2.949S" id="2">
+    <AdaptationSet contentType="video" segmentAlignment="true" bitstreamSwitching="true">
+      <SegmentTemplate initialization="https://dcs-jite.cdn.anvato.net/prod/v98/media/$RepresentationID$-init-video.mp4" media="https://dcs-jite.cdn.anvato.net/prod/v98/media/$RepresentationID$-$Number$-video.mp4" startNumber="1" timescale="1000" duration="2949"/>
+      <Representation id="6571B7577EBB4AA1A9F9AC5DCB519AB9/4200000/fmp4" mimeType="video/mp4" codecs="avc1.64001e" bandwidth="4200000" width="1920" height="1080" frameRate="60/2"/>
+      <Representation id="314DE13883264592A00406B71065FEBA/2200000/fmp4" mimeType="video/mp4" codecs="avc1.64001e" bandwidth="2200000" width="1280" height="720" frameRate="60/2"/>
+      <Representation id="1DE215965EA148348BF4746A542C96A8/1600000/fmp4" mimeType="video/mp4" codecs="avc1.64001e" bandwidth="1600000" width="960" height="540" frameRate="60/2"/>
+      <Representation id="EE1D56EBDA4942F884DDA88BCA829131/1000000/fmp4" mimeType="video/mp4" codecs="avc1.64001e" bandwidth="1000000" width="640" height="360" frameRate="60/2"/>
+      <Representation id="738AC39461784FEBA7F791110242E320/350000/fmp4" mimeType="video/mp4" codecs="avc1.64001e" bandwidth="350000" width="448" height="252" frameRate="60/2"/>
+      <Representation id="DD2B2ADEF1C9473CB0CD48D13D055D12/120000/fmp4" mimeType="video/mp4" codecs="avc1.64001e" bandwidth="120000" width="320" height="180" frameRate="60/2"/>
+    </AdaptationSet>
+    <AdaptationSet contentType="audio" segmentAlignment="true" bitstreamSwitching="true">
+      <AudioChannelConfiguration schemeIdUri="urn:mpeg:dash:23003:3:audio_channel_configuration:2011" value="2"/>
+      <SegmentTemplate initialization="https://dcs-jite.cdn.anvato.net/prod/v98/media/$RepresentationID$-init-audio.mp4" media="https://dcs-jite.cdn.anvato.net/prod/v98/media/$RepresentationID$-$Number$-audio.mp4" startNumber="1" timescale="1000" duration="2949"/>
+      <Representation id="6571B7577EBB4AA1A9F9AC5DCB519AB9/4200000/fmp4" mimeType="audio/mp4" codecs="mp4a.40.2" bandwidth="64000"/>
+    </AdaptationSet>
+  </Period>
+  <Period id="1" duration="PT0H3M46.600S">
+    <AdaptationSet mimeType="audio/mp4" lang="en"><ContentProtection schemeIdUri="urn:uuid:9a04f079-9840-4286-ab92-e65be0885f95" value="MSPR 2.0">
+          <mspr:pro>xAEAAAEAAQC6ATwAVwBSAE0ASABFAEEARABFAFIAIAB4AG0AbABuAHMAPQAiAGgAdAB0AHAAOgAvAC8AcwBjAGgAZQBtAGEAcwAuAG0AaQBjAHIAbwBzAG8AZgB0AC4AYwBvAG0ALwBEAFIATQAvADIAMAAwADcALwAwADMALwBQAGwAYQB5AFIAZQBhAGQAeQBIAGUAYQBkAGUAcgAiACAAdgBlAHIAcwBpAG8AbgA9ACIANAAuADAALgAwAC4AMAAiAD4APABEAEEAVABBAD4APABQAFIATwBUAEUAQwBUAEkATgBGAE8APgA8AEsARQBZAEwARQBOAD4AMQA2ADwALwBLAEUAWQBMAEUATgA+ADwAQQBMAEcASQBEAD4AQQBFAFMAQwBUAFIAPAAvAEEATABHAEkARAA+ADwALwBQAFIATwBUAEUAQwBUAEkATgBGAE8APgA8AEsASQBEAD4AOABUAGMAMwBEAFUANAA4AGQAUgB5AHcARgA5AG0AVwBJAGUAdABMADQAQQA9AD0APAAvAEsASQBEAD4APAAvAEQAQQBUAEEAPgA8AC8AVwBSAE0ASABFAEEARABFAFIAPgA=</mspr:pro>
+          <cenc:pssh>AAAB5HBzc2gAAAAAmgTweZhAQoarkuZb4IhflQAAAcTEAQAAAQABALoBPABXAFIATQBIAEUAQQBEAEUAUgAgAHgAbQBsAG4AcwA9ACIAaAB0AHQAcAA6AC8ALwBzAGMAaABlAG0AYQBzAC4AbQBpAGMAcgBvAHMAbwBmAHQALgBjAG8AbQAvAEQAUgBNAC8AMgAwADAANwAvADAAMwAvAFAAbABhAHkAUgBlAGEAZAB5AEgAZQBhAGQAZQByACIAIAB2AGUAcgBzAGkAbwBuAD0AIgA0AC4AMAAuADAALgAwACIAPgA8AEQAQQBUAEEAPgA8AFAAUgBPAFQARQBDAFQASQBOAEYATwA+ADwASwBFAFkATABFAE4APgAxADYAPAAvAEsARQBZAEwARQBOAD4APABBAEwARwBJAEQAPgBBAEUAUwBDAFQAUgA8AC8AQQBMAEcASQBEAD4APAAvAFAAUgBPAFQARQBDAFQASQBOAEYATwA+ADwASwBJAEQAPgA4AFQAYwAzAEQAVQA0ADgAZABSAHkAdwBGADkAbQBXAEkAZQB0AEwANABBAD0APQA8AC8ASwBJAEQAPgA8AC8ARABBAFQAQQA+ADwALwBXAFIATQBIAEUAQQBEAEUAUgA+AA==</cenc:pssh>
+        </ContentProtection><ContentProtection schemeIdUri="urn:uuid:EDEF8BA9-79D6-4ACE-A3C8-27DCD51D21ED"/><ContentProtection value="cenc" schemeIdUri="urn:mpeg:dash:mp4protection:2011" cenc:default_KID="0d3737f13c4e1c75b017d99621eb4be0"/>
+      <Representation codecs="mp4a.40.2" audioSamplingRate="44100" bandwidth="201790" id="201790">
+        <BaseURL>https://dpp-anvato-live.akamaized.net/eu/vod/10000001/19/02/27/10018191/audio-4383E931245193D547FA16C7C89DAADF6A27732EDA9B8633.mp4?hdntl=exp=1609177121~acl=/*~hmac=80a6f5af59442c576f60e5ea61d41a7f0675d1831a5e141b574fc9253453f716</BaseURL>
+
+
+
+        <SegmentList duration="262952" timescale="44100">
+          <Initialization range="0-1283"/>
+          <SegmentURL mediaRange="1284-150731"/>
+          <SegmentURL mediaRange="150732-302410"/>
+          <SegmentURL mediaRange="302411-453809"/>
+          <SegmentURL mediaRange="453810-605234"/>
+          <SegmentURL mediaRange="605235-756300"/>
+          <SegmentURL mediaRange="756301-907294"/>
+          <SegmentURL mediaRange="907295-1058989"/>
+          <SegmentURL mediaRange="1058990-1210570"/>
+          <SegmentURL mediaRange="1210571-1362057"/>
+          <SegmentURL mediaRange="1362058-1513154"/>
+          <SegmentURL mediaRange="1513155-1664155"/>
+          <SegmentURL mediaRange="1664156-1815812"/>
+          <SegmentURL mediaRange="1815813-1967412"/>
+          <SegmentURL mediaRange="1967413-2118531"/>
+          <SegmentURL mediaRange="2118532-2269732"/>
+          <SegmentURL mediaRange="2269733-2420830"/>
+          <SegmentURL mediaRange="2420831-2572627"/>
+          <SegmentURL mediaRange="2572628-2723834"/>
+          <SegmentURL mediaRange="2723835-2875247"/>
+          <SegmentURL mediaRange="2875248-3026489"/>
+          <SegmentURL mediaRange="3026490-3177884"/>
+          <SegmentURL mediaRange="3177885-3329624"/>
+          <SegmentURL mediaRange="3329625-3480527"/>
+          <SegmentURL mediaRange="3480528-3632138"/>
+          <SegmentURL mediaRange="3632139-3783084"/>
+          <SegmentURL mediaRange="3783085-3934195"/>
+          <SegmentURL mediaRange="3934196-4086115"/>
+          <SegmentURL mediaRange="4086116-4237409"/>
+          <SegmentURL mediaRange="4237410-4388844"/>
+          <SegmentURL mediaRange="4388845-4540138"/>
+          <SegmentURL mediaRange="4540139-4691207"/>
+          <SegmentURL mediaRange="4691208-4842756"/>
+          <SegmentURL mediaRange="4842757-4994190"/>
+          <SegmentURL mediaRange="4994191-5145562"/>
+          <SegmentURL mediaRange="5145563-5296746"/>
+          <SegmentURL mediaRange="5296747-5447966"/>
+          <SegmentURL mediaRange="5447967-5599577"/>
+          <SegmentURL mediaRange="5599578-5716553"/>
+        </SegmentList>
+      </Representation>
+    </AdaptationSet>
+  </Period>
+</MPD>
