@@ -19,16 +19,16 @@ class TestManifestRewrite(unittest.TestCase):
     def test_rewrite(self):
         self.maxDiff = None
         tests = [
-            ('manifest_01_input.txt', 'manifest_01_output.txt'),  # Uses SegmentTemplates
-            ('manifest_02_input.txt', 'manifest_02_output.txt'),  # Uses SegmentLists
-            ('manifest_03_input.txt', 'manifest_03_output.txt'),  # Uses a combination of SegmentTemplates and SegmentLists
+            ('manifest_01_input.xml', 'manifest_01_output.xml'),  # Uses SegmentTemplates
+            ('manifest_02_input.xml', 'manifest_02_output.xml'),  # Uses SegmentLists
+            ('manifest_03_input.xml', 'manifest_03_output.xml'),  # Uses a combination of SegmentTemplates and SegmentLists
         ]
 
         for test_input, test_output in tests:
-            with open('tests/proxy/' + test_input, 'r') as fdesc:
+            with open('tests/manifest_rewrite/' + test_input, 'r') as fdesc:
                 manifest_input = fdesc.read()
 
-            with open('tests/proxy/' + test_output, 'r') as fdesc:
+            with open('tests/manifest_rewrite/' + test_output, 'r') as fdesc:
                 manifest_output = fdesc.read()
 
             manifest_modified = Proxy.modify_manifest(manifest_input)
