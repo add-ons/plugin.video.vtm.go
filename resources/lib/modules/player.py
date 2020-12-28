@@ -150,6 +150,7 @@ class Player:
             port = kodiutils.get_setting_int('manifest_proxy_port')
             if not port:
                 kodiutils.notification(message=kodiutils.localize(30718), icon='error')
+                kodiutils.end_of_directory()
                 return
 
             url = 'http://127.0.0.1:{port}/manifest?{path}'.format(port=port,
@@ -166,6 +167,7 @@ class Player:
         kodi_player = KodiPlayer()
         if not kodi_player.waitForPlayBack(url=url):
             # Playback didn't start
+            kodiutils.end_of_directory()
             return
 
         # Send Up Next data

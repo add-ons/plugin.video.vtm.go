@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-""" Tests for VTM GO API """
+""" Tests for Manifest rewrite """
 
 # pylint: disable=invalid-name,missing-docstring
 
@@ -14,7 +14,7 @@ _LOGGER = logging.getLogger(__name__)
 
 
 class TestManifestRewrite(unittest.TestCase):
-    """ Tests for VTM GO API """
+    """ Tests for Manifest rewrite """
 
     def test_rewrite(self):
         self.maxDiff = None

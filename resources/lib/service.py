@@ -30,6 +30,7 @@ class BackgroundService(Monitor):
         """ Background loop for maintenance tasks """
         _LOGGER.debug('Service started')
 
+        kodiutils.set_setting('manifest_proxy_port', None)
         if kodiutils.get_setting_bool('manifest_proxy'):
             _LOGGER.debug('Starting Manifest Proxy...')
             self._proxy_thread = Proxy.start()

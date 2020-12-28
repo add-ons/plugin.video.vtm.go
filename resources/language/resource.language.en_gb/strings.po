@@ -488,7 +488,7 @@ msgid "InputStream Helper settings…"
 msgstr ""
 
 msgctxt "#30888"
-msgid "Use a embedded proxy to fetch the Manifest (Workaround for InputStream Adaptive bug)"
+msgid "Modify the MPEG DASH Manifest to workaround an InputStream Adaptive bug"
 msgstr ""
 
 msgctxt "#30889"
