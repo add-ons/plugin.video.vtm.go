@@ -81,7 +81,7 @@ class PlayerMonitor(Player):
         self.__listen = False
         self.__av_started = False
         self.__path = None
-        self.__subtitle_path = None
+        self.__subtitle_paths = None
         Player.__init__(self)
 
     def onPlayBackStarted(self):  # pylint: disable=invalid-name
@@ -92,7 +92,7 @@ class PlayerMonitor(Player):
             return
         self.__listen = True
         _LOGGER.debug('Player: [onPlayBackStarted] called')
-        self.__subtitle_path = None
+        self.__subtitle_paths = None
         self.__av_started = False
 
     def onAVStarted(self):  # pylint: disable=invalid-name
@@ -100,7 +100,7 @@ class PlayerMonitor(Player):
         if not self.__listen:
             return
         _LOGGER.debug('Player: [onAVStarted] called')
-        self.__subtitle_path = self.__get_subtitle_path()
+        self.__subtitle_paths = self.__get_subtitle_paths()
         self.__av_started = True
         self.__check_subtitles()
 
@@ -129,9 +129,10 @@ class PlayerMonitor(Player):
             _LOGGER.debug('Player: No internal subtitles found')
 
             # Add external subtitles
-            if self.__subtitle_path:
-                _LOGGER.debug('Player: Adding external subtitles %s', self.__subtitle_path)
-                self.setSubtitles(self.__subtitle_path)
+            if self.__subtitle_paths:
+                for subtitle in self.__subtitle_paths:
+                    _LOGGER.debug('Player: Adding external subtitles %s', subtitle)
+                    self.setSubtitles(subtitle)
 
         # Enable subtitles if needed
         show_subtitles = kodiutils.get_setting_bool('showsubtitles')
@@ -154,7 +155,7 @@ class PlayerMonitor(Player):
             return
         _LOGGER.debug('Player: [onPlayBackEnded] called')
         self.__av_started = False
-        self.__subtitle_path = None
+        self.__subtitle_paths = None
 
     def onPlayBackStopped(self):  # pylint: disable=invalid-name
         """ Will be called when [user] stops Kodi playing a file """
@@ -162,7 +163,7 @@ class PlayerMonitor(Player):
             return
         _LOGGER.debug('Player: [onPlayBackStopped] called')
         self.__av_started = False
-        self.__subtitle_path = None
+        self.__subtitle_paths = None
 
     def onPlayBackError(self):  # pylint: disable=invalid-name
         """ Will be called when playback stops due to an error. """
@@ -170,17 +171,17 @@ class PlayerMonitor(Player):
             return
         _LOGGER.debug('Player: [onPlayBackError] called')
         self.__av_started = False
-        self.__subtitle_path = None
+        self.__subtitle_paths = None
 
     @staticmethod
-    def __get_subtitle_path():
+    def __get_subtitle_paths():
         """ Get the external subtitles path """
         temp_path = kodiutils.addon_profile() + 'temp/'
         files = None
         if kodiutils.exists(temp_path):
             _, files = kodiutils.listdir(temp_path)
-        if files and len(files) == 1:
-            return temp_path + kodiutils.to_unicode(files[0])
+        if files and len(files) >= 1:
+            return [temp_path + kodiutils.to_unicode(filename) for filename in files]
         _LOGGER.debug('Player: No subtitle path')
         return None
 
