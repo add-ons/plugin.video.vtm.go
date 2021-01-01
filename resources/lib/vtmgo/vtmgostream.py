@@ -19,9 +19,7 @@ _LOGGER = logging.getLogger(__name__)
 class VtmGoStream:
     """ VTM GO Stream API """
 
-    _VTM_API_KEY = 'jL3yNhGpDsaew9CqJrDPq2UzMrlmNVbnadUXVOET'
-    _ANVATO_API_KEY = 'HOydnxEYtxXYY1UfT3ADuevMP7xRjPg6XYNrPLhFISL'
-    _ANVATO_USER_AGENT = 'ANVSDK Android/5.0.39 (Linux; Android 6.0.1; Nexus 5)'
+    _API_KEY = 'jL3yNhGpDsaew9CqJrDPq2UzMrlmNVbnadUXVOET'
 
     def __init__(self):
         """ Initialise object """
@@ -144,9 +142,8 @@ class VtmGoStream:
                                  },
                                  headers={
                                      'Accept': 'application/json',
-                                     'x-api-key': self._VTM_API_KEY,
+                                     'x-api-key': self._API_KEY,
                                      'Popcorn-SDK-Version': '4',
-                                     'User-Agent': 'Dalvik/2.1.0 (Linux; U; Android 6.0.1; MotoG3 Build/MPIS24.107-55-2-17)',
                                  },
                                  proxies=kodiutils.get_proxies())
 
@@ -155,11 +152,11 @@ class VtmGoStream:
 
     @staticmethod
     def _extract_stream_from_video_info(stream_type, stream_info):
-        """ Extract the anvato stream details.
+        """ Extract the requested stream details.
         :type stream_info: dict
         :rtype dict
         """
-        # Loop over available streams, and return the one from anvato
+        # Loop over available streams, and return the requested stream
         if stream_info.get('video'):
             for stream in stream_info.get('video').get('streams'):
                 if stream.get('type') == stream_type:
@@ -328,10 +325,6 @@ class VtmGoStream:
                                       'anvack': anvato_info['accessKey'],
                                       'anvtrid': self._generate_random_id(),
                                       'rtyp': 'fp',
-                                  },
-                                  headers={
-                                      'X-Anvato-User-Agent': self._ANVATO_USER_AGENT,
-                                      'User-Agent': self._ANVATO_USER_AGENT,
                                   })
 
         _LOGGER.debug('Got response (status=%s): %s', response.status_code, response.text)
@@ -355,17 +348,14 @@ class VtmGoStream:
         letters = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'
         return ''.join(random.choice(letters) for i in range(length))
 
-    def _download_text(self, url):
+    @staticmethod
+    def _download_text(url):
         """ Download a file as text.
         :type url: str
         :rtype str
         """
         _LOGGER.debug('Downloading text from %s', url)
-        response = util.http_get(url,
-                                 headers={
-                                     'X-Anvato-User-Agent': self._ANVATO_USER_AGENT,
-                                     'User-Agent': self._ANVATO_USER_AGENT,
-                                 })
+        response = util.http_get(url)
         if response.status_code != 200:
             raise Exception('Error %s.' % response.status_code)
 
