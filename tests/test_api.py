@@ -13,7 +13,7 @@ from resources.lib import kodiutils
 from resources.lib.modules.player import Player
 from resources.lib.vtmgo import Movie, Program, Category
 from resources.lib.vtmgo import vtmgo, vtmgostream, vtmgoauth, STOREFRONT_MAIN, STOREFRONT_MOVIES, STOREFRONT_SERIES
-from resources.lib.vtmgo.vtmgostream import StreamGeoblockedException
+from resources.lib.vtmgo.exceptions import StreamGeoblockedException
 
 
 @unittest.skipUnless(kodiutils.get_setting('username') and kodiutils.get_setting('password'), 'Skipping since we have no credentials.')
