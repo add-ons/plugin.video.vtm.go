@@ -87,7 +87,7 @@ class TestRouting(unittest.TestCase):
 
     @unittest.skipUnless(kodiutils.get_setting('username') and kodiutils.get_setting('password'), 'Skipping since we have no credentials.')
     def test_play_movie(self):
-        addon.run([routing.url_for(addon.play, category='movies', item='d1850498-941d-48cc-a558-37aaf37f4525'), '0', ''])
+        addon.run([routing.url_for(addon.play, category='movies', item='1c758fe2-fa19-4dc1-a9f6-fcd5eeb0a284'), '0', ''])
 
     @unittest.skipUnless(kodiutils.get_setting('username') and kodiutils.get_setting('password'), 'Skipping since we have no credentials.')
     def test_play_episode(self):
