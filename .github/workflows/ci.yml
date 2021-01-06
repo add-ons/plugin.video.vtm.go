@@ -13,7 +13,6 @@ jobs:
       PYTHONIOENCODING: utf-8
       KODI_HOME: ${{ github.workspace }}/tests/home
       KODI_INTERACTIVE: 0
-      KODI_STUB_RPC_RESPONSES: ${{ github.workspace }}/tests/rpc
     strategy:
       fail-fast: false
       matrix:
@@ -59,12 +58,11 @@ jobs:
         env:
           HTTP_PROXY: ${{ secrets.HTTP_PROXY }}
         run: coverage run -m unittest discover
-#      - name: Run addon service
-#        run: timeout --preserve-status -s SIGINT 10 coverage run -a service_entry.py
+#      - name: Run addon service (linux)
+#        if: matrix.os == 'ubuntu-latest'
 #        env:
-#          ADDON_PASSWORD: ${{ secrets.ADDON_PASSWORD }}
-#          ADDON_USERNAME: ${{ secrets.ADDON_USERNAME }}
-#          ADDON_PROFILE: ${{ secrets.ADDON_PROFILE }}
+#          HTTP_PROXY: ${{ secrets.HTTP_PROXY }}
+#        run: timeout --preserve-status -s SIGINT 10 coverage run -a service_entry.py
       - name: Upload code coverage to CodeCov
         if: matrix.os == 'ubuntu-latest'
         uses: codecov/codecov-action@v1
