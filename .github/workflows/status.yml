@@ -11,10 +11,10 @@ jobs:
       ADDON_PASSWORD: ${{ secrets.ADDON_PASSWORD }}
       ADDON_PROFILE: ${{ secrets.ADDON_PROFILE }}
       PYTHONIOENCODING: utf-8
-      PYTHONPATH: ${{ github.workspace }}/resources/lib:${{ github.workspace }}/tests
       KODI_HOME: ${{ github.workspace }}/tests/home
       KODI_INTERACTIVE: 0
       KODI_STUB_RPC_RESPONSES: ${{ github.workspace }}/tests/rpc
+      HTTP_PROXY: ${{ secrets.HTTP_PROXY }}
     strategy:
       fail-fast: false
     steps:

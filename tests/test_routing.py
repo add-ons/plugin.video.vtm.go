@@ -93,11 +93,11 @@ class TestRouting(unittest.TestCase):
     def test_play_episode(self):
         addon.run([routing.url_for(addon.play, category='episodes', item='03136212-d2f5-4c0f-abff-eac84ae8da42'), '0', ''])
 
-    # @unittest.skipUnless(kodiutils.get_setting('username') and kodiutils.get_setting('password'), 'Skipping since we have no credentials.')
-    # def test_play_epg(self):
-    #     import datetime
-    #     timestamp = datetime.datetime.now().replace(hour=6, minute=0, second=0)
-    #     addon.run([routing.url_for(addon.play_epg_datetime, channel='vtm', timestamp=timestamp.isoformat()), '0', ''])
+    @unittest.skipUnless(kodiutils.get_setting('username') and kodiutils.get_setting('password'), 'Skipping since we have no credentials.')
+    def test_play_epg(self):
+        import datetime
+        timestamp = datetime.datetime.now().replace(hour=6, minute=0, second=0)
+        addon.run([routing.url_for(addon.play_epg_datetime, channel='vtm', timestamp=timestamp.isoformat()), '0', ''])
 
 
 if __name__ == '__main__':

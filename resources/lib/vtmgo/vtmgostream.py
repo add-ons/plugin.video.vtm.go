@@ -144,8 +144,7 @@ class VtmGoStream:
                                      'Accept': 'application/json',
                                      'x-api-key': self._API_KEY,
                                      'Popcorn-SDK-Version': '4',
-                                 },
-                                 proxies=kodiutils.get_proxies())
+                                 })
 
         info = json.loads(response.text)
         return info

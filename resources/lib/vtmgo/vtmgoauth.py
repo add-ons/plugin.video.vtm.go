@@ -65,7 +65,6 @@ class VtmGoAuth:
         self._password = password
         self._loginprovider = loginprovider
         self._profile = profile
-        self._proxies = kodiutils.get_proxies()
         self._token_path = token_path
 
         if not self._username or not self._password:
@@ -151,7 +150,7 @@ class VtmGoAuth:
         util.SESSION.cookies.set('authId', str(uuid4()))
 
         # Start login flow
-        response = util.http_get('https://vtm.be/vtmgo/aanmelden?redirectUrl=https://vtm.be/vtmgo', proxies=self._proxies)
+        response = util.http_get('https://vtm.be/vtmgo/aanmelden?redirectUrl=https://vtm.be/vtmgo')
         response.raise_for_status()
 
         # Send login credentials
@@ -159,7 +158,7 @@ class VtmGoAuth:
             'userName': kodiutils.get_setting('username'),
             'password': kodiutils.get_setting('password'),
             'jsEnabled': 'true',
-        }, proxies=self._proxies)
+        })
         response.raise_for_status()
 
         if 'errorBlock-OIDC-004' in response.text:  # E-mailadres is niet gekend.
@@ -172,7 +171,7 @@ class VtmGoAuth:
             raise InvalidLoginException()
 
         # Follow login
-        response = util.http_get('https://login2.vtm.be/authorize/continue?client_id=vtm-go-web', proxies=self._proxies)
+        response = util.http_get('https://login2.vtm.be/authorize/continue?client_id=vtm-go-web')
         response.raise_for_status()
 
         # Extract state and code
@@ -192,7 +191,7 @@ class VtmGoAuth:
         response = util.http_post('https://vtm.be/vtmgo/login-callback', form={
             'state': state,
             'code': code,
-        }, proxies=self._proxies)
+        })
         response.raise_for_status()
 
         # Get JWT from cookies
