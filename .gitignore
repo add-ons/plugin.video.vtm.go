@@ -10,7 +10,7 @@ Thumbs.db
 *~
 .cache
 .coverage
-.tox/
+coverage.xml
 
 # Testing
 tests/home/userdata/addon_data

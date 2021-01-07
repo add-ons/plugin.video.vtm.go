@@ -1,11 +1,12 @@
-coverage
 pyjwt
 polib
 pylint
 pytest
+pytest-cov
+pytest-timeout
 python-dateutil
 pysocks
 requests
 git+git://github.com/dagwieers/kodi-plugin-routing.git@setup#egg=routing
-tox
 sakee
+win-inet-pton; platform_system=="Windows"
