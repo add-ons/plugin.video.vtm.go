@@ -24,7 +24,7 @@ class TestAuth(unittest.TestCase):
                                              kodiutils.get_tokens_path())
 
     def test_login(self):
-        token = self._vtmgoauth.login()
+        token = self._vtmgoauth.get_tokens()
         self.assertTrue(token)
 
     def test_get_profiles(self):
