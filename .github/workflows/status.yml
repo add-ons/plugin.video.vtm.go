@@ -6,33 +6,31 @@ jobs:
   tests:
     name: Checks
     runs-on: ubuntu-latest
-    env:
-      ADDON_USERNAME: ${{ secrets.ADDON_USERNAME }}
-      ADDON_PASSWORD: ${{ secrets.ADDON_PASSWORD }}
-      ADDON_PROFILE: ${{ secrets.ADDON_PROFILE }}
-      PYTHONIOENCODING: utf-8
-      KODI_HOME: ${{ github.workspace }}/tests/home
-      KODI_INTERACTIVE: 0
     strategy:
       fail-fast: false
       matrix:
-        os: [ ubuntu-latest ]
         python-version: [ 3.9 ]
     steps:
       - name: Check out ${{ github.sha }} from repository ${{ github.repository }}
         uses: actions/checkout@v2
+
       - name: Set up Python ${{ matrix.python-version }}
         uses: actions/setup-python@v1
         with:
           python-version: ${{ matrix.python-version }}
+
       - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Run tests
+        env:
+          ADDON_USERNAME: ${{ secrets.ADDON_USERNAME }}
+          ADDON_PASSWORD: ${{ secrets.ADDON_PASSWORD }}
+          ADDON_PROFILE: ${{ secrets.ADDON_PROFILE }}
+          PYTHONIOENCODING: utf-8
+          KODI_HOME: ${{ github.workspace }}/tests/home
+          KODI_INTERACTIVE: 0
+          HTTP_PROXY: ${{ secrets.HTTP_PROXY }}
         run: |
-          pip install -r requirements.txt
-      - name: TEST Authentication
-        env:
-          HTTP_PROXY: ${{ secrets.HTTP_PROXY }}
-        run: python -m pytest tests/test_auth.py
-      - name: TEST TV guide
-        env:
-          HTTP_PROXY: ${{ secrets.HTTP_PROXY }}
-        run: python -m pytest tests/test_epg.py -k test_get_epg
+          pytest -v tests/test_auth.py
+          pytest -v tests/test_epg.py -k test_get_epg
