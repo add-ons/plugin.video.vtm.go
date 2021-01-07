@@ -5,18 +5,19 @@
 
 from __future__ import absolute_import, division, unicode_literals
 
-import logging
 import os
 import sys
 
 import xbmcaddon
+
+from resources.lib import kodilogging
 
 try:  # Python 3
     from http.client import HTTPConnection
 except ImportError:  # Python 2
     from httplib import HTTPConnection
 
-logging.basicConfig(level=logging.DEBUG)
+kodilogging.config()
 
 # Add logging to urllib
 HTTPConnection.debuglevel = 1

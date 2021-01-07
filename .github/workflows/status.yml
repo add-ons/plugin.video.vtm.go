@@ -1,7 +1,7 @@
 name: Status
 on:
   schedule:
-    - cron:  '13 */4 * * *'
+    - cron: '13 */4 * * *'
 jobs:
   tests:
     name: Checks
@@ -16,8 +16,8 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest]
-        python-version: [3.9]
+        os: [ ubuntu-latest ]
+        python-version: [ 3.9 ]
     steps:
       - name: Check out ${{ github.sha }} from repository ${{ github.repository }}
         uses: actions/checkout@v2

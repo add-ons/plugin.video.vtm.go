@@ -12,8 +12,9 @@ import xbmc
 from resources.lib import kodiutils
 from resources.lib.modules.player import Player
 from resources.lib.vtmgo import Movie, Program, Category
-from resources.lib.vtmgo import vtmgo, vtmgostream, vtmgoauth, STOREFRONT_MAIN, STOREFRONT_MOVIES, STOREFRONT_SERIES
-from resources.lib.vtmgo.exceptions import StreamGeoblockedException
+from resources.lib.vtmgo import STOREFRONT_MAIN, STOREFRONT_MOVIES, STOREFRONT_SERIES
+from resources.lib.vtmgo.vtmgo import VtmGo
+from resources.lib.vtmgo.vtmgoauth import VtmGoAuth
 
 
 @unittest.skipUnless(kodiutils.get_setting('username') and kodiutils.get_setting('password'), 'Skipping since we have no credentials.')
@@ -22,94 +23,82 @@ class TestApi(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
-        cls._vtmgoauth = vtmgoauth.VtmGoAuth(kodiutils.get_setting('username'),
-                                             kodiutils.get_setting('password'),
-                                             'VTM',
-                                             kodiutils.get_setting('profile'),
-                                             kodiutils.get_tokens_path())
-        cls._vtmgo = vtmgo.VtmGo(cls._vtmgoauth)
-        cls._vtmgostream = vtmgostream.VtmGoStream()
-        cls._player = Player()
+        cls.auth = VtmGoAuth(kodiutils.get_setting('username'),
+                             kodiutils.get_setting('password'),
+                             'VTM',
+                             kodiutils.get_setting('profile'),
+                             kodiutils.get_tokens_path())
+        cls.api = VtmGo(cls.auth)
+        cls.player = Player()
 
     def tearDown(self):
         xbmc.Player().stop()
 
     def test_get_config(self):
-        config = self._vtmgo.get_config()
+        config = self.api.get_config()
         self.assertTrue(config)
 
     def test_catalog(self):
-        categories = self._vtmgo.get_categories()
+        categories = self.api.get_categories()
         self.assertTrue(categories)
 
-        items = self._vtmgo.get_items()
+        items = self.api.get_items()
         self.assertTrue(items)
 
         # Movies
         movie = next(a for a in items if isinstance(a, Movie) and not a.geoblocked)
-        info = self._vtmgo.get_movie(movie.movie_id)
+        info = self.api.get_movie(movie.movie_id)
         self.assertTrue(info)
-        try:
-            self._player.play('movies', info.movie_id)
-        except StreamGeoblockedException:
-            pass
+        self.player.play('movies', info.movie_id)
 
         # Programs
         program = next(a for a in items if isinstance(a, Program) and not a.geoblocked)
-        info = self._vtmgo.get_program(program.program_id)
+        info = self.api.get_program(program.program_id)
         self.assertTrue(info)
 
         season = list(info.seasons.values())[0]
         episode = list(season.episodes.values())[0]
-        info = self._vtmgo.get_episode(episode.episode_id)
+        info = self.api.get_episode(episode.episode_id)
         self.assertTrue(info)
-        try:
-            self._player.play('episodes', info.episode_id)
-        except StreamGeoblockedException:
-            pass
+        self.player.play('episodes', info.episode_id)
 
     def test_recommendations(self):
-        results = self._vtmgo.get_storefront(STOREFRONT_MAIN)
+        results = self.api.get_storefront(STOREFRONT_MAIN)
         self.assertIsInstance(results, list)
 
-        results = self._vtmgo.get_storefront_category(STOREFRONT_MOVIES, '9ab6cd7b-ee12-4177-b205-6e8cefea9833')  # Drama
+        results = self.api.get_storefront_category(STOREFRONT_MOVIES, '9ab6cd7b-ee12-4177-b205-6e8cefea9833')  # Drama
         self.assertIsInstance(results, Category)
         self.assertIsInstance(results.content, list)
 
-        results = self._vtmgo.get_storefront(STOREFRONT_MOVIES)
+        results = self.api.get_storefront(STOREFRONT_MOVIES)
         self.assertIsInstance(results, list)
 
-        results = self._vtmgo.get_storefront(STOREFRONT_SERIES)
+        results = self.api.get_storefront(STOREFRONT_SERIES)
         self.assertIsInstance(results, list)
 
     def test_mylist(self):
-        mylist = self._vtmgo.get_swimlane('my-list')
+        mylist = self.api.get_swimlane('my-list')
         self.assertIsInstance(mylist, list)
 
     def test_continuewatching(self):
-        mylist = self._vtmgo.get_swimlane('continue-watching')
+        mylist = self.api.get_swimlane('continue-watching')
         self.assertIsInstance(mylist, list)
 
     def test_search(self):
-        results = self._vtmgo.do_search('telefacts')
+        results = self.api.do_search('telefacts')
         self.assertIsInstance(results, list)
 
     def test_live(self):
-        channel = self._vtmgo.get_live_channel('vtm')
+        channel = self.api.get_live_channel('vtm')
         self.assertTrue(channel)
-
-        try:
-            self._player.play('channels', channel.channel_id)
-        except (StreamGeoblockedException, Exception):  # pylint: disable=broad-except
-            # TODO: fix this
-            pass
+        self.player.play('channels', channel.channel_id)
 
     def test_mylist_ids(self):
-        mylist = self._vtmgo.get_mylist_ids()
+        mylist = self.api.get_mylist_ids()
         self.assertIsInstance(mylist, list)
 
     def test_catalog_ids(self):
-        mylist = self._vtmgo.get_catalog_ids()
+        mylist = self.api.get_catalog_ids()
         self.assertIsInstance(mylist, list)
 
 
