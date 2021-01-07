@@ -28,7 +28,7 @@ class VtmGoStream:
                                'VTM',
                                kodiutils.get_setting('profile'),
                                kodiutils.get_tokens_path())
-        self._tokens = self._auth.login()
+        self._tokens = self._auth.get_tokens()
 
     def _mode(self):
         """ Return the mode that should be used for API calls """
