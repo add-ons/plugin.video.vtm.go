@@ -26,6 +26,16 @@ jobs:
             python-version: 3.8
           - os: windows-latest
             python-version: 3.9
+
+          # Kodi Leia on OSX uses a bundled Python 2.7.
+          - os: macos-latest
+            python-version: 2.7
+
+          # Kodi Matrix on OSX uses a bundled Python 3.8, but we test 3.9 also to be sure.
+          - os: macos-latest
+            python-version: 3.8
+          - os: macos-latest
+            python-version: 3.9
     steps:
       - name: Check out ${{ github.sha }} from repository ${{ github.repository }}
         uses: actions/checkout@v2
