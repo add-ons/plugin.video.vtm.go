@@ -347,7 +347,8 @@ class VtmGoStream:
         letters = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'
         return ''.join(random.choice(letters) for i in range(length))
 
-    def _download_manifest(self, url):
+    @staticmethod
+    def _download_manifest(url):
         """ Download the MPEG DASH manifest.
         :type url: str
         :rtype dict
@@ -365,7 +366,8 @@ class VtmGoStream:
         # Fallback to the url like we have it
         return dict(master_m3u8=url)
 
-    def _redirect_manifest(self, url):
+    @staticmethod
+    def _redirect_manifest(url):
         """ Follow the Location tag if it is found.
         :type url: str
         :rtype str
