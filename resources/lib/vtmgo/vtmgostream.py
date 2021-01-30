@@ -347,25 +347,13 @@ class VtmGoStream:
         letters = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'
         return ''.join(random.choice(letters) for i in range(length))
 
-    @staticmethod
-    def _download_text(url):
-        """ Download a file as text.
-        :type url: str
-        :rtype str
-        """
-        _LOGGER.debug('Downloading text from %s', url)
-        response = util.http_get(url)
-        if response.status_code != 200:
-            raise Exception('Error %s.' % response.status_code)
-
-        return response.text
-
     def _download_manifest(self, url):
         """ Download the MPEG DASH manifest.
         :type url: str
         :rtype dict
         """
-        download = self._download_text(url)
+        response = util.http_get(url, no_session=True)
+        download = response.text
         try:
             decoded = json.loads(download)
             if decoded.get('master_m3u8'):
@@ -386,8 +374,8 @@ class VtmGoStream:
 
         # Follow when a <Location>url</Location> tag is found.
         # https://github.com/peak3d/inputstream.adaptive/issues/286
-        download = self._download_text(url)
-        matches = re.search(r"<Location>([^<]+)</Location>", download)
+        response = util.http_get(url, no_session=True)
+        matches = re.search(r"<Location>([^<]+)</Location>", response.text)
         if matches:
             _LOGGER.debug('Followed redirection from %s to %s', url, matches.group(1))
             return matches.group(1)
