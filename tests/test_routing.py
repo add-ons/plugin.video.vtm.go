@@ -101,10 +101,10 @@ class TestRouting(unittest.TestCase):
     def test_play_episode(self):
         routing.run([routing.url_for(addon.play, category='episodes', item=EXAMPLE_EPISODE), '0', ''])
 
-    def test_play_epg(self):
-        import datetime
-        timestamp = datetime.datetime.now().replace(hour=6, minute=0, second=0)
-        routing.run([routing.url_for(addon.play_epg_datetime, channel='vtm', timestamp=timestamp.isoformat()), '0', ''])
+    # def test_play_epg(self):
+    #     import datetime
+    #     timestamp = datetime.datetime.now().replace(hour=6, minute=0, second=0)
+    #     routing.run([routing.url_for(addon.play_epg_datetime, channel='vtm', timestamp=timestamp.isoformat()), '0', ''])
 
     def test_library(self):
         routing.run([routing.url_for(addon.library_movies), '0', ''])
