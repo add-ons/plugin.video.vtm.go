@@ -39,9 +39,6 @@ class TestApi(unittest.TestCase):
         self.assertTrue(config)
 
     def test_catalog(self):
-        categories = self.api.get_categories()
-        self.assertTrue(categories)
-
         items = self.api.get_items()
         self.assertTrue(items)
 
