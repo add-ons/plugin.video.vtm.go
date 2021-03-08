@@ -26,8 +26,7 @@ class Player:
                                    'VTM',
                                    kodiutils.get_setting('profile'),
                                    kodiutils.get_tokens_path())
-        except NoLoginException as exc:
-            _LOGGER.warning(exc)
+        except NoLoginException:
             self._auth = None
 
         self._vtm_go = VtmGo(self._auth)
