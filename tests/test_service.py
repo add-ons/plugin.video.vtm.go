@@ -14,14 +14,13 @@ import unittest
 
 import pytest
 
-from resources.lib import addon, kodiutils
+from resources.lib import addon
 from resources.lib.service import BackgroundService
 
 routing = addon.routing
 
 
 @unittest.skipIf(sys.platform.startswith("win"), 'Skipping on Windows.')
-@unittest.skipUnless(kodiutils.get_setting('username') and kodiutils.get_setting('password'), 'Skipping since we have no credentials.')
 class TestService(unittest.TestCase):
     """ Tests for the background service """
 
