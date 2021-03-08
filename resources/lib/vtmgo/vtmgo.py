@@ -33,10 +33,10 @@ class ApiUpdateRequired(Exception):
 class VtmGo:
     """ VTM GO API """
 
-    def __init__(self, auth):
+    def __init__(self, auth=None):
         """ Initialise object """
         self._auth = auth
-        self._tokens = self._auth.get_tokens()
+        self._tokens = self._auth.get_tokens() if self._auth else None
 
     def _mode(self):
         """ Return the mode that should be used for API calls """
@@ -159,9 +159,12 @@ class VtmGo:
         :rtype list[LiveChannel]
         """
         import dateutil.parser
-        response = util.http_get(API_ENDPOINT + '/%s/live' % self._mode(),
-                                 token=self._tokens.jwt_token,
-                                 profile=self._tokens.profile)
+        if self._tokens:
+            response = util.http_get(API_ENDPOINT + '/%s/live' % self._mode(),
+                                     token=self._tokens.jwt_token,
+                                     profile=self._tokens.profile)
+        else:
+            response = util.http_get(API_ENDPOINT + '/%s/live' % self._mode())
         info = json.loads(response.text)
 
         channels = []
