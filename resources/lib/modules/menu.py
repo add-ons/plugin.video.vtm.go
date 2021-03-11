@@ -303,6 +303,7 @@ class Menu:
             })
             info_dict.update({
                 'mediatype': 'tvshow',
+                'year': item.year,
                 'season': len(item.seasons),
             })
             prop_dict.update({

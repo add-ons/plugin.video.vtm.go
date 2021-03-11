@@ -341,6 +341,7 @@ class VtmGo:
             program_id=program.get('id'),
             name=program.get('name'),
             description=program.get('description'),
+            year=program.get('productionYear'),
             cover=program.get('bigPhotoUrl'),
             image=program.get('bigPhotoUrl'),
             geoblocked=program.get('geoBlocked'),

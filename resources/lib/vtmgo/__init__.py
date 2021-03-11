@@ -138,12 +138,13 @@ class Movie:
 class Program:
     """ Defines a Program """
 
-    def __init__(self, program_id=None, name=None, description=None, cover=None, image=None, seasons=None,
+    def __init__(self, program_id=None, name=None, description=None, year=None, cover=None, image=None, seasons=None,
                  geoblocked=None, channel=None, legal=None, my_list=None, content_hash=None):
         """
         :type program_id: str
         :type name: str
         :type description: str
+        :type year: int
         :type cover: str
         :type image: str
         :type seasons: dict[int, Season]
@@ -156,6 +157,7 @@ class Program:
         self.program_id = program_id
         self.name = name
         self.description = description if description else ''
+        self.year = year
         self.cover = cover
         self.image = image
         self.seasons = seasons if seasons else {}
