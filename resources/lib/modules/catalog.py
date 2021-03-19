@@ -127,10 +127,13 @@ class Catalog:
                 title='* %s' % kodiutils.localize(30204),  # * All seasons
                 path=kodiutils.url_for('show_catalog_program_season', program=program, season=-1),
                 art_dict=dict(
-                    thumb=program_obj.cover,
-                    fanart=program_obj.cover,
+                    poster=program_obj.poster,
+                    thumb=program_obj.thumb,
+                    landscape=program_obj.thumb,
+                    fanart=program_obj.fanart,
                 ),
                 info_dict=dict(
+                    mediatype='season',
                     tvshowtitle=program_obj.name,
                     title=kodiutils.localize(30204),  # All seasons
                     tagline=program_obj.description,
@@ -146,10 +149,13 @@ class Catalog:
                 title=kodiutils.localize(30205, season=season.number),  # Season {season}
                 path=kodiutils.url_for('show_catalog_program_season', program=program, season=season.number),
                 art_dict=dict(
-                    thumb=season.cover,
-                    fanart=program_obj.cover,
+                    poster=program_obj.poster,
+                    thumb=program_obj.thumb,
+                    landscape=program_obj.thumb,
+                    fanart=program_obj.fanart,
                 ),
                 info_dict=dict(
+                    mediatype='season',
                     tvshowtitle=program_obj.name,
                     title=kodiutils.localize(30205, season=season.number),  # Season {season}
                     tagline=program_obj.description,
@@ -250,7 +256,7 @@ class Catalog:
         elif storefront == STOREFRONT_MOVIES:
             content = 'movies'
         else:
-            content = 'files'
+            content = 'tvshows'  # Fallback to a list of tvshows
 
         kodiutils.show_listing(listing, result.title, content=content, sort=['unsorted', 'label', 'year', 'duration'])
 
