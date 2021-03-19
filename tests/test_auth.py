@@ -28,6 +28,7 @@ class TestAuth(unittest.TestCase):
 
         account = auth.get_tokens()
         self.assertIsInstance(account, AccountStorage)
+        self.assertIsNotNone(account.jwt_token)
 
         profiles = auth.get_profiles()
         self.assertIsInstance(profiles[0], Profile)

@@ -8,7 +8,7 @@ import json
 import logging
 
 from resources.lib import kodiutils
-from resources.lib.vtmgo import API_ENDPOINT, Category, Episode, LiveChannel, LiveChannelEpg, Movie, Program, Season, util
+from resources.lib.vtmgo import API_ANDROID_ENDPOINT, API_ENDPOINT, Category, Episode, LiveChannel, LiveChannelEpg, Movie, Program, Season, util
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -45,7 +45,7 @@ class VtmGo:
     def get_config(self):
         """ Returns the config for the app """
         # This is currently not used
-        response = util.http_get(API_ENDPOINT + '/config', token=self._tokens.jwt_token)
+        response = util.http_get(API_ANDROID_ENDPOINT + '/vtmgo/config', token=self._tokens.jwt_token)
         info = json.loads(response.text)
 
         # This contains a player.updateIntervalSeconds that could be used to notify VTM GO about the playing progress
@@ -64,7 +64,7 @@ class VtmGo:
 
         items = []
         for row in result.get('rows', []):
-            if row.get('rowType') == 'SWIMLANE_DEFAULT':
+            if row.get('rowType') in ['SWIMLANE_DEFAULT', 'SWIMLANE_LANDSCAPE']:
                 items.append(Category(
                     category_id=row.get('id'),
                     title=row.get('title'),
@@ -115,9 +115,9 @@ class VtmGo:
 
         return Category(category_id=category, title=result.get('row', {}).get('title'), content=items)
 
-    def get_swimlane(self, swimlane, content_filter=None, cache=CACHE_ONLY):
+    def get_mylist(self, content_filter=None, cache=CACHE_ONLY):
         """ Returns the contents of My List """
-        response = util.http_get(API_ENDPOINT + '/%s/main/swimlane/%s' % (self._mode(), swimlane),
+        response = util.http_get(API_ENDPOINT + '/%s/my-list' % (self._mode()),
                                  token=self._tokens.jwt_token if self._tokens else None,
                                  profile=self._tokens.profile if self._tokens else None)
 
@@ -395,7 +395,7 @@ class VtmGo:
         :type episode_id: str
         :rtype Episode
         """
-        response = util.http_get(API_ENDPOINT + '/%s/play/episode/%s' % (self._mode(), episode_id),
+        response = util.http_get(API_ENDPOINT + '/%s/play/episodes/%s' % (self._mode(), episode_id),
                                  token=self._tokens.jwt_token if self._tokens else None,
                                  profile=self._tokens.profile if self._tokens else None)
         episode = json.loads(response.text)
@@ -429,7 +429,7 @@ class VtmGo:
             return items
 
         # Fetch from API
-        response = util.http_get(API_ENDPOINT + '/%s/main/swimlane/%s' % (self._mode(), 'my-list'),
+        response = util.http_get(API_ENDPOINT + '/%s/my-list' % (self._mode()),
                                  token=self._tokens.jwt_token,
                                  profile=self._tokens.profile)
 

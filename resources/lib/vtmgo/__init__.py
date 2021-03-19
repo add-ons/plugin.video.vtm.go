@@ -4,6 +4,7 @@
 from __future__ import absolute_import, division, unicode_literals
 
 API_ENDPOINT = 'https://lfvp-api.dpgmedia.net'
+API_ANDROID_ENDPOINT = 'https://lfvp-android-api.dpgmedia.net'
 
 # These seem to be hardcoded
 STOREFRONT_MAIN = '9620cc0b-0f97-4d96-902a-827dcfd0b227'
