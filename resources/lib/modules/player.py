@@ -224,7 +224,9 @@ class Player:
                 tvshowid=current_episode.program_id,
                 title=current_episode.name,
                 art={
-                    'thumb': current_episode.cover,
+                    'poster': current_episode.poster,
+                    'landscape': current_episode.thumb,
+                    'fanart': current_episode.fanart,
                 },
                 season=current_episode.season,
                 episode=current_episode.number,
@@ -240,7 +242,9 @@ class Player:
                 tvshowid=next_episode.program_id,
                 title=next_episode.name,
                 art={
-                    'thumb': next_episode.cover,
+                    'poster': next_episode.poster,
+                    'landscape': next_episode.thumb,
+                    'fanart': next_episode.fanart,
                 },
                 season=next_episode.season,
                 episode=next_episode.number,

@@ -263,8 +263,8 @@ class VtmGo:
             name=movie.get('name'),
             description=movie.get('description'),
             duration=movie.get('durationSeconds'),
-            cover=movie.get('bigPhotoUrl'),
-            image=movie.get('bigPhotoUrl'),
+            thumb=movie.get('teaserImageUrl'),
+            fanart=movie.get('bigPhotoUrl'),
             year=movie.get('productionYear'),
             geoblocked=movie.get('geoBlocked'),
             remaining=movie.get('remainingDaysAvailable'),
@@ -316,7 +316,8 @@ class VtmGo:
                     name=item_episode.get('name'),
                     description=item_episode.get('description'),
                     duration=item_episode.get('durationSeconds'),
-                    cover=item_episode.get('bigPhotoUrl'),
+                    thumb=item_episode.get('bigPhotoUrl'),
+                    fanart=item_episode.get('bigPhotoUrl'),
                     geoblocked=program.get('geoBlocked'),
                     remaining=item_episode.get('remainingDaysAvailable'),
                     channel=channel,
@@ -330,9 +331,6 @@ class VtmGo:
             seasons[item_season.get('index')] = Season(
                 number=item_season.get('index'),
                 episodes=episodes,
-                cover=item_season.get('episodes', [{}])[0].get('bigPhotoUrl')
-                if episodes else program.get('bigPhotoUrl'),
-                geoblocked=program.get('geoBlocked'),
                 channel=channel,
                 legal=program.get('legalIcons'),
             )
@@ -342,8 +340,8 @@ class VtmGo:
             name=program.get('name'),
             description=program.get('description'),
             year=program.get('productionYear'),
-            cover=program.get('bigPhotoUrl'),
-            image=program.get('bigPhotoUrl'),
+            thumb=program.get('teaserImageUrl'),
+            fanart=program.get('bigPhotoUrl'),
             geoblocked=program.get('geoBlocked'),
             seasons=seasons,
             channel=channel,
@@ -408,7 +406,7 @@ class VtmGo:
                 program_name=next_playable['title'],
                 name=next_playable['subtitle'],
                 description=next_playable['description'],
-                cover=next_playable['imageUrl'],
+                poster=next_playable['imageUrl'],
             )
         else:
             next_episode = None
@@ -416,7 +414,7 @@ class VtmGo:
         return Episode(
             episode_id=episode.get('id'),
             name=episode.get('title'),
-            cover=episode.get('posterImageUrl'),
+            poster=episode.get('posterImageUrl'),
             progress=episode.get('playerPositionSeconds'),
             next_episode=next_episode,
         )
@@ -498,16 +496,12 @@ class VtmGo:
         """
         movie = self.get_movie(item.get('target', {}).get('id'), cache=cache)
         if movie:
-            # We might have a cover from the overview that we don't have in the details
-            if item.get('imageUrl'):
-                movie.cover = item.get('imageUrl')
             return movie
 
         return Movie(
             movie_id=item.get('target', {}).get('id'),
             name=item.get('title'),
-            cover=item.get('imageUrl'),
-            image=item.get('imageUrl'),
+            thumb=item.get('imageUrl'),
             geoblocked=item.get('geoBlocked'),
         )
 
@@ -519,16 +513,12 @@ class VtmGo:
         """
         program = self.get_program(item.get('target', {}).get('id'), cache=cache)
         if program:
-            # We might have a cover from the overview that we don't have in the details
-            if item.get('imageUrl'):
-                program.cover = item.get('imageUrl')
             return program
 
         return Program(
             program_id=item.get('target', {}).get('id'),
             name=item.get('title'),
-            cover=item.get('imageUrl'),
-            image=item.get('imageUrl'),
+            thumb=item.get('imageUrl'),
             geoblocked=item.get('geoBlocked'),
         )
 
@@ -548,7 +538,7 @@ class VtmGo:
             name=item.get('label'),
             description=episode.description if episode else None,
             geoblocked=item.get('geoBlocked'),
-            cover=item.get('imageUrl'),
+            thumb=item.get('imageUrl'),
             progress=item.get('playerPositionSeconds'),
             watched=False,
             remaining=item.get('remainingDaysAvailable'),

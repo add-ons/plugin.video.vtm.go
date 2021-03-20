@@ -99,7 +99,7 @@ class IPTVManager:
                         # season=None,  # Not available in the API
                         # epsiode=None,  # Not available in the API
                         genre=broadcast.genre,
-                        image=broadcast.image,
+                        image=broadcast.thumb,
                         stream=kodiutils.url_for('play',
                                                  category=broadcast.playable_type,
                                                  item=broadcast.playable_uuid) if broadcast.playable_uuid else None)
