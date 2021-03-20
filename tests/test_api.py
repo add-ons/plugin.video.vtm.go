@@ -74,12 +74,12 @@ class TestApi(unittest.TestCase):
         self.assertIsInstance(results, list)
 
     def test_mylist(self):
-        mylist = self.api.get_swimlane('my-list')
+        mylist = self.api.get_mylist()
         self.assertIsInstance(mylist, list)
 
     def test_continuewatching(self):
-        mylist = self.api.get_swimlane('continue-watching')
-        self.assertIsInstance(mylist, list)
+        result = self.api.get_storefront_category(STOREFRONT_MAIN, 'continue-watching')
+        self.assertIsInstance(result.content, list)
 
     def test_search(self):
         results = self.api.do_search('telefacts')

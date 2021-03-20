@@ -8,7 +8,7 @@ import logging
 from resources.lib import kodiutils
 from resources.lib.modules import CHANNELS
 from resources.lib.modules.menu import Menu
-from resources.lib.vtmgo import STOREFRONT_MOVIES, STOREFRONT_SERIES, Category
+from resources.lib.vtmgo import STOREFRONT_MAIN, STOREFRONT_MOVIES, STOREFRONT_SERIES, Category
 from resources.lib.vtmgo.exceptions import UnavailableException
 from resources.lib.vtmgo.vtmgo import CACHE_PREVENT, ApiUpdateRequired, VtmGo
 from resources.lib.vtmgo.vtmgoauth import VtmGoAuth
@@ -257,7 +257,7 @@ class Catalog:
     def show_mylist(self):
         """ Show the items in "My List" """
         try:
-            mylist = self._vtm_go.get_swimlane('my-list')
+            mylist = self._vtm_go.get_mylist()
         except ApiUpdateRequired:
             kodiutils.ok_dialog(message=kodiutils.localize(30705))  # The VTM GO Service has been updated...
             return
@@ -294,7 +294,7 @@ class Catalog:
     def show_continuewatching(self):
         """ Show the items in "Continue Watching" """
         try:
-            mylist = self._vtm_go.get_swimlane('continue-watching')
+            category = self._vtm_go.get_storefront_category(STOREFRONT_MAIN, 'continue-watching')
         except ApiUpdateRequired:
             kodiutils.ok_dialog(message=kodiutils.localize(30705))  # The VTM GO Service has been updated...
             return
@@ -305,7 +305,7 @@ class Catalog:
             return
 
         listing = []
-        for item in mylist:
+        for item in category.content:
             titleitem = Menu.generate_titleitem(item, progress=True)
 
             # Add Program Name to title since this list contains episodes from multiple programs
