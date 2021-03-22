@@ -64,7 +64,7 @@ class VtmGo:
 
         items = []
         for row in result.get('rows', []):
-            if row.get('rowType') in ['SWIMLANE_DEFAULT', 'SWIMLANE_LANDSCAPE']:
+            if row.get('rowType') in ['SWIMLANE_DEFAULT', 'SWIMLANE_PORTRAIT', 'SWIMLANE_LANDSCAPE']:
                 items.append(Category(
                     category_id=row.get('id'),
                     title=row.get('title'),
@@ -80,7 +80,7 @@ class VtmGo:
                         items.append(self._parse_program_teaser(item))
                 continue
 
-            if row.get('rowType') == 'MARKETING_BLOCK':
+            if row.get('rowType') in ['TOP_BANNER', 'MARKETING_BLOCK']:
                 item = row.get('teaser')
                 if item.get('target', {}).get('type') == CONTENT_TYPE_MOVIE:
                     items.append(self._parse_movie_teaser(item))
