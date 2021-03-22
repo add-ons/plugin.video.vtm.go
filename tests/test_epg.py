@@ -11,6 +11,7 @@ import xbmc
 
 from resources.lib import addon
 from resources.lib import kodiutils
+from resources.lib.modules import CHANNELS
 from resources.lib.vtmgo import vtmgoepg
 
 routing = addon.routing
@@ -38,10 +39,19 @@ class TestEpg(unittest.TestCase):
     def test_get_epg(self):
         from datetime import date
 
-        # Get list of EPG for today
-        epg = self.epg.get_epg(channel='vtm3')
-        self.assertTrue(epg)
+        # Test EPG for all channels
+        for _, channel in CHANNELS.items():
+            if not channel.get('epg'):
+                continue
 
+            epg = self.epg.get_epg(channel=channel.get('epg'))
+            self.assertTrue(epg)
+
+        # This channel doesn't exist
+        with self.assertRaises(Exception):
+            self.epg.get_epg(channel='caz')
+
+        # Get list of EPG by date
         epg = self.epg.get_epg(channel='vtm', date=date.today().strftime('%Y-%m-%d'))
         self.assertTrue(epg)
 
@@ -53,20 +63,9 @@ class TestEpg(unittest.TestCase):
         epg_yesterday = self.epg.get_epg(channel='vtm', date='yesterday')
         self.assertTrue(epg_yesterday)
 
-        # Get list of EPG for today
-        epg_today = self.epg.get_epg(channel='vtm4', date='today')
-        self.assertTrue(epg_today)
-
-        # combined_broadcasts = epg_today.broadcasts + epg_tomorrow.broadcasts + epg_yesterday.broadcasts
-
-        # broadcast = next(b for b in combined_broadcasts if b.playable_type == 'episodes')
-        # if broadcast:
-        #     routing.run([routing.url_for(addon.show_catalog_program, program=broadcast.program_uuid), '0', ''])
-
-        # broadcast = next(b for b in combined_broadcasts if b.playable_type == 'movies')
-        # if broadcast:
-        #     routing.run(
-        #         [routing.url_for(addon.play, category=broadcast.playable_type, item=broadcast.playable_uuid), '0', ''])
+        broadcast = next(b for b in epg_yesterday.broadcasts if b.playable_type == 'episodes' and b.title == 'VTM NIEUWS')
+        routing.run([routing.url_for(addon.show_catalog_program, program=broadcast.program_uuid), '0', ''])
+        routing.run([routing.url_for(addon.play, category=broadcast.playable_type, item=broadcast.playable_uuid), '0', ''])
 
 
 if __name__ == '__main__':
