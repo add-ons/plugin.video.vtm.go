@@ -300,3 +300,7 @@ class VtmGoAuth:
 
         with open(os.path.join(self._token_path, self.TOKEN_FILE), 'w') as fdesc:
             json.dump(self._account.__dict__, fdesc, indent=2)
+
+    def delete_cache(self):
+        """ Delete tokens from cache """
+        os.remove(os.path.join(self._token_path, self.TOKEN_FILE))
