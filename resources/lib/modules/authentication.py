@@ -37,8 +37,8 @@ class Authentication:
             return
 
         except InvalidTokenException:
-            self._auth.delete_cache()
-            kodiutils.redirect(kodiutils.url_for('show_main_menu'))
+            self._auth.logout()
+            kodiutils.redirect(kodiutils.url_for('select_profile'))
             return
 
         except LoginErrorException as exc:
