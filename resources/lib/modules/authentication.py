@@ -92,6 +92,11 @@ class Authentication:
 
         kodiutils.show_listing(listing, sort=['unsorted'], category=30057)  # Select Profile
 
+    def clear_tokens(self):
+        """ Clear the authentication tokens """
+        self._auth.logout()
+        kodiutils.notification(message=kodiutils.localize(30706))
+
     @staticmethod
     def _get_profile_name(profile):
         """ Get a descriptive string of the profile
