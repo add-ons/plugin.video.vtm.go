@@ -99,25 +99,26 @@ class Proxy(BaseHTTPRequestHandler):
         """ Modify the manifest so Inputstream Adaptive can handle it. """
 
         def repl(matchobj):
-            """ Modify an AdaptationSet. We will be removing the BaseURL and prefixing it with the URL's in all SegmentTemplates. """
+            """ Modify an AdaptationSet. We will be removing a bad default_KID, the BaseURL and prefixing it with the URL's in all SegmentTemplates. """
             adaptationset = matchobj.group(0)
 
+            # Remove bad default_KID
+            adaptationset = re.sub(r' default_KID=\"00112233-4455-6677-8899-aabbccddeeff\"', '', adaptationset)
+
             # Only process AdaptationSets that use a SegmentTemplate
-            if '<SegmentTemplate' not in adaptationset:
-                return adaptationset
+            if '<SegmentTemplate' in adaptationset:
 
-            # Extract BaseURL
-            match = re.search(r'<BaseURL>(.*?)</BaseURL>', adaptationset)
-            if not match:
-                return adaptationset
-            base_url = match.group(1)
+                # Extract BaseURL
+                match = re.search(r'<BaseURL>(.*?)</BaseURL>', adaptationset)
+                if match:
+                    base_url = match.group(1)
 
-            # Remove BaseURL
-            adaptationset = re.sub(r'\s*?<BaseURL>.*?</BaseURL>', '', adaptationset)
+                    # Remove BaseURL
+                    adaptationset = re.sub(r'\s*?<BaseURL>.*?</BaseURL>', '', adaptationset)
 
-            # Prefix BaseURL on initialization=" and media=" tags
-            adaptationset = re.sub(r'(<SegmentTemplate[^>]*?initialization=\")([^\"]*)(\"[^>]*?>)', r'\1' + base_url + r'\2\3', adaptationset)
-            adaptationset = re.sub(r'(<SegmentTemplate[^>]*?media=\")([^\"]*)(\"[^>]*?>)', r'\1' + base_url + r'\2\3', adaptationset)
+                    # Prefix BaseURL on initialization=" and media=" tags
+                    adaptationset = re.sub(r'(<SegmentTemplate[^>]*?initialization=\")([^\"]*)(\"[^>]*?>)', r'\1' + base_url + r'\2\3', adaptationset)
+                    adaptationset = re.sub(r'(<SegmentTemplate[^>]*?media=\")([^\"]*)(\"[^>]*?>)', r'\1' + base_url + r'\2\3', adaptationset)
 
             return adaptationset
 
