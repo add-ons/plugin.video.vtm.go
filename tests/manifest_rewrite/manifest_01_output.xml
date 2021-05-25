@@ -35,7 +35,7 @@
     <AdaptationSet mimeType="audio/mp4" lang="en">
       <ContentProtection schemeIdUri="urn:uuid:9a04f079-9840-4286-ab92-e65be0885f95" value="MSPR 2.0"/>
       <ContentProtection schemeIdUri="urn:uuid:EDEF8BA9-79D6-4ACE-A3C8-27DCD51D21ED"/>
-      <ContentProtection value="cenc" schemeIdUri="urn:mpeg:dash:mp4protection:2011" default_KID="002ec768-1168-274d-626b-638243f3a71d"/>
+      <ContentProtection value="cenc" schemeIdUri="urn:mpeg:dash:mp4protection:2011"/>
       <SegmentTemplate initialization="https://dpp-anvato-live.akamaized.net/eu/vod/10000001/20/11/26/10213236/audio-$RepresentationID$-init.mp4?hdntl=exp=1609100759~acl=/*~hmac=8fa595ba401926af677d70fa67129d4439284a6a0d373c6ba538341ef5a18904" media="https://dpp-anvato-live.akamaized.net/eu/vod/10000001/20/11/26/10213236/audio-$RepresentationID$-$Number$.mp4?hdntl=exp=1609100759~acl=/*~hmac=8fa595ba401926af677d70fa67129d4439284a6a0d373c6ba538341ef5a18904" startNumber="1" timescale="44100" presentationTimeOffset="0" duration="176128">
 
                 </SegmentTemplate>
@@ -45,7 +45,7 @@
     <AdaptationSet mimeType="video/mp4">
       <ContentProtection schemeIdUri="urn:uuid:9a04f079-9840-4286-ab92-e65be0885f95" value="MSPR 2.0"/>
       <ContentProtection schemeIdUri="urn:uuid:EDEF8BA9-79D6-4ACE-A3C8-27DCD51D21ED"/>
-      <ContentProtection value="cenc" schemeIdUri="urn:mpeg:dash:mp4protection:2011" default_KID="022ec768-1168-274d-626b-638243f3a71d"/>
+      <ContentProtection value="cenc" schemeIdUri="urn:mpeg:dash:mp4protection:2011"/>
       <SegmentTemplate initialization="https://dpp-anvato-live.akamaized.net/eu/vod/10000001/20/11/26/10213236/video-$RepresentationID$-init.mp4?hdntl=exp=1609100759~acl=/*~hmac=8fa595ba401926af677d70fa67129d4439284a6a0d373c6ba538341ef5a18904" media="https://dpp-anvato-live.akamaized.net/eu/vod/10000001/20/11/26/10213236/video-$RepresentationID$-$Number$.mp4?hdntl=exp=1609100759~acl=/*~hmac=8fa595ba401926af677d70fa67129d4439284a6a0d373c6ba538341ef5a18904" startNumber="1" timescale="10000" presentationTimeOffset="0" duration="40000">
 
                 </SegmentTemplate>
@@ -57,7 +57,7 @@
     <AdaptationSet mimeType="video/mp4">
       <ContentProtection schemeIdUri="urn:uuid:9a04f079-9840-4286-ab92-e65be0885f95" value="MSPR 2.0"/>
       <ContentProtection schemeIdUri="urn:uuid:EDEF8BA9-79D6-4ACE-A3C8-27DCD51D21ED"/>
-      <ContentProtection value="cenc" schemeIdUri="urn:mpeg:dash:mp4protection:2011" default_KID="012ec768-1168-274d-626b-638243f3a71d"/>
+      <ContentProtection value="cenc" schemeIdUri="urn:mpeg:dash:mp4protection:2011"/>
       <SegmentTemplate initialization="https://dpp-anvato-live.akamaized.net/eu/vod/10000001/20/11/26/10213236/video-$RepresentationID$-init.mp4?hdntl=exp=1609100759~acl=/*~hmac=8fa595ba401926af677d70fa67129d4439284a6a0d373c6ba538341ef5a18904" media="https://dpp-anvato-live.akamaized.net/eu/vod/10000001/20/11/26/10213236/video-$RepresentationID$-$Number$.mp4?hdntl=exp=1609100759~acl=/*~hmac=8fa595ba401926af677d70fa67129d4439284a6a0d373c6ba538341ef5a18904" startNumber="1" timescale="10000" presentationTimeOffset="0" duration="40000">
 
                 </SegmentTemplate>
@@ -169,7 +169,7 @@
     <AdaptationSet mimeType="audio/mp4" lang="en">
       <ContentProtection schemeIdUri="urn:uuid:9a04f079-9840-4286-ab92-e65be0885f95" value="MSPR 2.0"/>
       <ContentProtection schemeIdUri="urn:uuid:EDEF8BA9-79D6-4ACE-A3C8-27DCD51D21ED"/>
-      <ContentProtection value="cenc" schemeIdUri="urn:mpeg:dash:mp4protection:2011" default_KID="002ec768-1168-274d-626b-638243f3a71d"/>
+      <ContentProtection value="cenc" schemeIdUri="urn:mpeg:dash:mp4protection:2011"/>
       <SegmentTemplate initialization="https://dpp-anvato-live.akamaized.net/eu/vod/10000001/20/11/26/10213236/audio-$RepresentationID$-init.mp4?hdntl=exp=1609100759~acl=/*~hmac=8fa595ba401926af677d70fa67129d4439284a6a0d373c6ba538341ef5a18904" media="https://dpp-anvato-live.akamaized.net/eu/vod/10000001/20/11/26/10213236/audio-$RepresentationID$-$Number$.mp4?hdntl=exp=1609100759~acl=/*~hmac=8fa595ba401926af677d70fa67129d4439284a6a0d373c6ba538341ef5a18904" startNumber="273" timescale="44100" presentationTimeOffset="47895552" duration="176128">
 
                 </SegmentTemplate>
@@ -179,7 +179,7 @@
     <AdaptationSet mimeType="video/mp4">
       <ContentProtection schemeIdUri="urn:uuid:9a04f079-9840-4286-ab92-e65be0885f95" value="MSPR 2.0"/>
       <ContentProtection schemeIdUri="urn:uuid:EDEF8BA9-79D6-4ACE-A3C8-27DCD51D21ED"/>
-      <ContentProtection value="cenc" schemeIdUri="urn:mpeg:dash:mp4protection:2011" default_KID="022ec768-1168-274d-626b-638243f3a71d"/>
+      <ContentProtection value="cenc" schemeIdUri="urn:mpeg:dash:mp4protection:2011"/>
       <SegmentTemplate initialization="https://dpp-anvato-live.akamaized.net/eu/vod/10000001/20/11/26/10213236/video-$RepresentationID$-init.mp4?hdntl=exp=1609100759~acl=/*~hmac=8fa595ba401926af677d70fa67129d4439284a6a0d373c6ba538341ef5a18904" media="https://dpp-anvato-live.akamaized.net/eu/vod/10000001/20/11/26/10213236/video-$RepresentationID$-$Number$.mp4?hdntl=exp=1609100759~acl=/*~hmac=8fa595ba401926af677d70fa67129d4439284a6a0d373c6ba538341ef5a18904" startNumber="273" timescale="10000" presentationTimeOffset="10860800" duration="40000">
 
                 </SegmentTemplate>
@@ -191,7 +191,7 @@
     <AdaptationSet mimeType="video/mp4">
       <ContentProtection schemeIdUri="urn:uuid:9a04f079-9840-4286-ab92-e65be0885f95" value="MSPR 2.0"/>
       <ContentProtection schemeIdUri="urn:uuid:EDEF8BA9-79D6-4ACE-A3C8-27DCD51D21ED"/>
-      <ContentProtection value="cenc" schemeIdUri="urn:mpeg:dash:mp4protection:2011" default_KID="012ec768-1168-274d-626b-638243f3a71d"/>
+      <ContentProtection value="cenc" schemeIdUri="urn:mpeg:dash:mp4protection:2011"/>
       <SegmentTemplate initialization="https://dpp-anvato-live.akamaized.net/eu/vod/10000001/20/11/26/10213236/video-$RepresentationID$-init.mp4?hdntl=exp=1609100759~acl=/*~hmac=8fa595ba401926af677d70fa67129d4439284a6a0d373c6ba538341ef5a18904" media="https://dpp-anvato-live.akamaized.net/eu/vod/10000001/20/11/26/10213236/video-$RepresentationID$-$Number$.mp4?hdntl=exp=1609100759~acl=/*~hmac=8fa595ba401926af677d70fa67129d4439284a6a0d373c6ba538341ef5a18904" startNumber="273" timescale="10000" presentationTimeOffset="10860800" duration="40000">
 
                 </SegmentTemplate>

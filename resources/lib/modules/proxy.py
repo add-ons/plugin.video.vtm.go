@@ -99,11 +99,12 @@ class Proxy(BaseHTTPRequestHandler):
         """ Modify the manifest so Inputstream Adaptive can handle it. """
 
         def repl(matchobj):
-            """ Modify an AdaptationSet. We will be removing a bad default_KID, the BaseURL and prefixing it with the URL's in all SegmentTemplates. """
+            """ Modify an AdaptationSet. We will be removing default_KIDs, the BaseURL and prefixing it with the URL's in all SegmentTemplates. """
             adaptationset = matchobj.group(0)
 
-            # Remove bad default_KID
-            adaptationset = re.sub(r' default_KID=\"00112233-4455-6677-8899-aabbccddeeff\"', '', adaptationset)
+            # Remove default_KIDs because the manifests from VTM GO have non cenc namespaced default_KID attributes in the ContentProtection tags and
+            # InputStream Adaptive is picking them up but something is going wrong. More info: https://github.com/xbmc/inputstream.adaptive/issues/667#issuecomment-840849939
+            adaptationset = re.sub(r' default_KID=\".*?\"', '', adaptationset)
 
             # Only process AdaptationSets that use a SegmentTemplate
             if '<SegmentTemplate' in adaptationset:
