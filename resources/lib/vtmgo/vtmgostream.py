@@ -37,7 +37,7 @@ class VtmGoStream:
         # We begin with asking the api about the stream info.
         video_info = self._get_video_info(stream_type, stream_id)
 
-        # Live channels are only available trough anvato
+        # Live channels are only available through anvato
         if video_info.get('video').get('streamType') == 'live':
             protocol = 'anvato'
         else:
