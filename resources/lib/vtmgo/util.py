@@ -26,7 +26,7 @@ SESSION.headers = {
 PROXIES = kodiutils.get_proxies()
 
 
-def http_get(url, params=None, token=None, profile=None, headers=None, no_session=False):
+def http_get(url, params=None, token=None, profile=None, headers=None):
     """ Make a HTTP GET request for the specified URL.
 
     :param str url:                 The URL to call.
@@ -39,7 +39,7 @@ def http_get(url, params=None, token=None, profile=None, headers=None, no_sessio
     :rtype: requests.Response
     """
     try:
-        return _request('GET', url=url, params=params, token=token, profile=profile, headers=headers, no_session=no_session)
+        return _request('GET', url=url, params=params, token=token, profile=profile, headers=headers)
     except HTTPError as exc:
         if exc.response.status_code == 401:
             raise InvalidTokenException(exc)
@@ -130,7 +130,7 @@ def http_delete(url, params=None, token=None, profile=None, headers=None):
         raise
 
 
-def _request(method, url, params=None, form=None, data=None, token=None, profile=None, headers=None, no_session=False):
+def _request(method, url, params=None, form=None, data=None, token=None, profile=None, headers=None):
     """ Makes a request for the specified URL.
 
     :param str method:              The HTTP Method to use.
@@ -164,10 +164,7 @@ def _request(method, url, params=None, form=None, data=None, token=None, profile
     if profile:
         headers['x-dpp-profile'] = profile
 
-    if no_session:
-        response = requests.request(method, url, params=params, data=form, json=data, headers=headers, proxies=PROXIES)
-    else:
-        response = SESSION.request(method, url, params=params, data=form, json=data, headers=headers, proxies=PROXIES)
+    response = SESSION.request(method, url, params=params, data=form, json=data, headers=headers, proxies=PROXIES)
 
     # Set encoding to UTF-8 if no charset is indicated in http headers (https://github.com/psf/requests/issues/1604)
     if not response.encoding:

@@ -280,10 +280,9 @@ class VtmGoStream:
         :type url: str
         :rtype dict
         """
-        response = util.http_get(url, no_session=True)
-        download = response.text
+        response = util.http_get(url)
         try:
-            decoded = json.loads(download)
+            decoded = json.loads(response.text)
             if decoded.get('master_m3u8'):
                 _LOGGER.debug('Followed redirection from %s to %s', url, decoded.get('master_m3u8'))
                 return decoded
@@ -302,8 +301,8 @@ class VtmGoStream:
         import re
 
         # Follow when a <Location>url</Location> tag is found.
-        # https://github.com/peak3d/inputstream.adaptive/issues/286
-        response = util.http_get(url, no_session=True)
+        # https://github.com/xbmc/inputstream.adaptive/issues/286
+        response = util.http_get(url)
         matches = re.search(r"<Location>([^<]+)</Location>", response.text)
         if matches:
             _LOGGER.debug('Followed redirection from %s to %s', url, matches.group(1))
