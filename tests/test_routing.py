@@ -104,7 +104,7 @@ class TestRouting(unittest.TestCase):
     def test_play_epg(self):
         import datetime
         # Play yesterdays news of 19:00
-        timestamp = (datetime.datetime.now() - datetime.timedelta(days=1)).replace(hour=19, minute=0, second=0)
+        timestamp = (datetime.datetime.now() - datetime.timedelta(days=1)).replace(hour=19, minute=0, second=0, microsecond=0)
         routing.run([routing.url_for(addon.play_epg_datetime, channel='vtm', timestamp=timestamp.isoformat()), '0', ''])
 
     def test_library(self):

@@ -195,7 +195,7 @@ def show_listing(title_items, category=None, sort=None, content=None, cache=True
     xbmcplugin.endOfDirectory(routing.handle, succeeded, cacheToDisc=cache)
 
 
-def play(stream, license_key=None, title=None, art_dict=None, info_dict=None, prop_dict=None, stream_dict=None, ads_list=None):
+def play(stream, license_key=None, title=None, art_dict=None, info_dict=None, prop_dict=None, stream_dict=None):
     """Play the given stream"""
     from resources.lib.addon import routing
 
@@ -221,23 +221,7 @@ def play(stream, license_key=None, title=None, art_dict=None, info_dict=None, pr
     play_item.setProperty('inputstream.adaptive.license_type', 'com.widevine.alpha')
     play_item.setProperty('inputstream.adaptive.license_key', license_key)
 
-    # Add advertisements to the playlist
-    if ads_list:
-        # Setup all the streams in a playlist
-        xbmc_playlist = xbmc.PlayList(xbmc.PLAYLIST_VIDEO)
-        xbmc_playlist.clear()
-
-        # Add advertisements
-        for ad in ads_list:
-            xbmc_playlist.add(ad, play_item)
-
-        # Add main stream
-        xbmc_playlist.add(play_item.getPath(), play_item)
-
-        # And start playback with the first item
-        xbmcplugin.setResolvedUrl(routing.handle, True, listitem=xbmcgui.ListItem(path=ads_list[0]))
-    else:
-        xbmcplugin.setResolvedUrl(routing.handle, True, listitem=play_item)
+    xbmcplugin.setResolvedUrl(routing.handle, True, listitem=play_item)
 
 
 def library_return_status(success):

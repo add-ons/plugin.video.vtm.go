@@ -7,7 +7,6 @@ import json
 import logging
 import os
 import random
-from datetime import timedelta
 
 from resources.lib import kodiutils
 from resources.lib.vtmgo import ResolvedStream, util
@@ -69,9 +68,6 @@ class VtmGoStream:
             # No subtitles for the live stream
             subtitles = None
 
-            # No preroll advertisements for the live stream
-            ads_list = []
-
         else:
             # Get published urls.
             url = stream_info.get('url')
@@ -79,9 +75,6 @@ class VtmGoStream:
 
             # Download subtitles locally so we can give them a better name
             subtitles = self._download_subtitles(subtitle_info)
-
-            # Get a list of advertisements for this stream.
-            ads_list = self._get_adslist(video_info)
 
         if stream_type == 'episodes':
             # TV episode
@@ -94,7 +87,6 @@ class VtmGoStream:
                 subtitles=subtitles,
                 license_url=license_url,
                 cookies=util.SESSION.cookies.get_dict(),
-                ads_list=ads_list,
             )
 
         if stream_type in ['movies', 'oneoffs']:
@@ -107,7 +99,6 @@ class VtmGoStream:
                 subtitles=subtitles,
                 license_url=license_url,
                 cookies=util.SESSION.cookies.get_dict(),
-                ads_list=ads_list,
             )
 
         if stream_type == 'channels':
@@ -185,103 +176,8 @@ class VtmGoStream:
         return subtitles
 
     @staticmethod
-    def _get_adslist(video_info):
-        # Extract freewheel info
-        ad_info = video_info.get('video', {}).get('ads', {}).get('freewheel', {})
-
-        util.http_get(ad_info.get('serverUrl'), params={
-            'token': 'b8ce708402a6286faf64c964294f2046',
-            'nw': '385316',
-            'dpid': '127719',
-            'puid': 'f5f563399770e15830f6b01346d82434',
-            'gtmcb': '47949232',
-        })
-
-        # Get GIF
-        util.http_get(ad_info.get('serverUrl'), params={
-            'nw': '127719',
-            'dpid': '127719',
-            'token': 'b8ce708402a6286faf64c964294f2046',
-            'gif': '1',
-            'buid': '9c4c5b27426e6666b1499b460677688',
-            '_fw_gdpr': '0',
-            '_fw_gdpr_consent': '',
-        })
-
-        # Request ad information
-        response = util.http_get(ad_info.get('serverUrl'), params={
-            'prof': ad_info.get('profileId'),
-            'nw': ad_info.get('networkId'),
-            'caid': ad_info.get('assetId'),
-            'vdur': video_info.get('video', {}).get('duration'),
-            'asnw': ad_info.get('networkId'),
-            'csid': 'mdl_vtmgo_desktop_web_default',
-            'vcid': 'cxse4h8vosx1kr1d4zsx6xert8i3t5pviiiu3o6p',
-            'cd': '1920,1080',
-            'vclr': 'js-6.34.0-4f79cf7c-202002141758',
-            'resp': 'json',
-            'orig': 'https://vtm.be',
-            'cbfn': 'tv.freewheel.SDK._instanceQueue[\'Context_1\'].requestComplete',
-            'flag': '+play-uapl+sltp+emcr+unka+unks+fbad+slcb+nucr+aeti+rema+vicb;_fw_vcid2=f5f563399770e15830f6b01346d82434',
-            '_fw_gdpr': '1',
-            '_fw_gdpr_consent': 'CO950iqO950iqAGABBENBDCoAPLAAAAAAAIgGptX_T7dbWNC2f59ZtswOYxf9tCNJ-QjAAaJI2gBwRqQMBQGkmAanATgBAACKAYAKCJBAAJkGAAACQAQ4AAAAACASACABAIIICIAgAIRCAAIAAQCAIAARAAIgEACMEAAmwgAAIYgSCAAhAAggAAALEQCQAVABcAEMANQA6oCLwFIgLkAZOEgVAAIAAWABUADIAHAAPAAgABEACoAGgAPIAhgCIAEwAJ4AVQAsABcADeAHMAQgAhoBEAESAI4AS4AmgBSgDDgGoAaoA7wB7AD9AI4ASkAwgBigEXgJiAUiAuQBeYDJAGThABMADgAPAA-AH8AXwAzQB1AHVAR6A1MNALABUAFwAQwA1IC0ALSAdUBF4CkQFyAMYAZOGABAHUAX0OgaAALAAqABkADgAIAARAAqABiADQAHgAPoAhgCIAEwAJ4AVQAsABcAC-AGIAMwAbwA5gCEAENAIgAiQBHQCXAJgATQApQBYgDKAGiANQAd4A9gB-gEWAI4ASmAtAC0gGEAMVAdMB1AEXgJBAVYAtkBcgC8wGMAMkAZOOANgAIgAcAB4AFwAPgA5AB-AF0AP4AvgBmgDqAHcAQgAiIBGQC2gF1gMAAwIBrwDpAHVAPIAj0BMQC-gGmgNTJQHgAEAALAAyABwAEQAMQAeABEACYAFUALgAXwAxABmADaAIQAQ0AiACJAEcAKUAZQA1QB3gEcgLQAtIBigDqAIvAXmAyckALAAcABcAHIAvgBqADuAIyAXUA14B1QF9FIFAACwAKgAZAA4ACAAFQAMQAaAA8gCGAIgATAAngBSACqAFgALgAXwAxABmADmAIQAQ0AiACJAFKALEAZQA0QBqgDvAH6ARYAjgBKQDCAIvAXIAvMBjADJAGTlACwAFwAPgA5AB-AG0ARwAvgBqADXAHUAO4AuoBgADFAGvAOqAeQBHoCYgF9ANNAamA.YAAAAAAAAAAA',
-            # '_fw_site_page': 'https://vtm.be/vtmgo/21~m77ef860b-e35b-4211-ba28-fca9f0a3f5e9',
-            '_fw_h_x_flash_version': '0,0,0,0',
-            '_fw_dpr': '1.00;',
-        })
-
-        import re
-        matches = re.search(r"\(({.*})\)", response.text, flags=re.DOTALL)
-        if not matches:
-            _LOGGER.warning('Could not parse advertisement info')
-            return []
-
-        ads_list = []
-
-        freewheel_info = json.loads(matches.group(1))
-        _LOGGER.error(matches.group(1))
-
-        # Find preroll ads
-        for section in freewheel_info.get('siteSection', {}).get('videoPlayer', {}).get('videoAsset', {}).get('adSlots', []):
-            if section.get('timePositionClass') == 'preroll':
-                for selected_ad in section.get('selectedAds'):
-                    # Now lookup the ad information in the full list
-                    selected_ad_info = next(x for x in freewheel_info.get('ads', {}).get('ads', {})
-                                            if x.get('adId') == selected_ad.get('adId'))
-                    if not selected_ad_info:
-                        _LOGGER.error('Ad with id %s not found.' % selected_ad.get('adId'))
-                        continue
-                    # _LOGGER.error(selected_ad_info)
-                    # _LOGGER.warning(selected_ad_info.get('creatives', []))
-
-                    selected_creative_info = next(x for x in selected_ad_info.get('creatives', [])
-                                                  if x.get('creativeId') == selected_ad.get('creativeId'))
-                    if not selected_creative_info:
-                        _LOGGER.error('Ad with creativeId %s not found.' % selected_ad.get('creativeId'))
-                        continue
-                    # _LOGGER.error('selected_creative_info found')
-                    # _LOGGER.error(selected_creative_info)
-
-                    selected_creative_rendition_info = next(x for x in selected_creative_info.get('creativeRenditions', []) if
-                                                            x.get('creativeRenditionId') == selected_ad.get('creativeRenditionId'))
-                    if not selected_creative_rendition_info:
-                        _LOGGER.error('Ad with creativeRenditionId %s not found.' % selected_ad.get('creativeRenditionId'))
-                        continue
-                    # _LOGGER.error('selected_creative_rendition_info found')
-                    # _LOGGER.error(selected_creative_rendition_info)
-
-                    url = selected_creative_rendition_info.get('asset', {}).get('url')
-                    if not url:
-                        _LOGGER.error('No url found for this ad')
-                        continue
-
-                    ads_list.append(url)
-
-        _LOGGER.warning(ads_list)
-        return ads_list
-
-    @staticmethod
     def _download_subtitles(subtitles):
+        """ Download the subtitle file. """
         # Clean up old subtitles
         temp_dir = os.path.join(kodiutils.addon_profile(), 'temp', '')
         _, files = kodiutils.listdir(temp_dir)
@@ -304,73 +200,6 @@ class VtmGoStream:
                 webvtt_output.write(kodiutils.from_unicode(webvtt_content))
             downloaded_subtitles.append(output_file)
         return downloaded_subtitles
-
-    @staticmethod
-    def _delay_webvtt_timing(match, ad_breaks):
-        """ Delay the timing of a webvtt subtitle.
-        :type match: any
-        :type ad_breaks: list[dict]
-        :rtype str
-        """
-        sub_timings = list()
-        for timestamp in match.groups():
-            hours, minutes, seconds, millis = (int(x) for x in [timestamp[:-10], timestamp[-9:-7], timestamp[-6:-4], timestamp[-3:]])
-            sub_timings.append(timedelta(hours=hours, minutes=minutes, seconds=seconds, milliseconds=millis))
-        for ad_break in ad_breaks:
-            # time format: seconds.fraction or seconds
-            ad_break_start = timedelta(milliseconds=ad_break.get('start') * 1000)
-            ad_break_duration = timedelta(milliseconds=ad_break.get('duration') * 1000)
-            if ad_break_start < sub_timings[0]:
-                for idx, item in enumerate(sub_timings):
-                    sub_timings[idx] += ad_break_duration
-        for idx, item in enumerate(sub_timings):
-            hours, remainder = divmod(item.seconds, 3600)
-            minutes, seconds = divmod(remainder, 60)
-            millis = item.microseconds // 1000
-            sub_timings[idx] = '%02d:%02d:%02d,%03d' % (hours, minutes, seconds, millis)
-        delayed_webvtt_timing = '\n{} --> {} '.format(sub_timings[0], sub_timings[1])
-        return delayed_webvtt_timing
-
-    def _delay_subtitles(self, subtitles, json_manifest):
-        """ Modify the subtitles timings to account for ad breaks.
-        :type subtitles: list[dict]
-        :type json_manifest: dict
-        :rtype list[str]
-        """
-        # Clean up old subtitles
-        temp_dir = os.path.join(kodiutils.addon_profile(), 'temp', '')
-        _, files = kodiutils.listdir(temp_dir)
-        if files:
-            for item in files:
-                kodiutils.delete(temp_dir + kodiutils.to_unicode(item))
-
-        # Return if there are no subtitles available
-        if not subtitles:
-            return None
-
-        import re
-        if not kodiutils.exists(temp_dir):
-            kodiutils.mkdirs(temp_dir)
-
-        ad_breaks = list()
-        delayed_subtitles = list()
-        webvtt_timing_regex = re.compile(r'\n(\d{2}:\d{2}:\d{2}\.\d{3}) --> (\d{2}:\d{2}:\d{2}\.\d{3})\s')
-
-        # Get advertising breaks info from json manifest
-        cues = json_manifest.get('interstitials').get('cues')
-        for cue in cues:
-            ad_breaks.append(
-                dict(start=cue.get('start'), duration=cue.get('break_duration'))
-            )
-
-        for subtitle in subtitles:
-            output_file = temp_dir + subtitle.get('name')
-            webvtt_content = util.http_get(subtitle.get('url')).text
-            webvtt_content = webvtt_timing_regex.sub(lambda match: self._delay_webvtt_timing(match, ad_breaks), webvtt_content)
-            with kodiutils.open_file(output_file, 'w') as webvtt_output:
-                webvtt_output.write(kodiutils.from_unicode(webvtt_content))
-            delayed_subtitles.append(output_file)
-        return delayed_subtitles
 
     def _anvato_get_stream_info(self, anvato_info, stream_info):
         """ Get the stream info from anvato.
