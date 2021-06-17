@@ -39,11 +39,10 @@ class VtmGoStream:
         video_info = self._get_video_info(stream_type, stream_id)
 
         # Live channels are only available trough anvato
-        # if video_info.get('video').get('streamType') == 'live':
-        #     protocol = 'anvato'
-        # else:
-        #     protocol = 'dash'
-        protocol = 'anvato'
+        if video_info.get('video').get('streamType') == 'live':
+            protocol = 'anvato'
+        else:
+            protocol = 'dash'
 
         # Extract the stream from our stream_info.
         stream_info = self._extract_stream_from_video_info(protocol, video_info)
@@ -67,8 +66,11 @@ class VtmGoStream:
             # https://github.com/peak3d/inputstream.adaptive/issues/286
             url = self._redirect_manifest(url)
 
-            # Delay subtitles taking into account advertisements breaks.
-            subtitles = self._delay_subtitles(subtitle_info, json_manifest)
+            # No subtitles for the live stream
+            subtitles = None
+
+            # No preroll advertisements for the live stream
+            ads_list = []
 
         else:
             # Get published urls.
@@ -77,6 +79,9 @@ class VtmGoStream:
 
             # Download subtitles locally so we can give them a better name
             subtitles = self._download_subtitles(subtitle_info)
+
+            # Get a list of advertisements for this stream.
+            ads_list = self._get_adslist(video_info)
 
         if stream_type == 'episodes':
             # TV episode
@@ -88,7 +93,8 @@ class VtmGoStream:
                 url=url,
                 subtitles=subtitles,
                 license_url=license_url,
-                cookies=util.SESSION.cookies.get_dict()
+                cookies=util.SESSION.cookies.get_dict(),
+                ads_list=ads_list,
             )
 
         if stream_type in ['movies', 'oneoffs']:
@@ -100,7 +106,8 @@ class VtmGoStream:
                 url=url,
                 subtitles=subtitles,
                 license_url=license_url,
-                cookies=util.SESSION.cookies.get_dict()
+                cookies=util.SESSION.cookies.get_dict(),
+                ads_list=ads_list,
             )
 
         if stream_type == 'channels':
@@ -128,7 +135,7 @@ class VtmGoStream:
         :param str stream_id:
         :rtype: dict
         """
-        url = 'https://videoplayer-service.api.persgroep.cloud/config/%s/%s' % (strtype, stream_id)
+        url = 'https://videoplayer-service.dpgmedia.net/config/%s/%s' % (strtype, stream_id)
         _LOGGER.debug('Getting video info from %s', url)
         response = util.http_get(url,
                                  params={
@@ -138,7 +145,7 @@ class VtmGoStream:
                                  headers={
                                      'Accept': 'application/json',
                                      'x-api-key': self._API_KEY,
-                                     'Popcorn-SDK-Version': '4',
+                                     'Popcorn-SDK-Version': '5',
                                  })
 
         info = json.loads(response.text)
@@ -176,6 +183,102 @@ class VtmGoStream:
                 subtitles.append(dict(name=name, url=subtitle.get('url')))
                 _LOGGER.debug('Found subtitle url %s', subtitle.get('url'))
         return subtitles
+
+    @staticmethod
+    def _get_adslist(video_info):
+        # Extract freewheel info
+        ad_info = video_info.get('video', {}).get('ads', {}).get('freewheel', {})
+
+        util.http_get(ad_info.get('serverUrl'), params={
+            'token': 'b8ce708402a6286faf64c964294f2046',
+            'nw': '385316',
+            'dpid': '127719',
+            'puid': 'f5f563399770e15830f6b01346d82434',
+            'gtmcb': '47949232',
+        })
+
+        # Get GIF
+        util.http_get(ad_info.get('serverUrl'), params={
+            'nw': '127719',
+            'dpid': '127719',
+            'token': 'b8ce708402a6286faf64c964294f2046',
+            'gif': '1',
+            'buid': '9c4c5b27426e6666b1499b460677688',
+            '_fw_gdpr': '0',
+            '_fw_gdpr_consent': '',
+        })
+
+        # Request ad information
+        response = util.http_get(ad_info.get('serverUrl'), params={
+            'prof': ad_info.get('profileId'),
+            'nw': ad_info.get('networkId'),
+            'caid': ad_info.get('assetId'),
+            'vdur': video_info.get('video', {}).get('duration'),
+            'asnw': ad_info.get('networkId'),
+            'csid': 'mdl_vtmgo_desktop_web_default',
+            'vcid': 'cxse4h8vosx1kr1d4zsx6xert8i3t5pviiiu3o6p',
+            'cd': '1920,1080',
+            'vclr': 'js-6.34.0-4f79cf7c-202002141758',
+            'resp': 'json',
+            'orig': 'https://vtm.be',
+            'cbfn': 'tv.freewheel.SDK._instanceQueue[\'Context_1\'].requestComplete',
+            'flag': '+play-uapl+sltp+emcr+unka+unks+fbad+slcb+nucr+aeti+rema+vicb;_fw_vcid2=f5f563399770e15830f6b01346d82434',
+            '_fw_gdpr': '1',
+            '_fw_gdpr_consent': 'CO950iqO950iqAGABBENBDCoAPLAAAAAAAIgGptX_T7dbWNC2f59ZtswOYxf9tCNJ-QjAAaJI2gBwRqQMBQGkmAanATgBAACKAYAKCJBAAJkGAAACQAQ4AAAAACASACABAIIICIAgAIRCAAIAAQCAIAARAAIgEACMEAAmwgAAIYgSCAAhAAggAAALEQCQAVABcAEMANQA6oCLwFIgLkAZOEgVAAIAAWABUADIAHAAPAAgABEACoAGgAPIAhgCIAEwAJ4AVQAsABcADeAHMAQgAhoBEAESAI4AS4AmgBSgDDgGoAaoA7wB7AD9AI4ASkAwgBigEXgJiAUiAuQBeYDJAGThABMADgAPAA-AH8AXwAzQB1AHVAR6A1MNALABUAFwAQwA1IC0ALSAdUBF4CkQFyAMYAZOGABAHUAX0OgaAALAAqABkADgAIAARAAqABiADQAHgAPoAhgCIAEwAJ4AVQAsABcAC-AGIAMwAbwA5gCEAENAIgAiQBHQCXAJgATQApQBYgDKAGiANQAd4A9gB-gEWAI4ASmAtAC0gGEAMVAdMB1AEXgJBAVYAtkBcgC8wGMAMkAZOOANgAIgAcAB4AFwAPgA5AB-AF0AP4AvgBmgDqAHcAQgAiIBGQC2gF1gMAAwIBrwDpAHVAPIAj0BMQC-gGmgNTJQHgAEAALAAyABwAEQAMQAeABEACYAFUALgAXwAxABmADaAIQAQ0AiACJAEcAKUAZQA1QB3gEcgLQAtIBigDqAIvAXmAyckALAAcABcAHIAvgBqADuAIyAXUA14B1QF9FIFAACwAKgAZAA4ACAAFQAMQAaAA8gCGAIgATAAngBSACqAFgALgAXwAxABmADmAIQAQ0AiACJAFKALEAZQA0QBqgDvAH6ARYAjgBKQDCAIvAXIAvMBjADJAGTlACwAFwAPgA5AB-AG0ARwAvgBqADXAHUAO4AuoBgADFAGvAOqAeQBHoCYgF9ANNAamA.YAAAAAAAAAAA',
+            # '_fw_site_page': 'https://vtm.be/vtmgo/21~m77ef860b-e35b-4211-ba28-fca9f0a3f5e9',
+            '_fw_h_x_flash_version': '0,0,0,0',
+            '_fw_dpr': '1.00;',
+        })
+
+        import re
+        matches = re.search(r"\(({.*})\)", response.text, flags=re.DOTALL)
+        if not matches:
+            _LOGGER.warning('Could not parse advertisement info')
+            return []
+
+        ads_list = []
+
+        freewheel_info = json.loads(matches.group(1))
+        _LOGGER.error(matches.group(1))
+
+        # Find preroll ads
+        for section in freewheel_info.get('siteSection', {}).get('videoPlayer', {}).get('videoAsset', {}).get('adSlots', []):
+            if section.get('timePositionClass') == 'preroll':
+                for selected_ad in section.get('selectedAds'):
+                    # Now lookup the ad information in the full list
+                    selected_ad_info = next(x for x in freewheel_info.get('ads', {}).get('ads', {})
+                                            if x.get('adId') == selected_ad.get('adId'))
+                    if not selected_ad_info:
+                        _LOGGER.error('Ad with id %s not found.' % selected_ad.get('adId'))
+                        continue
+                    # _LOGGER.error(selected_ad_info)
+                    # _LOGGER.warning(selected_ad_info.get('creatives', []))
+
+                    selected_creative_info = next(x for x in selected_ad_info.get('creatives', [])
+                                                  if x.get('creativeId') == selected_ad.get('creativeId'))
+                    if not selected_creative_info:
+                        _LOGGER.error('Ad with creativeId %s not found.' % selected_ad.get('creativeId'))
+                        continue
+                    # _LOGGER.error('selected_creative_info found')
+                    # _LOGGER.error(selected_creative_info)
+
+                    selected_creative_rendition_info = next(x for x in selected_creative_info.get('creativeRenditions', []) if
+                                                            x.get('creativeRenditionId') == selected_ad.get('creativeRenditionId'))
+                    if not selected_creative_rendition_info:
+                        _LOGGER.error('Ad with creativeRenditionId %s not found.' % selected_ad.get('creativeRenditionId'))
+                        continue
+                    # _LOGGER.error('selected_creative_rendition_info found')
+                    # _LOGGER.error(selected_creative_rendition_info)
+
+                    url = selected_creative_rendition_info.get('asset', {}).get('url')
+                    if not url:
+                        _LOGGER.error('No url found for this ad')
+                        continue
+
+                    ads_list.append(url)
+
+        _LOGGER.warning(ads_list)
+        return ads_list
 
     @staticmethod
     def _download_subtitles(subtitles):
@@ -301,7 +404,7 @@ class VtmGoStream:
                                       "content": {
                                           "mcp_video_id": anvato_info['video'],
                                       },
-                                      "sdkver": "5.0.39",
+                                      "sdkver": "5.0.65_a",
                                       "user": {
                                           "adobepass": {
                                               "err_msg": "",
@@ -343,24 +446,13 @@ class VtmGoStream:
         return ''.join(random.choice(letters) for i in range(length))
 
     @staticmethod
-    def _download_text(url):
-        """ Download a file as text.
-        :type url: str
-        :rtype str
-        """
-        _LOGGER.debug('Downloading text from %s', url)
-        response = util.http_get(url)
-        if response.status_code != 200:
-            raise Exception('Error %s.' % response.status_code)
-
-        return response.text
-
-    def _download_manifest(self, url):
+    def _download_manifest(url):
         """ Download the MPEG DASH manifest.
         :type url: str
         :rtype dict
         """
-        download = self._download_text(url)
+        response = util.http_get(url, no_session=True)
+        download = response.text
         try:
             decoded = json.loads(download)
             if decoded.get('master_m3u8'):
@@ -372,7 +464,8 @@ class VtmGoStream:
         # Fallback to the url like we have it
         return dict(master_m3u8=url)
 
-    def _redirect_manifest(self, url):
+    @staticmethod
+    def _redirect_manifest(url):
         """ Follow the Location tag if it is found.
         :type url: str
         :rtype str
@@ -381,8 +474,8 @@ class VtmGoStream:
 
         # Follow when a <Location>url</Location> tag is found.
         # https://github.com/peak3d/inputstream.adaptive/issues/286
-        download = self._download_text(url)
-        matches = re.search(r"<Location>([^<]+)</Location>", download)
+        response = util.http_get(url, no_session=True)
+        matches = re.search(r"<Location>([^<]+)</Location>", response.text)
         if matches:
             _LOGGER.debug('Followed redirection from %s to %s', url, matches.group(1))
             return matches.group(1)
