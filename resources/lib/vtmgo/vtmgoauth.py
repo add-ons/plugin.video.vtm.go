@@ -124,7 +124,6 @@ class VtmGoAuth:
         new_hash = md5((self._username + ':' + self._password + ':' + self._loginprovider).encode('utf-8')).hexdigest()
 
         if new_hash != old_hash:
-            self._save_cache()
             return new_hash
         return None
 
@@ -161,10 +160,11 @@ class VtmGoAuth:
         if new_hash:
             _LOGGER.debug('Credentials have changed, forcing a new login.')
             self._account.hash = new_hash
-            force = True
+            self._account.jwt_token = None
+            self._save_cache()
 
         # If we have an (old) token, but it isn't valid anymore, refresh it.
-        if not force and self._account.jwt_token and not self._account.is_valid_token():
+        if self._account.jwt_token and not self._account.is_valid_token():
             self._android_refesh()
 
         # Use cached token if it is still valid
