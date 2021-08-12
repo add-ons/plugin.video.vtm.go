@@ -124,6 +124,7 @@ class VtmGoAuth:
         new_hash = md5((self._username + ':' + self._password + ':' + self._loginprovider).encode('utf-8')).hexdigest()
 
         if new_hash != old_hash:
+            self._save_cache()
             return new_hash
         return None
 
@@ -162,6 +163,10 @@ class VtmGoAuth:
             self._account.hash = new_hash
             force = True
 
+        # If we have an (old) token, but it isn't valid anymore, refresh it.
+        if not force and self._account.jwt_token and not self._account.is_valid_token():
+            self._android_refesh()
+
         # Use cached token if it is still valid
         if force or not self._account.is_valid_token():
             # Do actual login
@@ -196,6 +201,9 @@ class VtmGoAuth:
             'sdkVersion': '0.13.1',
             'state': 'dnRtLWdvLWFuZHJvaWQ=',  # vtm-go-android
             'redirect_uri': 'https://login2.vtm.be/continue',
+        }, headers={
+            'User-Agent': 'Mozilla/5.0 (Linux; Android 6.0.1; MotoG3 Build/MPIS24.107-55-2-17; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/91.0.4472.88 Mobile Safari/537.36',
+            'X-Requested-With': 'be.vmma.vtm.zenderapp',
         })
 
         # Send login credentials
@@ -238,6 +246,20 @@ class VtmGoAuth:
         # Okay, final stage. We now need to authorize our id_token so we get a valid JWT.
         response = util.http_post('https://lfvp-api.dpgmedia.net/vtmgo/tokens', data={
             'idToken': id_token,
+        })
+
+        # Get JWT from reply
+        self._account.jwt_token = json.loads(response.text).get('lfvpToken')
+
+        self._save_cache()
+
+        return self._account
+
+    def _android_refesh(self):
+
+        # We can refresh our old token so it's valid again
+        response = util.http_post('https://lfvp-api.dpgmedia.net/vtmgo/tokens/refresh', data={
+            'lfvpToken': self._account.jwt_token,
         })
 
         # Get JWT from reply
