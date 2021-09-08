@@ -18,6 +18,7 @@ disable=
     too-many-statements,
     use-maxsplit-arg,
     consider-using-from-import,
+    unspecified-encoding,
 
     super-with-arguments, # Python 2.7 compatibility
     raise-missing-from, # Python 2.7 compatibility
