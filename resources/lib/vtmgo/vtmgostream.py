@@ -18,7 +18,7 @@ _LOGGER = logging.getLogger(__name__)
 class VtmGoStream:
     """ VTM GO Stream API """
 
-    _API_KEY = '3vjmWnsxF7SUTeNCBZlnUQ4Z7GQV8f6miQ514l10'
+    _API_KEY = 'zTxhgTEtb055Ihgw3tN158DZ0wbbaVO86lJJulMl'
 
     def __init__(self, auth=None):
         """ Initialise object """
@@ -273,7 +273,7 @@ class VtmGoStream:
         :type stream_info: dict
         :rtype dict
         """
-        url = 'https://tkx.apis.anvato.net/rest/v2/mcp/video/{video}'.format(**anvato_info)
+        url = 'https://tkx.mp.lura.live/rest/v2/mcp/video/{video}'.format(**anvato_info)
         _LOGGER.debug('Getting stream info from %s with access_key %s and token %s', url, anvato_info['accessKey'], anvato_info['token'])
         response = util.http_post(url,
                                   data={
