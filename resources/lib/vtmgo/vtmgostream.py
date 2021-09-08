@@ -273,7 +273,7 @@ class VtmGoStream:
         :type stream_info: dict
         :rtype dict
         """
-        url = 'https://tkx.apis.anvato.net/rest/v2/mcp/video/{video}'.format(**anvato_info)
+        url = 'https://tkx.mp.lura.live/rest/v2/mcp/video/{video}'.format(**anvato_info)
         _LOGGER.debug('Getting stream info from %s with access_key %s and token %s', url, anvato_info['accessKey'], anvato_info['token'])
         response = util.http_post(url,
                                   data={
