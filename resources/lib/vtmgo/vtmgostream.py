@@ -20,10 +20,9 @@ class VtmGoStream:
 
     _API_KEY = '3vjmWnsxF7SUTeNCBZlnUQ4Z7GQV8f6miQ514l10'
 
-    def __init__(self, auth=None):
+    def __init__(self, tokens=None):
         """ Initialise object """
-        self._auth = auth
-        self._tokens = self._auth.get_tokens() if self._auth else None
+        self._tokens = tokens
 
     def _mode(self):
         """ Return the mode that should be used for API calls """

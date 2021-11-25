@@ -35,10 +35,6 @@ class BackgroundService(Monitor):
             self._proxy_thread = Proxy.start()
 
         while not self.abortRequested():
-            # Update every `update_interval` after the last update
-            if kodiutils.get_setting_bool('metadata_update') and int(kodiutils.get_setting('metadata_last_updated', 0)) + self.update_interval < time():
-                self._update_metadata()
-
             # Stop when abort requested
             if self.waitForAbort(10):
                 break
@@ -50,26 +46,6 @@ class BackgroundService(Monitor):
 
         _LOGGER.debug('Service stopped')
 
-    def _update_metadata(self):
-        """ Update the metadata for the listings """
-        from resources.lib.modules.metadata import Metadata
-
-        # Clear outdated metadata
-        kodiutils.invalidate_cache(self.cache_expiry)
-
-        def update_status(_i, _total):
-            """ Allow to cancel the background job """
-            return self.abortRequested() or not kodiutils.get_setting_bool('metadata_update')
-
-        try:
-            success = Metadata().fetch_metadata(callback=update_status)
-        except NoLoginException:
-            # We have no login yet, but that's okay, we will retry later
-            success = True
-
-        # Update metadata_last_updated
-        if success:
-            kodiutils.set_setting('metadata_last_updated', str(int(time())))
 
 
 class PlayerMonitor(Player):

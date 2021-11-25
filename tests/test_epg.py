@@ -10,14 +10,12 @@ import unittest
 import xbmc
 
 from resources.lib import addon
-from resources.lib import kodiutils
 from resources.lib.modules import CHANNELS
 from resources.lib.vtmgo import vtmgoepg
 
 routing = addon.routing
 
 
-@unittest.skipUnless(kodiutils.get_setting('username') and kodiutils.get_setting('password'), 'Skipping since we have no credentials.')
 class TestEpg(unittest.TestCase):
     """ Tests for VTM GO EPG API """
 

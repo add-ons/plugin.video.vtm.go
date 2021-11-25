@@ -23,7 +23,7 @@ class IPTVManager:
         """ Initialise object
         :type port: int
         """
-        self._vtm_go = VtmGo()
+        self._vtm_go = VtmGo(None)
         self._vtm_go_epg = VtmGoEpg()
         self.port = port
 

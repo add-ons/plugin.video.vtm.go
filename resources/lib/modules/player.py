@@ -21,16 +21,13 @@ class Player:
     def __init__(self):
         """ Initialise object """
         try:
-            self._auth = VtmGoAuth(kodiutils.get_setting('username'),
-                                   kodiutils.get_setting('password'),
-                                   'VTM',
-                                   kodiutils.get_setting('profile'),
-                                   kodiutils.get_tokens_path())
+            auth = VtmGoAuth(kodiutils.get_tokens_path())
         except NoLoginException:
-            self._auth = None
+            auth = None
 
-        self._vtm_go = VtmGo(self._auth)
-        self._vtm_go_stream = VtmGoStream(self._auth)
+        tokens = auth.get_tokens()
+        self._vtm_go = VtmGo(tokens)
+        self._vtm_go_stream = VtmGoStream(tokens)
 
     def play_or_live(self, category, item, channel):
         """ Ask to play the requested item or switch to the live channel
@@ -54,9 +51,9 @@ class Player:
         :type category: string
         :type item: string
         """
-        if not self._check_credentials():
-            kodiutils.end_of_directory()
-            return
+        # if not self._check_credentials():
+        #     kodiutils.end_of_directory()
+        #     return
 
         # Check if inputstreamhelper is correctly installed
         if not self._check_inputstream():
@@ -179,20 +176,20 @@ class Player:
             _LOGGER.debug("Sending Up Next data: %s", upnext_data)
             self.send_upnext(upnext_data)
 
-    @staticmethod
-    def _check_credentials():
-        """ Check if the user has credentials """
-        if kodiutils.has_credentials():
-            return True
-
-        # You need to configure your credentials before you can access the content of VTM GO.
-        confirm = kodiutils.yesno_dialog(message=kodiutils.localize(30701))
-        if confirm:
-            kodiutils.open_settings()
-            if kodiutils.has_credentials():
-                return True
-
-        return False
+    # @staticmethod
+    # def _check_credentials():
+    #     """ Check if the user has credentials """
+    #     if kodiutils.has_credentials():
+    #         return True
+    #
+    #     # You need to configure your credentials before you can access the content of VTM GO.
+    #     confirm = kodiutils.yesno_dialog(message=kodiutils.localize(30701))
+    #     if confirm:
+    #         kodiutils.open_settings()
+    #         if kodiutils.has_credentials():
+    #             return True
+    #
+    #     return False
 
     @staticmethod
     def _check_inputstream():

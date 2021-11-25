@@ -9,6 +9,7 @@ import logging
 
 from resources.lib import kodiutils
 from resources.lib.vtmgo import API_ANDROID_ENDPOINT, API_ENDPOINT, Category, Episode, LiveChannel, LiveChannelEpg, Movie, Program, Season, util
+from resources.lib.vtmgo.vtmgoauth import AccountStorage
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -33,10 +34,11 @@ class ApiUpdateRequired(Exception):
 class VtmGo:
     """ VTM GO API """
 
-    def __init__(self, auth=None):
-        """ Initialise object """
-        self._auth = auth
-        self._tokens = self._auth.get_tokens() if self._auth else None
+    def __init__(self, tokens):
+        """ Initialise object
+        :param resources.lib.vtmgo.vtmgoauth.AccountStorage token:       An authenticated token.
+        """
+        self._tokens = tokens
 
     def _mode(self):
         """ Return the mode that should be used for API calls """
@@ -45,7 +47,7 @@ class VtmGo:
     def get_config(self):
         """ Returns the config for the app """
         # This is currently not used
-        response = util.http_get(API_ANDROID_ENDPOINT + '/vtmgo/config', token=self._tokens.jwt_token)
+        response = util.http_get(API_ANDROID_ENDPOINT + '/vtmgo/config', token=self._tokens.access_token)
         info = json.loads(response.text)
 
         # This contains a player.updateIntervalSeconds that could be used to notify VTM GO about the playing progress
@@ -58,7 +60,7 @@ class VtmGo:
          :rtype: list[Category|Program|Movie]
          """
         response = util.http_get(API_ENDPOINT + '/%s/storefronts/%s' % (self._mode(), storefront),
-                                 token=self._tokens.jwt_token if self._tokens else None,
+                                 token=self._tokens.access_token if self._tokens else None,
                                  profile=self._tokens.profile if self._tokens else None)
         result = json.loads(response.text)
 
@@ -101,7 +103,7 @@ class VtmGo:
          :rtype: Category
          """
         response = util.http_get(API_ENDPOINT + '/%s/storefronts/%s/detail/%s' % (self._mode(), storefront, category),
-                                 token=self._tokens.jwt_token if self._tokens else None,
+                                 token=self._tokens.access_token if self._tokens else None,
                                  profile=self._tokens.profile if self._tokens else None)
         result = json.loads(response.text)
 
@@ -118,7 +120,7 @@ class VtmGo:
     def get_mylist(self, content_filter=None, cache=CACHE_ONLY):
         """ Returns the contents of My List """
         response = util.http_get(API_ENDPOINT + '/%s/my-list' % (self._mode()),
-                                 token=self._tokens.jwt_token if self._tokens else None,
+                                 token=self._tokens.access_token if self._tokens else None,
                                  profile=self._tokens.profile if self._tokens else None)
 
         # Result can be empty
@@ -143,14 +145,14 @@ class VtmGo:
     def add_mylist(self, video_type, content_id):
         """ Add an item to My List """
         util.http_put(API_ENDPOINT + '/%s/userData/myList/%s/%s' % (self._mode(), video_type, content_id),
-                      token=self._tokens.jwt_token,
+                      token=self._tokens.access_token,
                       profile=self._tokens.profile)
         kodiutils.set_cache(['swimlane', 'my-list'], None)
 
     def del_mylist(self, video_type, content_id):
         """ Delete an item from My List """
         util.http_delete(API_ENDPOINT + '/%s/userData/myList/%s/%s' % (self._mode(), video_type, content_id),
-                         token=self._tokens.jwt_token,
+                         token=self._tokens.access_token,
                          profile=self._tokens.profile)
         kodiutils.set_cache(['swimlane', 'my-list'], None)
 
@@ -160,7 +162,7 @@ class VtmGo:
         """
         import dateutil.parser
         response = util.http_get(API_ENDPOINT + '/%s/live' % self._mode(),
-                                 token=self._tokens.jwt_token if self._tokens else None,
+                                 token=self._tokens.access_token if self._tokens else None,
                                  profile=self._tokens.profile if self._tokens else None)
         info = json.loads(response.text)
 
@@ -191,49 +193,49 @@ class VtmGo:
         channels = self.get_live_channels()
         return next(c for c in channels if c.key == key)
 
-    def get_categories(self):
-        """ Get a list of all the categories.
-        :rtype list[Category]
-        """
-        response = util.http_get(API_ENDPOINT + '/%s/catalog/filters' % self._mode(),
-                                 token=self._tokens.jwt_token if self._tokens else None,
-                                 profile=self._tokens.profile if self._tokens else None)
-        info = json.loads(response.text)
+    # def get_categories(self):
+    #     """ Get a list of all the categories.
+    #     :rtype list[Category]
+    #     """
+    #     response = util.http_get(API_ENDPOINT + '/%s/catalog/filters' % self._mode(),
+    #                              token=self._tokens.access_token if self._tokens else None,
+    #                              profile=self._tokens.profile if self._tokens else None)
+    #     info = json.loads(response.text)
+    #
+    #     categories = []
+    #     for item in info.get('catalogFilters', []):
+    #         categories.append(Category(
+    #             category_id=item.get('id'),
+    #             title=item.get('title'),
+    #         ))
+    #
+    #     return categories
 
-        categories = []
-        for item in info.get('catalogFilters', []):
-            categories.append(Category(
-                category_id=item.get('id'),
-                title=item.get('title'),
-            ))
-
-        return categories
-
-    def get_items(self, category=None, content_filter=None, cache=CACHE_ONLY):
-        """ Get a list of all the items in a category.
-
-        :type category: str
-        :type content_filter: class
-        :type cache: int
-        :rtype list[resources.lib.vtmgo.Movie | resources.lib.vtmgo.Program]
-        """
-        # Fetch from API
-        response = util.http_get(API_ENDPOINT + '/%s/catalog' % self._mode(),
-                                 params={'pageSize': 2000, 'filter': quote(category) if category else None},
-                                 token=self._tokens.jwt_token if self._tokens else None,
-                                 profile=self._tokens.profile if self._tokens else None)
-        info = json.loads(response.text)
-        content = info.get('pagedTeasers', {}).get('content', [])
-
-        items = []
-        for item in content:
-            if item.get('target', {}).get('type') == CONTENT_TYPE_MOVIE and content_filter in [None, Movie]:
-                items.append(self._parse_movie_teaser(item, cache=cache))
-
-            elif item.get('target', {}).get('type') == CONTENT_TYPE_PROGRAM and content_filter in [None, Program]:
-                items.append(self._parse_program_teaser(item, cache=cache))
-
-        return items
+    # def get_items(self, category=None, content_filter=None, cache=CACHE_ONLY):
+    #     """ Get a list of all the items in a category.
+    #
+    #     :type category: str
+    #     :type content_filter: class
+    #     :type cache: int
+    #     :rtype list[resources.lib.vtmgo.Movie | resources.lib.vtmgo.Program]
+    #     """
+    #     # Fetch from API
+    #     response = util.http_get(API_ENDPOINT + '/%s/catalog' % self._mode(),
+    #                              params={'pageSize': 2000, 'filter': quote(category) if category else None},
+    #                              token=self._tokens.access_token if self._tokens else None,
+    #                              profile=self._tokens.profile if self._tokens else None)
+    #     info = json.loads(response.text)
+    #     content = info.get('pagedTeasers', {}).get('content', [])
+    #
+    #     items = []
+    #     for item in content:
+    #         if item.get('target', {}).get('type') == CONTENT_TYPE_MOVIE and content_filter in [None, Movie]:
+    #             items.append(self._parse_movie_teaser(item, cache=cache))
+    #
+    #         elif item.get('target', {}).get('type') == CONTENT_TYPE_PROGRAM and content_filter in [None, Program]:
+    #             items.append(self._parse_program_teaser(item, cache=cache))
+    #
+    #     return items
 
     def get_movie(self, movie_id, cache=CACHE_AUTO):
         """ Get the details of the specified movie.
@@ -252,7 +254,7 @@ class VtmGo:
         if movie is None:
             # Fetch from API
             response = util.http_get(API_ENDPOINT + '/%s/movies/%s' % (self._mode(), movie_id),
-                                     token=self._tokens.jwt_token if self._tokens else None,
+                                     token=self._tokens.access_token if self._tokens else None,
                                      profile=self._tokens.profile if self._tokens else None)
             info = json.loads(response.text)
             movie = info.get('movie', {})
@@ -290,7 +292,7 @@ class VtmGo:
         if program is None:
             # Fetch from API
             response = util.http_get(API_ENDPOINT + '/%s/programs/%s' % (self._mode(), program_id),
-                                     token=self._tokens.jwt_token if self._tokens else None,
+                                     token=self._tokens.access_token if self._tokens else None,
                                      profile=self._tokens.profile if self._tokens else None)
             info = json.loads(response.text)
             program = info.get('program', {})
@@ -394,7 +396,7 @@ class VtmGo:
         :rtype Episode
         """
         response = util.http_get(API_ENDPOINT + '/%s/play/episodes/%s' % (self._mode(), episode_id),
-                                 token=self._tokens.jwt_token if self._tokens else None,
+                                 token=self._tokens.access_token if self._tokens else None,
                                  profile=self._tokens.profile if self._tokens else None)
         episode = json.loads(response.text)
 
@@ -428,7 +430,7 @@ class VtmGo:
 
         # Fetch from API
         response = util.http_get(API_ENDPOINT + '/%s/my-list' % (self._mode()),
-                                 token=self._tokens.jwt_token,
+                                 token=self._tokens.access_token,
                                  profile=self._tokens.profile)
 
         # Result can be empty
@@ -439,24 +441,24 @@ class VtmGo:
         kodiutils.set_cache(['mylist_id'], items)
         return items
 
-    def get_catalog_ids(self):
-        """ Returns the IDs of the contents of the Catalog """
-        # Try to fetch from cache
-        items = kodiutils.get_cache(['catalog_id'], 300)  # 5 minutes ttl
-        if items:
-            return items
-
-        # Fetch from API
-        response = util.http_get(API_ENDPOINT + '/%s/catalog' % self._mode(),
-                                 params={'pageSize': 2000, 'filter': None},
-                                 token=self._tokens.jwt_token if self._tokens else None,
-                                 profile=self._tokens.profile if self._tokens else None)
-        info = json.loads(response.text)
-
-        items = [item.get('target', {}).get('id') for item in info.get('pagedTeasers', {}).get('content', [])]
-
-        kodiutils.set_cache(['catalog_id'], items)
-        return items
+    # def get_catalog_ids(self):
+    #     """ Returns the IDs of the contents of the Catalog """
+    #     # Try to fetch from cache
+    #     items = kodiutils.get_cache(['catalog_id'], 300)  # 5 minutes ttl
+    #     if items:
+    #         return items
+    #
+    #     # Fetch from API
+    #     response = util.http_get(API_ENDPOINT + '/%s/catalog' % self._mode(),
+    #                              params={'pageSize': 2000, 'filter': None},
+    #                              token=self._tokens.access_token if self._tokens else None,
+    #                              profile=self._tokens.profile if self._tokens else None)
+    #     info = json.loads(response.text)
+    #
+    #     items = [item.get('target', {}).get('id') for item in info.get('pagedTeasers', {}).get('content', [])]
+    #
+    #     kodiutils.set_cache(['catalog_id'], items)
+    #     return items
 
     def do_search(self, search):
         """ Do a search in the full catalog.
@@ -465,7 +467,7 @@ class VtmGo:
         """
         response = util.http_get(API_ENDPOINT + '/%s/search/?query=%s' % (self._mode(),
                                                                           kodiutils.to_unicode(quote(kodiutils.from_unicode(search)))),
-                                 token=self._tokens.jwt_token if self._tokens else None,
+                                 token=self._tokens.access_token if self._tokens else None,
                                  profile=self._tokens.profile if self._tokens else None)
         results = json.loads(response.text)
 

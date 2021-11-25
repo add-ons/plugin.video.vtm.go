@@ -21,85 +21,8 @@ class Catalog:
 
     def __init__(self):
         """ Initialise object """
-        self._auth = VtmGoAuth(kodiutils.get_setting('username'),
-                               kodiutils.get_setting('password'),
-                               'VTM',
-                               kodiutils.get_setting('profile'),
-                               kodiutils.get_tokens_path())
-        self._vtm_go = VtmGo(self._auth)
-
-    def show_catalog(self):
-        """ Show the catalog """
-        try:
-            categories = self._vtm_go.get_categories()
-        except ApiUpdateRequired:
-            kodiutils.ok_dialog(message=kodiutils.localize(30705))  # The VTM GO Service has been updated...
-            return
-
-        except Exception as ex:  # pylint: disable=broad-except
-            _LOGGER.error("%s", ex)
-            kodiutils.ok_dialog(message="%s" % ex)
-            return
-
-        listing = []
-        for cat in categories:
-            listing.append(kodiutils.TitleItem(
-                title=cat.title,
-                path=kodiutils.url_for('show_catalog_category', category=cat.category_id),
-                info_dict=dict(
-                    plot='[B]{category}[/B]'.format(category=cat.title),
-                ),
-            ))
-
-        # Sort categories by default like in VTM GO.
-        kodiutils.show_listing(listing, 30003, content='files')
-
-    def show_catalog_category(self, category=None):
-        """ Show a category in the catalog
-        :type category: str
-        """
-        try:
-            items = self._vtm_go.get_items(category)
-        except ApiUpdateRequired:
-            kodiutils.ok_dialog(message=kodiutils.localize(30705))  # The VTM GO Service has been updated...
-            return
-
-        except Exception as ex:  # pylint: disable=broad-except
-            _LOGGER.error("%s", ex)
-            kodiutils.ok_dialog(message="%s" % ex)
-            return
-
-        listing = []
-        for item in items:
-            listing.append(Menu.generate_titleitem(item))
-
-        # Sort items by label, but don't put folders at the top.
-        # Used for A-Z listing or when movies and episodes are mixed.
-        kodiutils.show_listing(listing, 30003, content='files', sort=['label', 'year', 'duration'])
-
-    def show_catalog_channel(self, channel):
-        """ Show a category in the catalog
-        :type channel: str
-        """
-        try:
-            items = self._vtm_go.get_items()
-        except ApiUpdateRequired:
-            kodiutils.ok_dialog(message=kodiutils.localize(30705))  # The VTM GO Service has been updated...
-            return
-
-        except Exception as ex:  # pylint: disable=broad-except
-            _LOGGER.error("%s", ex)
-            kodiutils.ok_dialog(message="%s" % ex)
-            return
-
-        listing = []
-        for item in items:
-            if item.channel == channel:
-                listing.append(Menu.generate_titleitem(item))
-
-        # Sort items by label, but don't put folders at the top.
-        # Used for A-Z listing or when movies and episodes are mixed.
-        kodiutils.show_listing(listing, 30003, content='tvshows', sort='label')
+        auth = VtmGoAuth(kodiutils.get_tokens_path())
+        self._vtm_go = VtmGo(auth.get_tokens())
 
     def show_program(self, program):
         """ Show a program from the catalog

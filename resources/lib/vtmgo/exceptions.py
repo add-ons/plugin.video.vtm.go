@@ -4,8 +4,13 @@
 from __future__ import absolute_import, division, unicode_literals
 
 
+
+class NotAuthorizedException(Exception):
+    """ Is thrown when this device is not authorized. """
+
+
 class NoLoginException(Exception):
-    """ Is thrown when the user has no credentials. """
+    """ Is thrown when the user need to follow the authorization flow. """
 
 
 class InvalidTokenException(Exception):
