@@ -7,10 +7,8 @@ import logging
 
 from resources.lib import kodiutils
 from resources.lib.modules import CHANNELS
-from resources.lib.vtmgo import STOREFRONT_KIDS, STOREFRONT_MAIN, STOREFRONT_MOVIES, STOREFRONT_SERIES, Episode, Movie, \
-    Program
+from resources.lib.vtmgo import STOREFRONT_KIDS, STOREFRONT_MAIN, STOREFRONT_MOVIES, STOREFRONT_SERIES, Episode, Movie, Program
 from resources.lib.vtmgo.vtmgo import CONTENT_TYPE_MOVIE, CONTENT_TYPE_PROGRAM
-from resources.lib.vtmgo.vtmgoauth import VtmGoAuth
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -20,13 +18,11 @@ class Menu:
 
     def __init__(self):
         """ Initialise object """
-        self._auth = VtmGoAuth(kodiutils.get_tokens_path())
 
-    def show_mainmenu(self):
+    @staticmethod
+    def show_mainmenu():
         """ Show the main menu """
         listing = []
-
-        account = self._auth.get_tokens()
 
         listing.append(kodiutils.TitleItem(
             title=kodiutils.localize(30007),  # TV Channels
@@ -194,8 +190,7 @@ class Menu:
             'title': item.name,
             'plot': cls.format_plot(item),
             'studio': CHANNELS.get(item.channel, {}).get('studio_icon'),
-            'mpaa': ', '.join(item.legal) if hasattr(item, 'legal') and item.legal else kodiutils.localize(30216),
-            # All ages
+            'mpaa': ', '.join(item.legal) if hasattr(item, 'legal') and item.legal else kodiutils.localize(30216),  # All ages
         }
         prop_dict = {}
 
@@ -261,9 +256,6 @@ class Menu:
                 'mediatype': 'tvshow',
                 'year': item.year,
                 'season': len(item.seasons),
-            })
-            prop_dict.update({
-                'hash': item.content_hash,
             })
 
             return kodiutils.TitleItem(

@@ -141,7 +141,7 @@ class Program:
     """ Defines a Program """
 
     def __init__(self, program_id=None, name=None, description=None, year=None, poster=None, thumb=None, fanart=None, seasons=None,
-                 geoblocked=None, channel=None, legal=None, my_list=None, content_hash=None):
+                 geoblocked=None, channel=None, legal=None, my_list=None):
         """
         :type program_id: str
         :type name: str
@@ -155,7 +155,6 @@ class Program:
         :type channel: str
         :type legal: str
         :type my_list: bool
-        :type content_hash: str
         """
         self.program_id = program_id
         self.name = name
@@ -169,7 +168,6 @@ class Program:
         self.channel = channel
         self.legal = legal
         self.my_list = my_list
-        self.content_hash = content_hash
 
     def __repr__(self):
         return "%r" % self.__dict__

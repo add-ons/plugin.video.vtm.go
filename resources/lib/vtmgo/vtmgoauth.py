@@ -3,10 +3,10 @@
 
 from __future__ import absolute_import, division, unicode_literals
 
-import uuid
 import json
 import logging
 import os
+import uuid
 
 from requests import HTTPError
 
@@ -19,11 +19,6 @@ except ImportError:  # Python 2
     # The package is named pyjwt in Kodi 18: https://github.com/lottaboost/script.module.pyjwt/pull/1
     import pyjwt as jwt
 
-try:  # Python 3
-    from urllib.parse import parse_qs, urlparse
-except ImportError:  # Python 2
-    from urlparse import parse_qs, urlparse
-
 _LOGGER = logging.getLogger(__name__)
 
 
@@ -35,9 +30,6 @@ class AccountStorage:
     refresh_token = ''
     profile = ''
     product = ''
-
-    # Credentials hash
-    hash = ''
 
     def is_valid_token(self):
         """ Validate the JWT to see if it's still valid.
@@ -54,18 +46,11 @@ class AccountStorage:
                                      algorithms=['HS256'],
                                      options={'verify_signature': False, 'verify_aud': False})
 
-            # # Check issued at datetime
-            # # VTM GO updated the JWT token format on 2021-05-03T12:00:00+00:00, older JWT tokens became invalid
-            # update = dateutil.parser.parse('2021-05-03T12:00:00+00:00')
-            # iat = datetime.fromtimestamp(decoded_jwt.get('iat'), tz=dateutil.tz.gettz('Europe/Brussels'))
-            # if iat < update:
-            #     _LOGGER.debug('JWT issued at %s is too old', iat.isoformat())
-            #     return False
-
             # Check expiration time
+            from datetime import datetime
+
             import dateutil.parser
             import dateutil.tz
-            from datetime import datetime
             exp = datetime.fromtimestamp(decoded_jwt.get('exp'), tz=dateutil.tz.gettz('Europe/Brussels'))
             now = datetime.now(dateutil.tz.UTC)
             if exp < now:
@@ -92,6 +77,11 @@ class VtmGoAuth:
         # Load existing account data
         self._account = AccountStorage()
         self._load_cache()
+
+    def set_token(self, access_token):
+        """ Sets an auth token """
+        self._account.access_token = access_token
+        self._save_cache()
 
     def authorize(self):
         """ Start the authorization flow. """
@@ -132,24 +122,33 @@ class VtmGoAuth:
 
     def get_tokens(self):
         """ Check if we have a token based on our device code. """
-        if not self._account.id_token:
-            raise NoLoginException
-
         # Return our current token if it is still valid.
-        if self._account.is_valid_token():
+        if self._account.is_valid_token() and self._account.profile and self._account.product:
             return self._account
 
-        # Fetch an actual token we can use
-        response = util.http_post('https://lfvp-api.dpgmedia.net/vtmgo/tokens', data={
-            'device': {
-                'id': str(uuid.uuid4()),  # TODO: should we reuse this id?
-                'name': ''  # Show we announce ourselves as Kodi?
-            },
-            'idToken': self._account.id_token,
-        })
+        if self._account.access_token:
+            # We can refresh our old token so it's valid again
+            response = util.http_post('https://lfvp-api.dpgmedia.net/vtmgo/tokens/refresh', data={
+                'lfvpToken': self._account.access_token,
+            })
 
-        auth_info = json.loads(response.text)
-        self._account.access_token = auth_info.get('lfvpToken')
+            # Get JWT from reply
+            self._account.access_token = json.loads(response.text).get('lfvpToken')
+
+        elif self._account.id_token:
+            # Fetch an actual token we can use
+            response = util.http_post('https://lfvp-api.dpgmedia.net/vtmgo/tokens', data={
+                'device': {
+                    'id': str(uuid.uuid4()),  # TODO: should we reuse this id?
+                    'name': ''  # Show we announce ourselves as Kodi?
+                },
+                'idToken': self._account.id_token,
+            })
+
+            self._account.access_token = json.loads(response.text).get('lfvpToken')
+
+        else:
+            return None
 
         # We always use the main profile
         profiles = self.get_profiles()
@@ -182,21 +181,8 @@ class VtmGoAuth:
 
     def logout(self):
         """ Clear the session tokens. """
-        self._account.access_token = None
+        self._account.__dict__ = {}  # pylint: disable=attribute-defined-outside-init
         self._save_cache()
-
-    # def _android_refesh(self):
-    #
-    #     # We can refresh our old token so it's valid again
-    #     response = util.http_post('https://lfvp-api.dpgmedia.net/vtmgo/tokens/refresh', data={
-    #         'lfvpToken': self._account.access_token,
-    #     })
-    #
-    #     # Get JWT from reply
-    #     self._account.access_token = json.loads(response.text).get('lfvpToken')
-    #     self._save_cache()
-    #
-    #     return self._account
 
     def _load_cache(self):
         """ Load tokens from cache """

@@ -9,6 +9,7 @@ import logging
 import unittest
 
 import xbmc
+from mock import patch
 
 from resources.lib import addon
 from resources.lib import kodiutils
@@ -40,6 +41,10 @@ class TestRouting(unittest.TestCase):
 
     def test_index(self):
         routing.run([routing.url_for(addon.index), '0', ''])
+
+    def test_login_menu(self):
+        with patch('xbmcgui.DialogProgress.iscanceled', return_value=True):
+            routing.run([routing.url_for(addon.show_login_menu), '0', ''])
 
     def test_main_menu(self):
         routing.run([routing.url_for(addon.show_main_menu), '0', ''])

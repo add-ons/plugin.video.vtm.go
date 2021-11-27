@@ -8,7 +8,6 @@ import logging
 import routing
 
 from resources.lib import kodilogging, kodiutils
-from resources.lib.vtmgo.exceptions import NoLoginException
 from resources.lib.vtmgo.vtmgoauth import VtmGoAuth
 
 routing = routing.Plugin()  # pylint: disable=invalid-name
@@ -20,13 +19,9 @@ _LOGGER = logging.getLogger(__name__)
 def index():
     """ Show the profile selection, or go to the main menu. """
     auth = VtmGoAuth(kodiutils.get_tokens_path())
-
-    try:
-        # Check if we have valid tokens and show the main menu if we do.
-        auth.get_tokens()
+    if auth.get_tokens():
         show_main_menu()
-    except NoLoginException:
-        # We are not authorized, start the authorization flow.
+    else:
         show_login_menu()
 
 
@@ -77,34 +72,6 @@ def show_tvguide_detail(channel=None, date=None):
     """ Shows the programs of a specific date in the tv guide """
     from resources.lib.modules.tvguide import TvGuide
     TvGuide().show_tvguide_detail(channel, date)
-
-
-# @routing.route('/catalog')
-# def show_catalog():
-#     """ Show the catalog """
-#     from resources.lib.modules.catalog import Catalog
-#     Catalog().show_catalog()
-#
-#
-# @routing.route('/catalog/all')
-# def show_catalog_all():
-#     """ Show a category in the catalog """
-#     from resources.lib.modules.catalog import Catalog
-#     Catalog().show_catalog_category()
-#
-#
-# @routing.route('/catalog/by-category/<category>')
-# def show_catalog_category(category):
-#     """ Show a category in the catalog """
-#     from resources.lib.modules.catalog import Catalog
-#     Catalog().show_catalog_category(category)
-
-
-# @routing.route('/catalog/by-channel/<channel>')
-# def show_catalog_channel(channel):
-#     """ Show a category in the catalog """
-#     from resources.lib.modules.catalog import Catalog
-#     Catalog().show_catalog_channel(channel)
 
 
 @routing.route('/catalog/program/<program>')

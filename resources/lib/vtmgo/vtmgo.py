@@ -3,13 +3,11 @@
 
 from __future__ import absolute_import, division, unicode_literals
 
-import hashlib
 import json
 import logging
 
 from resources.lib import kodiutils
 from resources.lib.vtmgo import API_ANDROID_ENDPOINT, API_ENDPOINT, Category, Episode, LiveChannel, LiveChannelEpg, Movie, Program, Season, util
-from resources.lib.vtmgo.vtmgoauth import AccountStorage
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -193,50 +191,6 @@ class VtmGo:
         channels = self.get_live_channels()
         return next(c for c in channels if c.key == key)
 
-    # def get_categories(self):
-    #     """ Get a list of all the categories.
-    #     :rtype list[Category]
-    #     """
-    #     response = util.http_get(API_ENDPOINT + '/%s/catalog/filters' % self._mode(),
-    #                              token=self._tokens.access_token if self._tokens else None,
-    #                              profile=self._tokens.profile if self._tokens else None)
-    #     info = json.loads(response.text)
-    #
-    #     categories = []
-    #     for item in info.get('catalogFilters', []):
-    #         categories.append(Category(
-    #             category_id=item.get('id'),
-    #             title=item.get('title'),
-    #         ))
-    #
-    #     return categories
-
-    # def get_items(self, category=None, content_filter=None, cache=CACHE_ONLY):
-    #     """ Get a list of all the items in a category.
-    #
-    #     :type category: str
-    #     :type content_filter: class
-    #     :type cache: int
-    #     :rtype list[resources.lib.vtmgo.Movie | resources.lib.vtmgo.Program]
-    #     """
-    #     # Fetch from API
-    #     response = util.http_get(API_ENDPOINT + '/%s/catalog' % self._mode(),
-    #                              params={'pageSize': 2000, 'filter': quote(category) if category else None},
-    #                              token=self._tokens.access_token if self._tokens else None,
-    #                              profile=self._tokens.profile if self._tokens else None)
-    #     info = json.loads(response.text)
-    #     content = info.get('pagedTeasers', {}).get('content', [])
-    #
-    #     items = []
-    #     for item in content:
-    #         if item.get('target', {}).get('type') == CONTENT_TYPE_MOVIE and content_filter in [None, Movie]:
-    #             items.append(self._parse_movie_teaser(item, cache=cache))
-    #
-    #         elif item.get('target', {}).get('type') == CONTENT_TYPE_PROGRAM and content_filter in [None, Program]:
-    #             items.append(self._parse_program_teaser(item, cache=cache))
-    #
-    #     return items
-
     def get_movie(self, movie_id, cache=CACHE_AUTO):
         """ Get the details of the specified movie.
         :type movie_id: str
@@ -300,10 +254,6 @@ class VtmGo:
 
         channel = self._parse_channel(program.get('channelLogoUrl'))
 
-        # Calculate a hash value of the ids of all episodes
-        program_hash = hashlib.md5()
-        program_hash.update(program.get('id').encode())
-
         seasons = {}
         for item_season in program.get('seasons', []):
             episodes = {}
@@ -328,7 +278,6 @@ class VtmGo:
                     progress=item_episode.get('playerPositionSeconds', 0),
                     watched=item_episode.get('doneWatching', False),
                 )
-                program_hash.update(item_episode.get('id').encode())
 
             seasons[item_season.get('index')] = Season(
                 number=item_season.get('index'),
@@ -348,7 +297,6 @@ class VtmGo:
             seasons=seasons,
             channel=channel,
             legal=program.get('legalIcons'),
-            content_hash=program_hash.hexdigest().upper(),
             # my_list=program.get('addedToMyList'),  # Don't use addedToMyList, since we might have cached this info
         )
 
@@ -420,45 +368,6 @@ class VtmGo:
             progress=episode.get('playerPositionSeconds'),
             next_episode=next_episode,
         )
-
-    def get_mylist_ids(self):
-        """ Returns the IDs of the contents of My List """
-        # Try to fetch from cache
-        items = kodiutils.get_cache(['mylist_id'], 300)  # 5 minutes ttl
-        if items:
-            return items
-
-        # Fetch from API
-        response = util.http_get(API_ENDPOINT + '/%s/my-list' % (self._mode()),
-                                 token=self._tokens.access_token,
-                                 profile=self._tokens.profile)
-
-        # Result can be empty
-        result = json.loads(response.text) if response.text else []
-
-        items = [item.get('target', {}).get('id') for item in result.get('teasers', [])]
-
-        kodiutils.set_cache(['mylist_id'], items)
-        return items
-
-    # def get_catalog_ids(self):
-    #     """ Returns the IDs of the contents of the Catalog """
-    #     # Try to fetch from cache
-    #     items = kodiutils.get_cache(['catalog_id'], 300)  # 5 minutes ttl
-    #     if items:
-    #         return items
-    #
-    #     # Fetch from API
-    #     response = util.http_get(API_ENDPOINT + '/%s/catalog' % self._mode(),
-    #                              params={'pageSize': 2000, 'filter': None},
-    #                              token=self._tokens.access_token if self._tokens else None,
-    #                              profile=self._tokens.profile if self._tokens else None)
-    #     info = json.loads(response.text)
-    #
-    #     items = [item.get('target', {}).get('id') for item in info.get('pagedTeasers', {}).get('content', [])]
-    #
-    #     kodiutils.set_cache(['catalog_id'], items)
-    #     return items
 
     def do_search(self, search):
         """ Do a search in the full catalog.

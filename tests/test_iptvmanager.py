@@ -10,8 +10,6 @@ import logging
 import socket
 import unittest
 
-from resources.lib import kodiutils
-
 _LOGGER = logging.getLogger(__name__)
 
 

@@ -78,7 +78,7 @@ class IPTVManager:
             channels = self._vtm_go_epg.get_epgs(date)
             for channel in channels:
                 # Lookup channel data in our own CHANNELS dict
-                channel_data = next((c for c in CHANNELS.values() if c.get('epg') == channel.key), None)
+                channel_data = next((c for c in list(CHANNELS.values()) if c.get('epg') == channel.key), None)
                 if not channel_data:
                     _LOGGER.warning('Skipping EPG for %s since we don\'t know this channel', channel.key)
                     continue
@@ -86,7 +86,7 @@ class IPTVManager:
                 key = channel_data.get('iptv_id')
 
                 # Create channel in dict if it doesn't exists
-                if key not in results.keys():
+                if key not in list(results.keys()):
                     results[key] = []
 
                 results[key].extend([

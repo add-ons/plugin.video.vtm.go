@@ -4,13 +4,11 @@
 from __future__ import absolute_import, division, unicode_literals
 
 import logging
-from time import time
 
 from xbmc import Monitor, Player, getInfoLabel
 
 from resources.lib import kodilogging, kodiutils
 from resources.lib.modules.proxy import Proxy
-from resources.lib.vtmgo.exceptions import NoLoginException
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -45,7 +43,6 @@ class BackgroundService(Monitor):
             Proxy.stop()
 
         _LOGGER.debug('Service stopped')
-
 
 
 class PlayerMonitor(Player):

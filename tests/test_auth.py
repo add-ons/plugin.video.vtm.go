@@ -11,33 +11,23 @@ from resources.lib import kodiutils
 from resources.lib.vtmgo.vtmgoauth import VtmGoAuth
 
 
-# @unittest.skipUnless(kodiutils.get_setting('username') and kodiutils.get_setting('password'), 'Skipping since we have no credentials.')
 class TestAuth(unittest.TestCase):
     """ Tests for VTM GO Auth """
 
+    def test_authorization(self):
+        auth = VtmGoAuth(kodiutils.get_tokens_path())
+        auth_info = auth.authorize()
+        self.assertIsInstance(auth_info, dict)
+        self.assertIsNotNone(auth_info.get('user_code'))
+        self.assertIsNotNone(auth_info.get('device_code'))
+        self.assertIsNotNone(auth_info.get('interval'))
+        self.assertIsNotNone(auth_info.get('verification_uri'))
+        self.assertIsNotNone(auth_info.get('expires_in'))
+
     def test_login(self):
         auth = VtmGoAuth(kodiutils.get_tokens_path())
-        a = auth.get_tokens()
-        print(a)
-
-        # account = auth.get_tokens()
-        # self.assertIsInstance(account, AccountStorage)
-        # self.assertIsNotNone(account.access_token)
-        #
-        # profiles = auth.get_profiles()
-        # self.assertIsInstance(profiles[0], Profile)
-
-    # def test_errors(self):
-    #     with self.assertRaises(NoLoginException):
-    #         VtmGoAuth(None, None, None, None, token_path=kodiutils.get_tokens_path())
-    #
-    #     with self.assertRaises(InvalidLoginException):
-    #         VtmGoAuth(self._random_email(), 'test', 'VTM', None, token_path=kodiutils.get_tokens_path())
-    #
-    # @staticmethod
-    # def _random_email(domain='gmail.com'):
-    #     """ Generate a random e-mail address. """
-    #     return '%s@%s' % (''.join(random.choice(string.ascii_letters) for i in range(12)), domain)
+        tokens = auth.get_tokens()
+        self.assertTrue(tokens.is_valid_token())
 
 
 if __name__ == '__main__':
