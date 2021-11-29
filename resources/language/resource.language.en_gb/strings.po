@@ -177,7 +177,15 @@ msgstr ""
 
 # MESSAGES
 msgctxt "#30701"
-msgid "You need to configure your credentials before you can access the content of VTM GO. Do you want to enter them now?"
+msgid "Go to {url} on another device and enter use code [B]{code}[/B] when logging in."
+msgstr ""
+
+msgctxt "#30702"
+msgid "This device is successfully logged in to the VTM Go Service."
+msgstr ""
+
+msgctxt "#30703"
+msgid "The login code has expired. Please try again."
 msgstr ""
 
 msgctxt "#30705"

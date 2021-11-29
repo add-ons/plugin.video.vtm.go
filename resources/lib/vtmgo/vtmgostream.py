@@ -19,6 +19,7 @@ class VtmGoStream:
     """ VTM GO Stream API """
 
     _API_KEY = '3vjmWnsxF7SUTeNCBZlnUQ4Z7GQV8f6miQ514l10'
+    # _API_KEY = 'jL3yNhGpDsaew9CqJrDPq2UzMrlmNVbnadUXVOET'
 
     def __init__(self, tokens=None):
         """ Initialise object """

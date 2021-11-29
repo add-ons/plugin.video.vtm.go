@@ -116,39 +116,38 @@ class VtmGoAuth:
         auth_info = json.loads(response.text)
         self._account.id_token = auth_info.get('access_token')
         self._account.refresh_token = auth_info.get('refresh_token')
+
+        # Fetch an actual token we can use
+        response = util.http_post('https://lfvp-api.dpgmedia.net/vtmgo/tokens', data={
+            'device': {
+                'id': str(uuid.uuid4()),
+                'name': 'VTM Go Addon on Kodi',
+            },
+            'idToken': self._account.id_token,
+        })
+
+        self._account.access_token = json.loads(response.text).get('lfvpToken')
         self._save_cache()
 
         return True
 
     def get_tokens(self):
         """ Check if we have a token based on our device code. """
+        # If we have no access_token, return None
+        if not self._account.access_token:
+            return None
+
         # Return our current token if it is still valid.
         if self._account.is_valid_token() and self._account.profile and self._account.product:
             return self._account
 
-        if self._account.access_token:
-            # We can refresh our old token so it's valid again
-            response = util.http_post('https://lfvp-api.dpgmedia.net/vtmgo/tokens/refresh', data={
-                'lfvpToken': self._account.access_token,
-            })
+        # We can refresh our old token so it's valid again
+        response = util.http_post('https://lfvp-api.dpgmedia.net/vtmgo/tokens/refresh', data={
+            'lfvpToken': self._account.access_token,
+        })
 
-            # Get JWT from reply
-            self._account.access_token = json.loads(response.text).get('lfvpToken')
-
-        elif self._account.id_token:
-            # Fetch an actual token we can use
-            response = util.http_post('https://lfvp-api.dpgmedia.net/vtmgo/tokens', data={
-                'device': {
-                    'id': str(uuid.uuid4()),  # TODO: should we reuse this id?
-                    'name': ''  # Show we announce ourselves as Kodi?
-                },
-                'idToken': self._account.id_token,
-            })
-
-            self._account.access_token = json.loads(response.text).get('lfvpToken')
-
-        else:
-            return None
+        # Get JWT from reply
+        self._account.access_token = json.loads(response.text).get('lfvpToken')
 
         # We always use the main profile
         profiles = self.get_profiles()

@@ -24,10 +24,11 @@ class Authentication:
         """ Start the authorisation flow. """
         auth_info = self._auth.authorize()
 
+        # Show the authorization message
         progress_dialog = kodiutils.progress(
-            message="Go to {url} on another device and enter [B]{code}[/B] to login on this device.".format(
-                url=auth_info.get('verification_uri'),
-                code=auth_info.get('user_code')))
+            message=kodiutils.localize(30701,
+                                       url=auth_info.get('verification_uri'),
+                                       code=auth_info.get('user_code')))
         progress_dialog.update(0)
 
         # Check the authorization until it succeeds or the user cancels.
@@ -48,7 +49,7 @@ class Authentication:
             check = self._auth.authorize_check()
             if check:
                 progress_dialog.close()
-                kodiutils.notification("Sucessfully logged in")
+                kodiutils.notification(kodiutils.localize(30702))
                 kodiutils.redirect(kodiutils.url_for('show_main_menu'))
                 return
 
@@ -58,7 +59,7 @@ class Authentication:
         # Close progress indicator
         progress_dialog.close()
 
-        kodiutils.ok_dialog(message="The login code has expired. Please try again.")
+        kodiutils.ok_dialog(message=kodiutils.localize(30703))
 
     def clear_tokens(self):
         """ Clear the authentication tokens """

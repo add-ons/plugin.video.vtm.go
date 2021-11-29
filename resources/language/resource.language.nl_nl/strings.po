@@ -182,8 +182,16 @@ msgstr "Morgen"
 
 # MESSAGES
 msgctxt "#30701"
-msgid "You need to configure your credentials before you can access the content of VTM GO. Do you want to enter them now?"
-msgstr "U moet uw inloggegevens configureren voordat u VTM GO kan gebruiken. Wilt u dit nu doen?"
+msgid "Go to {url} on another device and enter use code [B]{code}[/B] when logging in."
+msgstr "Ga naar {url} op een ander toestel en geef de code [B]{code}[/B] in bij het inloggen."
+
+msgctxt "#30702"
+msgid "This device is successfully logged in to the VTM Go Service."
+msgstr "Dit toestel is succesvol ingelogd bij de VTM Go Service."
+
+msgctxt "#30703"
+msgid "The login code has expired. Please try again."
+msgstr "De logincode is vervallen. Probeer opnieuw."
 
 msgctxt "#30705"
 msgid "The VTM GO Service has been updated, but this add-on hasn't been modified yet for these changes. Please check for an update."
