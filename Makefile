@@ -66,7 +66,8 @@ build: clean
 # You first need to run sudo gem install github_changelog_generator for this
 release:
 ifneq ($(release),)
-	@github_changelog_generator -u add-ons -p $(name) --no-issues --future-release v$(release);
+	docker run -it --rm -e CHANGELOG_GITHUB_TOKEN -v "$(shell pwd)":/usr/local/src/your-app githubchangeloggenerator/github-changelog-generator -u add-ons -p $(name) --no-issues --future-release v$(release)
+	#@github_changelog_generator -u add-ons -p $(name) --no-issues --future-release v$(release);
 
 	@printf "cd /addon/@version\nset $$release\nsave\nbye\n" | xmllint --shell addon.xml; \
 	date=$(shell date '+%Y-%m-%d'); \
