@@ -30,8 +30,9 @@ check-pylint:
 check-translations:
 	@printf ">>> Running translation checks\n"
 	@$(foreach lang,$(languages), \
-		msgcmp resources/language/resource.language.$(lang)/strings.po resources/language/resource.language.en_gb/strings.po; \
+		msgcmp --use-untranslated resources/language/resource.language.$(lang)/strings.po resources/language/resource.language.en_gb/strings.po; \
 	)
+	@scripts/check_for_unused_translations.py
 
 check-addon: clean build
 	@printf ">>> Running addon checks\n"

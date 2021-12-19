@@ -22,3 +22,4 @@ disable=
 
     super-with-arguments, # Python 2.7 compatibility
     raise-missing-from, # Python 2.7 compatibility
+    consider-using-f-string, # Python 2.7 compatibility

@@ -9,6 +9,7 @@ import logging
 import unittest
 
 import xbmc
+from mock import patch
 
 from resources.lib import addon
 from resources.lib import kodiutils
@@ -24,7 +25,6 @@ EXAMPLE_PROGRAM = '96a49148-59f6-420c-9b90-8b058760c467'  # Familie
 EXAMPLE_EPISODE = '03136212-d2f5-4c0f-abff-eac84ae8da42'  # Instafamous S01E01
 
 
-@unittest.skipUnless(kodiutils.get_setting('username') and kodiutils.get_setting('password'), 'Skipping since we have no credentials.')
 class TestRouting(unittest.TestCase):
     """ Tests for Routing """
 
@@ -42,22 +42,16 @@ class TestRouting(unittest.TestCase):
     def test_index(self):
         routing.run([routing.url_for(addon.index), '0', ''])
 
+    def test_login_menu(self):
+        with patch('xbmcgui.DialogProgress.iscanceled', return_value=True):
+            routing.run([routing.url_for(addon.show_login_menu), '0', ''])
+
     def test_main_menu(self):
         routing.run([routing.url_for(addon.show_main_menu), '0', ''])
 
     def test_channels_menu(self):
         routing.run([routing.url_for(addon.show_channels), '0', ''])
         routing.run([routing.url_for(addon.show_channel_menu, channel='vtm'), '0', ''])
-
-    def test_catalog_menu(self):
-        routing.run([routing.url_for(addon.show_catalog), '0', ''])
-        routing.run([routing.url_for(addon.show_catalog_all), '0', ''])
-
-    def test_catalog_category_menu(self):
-        routing.run([routing.url_for(addon.show_catalog_category, category='films'), '0', ''])
-
-    def test_catalog_channel_menu(self):
-        routing.run([routing.url_for(addon.show_catalog_channel, channel='vtm'), '0', ''])
 
     def test_catalog_program_menu(self):
         routing.run([routing.url_for(addon.show_catalog_program, program=EXAMPLE_PROGRAM), '0', ''])
@@ -106,20 +100,6 @@ class TestRouting(unittest.TestCase):
         # Play yesterdays news of 13:00
         timestamp = (datetime.datetime.now() - datetime.timedelta(days=1)).replace(hour=13, minute=0, second=0, microsecond=0)
         routing.run([routing.url_for(addon.play_epg_datetime, channel='vtm', timestamp=timestamp.isoformat()), '0', ''])
-
-    def test_library(self):
-        routing.run([routing.url_for(addon.library_movies), '0', ''])
-        routing.run([routing.url_for(addon.library_movies), '0', 'movie=' + EXAMPLE_MOVIE + '&kodi_action=check_exists'])
-        routing.run([routing.url_for(addon.library_movies), '0', 'movie=' + EXAMPLE_MOVIE + '&kodi_action=refresh_info'])
-        routing.run([routing.url_for(addon.library_movies), '0', 'movie=' + EXAMPLE_MOVIE])
-        routing.run([routing.url_for(addon.library_tvshows), '0', ''])
-        routing.run([routing.url_for(addon.library_tvshows), '0', 'program=' + EXAMPLE_PROGRAM])
-        routing.run([routing.url_for(addon.library_tvshows), '0', 'program=' + EXAMPLE_PROGRAM + '&kodi_action=check_exists'])
-        routing.run([routing.url_for(addon.library_tvshows), '0', 'program=' + EXAMPLE_PROGRAM + '&kodi_action=refresh_info'])
-        routing.run([routing.url_for(addon.library_tvshows), '0', 'episode=' + EXAMPLE_EPISODE])
-        routing.run([routing.url_for(addon.library_configure), '0', ''])
-        routing.run([routing.url_for(addon.library_clean), '0', ''])
-        routing.run([routing.url_for(addon.library_update), '0', ''])
 
 
 if __name__ == '__main__':
