@@ -4,12 +4,14 @@
 
 from __future__ import absolute_import, division, print_function, unicode_literals
 
-# pylint: disable=invalid-name,superfluous-parens
-
 import subprocess
 import sys
 
 import polib
+
+# pylint: disable=invalid-name,superfluous-parens
+
+
 
 error = 0
 

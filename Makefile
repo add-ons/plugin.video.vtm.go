@@ -42,7 +42,7 @@ check-addon: clean build
 	@rm -rf ${TMPDIR}
 
 codefix:
-	@isort -l 160 resources/
+	@isort -l 160 .
 
 test: test-unit
 

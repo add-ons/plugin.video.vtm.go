@@ -11,8 +11,7 @@ import unittest
 import xbmc
 from mock import patch
 
-from resources.lib import addon
-from resources.lib import kodiutils
+from resources.lib import addon, kodiutils
 from resources.lib.vtmgo import STOREFRONT_MAIN
 
 routing = addon.routing
@@ -97,6 +96,7 @@ class TestRouting(unittest.TestCase):
 
     def test_play_epg(self):
         import datetime
+
         # Play yesterdays news of 13:00
         timestamp = (datetime.datetime.now() - datetime.timedelta(days=1)).replace(hour=13, minute=0, second=0, microsecond=0)
         routing.run([routing.url_for(addon.play_epg_datetime, channel='vtm', timestamp=timestamp.isoformat()), '0', ''])

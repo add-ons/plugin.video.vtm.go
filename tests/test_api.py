@@ -11,8 +11,7 @@ import xbmc
 
 from resources.lib import kodiutils
 from resources.lib.modules.player import Player
-from resources.lib.vtmgo import Category
-from resources.lib.vtmgo import STOREFRONT_MAIN, STOREFRONT_MOVIES, STOREFRONT_SERIES
+from resources.lib.vtmgo import STOREFRONT_MAIN, STOREFRONT_MOVIES, STOREFRONT_SERIES, Category
 from resources.lib.vtmgo.vtmgo import VtmGo
 from resources.lib.vtmgo.vtmgoauth import VtmGoAuth
 
