@@ -1,25 +1,12 @@
 export KODI_HOME := $(CURDIR)/tests/home
 export KODI_INTERACTIVE := 0
 PYTHON := python
-KODI_PYTHON_ABIS := 3.0.0 2.26.0
-
-# Collect information to build as sensible package name
-name = $(shell xmllint --xpath 'string(/addon/@id)' addon.xml)
-version = $(shell xmllint --xpath 'string(/addon/@version)' addon.xml)
-git_branch = $(shell git rev-parse --abbrev-ref HEAD)
-git_hash = $(shell git rev-parse --short HEAD)
-
-ifdef release
-	zip_name = $(name)-$(version).zip
-else
-	zip_name = $(name)-$(version)-$(git_branch)-$(git_hash).zip
-endif
-zip_dir = $(name)/
 
 languages = $(filter-out en_gb, $(patsubst resources/language/resource.language.%, %, $(wildcard resources/language/*)))
 
 all: check test build
 zip: build
+multizip: build
 
 check: check-pylint check-translations
 
@@ -34,19 +21,17 @@ check-translations:
 	)
 	@scripts/check_for_unused_translations.py
 
-check-addon: clean build
+check-addon: build
 	@printf ">>> Running addon checks\n"
 	$(eval TMPDIR := $(shell mktemp -d))
-	@unzip ../${zip_name} -d ${TMPDIR}
-	cd ${TMPDIR} && kodi-addon-checker --branch=leia
+	@unzip dist/plugin.video.vtm.go-*+matrix.1.zip -d ${TMPDIR}
+	cd ${TMPDIR} && kodi-addon-checker --branch=matrix
 	@rm -rf ${TMPDIR}
 
 codefix:
 	@isort -l 160 .
 
-test: test-unit
-
-test-unit:
+test:
 	@printf ">>> Running unit tests\n"
 	@$(PYTHON) -m pytest -v tests
 
@@ -56,17 +41,16 @@ clean:
 	@find . -name '__pycache__' -type d -delete
 	@rm -rf .pytest_cache/ tests/cdm tests/userdata/temp
 	@rm -f *.log .coverage
+	@rm -rf dist/
 
 build: clean
-	@printf ">>> Building package\n"
-	@rm -f ../$(zip_name)
-	@git archive --format zip --worktree-attributes -v -o ../$(zip_name) --prefix $(zip_dir) $(or $(shell git stash create), HEAD)
-	@printf ">>> Successfully wrote package as: ../$(zip_name)\n"
+	@printf ">>> Building add-on\n"
+	@scripts/build.py
+	@ls -lah dist/*.zip
 
-# You first need to run sudo gem install github_changelog_generator for this
 release:
 ifneq ($(release),)
-	docker run -it --rm -e CHANGELOG_GITHUB_TOKEN -v "$(shell pwd)":/usr/local/src/your-app githubchangeloggenerator/github-changelog-generator -u add-ons -p $(name) --no-issues --future-release v$(release)
+	docker run -it --rm --env CHANGELOG_GITHUB_TOKEN=$(GH_TOKEN) -v "$(shell pwd)":/usr/local/src/your-app githubchangeloggenerator/github-changelog-generator -u add-ons -p plugin.video.vtm.go --no-issues --exclude-labels duplicate,question,invalid,wontfix,release,testing --future-release v$(release)
 
 	@printf "cd /addon/@version\nset $$release\nsave\nbye\n" | xmllint --shell addon.xml; \
 	date=$(shell date '+%Y-%m-%d'); \
@@ -80,11 +64,4 @@ else
 	@printf "Usage: make release release=1.0.0\n"
 endif
 
-multizip: clean
-	@-$(foreach abi,$(KODI_PYTHON_ABIS), \
-		printf "cd /addon/requires/import[@addon='xbmc.python']/@version\nset $(abi)\nsave\nbye\n" | xmllint --shell addon.xml; \
-		matrix=$(findstring $(abi), $(word 1,$(KODI_PYTHON_ABIS))); \
-		if [ $$matrix ]; then version=$(version)+matrix.1; else version=$(version); fi; \
-		printf "cd /addon/@version\nset $$version\nsave\nbye\n" | xmllint --shell addon.xml; \
-		make build; \
-	)
+.PHONY: check codefix test clean build release

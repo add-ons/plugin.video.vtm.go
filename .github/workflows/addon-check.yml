@@ -11,10 +11,6 @@ jobs:
   kodi-addon-checker:
     name: Addon checker
     runs-on: ubuntu-latest
-    strategy:
-      fail-fast: false
-      matrix:
-        kodi-version: [ leia, matrix ]
     steps:
       - name: Check out ${{ github.sha }} from repository ${{ github.repository }}
         uses: actions/checkout@v2
@@ -22,6 +18,5 @@ jobs:
       - name: Run kodi-addon-checker
         uses: xbmc/action-kodi-addon-checker@v1.2
         with:
-          kodi-version: ${{ matrix.kodi-version }}
-          rewrite-for-matrix: true
+          kodi-version: matrix
           addon-id: ${{ github.event.repository.name }}

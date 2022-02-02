@@ -4,27 +4,21 @@
 
 from __future__ import absolute_import, division, print_function, unicode_literals
 
+# pylint: disable=invalid-name,superfluous-parens
+
 import subprocess
 import sys
 
 import polib
 
-# pylint: disable=invalid-name,superfluous-parens
-
-
-
 error = 0
 
 # Load all python code from git
-code = subprocess.check_output(['git', 'grep', '', '--', 'resources/*.py', 'resources/settings.xml', 'addon.xml']).decode('utf-8')
+code = subprocess.check_output(['git', 'grep', '', '--', 'resources/*.py', 'resources/settings.xml']).decode('utf-8')
 
 # Load po file
 po = polib.pofile('resources/language/resource.language.en_gb/strings.po')
 for entry in po:
-    # Skip empty translations
-    if entry.msgid == '':
-        continue
-
     # Extract msgctxt
     msgctxt = entry.msgctxt.lstrip('#')
 
