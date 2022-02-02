@@ -63,7 +63,6 @@ build: clean
 	@git archive --format zip --worktree-attributes -v -o ../$(zip_name) --prefix $(zip_dir) $(or $(shell git stash create), HEAD)
 	@printf ">>> Successfully wrote package as: ../$(zip_name)\n"
 
-# You first need to run sudo gem install github_changelog_generator for this
 release:
 ifneq ($(release),)
 	docker run -it --rm -e CHANGELOG_GITHUB_TOKEN -v "$(shell pwd)":/usr/local/src/your-app githubchangeloggenerator/github-changelog-generator -u add-ons -p $(name) --no-issues --future-release v$(release)
