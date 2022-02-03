@@ -18,3 +18,5 @@ tests/home/userdata/addon_data
 
 Pipfile
 Pipfile.lock
+
+dist/

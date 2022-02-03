@@ -3,10 +3,10 @@ on:
   # Run action when pushed to master, or for commits in a pull request.
   push:
     branches:
-    - master
+      - master
   pull_request:
     branches:
-    - master
+      - master
 jobs:
   tests:
     name: Add-on testing
@@ -54,7 +54,7 @@ jobs:
           KODI_INTERACTIVE: 0
           KODI_STUB_RPC_RESPONSES: ${{ github.workspace }}/tests/rpc
           HTTP_PROXY: ${{ secrets.HTTP_PROXY }}
-        run: pytest -v --cov=./ --cov-report=xml tests
+        run: pytest -x -v --cov=./ --cov-report=xml tests
 
       - name: Upload code coverage to CodeCov
         uses: codecov/codecov-action@v1
