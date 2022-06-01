@@ -78,7 +78,7 @@ if __name__ == '__main__':
         if os.path.isfile(f):
             shutil.copy(f, dest)
         else:
-            shutil.copytree(f, os.path.join(dest, f), dirs_exist_ok=True)
+            shutil.copytree(f, os.path.join(dest, f))
 
     # Update addon.xml for matrix and create zip
     modify_xml(os.path.join(dest, 'addon.xml'), addon_info['version'] + '+matrix.1', addon_info['news'], '3.0.0')
