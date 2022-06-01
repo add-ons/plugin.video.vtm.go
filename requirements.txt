@@ -7,7 +7,7 @@ pytest-timeout
 python-dateutil
 pysocks
 requests
-git+git://github.com/dagwieers/kodi-plugin-routing.git@setup#egg=routing
+git+https://github.com/tamland/kodi-plugin-routing@master#egg=routing
 mock
 sakee
 win-inet-pton; platform_system=="Windows"
