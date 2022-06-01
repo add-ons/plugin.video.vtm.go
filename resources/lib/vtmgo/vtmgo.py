@@ -42,7 +42,8 @@ class VtmGo:
         """ Return the mode that should be used for API calls """
         return 'vtmgo-kids' if self.get_product() == 'VTM_GO_KIDS' else 'vtmgo'
 
-    def get_config(self):
+    @staticmethod
+    def get_config():
         """ Returns the config for the app """
         # This is currently not used
         response = util.http_get(API_ANDROID_ENDPOINT + '/vtmgo/config')
