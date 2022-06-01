@@ -26,7 +26,7 @@ CONTENT_TYPE_EPISODE = 'EPISODE'
 
 
 class ApiUpdateRequired(Exception):
-    """ Is thrown when the an API update is required. """
+    """ Is thrown when an API update is required. """
 
 
 class VtmGo:
@@ -45,7 +45,7 @@ class VtmGo:
     def get_config(self):
         """ Returns the config for the app """
         # This is currently not used
-        response = util.http_get(API_ANDROID_ENDPOINT + '/vtmgo/config', token=self._tokens.access_token)
+        response = util.http_get(API_ANDROID_ENDPOINT + '/vtmgo/config')
         info = json.loads(response.text)
 
         # This contains a player.updateIntervalSeconds that could be used to notify VTM GO about the playing progress
@@ -106,7 +106,7 @@ class VtmGo:
         result = json.loads(response.text)
 
         items = []
-        for item in result.get('row', {}).get('teasers'):
+        for item in result.get('teasers'):
             if item.get('target', {}).get('type') == CONTENT_TYPE_MOVIE:
                 items.append(self._parse_movie_teaser(item))
 
@@ -222,7 +222,7 @@ class VtmGo:
             thumb=movie.get('teaserImageUrl'),
             fanart=movie.get('bigPhotoUrl'),
             year=movie.get('productionYear'),
-            geoblocked=movie.get('geoBlocked'),
+            geoblocked=movie.get('blockedFor') == 'GEO',
             remaining=movie.get('remainingDaysAvailable'),
             legal=movie.get('legalIcons'),
             # aired=movie.get('broadcastTimestamp'),
@@ -248,29 +248,34 @@ class VtmGo:
             response = util.http_get(API_ENDPOINT + '/%s/programs/%s' % (self._mode(), program_id),
                                      token=self._tokens.access_token if self._tokens else None,
                                      profile=self._tokens.profile if self._tokens else None)
-            info = json.loads(response.text)
-            program = info.get('program', {})
+            program = json.loads(response.text)
             kodiutils.set_cache(['program', program_id], program)
 
         channel = self._parse_channel(program.get('channelLogoUrl'))
 
         seasons = {}
-        for item_season in program.get('seasons', []):
+        for item_season in program.get('seasonIndices', []):
             episodes = {}
 
-            for item_episode in item_season.get('episodes', []):
+            # Fetch season
+            season_response = util.http_get(API_ENDPOINT + '/%s/programs/%s/seasons/%s' % (self._mode(), program_id, item_season),
+                                     token=self._tokens.access_token if self._tokens else None,
+                                     profile=self._tokens.profile if self._tokens else None)
+            season = json.loads(season_response.text)
+
+            for item_episode in season.get('episodes', []):
                 episodes[item_episode.get('index')] = Episode(
                     episode_id=item_episode.get('id'),
                     program_id=program_id,
                     program_name=program.get('name'),
                     number=item_episode.get('index'),
-                    season=item_season.get('index'),
+                    season=item_season,
                     name=item_episode.get('name'),
                     description=item_episode.get('description'),
                     duration=item_episode.get('durationSeconds'),
                     thumb=item_episode.get('bigPhotoUrl'),
                     fanart=item_episode.get('bigPhotoUrl'),
-                    geoblocked=program.get('geoBlocked'),
+                    geoblocked=program.get('blockedFor') == 'GEO',
                     remaining=item_episode.get('remainingDaysAvailable'),
                     channel=channel,
                     legal=program.get('legalIcons'),
@@ -279,8 +284,8 @@ class VtmGo:
                     watched=item_episode.get('doneWatching', False),
                 )
 
-            seasons[item_season.get('index')] = Season(
-                number=item_season.get('index'),
+            seasons[item_season] = Season(
+                number=item_season,
                 episodes=episodes,
                 channel=channel,
                 legal=program.get('legalIcons'),
@@ -291,9 +296,9 @@ class VtmGo:
             name=program.get('name'),
             description=program.get('description'),
             year=program.get('productionYear'),
-            thumb=program.get('teaserImageUrl'),
-            fanart=program.get('bigPhotoUrl'),
-            geoblocked=program.get('geoBlocked'),
+            thumb=program.get('landscapeTeaserImageUrl'),
+            fanart=program.get('backgroundImageUrl'),
+            geoblocked=program.get('blockedFor') == 'GEO',
             seasons=seasons,
             channel=channel,
             legal=program.get('legalIcons'),
@@ -413,7 +418,7 @@ class VtmGo:
             movie_id=item.get('target', {}).get('id'),
             name=item.get('title'),
             thumb=item.get('imageUrl'),
-            geoblocked=item.get('geoBlocked'),
+            geoblocked=item.get('blockedFor') == 'GEO',
         )
 
     def _parse_program_teaser(self, item, cache=CACHE_ONLY):
@@ -429,8 +434,8 @@ class VtmGo:
         return Program(
             program_id=item.get('target', {}).get('id'),
             name=item.get('title'),
-            thumb=item.get('imageUrl'),
-            geoblocked=item.get('geoBlocked'),
+            thumb=item.get('largeImageUrl'),
+            geoblocked=item.get('blockedFor') == 'GEO',
         )
 
     def _parse_episode_teaser(self, item, cache=CACHE_ONLY):
@@ -448,7 +453,7 @@ class VtmGo:
             program_name=item.get('title'),
             name=item.get('label'),
             description=episode.description if episode else None,
-            geoblocked=item.get('geoBlocked'),
+            geoblocked=item.get('blockedFor') == 'GEO',
             thumb=item.get('imageUrl'),
             progress=item.get('playerPositionSeconds'),
             watched=False,

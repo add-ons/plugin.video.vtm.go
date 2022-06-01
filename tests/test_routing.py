@@ -20,7 +20,7 @@ _LOGGER = logging.getLogger(__name__)
 
 EXAMPLE_CHANNEL = 'ea826456-6b19-4612-8969-864d1c818347'  # VTM2
 EXAMPLE_MOVIE = '1c758fe2-fa19-4dc1-a9f6-fcd5eeb0a284'  # Belgica
-EXAMPLE_PROGRAM = '96a49148-59f6-420c-9b90-8b058760c467'  # Familie
+EXAMPLE_PROGRAM = '5d5e5976-6ca0-43a5-be96-1467ea25cfff'  # Familie
 EXAMPLE_EPISODE = '03136212-d2f5-4c0f-abff-eac84ae8da42'  # Instafamous S01E01
 
 
