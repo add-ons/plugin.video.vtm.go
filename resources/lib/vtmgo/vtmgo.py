@@ -260,8 +260,8 @@ class VtmGo:
 
             # Fetch season
             season_response = util.http_get(API_ENDPOINT + '/%s/programs/%s/seasons/%s' % (self._mode(), program_id, item_season),
-                                     token=self._tokens.access_token if self._tokens else None,
-                                     profile=self._tokens.profile if self._tokens else None)
+                                            token=self._tokens.access_token if self._tokens else None,
+                                            profile=self._tokens.profile if self._tokens else None)
             season = json.loads(season_response.text)
 
             for item_episode in season.get('episodes', []):
