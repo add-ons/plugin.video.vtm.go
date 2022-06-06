@@ -99,7 +99,7 @@ def create_addon_branch(repo, branch, source, addon_info, gh_username, gh_token,
         shell('git', 'fetch', '-f', 'upstream', branch)  # Fetch upstream
     else:
         # Clone the upstream repo
-        shell('git', 'clone', '--branch', branch, '--origin', 'upstream', '--single-branch', 'git://github.com/xbmc/{}.git'.format(repo))
+        shell('git', 'clone', '--branch', branch, '--origin', 'upstream', '--single-branch', 'https://github.com/xbmc/{}.git'.format(repo))
         os.chdir(repo)
 
     # Create local branch
