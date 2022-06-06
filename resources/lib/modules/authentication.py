@@ -65,3 +65,8 @@ class Authentication:
         """ Clear the authentication tokens """
         self._auth.logout()
         kodiutils.notification(message=kodiutils.localize(30706))
+
+    def clear_cache(self):
+        """ Clear the cache """
+        kodiutils.invalidate_cache()
+        kodiutils.notification(message=kodiutils.localize(30707))

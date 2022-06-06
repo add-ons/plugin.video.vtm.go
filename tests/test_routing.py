@@ -45,6 +45,9 @@ class TestRouting(unittest.TestCase):
         with patch('xbmcgui.DialogProgress.iscanceled', return_value=True):
             routing.run([routing.url_for(addon.show_login_menu), '0', ''])
 
+    def test_clear_cache(self):
+        routing.run([routing.url_for(addon.auth_clear_cache), '0', ''])
+
     def test_main_menu(self):
         routing.run([routing.url_for(addon.show_main_menu), '0', ''])
 
