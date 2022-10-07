@@ -68,7 +68,7 @@ class VtmGo:
             if row.get('rowType') in ['SWIMLANE_DEFAULT', 'SWIMLANE_PORTRAIT', 'SWIMLANE_LANDSCAPE']:
                 items.append(Category(
                     category_id=row.get('id'),
-                    title=row.get('title'),
+                    title=row.get('title').strip(),
                 ))
                 continue
 
