@@ -11,7 +11,7 @@ import xbmc
 
 from resources.lib import kodiutils
 from resources.lib.modules.player import Player
-from resources.lib.vtmgo import STOREFRONT_MAIN, STOREFRONT_MOVIES, STOREFRONT_SERIES, Category
+from resources.lib.vtmgo import STOREFRONT_MAIN, STOREFRONT_MOVIES, STOREFRONT_SHORTIES, Category
 from resources.lib.vtmgo.vtmgo import VtmGo
 from resources.lib.vtmgo.vtmgoauth import VtmGoAuth
 
@@ -43,7 +43,7 @@ class TestApi(unittest.TestCase):
         results = self.api.get_storefront(STOREFRONT_MOVIES)
         self.assertIsInstance(results, list)
 
-        results = self.api.get_storefront(STOREFRONT_SERIES)
+        results = self.api.get_storefront(STOREFRONT_SHORTIES)
         self.assertIsInstance(results, list)
 
     def test_mylist(self):
