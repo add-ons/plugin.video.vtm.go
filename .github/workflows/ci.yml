@@ -14,26 +14,27 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ ubuntu-latest ]
-        python-version: [ '2.7', '3.5', '3.6', '3.7', '3.8', '3.9', '3.10' ]
+        os: [ ubuntu-latest, windows-latest ]
+        python-version: ["3.8", "3.9", "3.10"]
         include:
+          # End-of-life Python versions are not available anymore with ubuntu-latest
+          - os: ubuntu-20.04
+            python-version: "2.7"
+          - os: ubuntu-20.04
+            python-version: "3.5"
+          - os: ubuntu-20.04
+            python-version: "3.6"
+          - os: ubuntu-20.04
+            python-version: "3.7"
           # Kodi Leia on Windows uses a bundled Python 2.7.
           - os: windows-latest
-            python-version: '2.7'
-
-          # Kodi Matrix on Windows uses a bundled Python 3.8, but we test 3.9 and 3.10 also to be sure.
-          - os: windows-latest
-            python-version: '3.8'
-          - os: windows-latest
-            python-version: '3.9'
-          - os: windows-latest
-            python-version: '3.10'
+            python-version: "2.7"
     steps:
       - name: Check out ${{ github.sha }} from repository ${{ github.repository }}
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
       - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v2
+        uses: actions/setup-python@v4
         with:
           python-version: ${{ matrix.python-version }}
 
@@ -59,7 +60,7 @@ jobs:
         run: pytest -x -v --cov=./ --cov-report=xml tests
 
       - name: Upload code coverage to CodeCov
-        uses: codecov/codecov-action@v1
+        uses: codecov/codecov-action@v3
         continue-on-error: true
         env:
           OS: ${{ matrix.os }}
