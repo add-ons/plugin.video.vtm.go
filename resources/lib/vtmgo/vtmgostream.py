@@ -222,7 +222,7 @@ class VtmGoStream:
             hours, remainder = divmod(item.seconds, 3600)
             minutes, seconds = divmod(remainder, 60)
             millis = item.microseconds // 1000
-            sub_timings[idx] = '%02d:%02d:%02d,%03d' % (hours, minutes, seconds, millis)
+            sub_timings[idx] = '%02d:%02d:%02d.%03d' % (hours, minutes, seconds, millis)
         delayed_webvtt_timing = '\n{} --> {} '.format(sub_timings[0], sub_timings[1])
         return delayed_webvtt_timing
 
