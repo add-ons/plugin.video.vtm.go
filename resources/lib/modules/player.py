@@ -150,10 +150,8 @@ class Player:
         else:
             url = resolved_stream.url
 
-        license_key = self._stream.create_license_key(resolved_stream.license_url)
-
         # Play this item
-        kodiutils.play(url, license_key, resolved_stream.title, {}, info_dict, prop_dict, stream_dict)
+        kodiutils.play(resolved_stream.url, resolved_stream.license_key, resolved_stream.title, {}, info_dict, prop_dict, stream_dict)
 
         # Wait for playback to start
         kodi_player = KodiPlayer()
