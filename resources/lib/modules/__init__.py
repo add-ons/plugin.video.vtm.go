@@ -84,21 +84,6 @@ CHANNELS = OrderedDict([
         iptv_id='vtmgold.be',
         studio_icon='VTM Gold',
     )),
-    ('vtmkids', dict(
-        label='VTM KIDS',
-        epg='vtm-kids',
-        iptv_preset=13,
-        iptv_id='vtmkids.be',
-        studio_icon='VTM Kids',
-        youtube=[
-            dict(
-                # VTM KIDS: https://www.youtube.com/channel/UCJgZKD2qpa7mY2BtIgpNR2Q
-                label='VTM KIDS',
-                logo='vtmkids',
-                path='plugin://plugin.video.youtube/channel/UCJgZKD2qpa7mY2BtIgpNR2Q/',
-            ),
-        ]
-    )),
     ('qmusic', dict(
         label='QMusic',
         epg='qmusic',

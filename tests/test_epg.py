@@ -31,7 +31,7 @@ class TestEpg(unittest.TestCase):
 
         import dateutil
 
-        timestamp = datetime.datetime.now(dateutil.tz.tzlocal()).replace(hour=12, minute=0, second=0)
+        timestamp = datetime.datetime.now(dateutil.tz.tzlocal()).replace(hour=13, minute=0, second=0)
         broadcast = self.epg.get_broadcast('vtm', timestamp.isoformat())
         self.assertTrue(broadcast)
 
