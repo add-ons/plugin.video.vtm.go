@@ -11,7 +11,7 @@ import unittest
 import xbmc
 from mock import patch
 
-from resources.lib import addon, kodiutils
+from resources.lib import addon
 from resources.lib.vtmgo import STOREFRONT_MAIN
 
 routing = addon.routing
