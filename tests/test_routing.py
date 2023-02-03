@@ -84,15 +84,7 @@ class TestRouting(unittest.TestCase):
         routing.run([routing.url_for(addon.play, category='channels', item=EXAMPLE_CHANNEL + '?.pvr'), '0', ''])
 
     def test_play_movie(self):
-        old_setting = kodiutils.get_setting('manifest_proxy')
-
-        kodiutils.set_setting('manifest_proxy', 'true')
         routing.run([routing.url_for(addon.play, category='movies', item=EXAMPLE_MOVIE), '0', ''])
-
-        kodiutils.set_setting('manifest_proxy', 'false')
-        routing.run([routing.url_for(addon.play, category='movies', item=EXAMPLE_MOVIE), '0', ''])
-
-        kodiutils.set_setting('manifest_proxy', old_setting)
 
     def test_play_episode(self):
         routing.run([routing.url_for(addon.play, category='episodes', item=EXAMPLE_EPISODE), '0', ''])

@@ -233,10 +233,6 @@ msgctxt "#30717"
 msgid "This program is not available in the VTM GO catalogue."
 msgstr "Dit programma is niet beschikbaar in de VTM GO catalogus."
 
-msgctxt "#30718"
-msgid "The Manifest proxy is not running. Please restart Kodi."
-msgstr "De Manifest-proxy is niet gestart. Gelieve Kodi te herstarten."
-
 # SETTINGS
 msgctxt "#30820"
 msgid "Interface"
