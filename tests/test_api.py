@@ -54,8 +54,33 @@ class TestApi(unittest.TestCase):
         results = self.api.do_search('telefacts')
         self.assertIsInstance(results, list)
 
-    def test_live(self):
+    def test_live_vtm(self):
         channel = self.api.get_live_channel('vtm')
+        self.assertTrue(channel)
+        self.player.play('channels', channel.channel_id)
+
+    def test_live_vtm2(self):
+        channel = self.api.get_live_channel('vtm2')
+        self.assertTrue(channel)
+        self.player.play('channels', channel.channel_id)
+
+    def test_live_vtm3(self):
+        channel = self.api.get_live_channel('vtm3')
+        self.assertTrue(channel)
+        self.player.play('channels', channel.channel_id)
+
+    def test_live_vtm4(self):
+        channel = self.api.get_live_channel('vtm4')
+        self.assertTrue(channel)
+        self.player.play('channels', channel.channel_id)
+
+    def test_live_vtm_gold(self):
+        channel = self.api.get_live_channel('vtm-gold')
+        self.assertTrue(channel)
+        self.player.play('channels', channel.channel_id)
+
+    def test_live_vtm_nonstop(self):
+        channel = self.api.get_live_channel('vtm-nonstop')
         self.assertTrue(channel)
         self.player.play('channels', channel.channel_id)
 
