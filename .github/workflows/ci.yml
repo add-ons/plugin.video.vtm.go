@@ -45,7 +45,7 @@ jobs:
         run: make check-pylint
 
       - name: Check translations
-        if: matrix.os == 'ubuntu-latest' && matrix.python-version == '3.9'
+        if: matrix.os == 'ubuntu-latest' && matrix.python-version == '3.10'
         run: sudo apt-get install gettext && make check-translations
 
       - name: Run unit tests
