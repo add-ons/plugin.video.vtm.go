@@ -326,10 +326,6 @@ msgctxt "#30887"
 msgid "InputStream Helper settings…"
 msgstr "InputStream Helper configuratie…"
 
-msgctxt "#30888"
-msgid "Modify the MPEG DASH Manifest to workaround an InputStream Adaptive bug"
-msgstr "Pas de MPEG DASH Manifest aan om rond een bug in InputStream Adaptive te werken"
-
 msgctxt "#30889"
 msgid "Logging"
 msgstr "Logboek"
