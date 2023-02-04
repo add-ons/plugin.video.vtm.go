@@ -41,7 +41,7 @@ clean:
 	@find . -name '__pycache__' -type d -delete
 	@rm -rf .pytest_cache/ tests/cdm tests/userdata/temp
 	@rm -f *.log .coverage
-	@rm -rf dist/
+	@rm dist/*.zip
 
 build: clean
 	@printf ">>> Building add-on\n"

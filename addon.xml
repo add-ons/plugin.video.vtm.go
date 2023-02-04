@@ -22,11 +22,11 @@
         <disclaimer lang="nl_NL">Deze add-on wordt niet ondersteund door DPG Media en wordt aangeboden 'as is', zonder enige garantie. De VTM GO naam, VTM GO logo en de kanaallogo's zijn eigendom van DPG Media en worden gebruikt in overeenstemming met de fair use policy.</disclaimer>
         <platform>all</platform>
         <license>GPL-3.0-only</license>
-        <news>v1.4.0 (2023-02-03)</news>
+        <news>v1.4.0 (2023-02-03)
 - Update API to support new DRM.
 - Fix subtitles on Kodi 20.
 - Add EPG for VTM Non-Stop.
-- Remove VTM Kids (no longer available).
+- Remove VTM Kids (no longer available).</news>
         <source>https://github.com/add-ons/plugin.video.vtm.go</source>
         <assets>
             <icon>resources/icon.png</icon>
