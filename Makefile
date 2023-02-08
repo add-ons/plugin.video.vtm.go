@@ -41,7 +41,7 @@ clean:
 	@find . -name '__pycache__' -type d -delete
 	@rm -rf .pytest_cache/ tests/cdm tests/userdata/temp
 	@rm -f *.log .coverage
-	@rm dist/*.zip
+	@rm -rf dist/plugin.video.vtm.go*
 
 build: clean
 	@printf ">>> Building add-on\n"
