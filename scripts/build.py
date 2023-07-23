@@ -5,10 +5,8 @@ from __future__ import absolute_import, division, unicode_literals
 
 import os
 import shutil
-import sys
 import xml.etree.ElementTree as ET
 
-BRANDS_DIR = 'brands'
 DIST_DIR = 'dist'
 
 
@@ -85,5 +83,5 @@ if __name__ == '__main__':
     shutil.make_archive(os.path.join(DIST_DIR, "%s-%s+matrix.1" % (brand, addon_info['version'])), 'zip', DIST_DIR, brand)
 
     # Modify addon.xml for leia and create zip
-    modify_xml(os.path.join(dest, 'addon.xml'), addon_info['version'], addon_info['news'], '2.26.0')
-    shutil.make_archive(os.path.join(DIST_DIR, "%s-%s" % (brand, addon_info['version'])), 'zip', DIST_DIR, brand)
+    # modify_xml(os.path.join(dest, 'addon.xml'), addon_info['version'], addon_info['news'], '2.26.0')
+    # shutil.make_archive(os.path.join(DIST_DIR, "%s-%s" % (brand, addon_info['version'])), 'zip', DIST_DIR, brand)
