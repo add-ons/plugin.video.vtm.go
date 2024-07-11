@@ -8,7 +8,7 @@ import logging
 from resources.lib import kodiutils
 from resources.lib.modules import CHANNELS
 from resources.lib.modules.menu import Menu
-from resources.lib.vtmgo import STOREFRONT_MAIN, STOREFRONT_MOVIES, STOREFRONT_SHORTIES, Category
+from resources.lib.vtmgo import STOREFRONT_MAIN, STOREFRONT_MOVIES, STOREFRONT_SHORTIES, Category, Program, Movie
 from resources.lib.vtmgo.exceptions import UnavailableException
 from resources.lib.vtmgo.vtmgo import CACHE_PREVENT, ApiUpdateRequired, VtmGo
 from resources.lib.vtmgo.vtmgoauth import VtmGoAuth
@@ -23,6 +23,84 @@ class Catalog:
         """ Initialise object """
         auth = VtmGoAuth(kodiutils.get_tokens_path())
         self._api = VtmGo(auth.get_tokens())
+
+    def show_detail(self, detail):
+        """ Show a detail from the catalog
+        :type detail: str
+         """
+        try:
+            detail_obj = self._api.get_detail(detail, cache=CACHE_PREVENT)  # Use CACHE_PREVENT since we want fresh data
+        except UnavailableException:
+            kodiutils.ok_dialog(message=kodiutils.localize(30717))  # This program is not available in the VTM GO catalogue.
+            kodiutils.end_of_directory()
+            return
+
+        if isinstance(detail_obj, Program):
+            program_obj = detail_obj
+            program = detail
+
+            # Go directly to the season when we have only one season
+            if len(program_obj.seasons) == 1:
+                self.show_program_season(program, list(program_obj.seasons.values())[0].number)
+                return
+
+            studio = CHANNELS.get(program_obj.channel, {}).get('studio_icon')
+
+            listing = []
+
+            # Add an '* All seasons' entry when configured in Kodi
+            if kodiutils.get_global_setting('videolibrary.showallitems') is True:
+                listing.append(kodiutils.TitleItem(
+                    title='* %s' % kodiutils.localize(30204),  # * All seasons
+                    path=kodiutils.url_for('show_catalog_program_season', program=program, season=-1),
+                    art_dict=dict(
+                        poster=program_obj.poster,
+                        thumb=program_obj.thumb,
+                        landscape=program_obj.thumb,
+                        fanart=program_obj.fanart,
+                    ),
+                    info_dict=dict(
+                        mediatype='season',
+                        tvshowtitle=program_obj.name,
+                        title=kodiutils.localize(30204),  # All seasons
+                        tagline=program_obj.description,
+                        set=program_obj.name,
+                        studio=studio,
+                        mpaa=', '.join(program_obj.legal) if hasattr(program_obj, 'legal') and program_obj.legal else kodiutils.localize(30216),  # All ages
+                    ),
+                ))
+
+            # Add the seasons
+            for season in list(program_obj.seasons.values()):
+                listing.append(kodiutils.TitleItem(
+                    title=kodiutils.localize(30205, season=season.number),  # Season {season}
+                    path=kodiutils.url_for('show_catalog_program_season', program=program, season=season.number),
+                    art_dict=dict(
+                        poster=program_obj.poster,
+                        thumb=program_obj.thumb,
+                        landscape=program_obj.thumb,
+                        fanart=program_obj.fanart,
+                    ),
+                    info_dict=dict(
+                        mediatype='season',
+                        tvshowtitle=program_obj.name,
+                        title=kodiutils.localize(30205, season=season.number),  # Season {season}
+                        tagline=program_obj.description,
+                        set=program_obj.name,
+                        studio=studio,
+                        mpaa=', '.join(program_obj.legal) if hasattr(program_obj, 'legal') and program_obj.legal else kodiutils.localize(30216),  # All ages
+                    ),
+                ))
+
+            # Sort by label. Some programs return seasons unordered.
+            kodiutils.show_listing(listing, program_obj.name, content='tvshows', sort=['label'])
+            return
+
+        if isinstance(detail_obj, Movie):
+            listing = []
+            listing.append(Menu.generate_titleitem(detail_obj))
+            kodiutils.show_listing(listing, 30017, content='files', sort=['unsorted', 'label', 'year', 'duration'])
+            return
 
     def show_program(self, program):
         """ Show a program from the catalog

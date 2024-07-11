@@ -7,7 +7,7 @@ import json
 import logging
 
 from resources.lib import kodiutils
-from resources.lib.vtmgo import API_ANDROID_ENDPOINT, API_ENDPOINT, Category, Episode, LiveChannel, LiveChannelEpg, Movie, Program, Season, util
+from resources.lib.vtmgo import API_ANDROID_ENDPOINT, API_ENDPOINT, Category, Episode, LiveChannel, LiveChannelEpg, Movie, Program, Season, util, Teaser
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -74,20 +74,22 @@ class VtmGo:
 
             if row.get('rowType') == 'CAROUSEL':
                 for item in row.get('teasers'):
-                    if item.get('target', {}).get('type') == CONTENT_TYPE_MOVIE:
-                        items.append(self._parse_movie_teaser(item))
-
-                    elif item.get('target', {}).get('type') == CONTENT_TYPE_PROGRAM:
-                        items.append(self._parse_program_teaser(item))
+                    items.append(self._parse_teaser(item))
+                    # if item.get('target', {}).get('type') == CONTENT_TYPE_MOVIE:
+                    #     items.append(self._parse_movie_teaser(item))
+                    #
+                    # elif item.get('target', {}).get('type') == CONTENT_TYPE_PROGRAM:
+                    #     items.append(self._parse_program_teaser(item))
                 continue
 
             if row.get('rowType') in ['TOP_BANNER', 'MARKETING_BLOCK']:
                 item = row.get('teaser')
-                if item.get('target', {}).get('type') == CONTENT_TYPE_MOVIE:
-                    items.append(self._parse_movie_teaser(item))
-
-                elif item.get('target', {}).get('type') == CONTENT_TYPE_PROGRAM:
-                    items.append(self._parse_program_teaser(item))
+                items.append(self._parse_detail_teaser(item))
+                # if item.get('target', {}).get('type') == CONTENT_TYPE_MOVIE:
+                #     items.append(self._parse_movie_teaser(item))
+                #
+                # elif item.get('target', {}).get('type') == CONTENT_TYPE_PROGRAM:
+                #     items.append(self._parse_program_teaser(item))
                 continue
 
             _LOGGER.debug('Skipping recommendation %s with type %s', row.get('title'), row.get('rowType'))
@@ -108,11 +110,12 @@ class VtmGo:
 
         items = []
         for item in result.get('row', {}).get('teasers'):
-            if item.get('target', {}).get('type') == CONTENT_TYPE_MOVIE:
-                items.append(self._parse_movie_teaser(item))
-
-            elif item.get('target', {}).get('type') == CONTENT_TYPE_PROGRAM:
-                items.append(self._parse_program_teaser(item))
+            items.append(self._parse_teaser(item))
+            # if item.get('target', {}).get('type') == CONTENT_TYPE_MOVIE:
+            #     items.append(self._parse_movie_teaser(item))
+            #
+            # elif item.get('target', {}).get('type') == CONTENT_TYPE_PROGRAM:
+            #     items.append(self._parse_program_teaser(item))
 
         return Category(category_id=category, title=result.get('row', {}).get('title'), content=items)
 
@@ -130,14 +133,15 @@ class VtmGo:
 
         items = []
         for item in result.get('teasers', []):
-            if item.get('target', {}).get('type') == CONTENT_TYPE_MOVIE and content_filter in [None, Movie]:
-                items.append(self._parse_movie_teaser(item, cache=cache))
-
-            elif item.get('target', {}).get('type') == CONTENT_TYPE_PROGRAM and content_filter in [None, Program]:
-                items.append(self._parse_program_teaser(item, cache=cache))
-
-            elif item.get('target', {}).get('type') == CONTENT_TYPE_EPISODE and content_filter in [None, Episode]:
-                items.append(self._parse_episode_teaser(item, cache=cache))
+            items.append(self._parse_teaser(item))
+            # if item.get('target', {}).get('type') == CONTENT_TYPE_MOVIE and content_filter in [None, Movie]:
+            #     items.append(self._parse_movie_teaser(item, cache=cache))
+            #
+            # elif item.get('target', {}).get('type') == CONTENT_TYPE_PROGRAM and content_filter in [None, Program]:
+            #     items.append(self._parse_program_teaser(item, cache=cache))
+            #
+            # elif item.get('target', {}).get('type') == CONTENT_TYPE_EPISODE and content_filter in [None, Episode]:
+            #     items.append(self._parse_episode_teaser(item, cache=cache))
 
         return items
 
@@ -191,6 +195,106 @@ class VtmGo:
         """
         channels = self.get_live_channels()
         return next(c for c in channels if c.key == key)
+
+    def get_detail(self, detail_id, cache=CACHE_AUTO):
+        """ Get the details of the specified program.
+        :type detail_id: str
+        :type cache: int
+        :rtype Program
+        """
+        if cache in [CACHE_AUTO, CACHE_ONLY]:
+            # Try to fetch from cache
+            detail = kodiutils.get_cache(['detail', detail_id])
+            if detail is None and cache == CACHE_ONLY:
+                return None
+        else:
+            detail = None
+
+        if not detail:
+            # Fetch from API
+            response = util.http_get(API_ENDPOINT + '/%s/detail/%s' % (self._mode(), detail_id),
+                                     token=self._tokens.access_token if self._tokens else None,
+                                     profile=self._tokens.profile if self._tokens else None)
+            detail = json.loads(response.text)
+            kodiutils.set_cache(['detail', detail_id], detail)
+
+        # channel = self._parse_channel(detail.get('channelLogoUrl'))
+
+        if detail.get('selectedSeason') is None:
+            # Movie
+            movie = detail
+
+            return Movie(
+                movie_id=movie.get('id'),
+                name=movie.get('name'),
+                description=movie.get('description'),
+                duration=movie.get('durationSeconds'),
+                thumb=movie.get('landscapeTeaserImageUrl'),
+                # portraitthumb=movie.get('portraitTeaserImageUrl'),
+                fanart=movie.get('backgroundImageUrl'),
+                # year=movie.get('productionYear'),
+                # geoblocked=movie.get('blockedFor') == 'GEO',
+                # remaining=movie.get('remainingDaysAvailable'),
+                # legal=movie.get('legalIcons'),
+                # aired=movie.get('broadcastTimestamp'),
+                # channel=self._parse_channel(movie.get('channelLogoUrl')),
+            )
+
+        else:
+            # Program
+            program = detail
+
+            seasons = {}
+            for item_season in detail.get('seasonIndices', []):
+                episodes = []
+
+                # Fetch season
+                season_response = util.http_get(API_ENDPOINT + '/%s/detail/%s?selectedSeasonIndex=%s' % (self._mode(), detail_id, item_season),
+                                                token=self._tokens.access_token if self._tokens else None,
+                                                profile=self._tokens.profile if self._tokens else None)
+                season = json.loads(season_response.text).get('selectedSeason')
+
+                for item_episode in season.get('episodes', []):
+                    episodes.append(Episode(
+                        episode_id=item_episode.get('id'),
+                        program_id=detail_id,
+                        program_name=program.get('name'),
+                        number=item_episode.get('index'),
+                        season=item_season,
+                        name=item_episode.get('name'),
+                        description=item_episode.get('description'),
+                        duration=item_episode.get('durationSeconds'),
+                        thumb=item_episode.get('imageUrl'),
+                        fanart=item_episode.get('imageUrl'),
+                        # geoblocked=program.get('blockedFor') == 'GEO',
+                        # remaining=item_episode.get('remainingDaysAvailable'),
+                        # channel=channel,
+                        # legal=program.get('legalIcons'),
+                        aired=item_episode.get('broadcastTimestamp'),
+                        progress=item_episode.get('playerPositionSeconds', 0),
+                        watched=item_episode.get('doneWatching', False),
+                    ))
+
+                seasons[item_season] = Season(
+                    number=item_season,
+                    episodes=episodes,
+                    # channel=channel,
+                    legal=program.get('legalIcons'),
+                )
+
+            return Program(
+                program_id=program.get('id'),
+                name=program.get('name'),
+                description=program.get('description'),
+                year=program.get('productionYear'),
+                thumb=program.get('landscapeTeaserImageUrl'),
+                fanart=program.get('backgroundImageUrl'),
+                geoblocked=program.get('blockedFor') == 'GEO',
+                seasons=seasons,
+                # channel=channel,
+                legal=program.get('legalIcons'),
+                # my_list=program.get('addedToMyList'),  # Don't use addedToMyList, since we might have cached this info
+            )
 
     def get_movie(self, movie_id, cache=CACHE_AUTO):
         """ Get the details of the specified movie.
@@ -389,11 +493,12 @@ class VtmGo:
         items = []
         for category in results.get('results', []):
             for item in category.get('teasers'):
-                if item.get('target', {}).get('type') == CONTENT_TYPE_MOVIE:
-                    items.append(self._parse_movie_teaser(item))
-
-                elif item.get('target', {}).get('type') == CONTENT_TYPE_PROGRAM:
-                    items.append(self._parse_program_teaser(item))
+                items.append(self._parse_teaser(item))
+                # if item.get('target', {}).get('type') == CONTENT_TYPE_MOVIE:
+                #     items.append(self._parse_movie_teaser(item))
+                #
+                # elif item.get('target', {}).get('type') == CONTENT_TYPE_PROGRAM:
+                #     items.append(self._parse_program_teaser(item))
         return items
 
     @staticmethod
@@ -405,39 +510,71 @@ class VtmGo:
         except (IndexError, AttributeError):
             return None
 
-    def _parse_movie_teaser(self, item, cache=CACHE_ONLY):
-        """ Parse the movie json and return an Movie instance.
+    def _parse_teaser(self, item, cache=CACHE_ONLY):
+        """ Parse the teaser json and return a Teaser instance.
         :type item: dict
         :type cache: int
         :rtype Movie
         """
-        movie = self.get_movie(item.get('target', {}).get('id'), cache=cache)
-        if movie:
-            return movie
+        # movie = self.get_movie(item.get('target', {}).get('id'), cache=cache)
+        # if movie:
+        #     return movie
 
-        return Movie(
-            movie_id=item.get('target', {}).get('id'),
+        return Teaser(
+            detail_id=item.get('detailId'),
             name=item.get('title'),
-            thumb=item.get('imageUrl'),
-            geoblocked=item.get('blockedFor') == 'GEO',
+            thumb=item.get('imageUrl')
         )
 
-    def _parse_program_teaser(self, item, cache=CACHE_ONLY):
-        """ Parse the program json and return an Program instance.
+    def _parse_detail_teaser(self, item, cache=CACHE_ONLY):
+        """ Parse the teaser json and return a Teaser instance.
         :type item: dict
         :type cache: int
-        :rtype Program
+        :rtype Movie
         """
-        program = self.get_program(item.get('target', {}).get('id'), cache=cache)
-        if program:
-            return program
+        # movie = self.get_movie(item.get('target', {}).get('id'), cache=cache)
+        # if movie:
+        #     return movie
 
-        return Program(
-            program_id=item.get('target', {}).get('id'),
+        return Teaser(
+            detail_id=item.get('target', {}).get('id'),
             name=item.get('title'),
-            thumb=item.get('largeImageUrl'),
-            geoblocked=item.get('blockedFor') == 'GEO',
+            thumb=item.get('imageUrl')
         )
+
+    # def _parse_movie_teaser(self, item, cache=CACHE_ONLY):
+    #     """ Parse the movie json and return an Movie instance.
+    #     :type item: dict
+    #     :type cache: int
+    #     :rtype Movie
+    #     """
+    #     movie = self.get_movie(item.get('target', {}).get('id'), cache=cache)
+    #     if movie:
+    #         return movie
+    #
+    #     return Movie(
+    #         movie_id=item.get('target', {}).get('id'),
+    #         name=item.get('title'),
+    #         thumb=item.get('imageUrl'),
+    #         geoblocked=item.get('blockedFor') == 'GEO',
+    #     )
+
+    # def _parse_program_teaser(self, item, cache=CACHE_ONLY):
+    #     """ Parse the program json and return an Program instance.
+    #     :type item: dict
+    #     :type cache: int
+    #     :rtype Program
+    #     """
+    #     program = self.get_program(item.get('target', {}).get('id'), cache=cache)
+    #     if program:
+    #         return program
+    #
+    #     return Program(
+    #         program_id=item.get('target', {}).get('id'),
+    #         name=item.get('title'),
+    #         thumb=item.get('largeImageUrl'),
+    #         geoblocked=item.get('blockedFor') == 'GEO',
+    #     )
 
     def _parse_episode_teaser(self, item, cache=CACHE_ONLY):
         """ Parse the episode json and return an Episode instance.

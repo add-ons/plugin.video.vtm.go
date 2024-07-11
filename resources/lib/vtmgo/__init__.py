@@ -96,6 +96,28 @@ class Category:
     def __repr__(self):
         return "%r" % self.__dict__
 
+class Teaser:
+    """ Defines a Teaser """
+
+    def __init__(self, detail_id=None, name=None, description=None, poster=None, thumb=None, fanart=None):
+        """
+        :type detail_id: str
+        :type name: str
+        :type description: str
+        :type poster: str
+        :type thumb: str
+        :type fanart: str
+        """
+        self.detail_id = detail_id
+        self.name = name
+        self.description = description
+        self.poster = poster
+        self.thumb = thumb
+        self.fanart = fanart
+
+    def __repr__(self):
+        return "%r" % self.__dict__
+
 
 class Movie:
     """ Defines a Movie """

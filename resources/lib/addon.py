@@ -80,6 +80,11 @@ def show_tvguide_detail(channel=None, date=None):
     from resources.lib.modules.tvguide import TvGuide
     TvGuide().show_tvguide_detail(channel, date)
 
+@routing.route('/catalog/detail/<item>')
+def show_detail(item):
+    """ Show a program from the catalog """
+    from resources.lib.modules.catalog import Catalog
+    Catalog().show_detail(item)
 
 @routing.route('/catalog/program/<program>')
 def show_catalog_program(program):

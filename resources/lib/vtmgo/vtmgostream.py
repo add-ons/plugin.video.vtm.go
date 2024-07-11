@@ -157,7 +157,7 @@ class VtmGoStream:
         :param str player_token:
         :rtype: dict
         """
-        url = 'https://videoplayer-service.dpgmedia.net/config/%s/%s' % (strtype, stream_id)
+        url = 'https://videoplayer-service.dpgmedia.net/play-config/%s' % stream_id
         _LOGGER.debug('Getting video info from %s', url)
         response = util.http_post(url,
                                   params={
@@ -171,7 +171,7 @@ class VtmGoStream:
                                   headers={
                                       'Accept': 'application/json',
                                       'x-api-key': self._V6_API_KEY,
-                                      'Popcorn-SDK-Version': '6',
+                                      'Popcorn-SDK-Version': '7',
                                       'Authorization': 'Bearer ' + player_token,
                                   })
 

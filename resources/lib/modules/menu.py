@@ -7,7 +7,7 @@ import logging
 
 from resources.lib import kodiutils
 from resources.lib.modules import CHANNELS
-from resources.lib.vtmgo import STOREFRONT_KIDS, STOREFRONT_MAIN, STOREFRONT_MOVIES, STOREFRONT_SHORTIES, Episode, Movie, Program
+from resources.lib.vtmgo import STOREFRONT_KIDS, STOREFRONT_MAIN, STOREFRONT_MOVIES, STOREFRONT_SHORTIES, Episode, Movie, Program, Teaser
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -146,7 +146,7 @@ class Menu:
             plot += '\n'
 
         # Add remaining
-        if hasattr(obj, 'remaining') and obj.remaining is not None:
+        if hasattr(obj, 'remaining') and obj.remaining:
             if obj.remaining == 0:
                 plot += '» ' + kodiutils.localize(30208) + "\n"  # Available until midnight
             elif obj.remaining == 1:
@@ -166,7 +166,7 @@ class Menu:
             plot += kodiutils.localize(30207)  # Geo-blocked
             plot += '\n'
 
-        if hasattr(obj, 'description'):
+        if hasattr(obj, 'description') and obj.description:
             plot += obj.description
             plot += '\n\n'
 
@@ -188,8 +188,8 @@ class Menu:
         info_dict = {
             'title': item.name,
             'plot': cls.format_plot(item),
-            'studio': CHANNELS.get(item.channel, {}).get('studio_icon'),
-            'mpaa': ', '.join(item.legal) if hasattr(item, 'legal') and item.legal else kodiutils.localize(30216),  # All ages
+            # 'studio': CHANNELS.get(item.channel, {}).get('studio_icon'),
+            # 'mpaa': ', '.join(item.legal) if hasattr(item, 'legal') and item.legal else kodiutils.localize(30216),  # All ages
         }
         prop_dict = {}
 
@@ -316,5 +316,38 @@ class Menu:
                 context_menu=context_menu,
                 is_playable=True,
             )
+
+        #
+        # Teaser
+        #
+        if isinstance(item, Teaser):
+            # if item.my_list:
+            #     context_menu = [(
+            #         kodiutils.localize(30101),  # Remove from My List
+            #         'Container.Update(%s)' %
+            #         kodiutils.url_for('mylist_del', content_id=item.program_id)
+            #     )]
+            # else:
+            #     context_menu = [(
+            #         kodiutils.localize(30100),  # Add to My List
+            #         'Container.Update(%s)' %
+            #         kodiutils.url_for('mylist_add', content_id=item.program_id)
+            #     )]
+
+            # info_dict.update({
+            #     'mediatype': 'tvshow',
+            #     'year': item.year,
+            #     'season': len(item.seasons),
+            # })
+
+            return kodiutils.TitleItem(
+                title=info_dict['title'],
+                path=kodiutils.url_for('show_detail', item=item.detail_id),
+                art_dict=art_dict,
+                info_dict=info_dict,
+                prop_dict=prop_dict,
+                # context_menu=context_menu,
+            )
+
 
         raise Exception('Unknown video_type')
